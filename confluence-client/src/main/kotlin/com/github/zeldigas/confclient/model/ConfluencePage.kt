@@ -1,0 +1,79 @@
+package com.github.zeldigas.confclient.model
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.ZonedDateTime
+
+data class ConfluencePage(
+    val id: String,
+    val type: ContentType,
+    val status: String,
+    val title: String,
+    val metadata: PageMetadata?,
+    val body: PageBody?,
+    val version: PageVersionInfo?,
+    val children: PageChildren?
+)
+
+enum class ContentType {
+    page, blogpost
+}
+
+data class PageMetadata(
+    val labels: PageLabels?,
+    @JsonIgnoreProperties("_links", "_expandable")
+    val properties: Map<String, PageProperty> = emptyMap()
+)
+
+data class PageLabels(
+    val results: List<Label>,
+    val size: Int
+)
+
+data class Label(
+    val prefix: String,
+    val name: String,
+    val id: String,
+    val label: String
+)
+
+data class PageProperty(
+    val id: String,
+    val key: String,
+    val value: String,
+    val version: PropertyVersion
+)
+
+data class PropertyVersion(
+    val number: Int
+)
+
+data class PageBody(
+    val storage: StorageFormat?
+)
+
+data class StorageFormat(
+    val value: String,
+    val representation: String
+)
+
+data class PageVersionInfo(
+    val number:Int,
+    @JsonProperty("when") val createdAt:ZonedDateTime,
+    val minorEdit: Boolean
+)
+
+data class PageChildren(
+    val attachment: PageAttachments?
+)
+
+data class PageAttachments(
+    val results: List<Attachment>
+)
+
+data class Attachment(
+    val id: String,
+    val title: String,
+    val metadata: Map<String, String>
+)
+

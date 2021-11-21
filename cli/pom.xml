@@ -68,20 +68,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.ajalt.clikt</groupId>
             <artifactId>clikt-jvm</artifactId>
             <version>3.3.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.sahli.asciidoc.confluence.publisher</groupId>
-            <artifactId>asciidoc-confluence-publisher-client</artifactId>
-            <version>0.15.0</version>
         </dependency>
 
         <dependency>
@@ -92,12 +81,17 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.7</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.zeldigas.confluence</groupId>
             <artifactId>convert</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.zeldigas.confluence</groupId>
+            <artifactId>confluence-client</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

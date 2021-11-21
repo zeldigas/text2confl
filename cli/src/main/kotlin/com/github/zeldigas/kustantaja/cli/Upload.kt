@@ -2,53 +2,52 @@ package com.github.zeldigas.kustantaja.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.long
+import com.github.zeldigas.confclient.ConfluenceClient
+import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.kustantaja.convert.universalConverter
-import org.apache.http.impl.client.HttpClients
-import org.sahli.asciidoc.confluence.publisher.client.http.ConfluenceRestClient
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URL
 
 class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence") {
 
-    val confluenceUrl: URL by option("--confluence-url", envvar = "CONFLUENCE_URL").convert { URL(it) }.required()
-    val confluenceUser: String by option("--user", envvar = "CONFLUENCE_USER").required()
-    val confluencePassword: String by option("--password", envvar = "CONFLUENCE_PASSWORD")
+    private val confluenceUrl: URL by option("--confluence-url", envvar = "CONFLUENCE_URL").convert { URL(it) }.required()
+    private val confluenceUser: String by option("--user", envvar = "CONFLUENCE_USER").required()
+    private val confluencePassword: String by option("--password", envvar = "CONFLUENCE_PASSWORD")
         .prompt(requireConfirmation = true, hideInput = true)
-    val skipSsl: Boolean by option("--skip-ssl-verification")
+    private val skipSsl: Boolean by option("--skip-ssl-verification")
         .flag("--no-skip-ssl-verification", default = false)
 
-    val spaceKey: String? by option("--space", envvar = "CONFLUENCE_SPACE")
-    val parentId: Long? by option("--parent-id").long()
-    val parentTitle: String? by option("--parent")
-    val removeOrphans: Boolean by option("--remove-orphans").flag("--keep-orphans", default = false)
+    private val spaceKey: String by option("--space", envvar = "CONFLUENCE_SPACE").required()
+    private val parentId: Long? by option("--parent-id").long()
+    private val parentTitle: String? by option("--parent")
+    private val modificationCheck by option("--check-modification").enum<ChangeDetector>().default(ChangeDetector.HASH)
+    private val removeOrphans: Boolean by option("--remove-orphans").flag("--keep-orphans", default = false)
 
-    val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
+    private val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
 
-    override fun run() {
+    override fun run() = runBlocking {
         val converter = universalConverter()
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {
             converter.convertDir(docs.toPath())
         }
-        val confluenceClient = ConfluenceRestClient(
-            confluenceUrl.toString(),
-            HttpClients.createDefault(),
-            null,
-            confluenceUser,
-            confluencePassword
-        )
+        val confluenceClient = confluenceClient(confluenceUrl.toString(), confluenceUser, confluencePassword)
         val publishUnder = resolveParent(confluenceClient)
-        ContentUploader(confluenceClient, "Automated upload", true)
-            .uploadPages(pages = result, spaceKey!!, publishUnder)
+        ContentUploader(
+            confluenceClient, "Automated upload", true,
+            modificationCheck
+        ).uploadPages(pages = result, spaceKey, publishUnder)
     }
 
-    private fun resolveParent(confluenceClient: ConfluenceRestClient): String {
+    private suspend fun resolveParent(confluenceClient: ConfluenceClient): String {
         if (parentId != null) return parentId!!.toString()
+        if (parentTitle != null) return confluenceClient.getPage(spaceKey, parentTitle!!).id
 
-//        todo implement proper lookup of root page in space
-        return confluenceClient.getPageByTitle(spaceKey!!, parentTitle ?: "Testing rig")
+        return confluenceClient.describeSpace(spaceKey, listOf("homepage")).homepage?.id!!
     }
 }
