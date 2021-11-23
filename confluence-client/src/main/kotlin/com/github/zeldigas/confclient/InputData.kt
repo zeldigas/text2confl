@@ -2,6 +2,7 @@ package com.github.zeldigas.confclient
 
 import com.github.zeldigas.confclient.model.PageProperty
 import com.github.zeldigas.confclient.model.PropertyVersion
+import java.nio.file.Path
 
 data class PagePropertyInput(val value: String, val version: PropertyVersion) {
     companion object {
@@ -19,4 +20,6 @@ data class PageContentInput(
     val version: Int = 1
 )
 
-data class UpdateParameters(val notifyWatchers: Boolean = true, val message: String?)
+data class PageUpdateOptions(val notifyWatchers: Boolean = true, val message: String?)
+
+data class PageAttachmentInput(val name:String, val content: Path, val comment:String?, val contentType: String? = null)

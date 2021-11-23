@@ -1,5 +1,7 @@
 package com.github.zeldigas.kustantaja.convert
 
+import com.github.zeldigas.kustantaja.convert.confluence.LanguageMapper
+import com.github.zeldigas.kustantaja.convert.confluence.ReferenceProvider
 import com.github.zeldigas.kustantaja.convert.markdown.MarkdownFileConverter
 import java.io.File
 import java.nio.file.Files
@@ -16,11 +18,11 @@ interface Converter {
 
 }
 
-fun universalConverter(): Converter {
-    return UniversalConverter()
+fun universalConverter(languageMapper: LanguageMapper): Converter {
+    return UniversalConverter(languageMapper)
 }
 
-internal class UniversalConverter : Converter {
+internal class UniversalConverter(private val languageMapper: LanguageMapper) : Converter {
 
     private val converters: Map<String, FileConverter> = mapOf(
         "md" to MarkdownFileConverter()
@@ -30,13 +32,13 @@ internal class UniversalConverter : Converter {
         val converter = converters[file.extension]
             ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
 
-        return Page(converter.convert(file, ConvertingContext(ReferenceProvider.nop())), file, emptyList())
+        return Page(converter.convert(file, ConvertingContext(ReferenceProvider.nop(), languageMapper)), file, emptyList())
     }
 
     override fun convertDir(dir: Path): List<Page> {
         val documents = scanDocuments(dir)
 
-        return convertFilesInDirectory(dir, ConvertingContext(ReferenceProvider.fromDocuments(dir, documents)))
+        return convertFilesInDirectory(dir, ConvertingContext(ReferenceProvider.fromDocuments(dir, documents), languageMapper))
     }
 
     private fun scanDocuments(dir: Path) =

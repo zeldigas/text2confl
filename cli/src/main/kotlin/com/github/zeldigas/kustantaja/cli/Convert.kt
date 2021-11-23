@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.zeldigas.kustantaja.convert.Page
+import com.github.zeldigas.kustantaja.convert.confluence.LanguageMapper
 import com.github.zeldigas.kustantaja.convert.universalConverter
 import java.io.File
 import java.nio.file.Path
@@ -25,7 +26,7 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
 
 
     override fun run() {
-        val converter = universalConverter()
+        val converter = universalConverter(LanguageMapper.forCloud())
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {

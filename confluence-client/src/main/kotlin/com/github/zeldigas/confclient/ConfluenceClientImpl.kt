@@ -1,10 +1,13 @@
 package com.github.zeldigas.confclient
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
+import com.github.zeldigas.confclient.model.PageAttachments
 import com.github.zeldigas.confclient.model.Space
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -12,7 +15,12 @@ import io.ktor.client.features.auth.*
 import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.http.*
+import io.ktor.utils.io.streams.*
+import java.security.cert.X509Certificate
+import javax.net.ssl.X509TrustManager
+import kotlin.io.path.fileSize
 
 class ConfluenceClientImpl(
     private val apiBase:String,
@@ -81,7 +89,7 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun createPage(value: PageContentInput, updateParameters: UpdateParameters): ConfluencePage {
+    override suspend fun createPage(value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage {
         if (value.space.isNullOrEmpty()) {
             throw IllegalArgumentException("Space is required when creating pages")
         }
@@ -91,7 +99,7 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: UpdateParameters): ConfluencePage {
+    override suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage {
         return httpClient.put("$apiBase/content/$pageId") {
             contentType(ContentType.Application.Json)
             body = toPageData(value, updateParameters)
@@ -100,7 +108,7 @@ class ConfluenceClientImpl(
 
     private fun toPageData(
         value: PageContentInput,
-        updateParameters: UpdateParameters
+        pageUpdateOptions: PageUpdateOptions
     ): Map<String, Any?> {
         return buildMap {
             put("type", "page")
@@ -116,8 +124,8 @@ class ConfluenceClientImpl(
             )
             put("version", buildMap {
                 put("number", value.version)
-                put("minorEdit", !updateParameters.notifyWatchers)
-                updateParameters.message?.let { put("message", it) }
+                put("minorEdit", !pageUpdateOptions.notifyWatchers)
+                pageUpdateOptions.message?.let { put("message", it) }
             })
             if (value.space != null) {
                 put("space", mapOf("key" to value.space))
@@ -142,14 +150,64 @@ class ConfluenceClientImpl(
             body = labels.map { mapOf("name" to it) }
         }
     }
+
+    override suspend fun addAttachments(pageId: String, pageAttachmentInput: List<PageAttachmentInput>): PageAttachments {
+        return  httpClient.submitFormWithBinaryData("$apiBase/content/$pageId/child/attachment", formData {
+            for (attachment in pageAttachmentInput) {
+                addAttachmentToForm(attachment)
+            }
+        }) {
+            header("X-Atlassian-Token", "nocheck")
+            header("Accept", "application/json")
+        }
+    }
+
+    override suspend fun updateAttachment(
+        pageId: String,
+        attachmentId: String,
+        attachment: PageAttachmentInput
+    ): Attachment {
+        return httpClient.submitFormWithBinaryData("$apiBase/content/$pageId/child/attachment/$attachmentId/data", formData {
+            addAttachmentToForm(attachment)
+        }) {
+            header("X-Atlassian-Token", "nocheck")
+            header("Accept", "application/json")
+        }
+    }
+
+    override suspend fun deleteAttachment(attachmentId: String) {
+        httpClient.delete<String>("$apiBase/content/$attachmentId")
+    }
+
+    private fun FormBuilder.addAttachmentToForm(attachment: PageAttachmentInput) {
+        append("comment", attachment.comment ?: "")
+        append(
+            "file",
+            InputProvider(attachment.content.fileSize()) { attachment.content.toFile().inputStream().asInput() },
+            Headers.build {
+                attachment.contentType?.let { append(HttpHeaders.ContentType, it) }
+                append(HttpHeaders.ContentDisposition, "filename=${attachment.name}")
+            })
+    }
 }
 
 private data class PageSearchResult(
     val results: List<ConfluencePage>
 )
 
-fun confluenceClient(confluenceUrl:String, username:String, secret:String): ConfluenceClient {
+fun confluenceClient(confluenceUrl:String, username:String, secret:String, skipSsl:Boolean = false): ConfluenceClient {
     val client = HttpClient(CIO) {
+        if (skipSsl) {
+            engine {
+                https {
+                    trustManager = object : X509TrustManager {
+                        override fun getAcceptedIssuers(): Array<X509Certificate>? = null
+                        override fun checkClientTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
+                        override fun checkServerTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
+                    }
+                }
+            }
+        }
         install(JsonFeature) {
             serializer = JacksonSerializer(jacksonObjectMapper()
                 .registerModule(Jdk8Module()).registerModule(JavaTimeModule())

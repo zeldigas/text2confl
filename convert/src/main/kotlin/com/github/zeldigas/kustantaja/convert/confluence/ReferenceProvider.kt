@@ -1,5 +1,6 @@
-package com.github.zeldigas.kustantaja.convert
+package com.github.zeldigas.kustantaja.convert.confluence
 
+import com.github.zeldigas.kustantaja.convert.PageHeader
 import java.nio.file.Path
 
 interface ReferenceProvider {

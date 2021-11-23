@@ -16,7 +16,7 @@ class AttachmentCollector(source: Path) {
     private val attachments = mutableMapOf<String, Path>()
 
 
-    fun collectAttachments(source: Path, ast: Node): Map<String, Path> {
+    fun collectAttachments(ast: Node): Map<String, Path> {
         NodeVisitor(listOf(
             VisitHandler(Link::class.java) { tryCollect(it) },
             VisitHandler(Image::class.java) { tryCollect(it) }
@@ -33,8 +33,9 @@ class AttachmentCollector(source: Path) {
     }
 
     private fun addFileIfExists(pathToFile: String) {
-        if (!isLocal(pathToFile)) return;
-        val file = parentDir.resolve(pathToFile)
+        if (!isLocal(pathToFile)) return
+
+        val file = parentDir.resolve(pathToFile).normalize()
         if (file.exists()) {
             println("File exists, adding as attachment: $file")
             attachments[pathToFile] = file

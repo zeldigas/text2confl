@@ -1,9 +1,6 @@
 package com.github.zeldigas.kustantaja.cli
 
-import com.github.zeldigas.confclient.ConfluenceClient
-import com.github.zeldigas.confclient.PageContentInput
-import com.github.zeldigas.confclient.PagePropertyInput
-import com.github.zeldigas.confclient.UpdateParameters
+import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.Label
@@ -13,6 +10,8 @@ import com.github.zeldigas.kustantaja.convert.PageContent
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import java.nio.file.Path
+import kotlin.io.path.extension
 
 
 private val PageContent.labels: List<String>
@@ -72,7 +71,7 @@ class ContentUploader(
             space = space, title = page.title, expansions =
             listOf(
                 "metadata.labels",
-                "metadata.properties.${HASH_PROPERTY}",
+                "metadata.properties.$HASH_PROPERTY",
                 "version",
                 "children.attachment"
             ) + pageContentChangeDetector.extraData
@@ -99,7 +98,7 @@ class ContentUploader(
                     page.content.body,
                     version = serverPage.version?.number!! + 1
                 ),
-                UpdateParameters(notifyWatchers, uploadMessage)
+                PageUpdateOptions(notifyWatchers, uploadMessage)
             )
             client.setPageProperty(
                 serverPage.id,
@@ -133,7 +132,7 @@ class ContentUploader(
         logger.info { "Page does not exist, need to create it" }
         val serverPage = client.createPage(
             PageContentInput(parentPageId, page.title, page.content.body, space),
-            UpdateParameters(notifyWatchers, uploadMessage)
+            PageUpdateOptions(notifyWatchers, uploadMessage)
         )
         client.setPageProperty(serverPage.id, HASH_PROPERTY, PagePropertyInput.newProperty(page.content.hash))
         return ServerPage(serverPage.id, parentPageId, emptyList(), emptyList())
@@ -152,16 +151,38 @@ class ContentUploader(
         }
     }
 
-    private fun updatePageAttachments(serverPage: ServerPage, content: PageContent) {
+    private suspend fun updatePageAttachments(serverPage: ServerPage, content: PageContent) {
         if (serverPage.attachments.isEmpty() && content.attachments.isEmpty()) return
 
-        val serverAttachments = serverPage.attachments.map { it.title to ServerAttachment(it.id, it.metadata.attachmentHash)}.toMap()
-        val new = content.attachments.filter { it.name !in serverAttachments }
-        val reUpload = content.attachments.filter { it.name in serverAttachments && serverAttachments[it.name]?.hash != it.hash }
-        val extraAttachments = serverAttachments.keys.filter { name -> content.attachments.none { it.name == name } }
+        val serverAttachments =
+            serverPage.attachments.map { it.title to ServerAttachment(it.id, it.metadata.attachmentHash) }.toMap()
+        val new = content.attachments.filter { it.attachmentName !in serverAttachments }
+        val reUpload =
+            content.attachments.filter { it.attachmentName in serverAttachments && serverAttachments[it.attachmentName]?.hash != it.hash }
+        val extraAttachments =
+            serverAttachments.filter { (name, _) -> content.attachments.none { it.attachmentName == name } }
 
         logger.info { "To upload: $new, to reupload=$reUpload, toDrop: $extraAttachments" }
-        //todo upload and delete
+
+        coroutineScope {
+            if (new.isNotEmpty()) {
+                launch {
+                    client.addAttachments(
+                        serverPage.id,
+                        new.map { it.toAttachmentInput() })
+                }
+            }
+            reUpload.forEach {
+                launch {
+                    client.updateAttachment(
+                        serverPage.id, serverAttachments.getValue(it.attachmentName).id, it.toAttachmentInput()
+                    )
+                }
+            }
+            extraAttachments.values.forEach {
+                launch { client.deleteAttachment(it.id) }
+            }
+        }
     }
 
     private data class ServerPage(
@@ -174,12 +195,45 @@ class ContentUploader(
 
 }
 
+private fun com.github.zeldigas.kustantaja.convert.Attachment.toAttachmentInput(): PageAttachmentInput =
+    PageAttachmentInput(attachmentName, resourceLocation, "HASH:${hash}", resolveContentType(resourceLocation))
+
+private val CONTENT_TYPES = mapOf(
+    "png" to "image/png",
+    "jpg" to "image/jpeg",
+    "jpeg" to "image/jpeg",
+    "svg" to "image/svg+xml",
+    "gif" to "image/gif",
+    "bmp" to "image/bmp",
+    "txt" to "text/plain",
+    "csv" to "text/csv",
+    "html" to "text/html",
+    "md" to "text/markdown",
+    "js" to "text/javascript",
+    "doc" to "application/msword",
+    "xls" to "application/vnd.ms-excel",
+    "docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "xlsx" to "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "ppt" to "application/vnd.ms-powerpoint",
+    "pptx" to "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "odt" to "application/vnd.oasis.opendocument.text",
+    "ods" to "application/vnd.oasis.opendocument.spreadsheet",
+    "odp" to "application/vnd.oasis.opendocument.presentation",
+    "yaml" to "application/x-yaml",
+    "yml" to "application/x-yaml",
+    "json" to "application/json",
+    "zip" to "application/zip",
+    "pdf" to "application/pdf"
+)
+
+private fun resolveContentType(file:Path) : String? = CONTENT_TYPES[file.extension.lowercase().trim()]
+
 private fun ConfluencePage.pageProperty(name: String): PageProperty? {
     return metadata?.properties?.get(name)
 }
 
-private val Map<String, String>.attachmentHash: String?
+private val Map<String, Any?>.attachmentHash: String?
     get() {
-        val comment = this["comment"] ?: return null
+        val comment = this["comment"] as? String ?: return null
         return """HASH:(\w+)""".toRegex().find(comment)?.groups?.get(1)?.value
     }

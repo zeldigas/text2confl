@@ -50,16 +50,17 @@ class MarkdownFileConverter : FileConverter {
         val ast = Files.newBufferedReader(file, Charsets.UTF_8).use { parser.parseReader(it) }
 
         val attributes = readAttributes(ast)
-        val attachments = AttachmentCollector(file).collectAttachments(file, ast)
+        val attachments = AttachmentCollector(file).collectAttachments(ast)
+            .map { (name, path) -> name to Attachment.fromLink(name, path) }.toMap()
         val generator = htmlRenderer(attachments, context)
         return PageContent(
             createHeader(attributes, file),
             generator.render(ast),
-            attachments.map { (name, path) -> Attachment(name, path) }
+            attachments.values.toList()
         )
     }
 
-    private fun htmlRenderer(attachments: Map<String, Path>, context: ConvertingContext): HtmlRenderer {
+    private fun htmlRenderer(attachments: Map<String, Attachment>, context: ConvertingContext): HtmlRenderer {
         return HtmlRenderer.builder(
             parserOptions.toMutable()
                 .set(Parser.EXTENSIONS, listOf(ConfluenceFormatExtension()) + standardExtensions)

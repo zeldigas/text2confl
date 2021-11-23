@@ -74,6 +74,6 @@ data class PageAttachments(
 data class Attachment(
     val id: String,
     val title: String,
-    val metadata: Map<String, String>
+    val metadata: Map<String, Any?>
 )
 

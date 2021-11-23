@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.long
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.confluenceClient
+import com.github.zeldigas.kustantaja.convert.confluence.LanguageMapper
 import com.github.zeldigas.kustantaja.convert.universalConverter
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -30,13 +31,13 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     private val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
 
     override fun run() = runBlocking {
-        val converter = universalConverter()
+        val converter = universalConverter(LanguageMapper.forCloud())
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {
             converter.convertDir(docs.toPath())
         }
-        val confluenceClient = confluenceClient(confluenceUrl.toString(), confluenceUser, confluencePassword)
+        val confluenceClient = confluenceClient(confluenceUrl.toString(), confluenceUser, confluencePassword, skipSsl)
         val publishUnder = resolveParent(confluenceClient)
         ContentUploader(
             confluenceClient, "Automated upload", true,
