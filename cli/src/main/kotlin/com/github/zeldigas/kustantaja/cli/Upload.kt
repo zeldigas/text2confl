@@ -31,7 +31,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     private val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
 
     override fun run() = runBlocking {
-        val converter = universalConverter(LanguageMapper.forCloud())
+        val converter = universalConverter(spaceKey, LanguageMapper.forCloud())
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {

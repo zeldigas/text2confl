@@ -16,6 +16,8 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
 
     private val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
         .help("File or directory with files to convert")
+    private val space:String by option("--space")
+        .help("Space key to use if it is required in output format").default("AAA")
     private val useTitleAsOutFile by option("--use-title").flag("--no-use-title")
         .help("If title of document should be used in resulting filename instead of plain original filenames")
     private val copyAttachments by option("--copy-attachments").flag("--no-copy-attachments")
@@ -26,7 +28,7 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
 
 
     override fun run() {
-        val converter = universalConverter(LanguageMapper.forCloud())
+        val converter = universalConverter(space, LanguageMapper.forCloud())
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {

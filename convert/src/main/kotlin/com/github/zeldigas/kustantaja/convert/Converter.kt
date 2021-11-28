@@ -18,11 +18,19 @@ interface Converter {
 
 }
 
-fun universalConverter(languageMapper: LanguageMapper): Converter {
-    return UniversalConverter(languageMapper)
+fun universalConverter(
+    space: String,
+    languageMapper: LanguageMapper,
+    titleConverter: (Path, String) -> String = { _, title -> title },
+): Converter {
+    return UniversalConverter(space, languageMapper, titleConverter)
 }
 
-internal class UniversalConverter(private val languageMapper: LanguageMapper) : Converter {
+internal class UniversalConverter(
+    private val space: String,
+    private val languageMapper: LanguageMapper,
+    private val titleConverter: (Path, String) -> String,
+) : Converter {
 
     private val converters: Map<String, FileConverter> = mapOf(
         "md" to MarkdownFileConverter()
@@ -32,18 +40,25 @@ internal class UniversalConverter(private val languageMapper: LanguageMapper) : 
         val converter = converters[file.extension]
             ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
 
-        return Page(converter.convert(file, ConvertingContext(ReferenceProvider.nop(), languageMapper)), file, emptyList())
+        return Page(
+            converter.convert(file, ConvertingContext(ReferenceProvider.nop(), languageMapper, "", titleConverter)),
+            file,
+            emptyList()
+        )
     }
 
     override fun convertDir(dir: Path): List<Page> {
         val documents = scanDocuments(dir)
 
-        return convertFilesInDirectory(dir, ConvertingContext(ReferenceProvider.fromDocuments(dir, documents), languageMapper))
+        return convertFilesInDirectory(
+            dir,
+            ConvertingContext(ReferenceProvider.fromDocuments(dir, documents), languageMapper, space, titleConverter)
+        )
     }
 
     private fun scanDocuments(dir: Path) =
         dir.toFile().walk().filter { it.supported() }
-            .map { it.toPath() to converters.getValue(it.extension.lowercase()).readHeader(it.toPath()) }
+            .map { it.toPath() to converters.getValue(it.extension.lowercase()).readHeader(it.toPath(), HeaderReadingContext(titleConverter)) }
             .toMap()
 
     private fun convertFilesInDirectory(dir: Path, context: ConvertingContext): List<Page> {

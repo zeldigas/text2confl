@@ -2,9 +2,9 @@ package com.github.zeldigas.kustantaja.convert.markdown
 
 import com.github.zeldigas.kustantaja.convert.Attachment
 import com.github.zeldigas.kustantaja.convert.ConvertingContext
-import com.vladsch.flexmark.ast.FencedCodeBlock
-import com.vladsch.flexmark.ast.Image
-import com.vladsch.flexmark.ast.Link
+import com.github.zeldigas.kustantaja.convert.confluence.Anchor
+import com.github.zeldigas.kustantaja.convert.confluence.Xref
+import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension
 import com.vladsch.flexmark.html.HtmlRendererOptions
@@ -19,10 +19,12 @@ import com.vladsch.flexmark.util.data.MutableDataHolder
 import com.vladsch.flexmark.util.data.NullableDataKey
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
+import java.nio.file.Path
 
 internal class ConfluenceFormatExtension() : HtmlRendererExtension {
 
     companion object {
+        val DOCUMENT_LOCATION = NullableDataKey<Path>("DOCUMENT_LOCATION", null)
         val ATTACHMENTS = DataKey<Map<String, Attachment>>("FENCED_CODE_CONTENT_BLOCK", emptyMap())
         val CONTEXT = NullableDataKey<ConvertingContext>("FENCED_CODE_CONTENT_BLOCK", null)
     }
@@ -38,6 +40,7 @@ internal class ConfluenceFormatExtension() : HtmlRendererExtension {
 
 class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
 
+    private val sourcePath = ConfluenceFormatExtension.DOCUMENT_LOCATION[options]!!
     private val codeContentBlock = Parser.FENCED_CODE_CONTENT_BLOCK[options]
     private val attachments: Map<String, Attachment> = ConfluenceFormatExtension.ATTACHMENTS[options]
     private val convertingContext: ConvertingContext = ConfluenceFormatExtension.CONTEXT[options]!!
@@ -48,6 +51,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             NodeRenderingHandler(FencedCodeBlock::class.java, this::render),
             NodeRenderingHandler(Image::class.java, this::render),
             NodeRenderingHandler(Link::class.java, this::render),
+            NodeRenderingHandler(Heading::class.java, this::render),
         )
     }
 
@@ -59,7 +63,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         val hasLanguageTag = info.isNotNull && !info.isBlank
 
         if (hasLanguageTag) {
-            html.attr("ac:name", "code").withAttr().tag("ac:structured-macro").openPre()
+            html.openTag("ac:structured-macro", mapOf("ac:name" to "code")).openPre()
             val language: String? =
                 node.getInfoDelimitedByAny(htmlOptions.languageDelimiterSet).unescape().let { lang ->
                     convertingContext.languageMapper.mapToConfluenceLanguage(lang)
@@ -67,7 +71,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             if (language != null) {
                 html.addParameter("language", language)
             }
-            plainTextBodyWithCdata(html, node.contentChars.normalizeEOL().trimEnd())
+            html.tagWithCData("ac:plain-text-body", node.contentChars.normalizeEOL().trimEnd())
             html.closeTag("ac:structured-macro")
         } else {
             html.srcPosWithTrailingEOL(node.chars).withAttr().tag("pre").openPre()
@@ -92,20 +96,12 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private fun render(node: Image, context: NodeRendererContext, html: HtmlWriter) {
         val altText = TextCollectingVisitor().collectAndGetText(node)
         val url = node.url.unescape()
-        html.attr("ac:alt", altText)
-            .attr("ac:title", altText)
-            .withAttr()
-            //todo support custom attributes via attributes extension: alignment, width, height, caption
-            .tag("ac:image")
+        //todo support custom attributes via attributes extension: alignment, width, height, caption
+        html.openTag("ac:image", mapOf("ac:alt" to altText, "ac:title" to altText))
         if (url in attachments) {
-            html.attr("ri:filename", attachments.getValue(url).attachmentName)
-                .withAttr()
-                .tagVoid("ri:attachment")
+            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(url).attachmentName))
         } else {
-            buildUrl(context, node)
-            html.attr("ri:value", url)
-                .withAttr()
-                .tagVoid("ri:url")
+            html.voidTag("ri:url", mapOf("ri:value" to buildUrl(context, node)))
         }
         html.closeTag("ac:image")
     }
@@ -113,10 +109,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private fun buildUrl(
         context: NodeRendererContext,
         node: Image
-    ) {
+    ): String {
         //code taken from standard renderer
         val resolvedLink = context.resolveLink(LinkType.IMAGE, node.url.unescape(), null, null)
-        var linkUrl: String? = resolvedLink.url
+        var linkUrl: String = resolvedLink.url
 
         if (!node.urlContent.isEmpty) {
             // reverse URL encoding of =, &
@@ -124,22 +120,58 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
                 .replace("%26", "&amp;")
             linkUrl += content
         }
+        return linkUrl
     }
 
     private fun render(node: Link, context: NodeRendererContext, html: HtmlWriter) {
+        //todo support rich text bodies for links
         val url = node.url.unescape()
-//        todo support for xrefs
-        if (url in attachments) {
-            html.tag("ac:link")
-            html.attr("ri:filename", attachments.getValue(url).attachmentName)
-                .withAttr()
-                .tagVoid("ri:attachment")
-            if (node.text != null){
-                plainTextBodyWithCdata(html, node.text.normalizeEOL().trimEnd())
+        val xref = convertingContext.referenceProvider.resolveReference(sourcePath, url)
+        if (xref != null) {
+            when(xref) {
+                is Xref -> {
+                    html.openTag("ac:link", buildMap { xref.anchor?.let { put("ac:anchor", it) } })
+                    html.voidTag("ri:page", mapOf("ri:content-title" to xref.target, "ri:space-key" to convertingContext.targetSpace))
+                    appendLinkBody(node, html, context)
+                    html.closeTag("ac:link")
+                }
+                is Anchor ->  {
+                    html.openTag("ac:link", mapOf("ac:anchor" to xref.target))
+                    appendLinkBody(node, html, context)
+                    html.closeTag("ac:link")
+                }
             }
+        } else if (url in attachments) {
+            html.openTag("ac:link")
+            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(url).attachmentName))
+            appendLinkBody(node, html, context)
             html.closeTag("ac:link")
         } else {
             delegateToStandardRenderer(node, context, html)
+        }
+    }
+
+    private fun appendLinkBody(node: Link, html: HtmlWriter, context: NodeRendererContext) {
+        if (node.withRichFormatting) {
+            html.tag("ac:link-body")
+            context.renderChildren(node)
+            html.closeTag("ac:link-body")
+        } else if (node.text != null) {
+            html.tagWithCData("ac:plain-text-link-body", node.text.normalizeEOL().trimEnd())
+        }
+    }
+
+    fun render(node: Heading, context: NodeRendererContext, html: HtmlWriter) {
+        html.srcPos(node.text).withAttr().tagLine("h" + node.level) {
+            context.renderChildren(node)
+            if (context.htmlOptions.renderHeaderId) {
+                val id = context.getNodeId(node)
+                if (id != null) {
+                    html.openTag("ac:structured-macro", mapOf("ac:name" to "anchor"))
+                    html.addParameter("", id)
+                    html.closeTag("ac:structured-macro")
+                }
+            }
         }
     }
 
@@ -147,13 +179,33 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         attr("ac:name", name).withAttr().tag("ac:parameter").text(value).closeTag("ac:parameter")
     }
 
-    private fun plainTextBodyWithCdata(
-        html: HtmlWriter,
+    private fun HtmlWriter.openTag(name:String, attrs:Map<String, CharSequence> = emptyMap()): HtmlWriter {
+        addAttributes(attrs)
+        return tag(name)
+    }
+
+    private fun HtmlWriter.voidTag(name:String, attrs:Map<String, CharSequence> = emptyMap()): HtmlWriter {
+        addAttributes(attrs)
+        return tagVoid(name)
+    }
+
+    private fun HtmlWriter.addAttributes(attrs: Map<String, CharSequence>) {
+        if (attrs.isNotEmpty()) {
+            attrs.forEach { (k, v) -> attr(k, v) }
+            withAttr()
+        }
+    }
+
+    private val Link.withRichFormatting: Boolean
+        get() = !children.all { it is Text }
+
+    private fun HtmlWriter.tagWithCData(
+        tagName: String,
         text: String
     ) {
-        html.tag("ac:plain-text-body")
+        tag(tagName)
             .raw("<![CDATA[").raw(text).raw("]]>")
-            .closeTag("ac:plain-text-body")
+            .closeTag(tagName)
     }
 
     private inline fun <reified T: Node> delegateToStandardRenderer(

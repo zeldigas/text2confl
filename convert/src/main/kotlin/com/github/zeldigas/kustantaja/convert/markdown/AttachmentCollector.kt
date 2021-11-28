@@ -1,5 +1,6 @@
 package com.github.zeldigas.kustantaja.convert.markdown
 
+import com.github.zeldigas.kustantaja.convert.confluence.ReferenceProvider
 import com.vladsch.flexmark.ast.Image
 import com.vladsch.flexmark.ast.Link
 import com.vladsch.flexmark.util.ast.Node
@@ -10,7 +11,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.exists
 
-class AttachmentCollector(source: Path) {
+class AttachmentCollector(private val source: Path, private val referencesProvider: ReferenceProvider) {
 
     private val parentDir: Path = source.parent ?: Paths.get(".")
     private val attachments = mutableMapOf<String, Path>()
@@ -34,6 +35,7 @@ class AttachmentCollector(source: Path) {
 
     private fun addFileIfExists(pathToFile: String) {
         if (!isLocal(pathToFile)) return
+        if (referencesProvider.resolveReference(source, pathToFile) != null) return
 
         val file = parentDir.resolve(pathToFile).normalize()
         if (file.exists()) {

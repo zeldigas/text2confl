@@ -7,6 +7,7 @@ import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.html.HtmlRendererOptions
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Document
 import com.vladsch.flexmark.util.ast.KeepType
@@ -39,31 +40,33 @@ class MarkdownFileConverter : FileConverter {
 
     private val parser = Parser.builder(parserOptions).build()
 
-    override fun readHeader(file: Path): PageHeader {
+    override fun readHeader(file: Path, context: HeaderReadingContext): PageHeader {
         val ast = Files.newBufferedReader(file, Charsets.UTF_8).use { parser.parseReader(it) }
 
         val attributes = readAttributes(ast)
-        return createHeader(attributes, file)
+        return createHeader(attributes, file, context.titleTransformer)
     }
 
     override fun convert(file: Path, context: ConvertingContext): PageContent {
         val ast = Files.newBufferedReader(file, Charsets.UTF_8).use { parser.parseReader(it) }
 
         val attributes = readAttributes(ast)
-        val attachments = AttachmentCollector(file).collectAttachments(ast)
+        val attachments = AttachmentCollector(file, context.referenceProvider).collectAttachments(ast)
             .map { (name, path) -> name to Attachment.fromLink(name, path) }.toMap()
-        val generator = htmlRenderer(attachments, context)
+        val generator = htmlRenderer(file, attachments, context)
         return PageContent(
-            createHeader(attributes, file),
+            createHeader(attributes, file, context.titleTransformer),
             generator.render(ast),
             attachments.values.toList()
         )
     }
 
-    private fun htmlRenderer(attachments: Map<String, Attachment>, context: ConvertingContext): HtmlRenderer {
+    private fun htmlRenderer(location: Path, attachments: Map<String, Attachment>, context: ConvertingContext): HtmlRenderer {
         return HtmlRenderer.builder(
             parserOptions.toMutable()
+                .set(HtmlRenderer.RENDER_HEADER_ID, true)
                 .set(Parser.EXTENSIONS, listOf(ConfluenceFormatExtension()) + standardExtensions)
+                .set(ConfluenceFormatExtension.DOCUMENT_LOCATION, location)
                 .set(ConfluenceFormatExtension.ATTACHMENTS, attachments)
                 .set(ConfluenceFormatExtension.CONTEXT, context)
                 .toImmutable()
@@ -72,8 +75,12 @@ class MarkdownFileConverter : FileConverter {
 
     private fun createHeader(
         attributes: Map<String, Any>,
-        file: Path
-    ) = PageHeader(attributes["title"]?.toString() ?: file.toFile().nameWithoutExtension, attributes)
+        file: Path,
+        titleTransformer: (Path, String) -> String
+    ): PageHeader {
+        val title = attributes["title"]?.toString() ?: file.toFile().nameWithoutExtension
+        return PageHeader(titleTransformer(file, title), attributes)
+    }
 
     private fun readAttributes(ast: Document): Map<String, Any> {
         val attributes = AbstractYamlFrontMatterVisitor().let {
