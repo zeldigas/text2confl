@@ -124,7 +124,6 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     }
 
     private fun render(node: Link, context: NodeRendererContext, html: HtmlWriter) {
-        //todo support rich text bodies for links
         val url = node.url.unescape()
         val xref = convertingContext.referenceProvider.resolveReference(sourcePath, url)
         if (xref != null) {
