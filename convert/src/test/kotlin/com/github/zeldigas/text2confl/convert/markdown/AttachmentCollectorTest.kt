@@ -32,10 +32,12 @@ internal class AttachmentCollectorTest {
             Link to [anchor](#anchor)
             Link to [non-existing file](non-existing)
             Link to [smth][test]
+            Link to [smth-missing][ref2]
             Link to [remote](http://example.org)
             some text
             
             [test]: existing1 "title"
+            [ref2]: non-existing "title"
             
         """.trimIndent()
         )
@@ -64,10 +66,12 @@ internal class AttachmentCollectorTest {
             Link to ![existing file](existing)
             Link to ![non-existing file](non-existing)
             Link to ![smth][test]
+            Link to ![smth][ref2]
             Link to ![remote](http://example.org/test.jpg)
             some text
             
             [test]: existing1 "title"
+            [ref2]: non-existing "title"
             
         """.trimIndent()
         )
