@@ -10,9 +10,9 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Kustantaja</name>
+    <name>Text2Confl</name>
     <description>Publisher of pages in lightweight markup formats to Confluence</description>
-    <url>https://github.com/zeldigas/kustantaja</url>
+    <url>https://github.com/zeldigas/text2confl</url>
 
     <licenses>
         <license>
@@ -22,9 +22,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:zeldigas/kustantaja.git</connection>
-        <developerConnection>scm:git:git@github.com:zeldigas/kustantaja.git</developerConnection>
-        <url>https://github.com/zeldigas/kustantaja</url>
+        <connection>scm:git:git@github.com:zeldigas/text2confl.git</connection>
+        <developerConnection>scm:git:git@github.com:zeldigas/text2confl.git</developerConnection>
+        <url>https://github.com/zeldigas/text2confl</url>
     </scm>
 
     <properties>
@@ -66,6 +66,11 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
             </plugin>
         </plugins>
     </build>

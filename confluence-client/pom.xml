@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>confluence-client</artifactId>
+    <description>Implementation of http client for confluence</description>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
