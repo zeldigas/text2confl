@@ -40,11 +40,11 @@ enum class ChangeDetector(
 
 
 class ContentUploader(
-    private val client: ConfluenceClient,
-    private val uploadMessage: String,
-    private val notifyWatchers: Boolean,
-    private val pageContentChangeDetector: ChangeDetector,
-    private val editorVersion: EditorVersion
+    val client: ConfluenceClient,
+    val uploadMessage: String,
+    val notifyWatchers: Boolean,
+    val pageContentChangeDetector: ChangeDetector,
+    val editorVersion: EditorVersion
 ) {
 
     companion object {

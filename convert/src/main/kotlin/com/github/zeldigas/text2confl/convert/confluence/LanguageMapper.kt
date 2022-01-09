@@ -1,11 +1,17 @@
 package com.github.zeldigas.text2confl.convert.confluence
 
-fun interface LanguageMapper {
+interface LanguageMapper {
 
     fun mapToConfluenceLanguage(language: String): String?
 
+    val supportedLanguages: Set<String>
+
     companion object {
-        fun nop() : LanguageMapper = LanguageMapper { null }
+        fun nop() : LanguageMapper = object: LanguageMapper {
+            override fun mapToConfluenceLanguage(language: String): String? = null
+            override val supportedLanguages: Set<String>
+                get() = emptySet()
+        }
         fun forServer(defaultLanguage: String? = null): LanguageMapper = LanguageMapperImpl(
             CONFLUENCE_SERVER_LANGUAGES,
             mapping = SERVER_REMAPPING,
@@ -21,7 +27,7 @@ fun interface LanguageMapper {
 }
 
 internal class LanguageMapperImpl(
-    val supportedLanguages: Set<String>,
+    override val supportedLanguages: Set<String>,
     val defaultLanguage: String? = null,
     val mapping: Map<String, String> = LANG_REMAPPING
 ) : LanguageMapper {
