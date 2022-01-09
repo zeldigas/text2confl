@@ -43,7 +43,6 @@ internal class ConfluenceFormatExtension : HtmlRendererExtension {
 class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
 
     private val sourcePath = ConfluenceFormatExtension.DOCUMENT_LOCATION[options]!!
-    private val codeContentBlock = Parser.FENCED_CODE_CONTENT_BLOCK[options]
     private val attachments: Map<String, Attachment> = ConfluenceFormatExtension.ATTACHMENTS[options]
     private val convertingContext: ConvertingContext = ConfluenceFormatExtension.CONTEXT[options]!!
     private val basicRenderer = CoreNodeRenderer(options)
@@ -64,35 +63,19 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         val htmlOptions: HtmlRendererOptions = context.htmlOptions
         val hasLanguageTag = info.isNotNull && !info.isBlank
 
-        if (hasLanguageTag) {
-            html.openTag("ac:structured-macro", mapOf("ac:name" to "code")).openPre()
-            val language: String? =
-                node.getInfoDelimitedByAny(htmlOptions.languageDelimiterSet).unescape().let { lang ->
-                    convertingContext.languageMapper.mapToConfluenceLanguage(lang)
-                }
-            if (language != null) {
-                html.addParameter("language", language)
+        html.openTag("ac:structured-macro", mapOf("ac:name" to "code")).openPre()
+        val language: String? = if (hasLanguageTag) {
+            node.getInfoDelimitedByAny(htmlOptions.languageDelimiterSet).unescape().let { lang ->
+                convertingContext.languageMapper.mapToConfluenceLanguage(lang)
             }
-            html.tagWithCData("ac:plain-text-body", node.contentChars.normalizeEOL().trimEnd())
-            html.closeTag("ac:structured-macro")
         } else {
-            html.srcPosWithTrailingEOL(node.chars).withAttr().tag("pre").openPre()
-            val noLanguageClass = htmlOptions.noLanguageClass.trim()
-            if (!noLanguageClass.isEmpty()) {
-                html.attr("class", noLanguageClass)
-            }
-            html.srcPosWithEOL(node.contentChars).withAttr(CoreNodeRenderer.CODE_CONTENT).tag("code")
-            if (codeContentBlock) {
-                context.renderChildren(node)
-            } else {
-                html.text(node.contentChars.normalizeEOL())
-            }
-            html.tag("/code")
-            html.tag("/pre")
+            null
         }
-        html.closePre()
-
-        html.lineIf(htmlOptions.htmlBlockCloseTagEol)
+        if (language != null) {
+            html.addParameter("language", language)
+        }
+        html.tagWithCData("ac:plain-text-body", node.contentChars.normalizeEOL().trimEnd())
+        html.closeTag("ac:structured-macro")
     }
 
     private fun render(node: Image, context: NodeRendererContext, html: HtmlWriter) {
