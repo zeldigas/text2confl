@@ -17,6 +17,7 @@ import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.DataKey
 import com.vladsch.flexmark.util.data.MutableDataHolder
 import com.vladsch.flexmark.util.data.NullableDataKey
+import com.vladsch.flexmark.util.misc.CharPredicate
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
 import mu.KotlinLogging
@@ -61,6 +62,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             NodeRenderingHandler(Image::class.java, this::render),
             NodeRenderingHandler(ImageRef::class.java, this::render),
             NodeRenderingHandler(Link::class.java, this::render),
+            NodeRenderingHandler(LinkRef::class.java, this::render),
             NodeRenderingHandler(Heading::class.java, this::render),
             )
     }
@@ -161,6 +163,18 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
 
     private fun render(node: Link, context: NodeRendererContext, html: HtmlWriter) {
         val url = node.url.unescape()
+        renderLink(url, html, node, context) {
+            if (node.text != null) node.text.normalizeEOL().trimEnd() else null
+        }
+    }
+
+    private inline fun <reified T: Node> renderLink(
+        url: String,
+        html: HtmlWriter,
+        node: T,
+        context: NodeRendererContext,
+        noinline textExtractor: (T) -> String?
+    ) {
         val xref = convertingContext.referenceProvider.resolveReference(sourcePath, url)
         if (xref != null) {
             when (xref) {
@@ -170,32 +184,52 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
                         "ri:page",
                         mapOf("ri:content-title" to xref.target, "ri:space-key" to convertingContext.targetSpace)
                     )
-                    appendLinkBody(node, html, context)
+                    appendLinkBody(node, html, context, textExtractor)
                     html.closeTag("ac:link")
                 }
                 is Anchor -> {
                     html.openTag("ac:link", mapOf("ac:anchor" to xref.target))
-                    appendLinkBody(node, html, context)
+                    appendLinkBody(node, html, context, textExtractor)
                     html.closeTag("ac:link")
                 }
             }
         } else if (url in attachments) {
             html.openTag("ac:link")
             html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(url).attachmentName))
-            appendLinkBody(node, html, context)
+            appendLinkBody(node, html, context, textExtractor)
             html.closeTag("ac:link")
         } else {
             delegateToStandardRenderer(node, context, html)
         }
     }
 
-    private fun appendLinkBody(node: Link, html: HtmlWriter, context: NodeRendererContext) {
+    private fun <T: Node> appendLinkBody(node: T, html: HtmlWriter, context: NodeRendererContext, textExtractor: (T) -> String?) {
         if (node.withRichFormatting) {
             html.tag("ac:link-body")
             context.renderChildren(node)
             html.closeTag("ac:link-body")
-        } else if (node.text != null) {
-            html.tagWithCData("ac:plain-text-link-body", node.text.normalizeEOL().trimEnd())
+        } else {
+            val text = textExtractor(node)
+            if (text != null) {
+                html.tagWithCData("ac:plain-text-link-body", text)
+            }
+        }
+    }
+
+    private fun render(node: LinkRef, context: NodeRendererContext, html: HtmlWriter) {
+        if (!node.isDefined && recheckUndefinedReferences) {
+            if (node.getReferenceNode(referenceRepository) != null) {
+                node.isDefined = true
+            }
+        }
+        if (!node.isDefined) {
+            delegateToStandardRenderer(node, context, html)
+        } else {
+            val reference = node.getReferenceNode(referenceRepository)!!
+            val resolvedLink = context.resolveLink(LinkType.LINK, reference.url.unescape(), null)
+            renderLink(resolvedLink.url, html, node, context) {
+                if (node.text != null) node.text.normalizeEOL().trimEnd() else null
+            }
         }
     }
 
@@ -234,7 +268,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
-    private val Link.withRichFormatting: Boolean
+    private val Node.withRichFormatting: Boolean
         get() = !children.all { it is Text }
 
     private fun HtmlWriter.tagWithCData(
