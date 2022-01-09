@@ -5,6 +5,7 @@ import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.Label
 import com.github.zeldigas.confclient.model.PageProperty
+import com.github.zeldigas.kustantaja.cli.config.EditorVersion
 import com.github.zeldigas.kustantaja.convert.Page
 import com.github.zeldigas.kustantaja.convert.PageContent
 import kotlinx.coroutines.coroutineScope
@@ -13,6 +14,9 @@ import mu.KotlinLogging
 import java.nio.file.Path
 import kotlin.io.path.extension
 
+
+private val EditorVersion.propertyValue: String
+    get() = name.lowercase()
 
 private val PageContent.labels: List<String>
     get() = when (val result = header.attributes["labels"]) {
@@ -39,11 +43,13 @@ class ContentUploader(
     private val client: ConfluenceClient,
     private val uploadMessage: String,
     private val notifyWatchers: Boolean,
-    private val pageContentChangeDetector: ChangeDetector
+    private val pageContentChangeDetector: ChangeDetector,
+    private val editorVersion: EditorVersion
 ) {
 
     companion object {
         const val HASH_PROPERTY = "content-hash"
+        const val EDITOR_PROPERTY = "editor"
         private val logger = KotlinLogging.logger {}
     }
 
@@ -72,6 +78,7 @@ class ContentUploader(
             listOf(
                 "metadata.labels",
                 "metadata.properties.$HASH_PROPERTY",
+                "metadata.properties.$EDITOR_PROPERTY",
                 "version",
                 "children.attachment"
             ) + pageContentChangeDetector.extraData
@@ -89,7 +96,7 @@ class ContentUploader(
         parentPageId: String
     ): ServerPage {
         if (pageContentChangeDetector.strategy(serverPage, page.content)) {
-            logger.info { "Page content requires update" }
+            logger.info { "Page content requires update: ${serverPage.id}, ${serverPage.title}" }
             client.updatePage(
                 serverPage.id,
                 PageContentInput(
@@ -105,8 +112,9 @@ class ContentUploader(
                 HASH_PROPERTY,
                 hashProperty(serverPage.pageProperty(HASH_PROPERTY), page.content.hash)
             )
+            setEditorVersion(serverPage.id, serverPage.pageProperty(EDITOR_PROPERTY))
         } else {
-            logger.info { "Page is up to date, nothing to do" }
+            logger.info { "Page is up to date, nothing to do: ${serverPage.id}, ${serverPage.title}" }
         }
         return ServerPage(
             serverPage.id,
@@ -124,6 +132,33 @@ class ContentUploader(
         }
     }
 
+    private suspend fun setContentHash(id: String, pageProperty: PageProperty? = null, hash:String) {
+        if (pageProperty == null) {
+            client.setPageProperty(id, HASH_PROPERTY, PagePropertyInput.newProperty(hash))
+        } else if (pageProperty.value != editorVersion.propertyValue) {
+            client.setPageProperty(id, EDITOR_PROPERTY, PagePropertyInput.updateOf(pageProperty, editorVersion.propertyValue))
+        }
+    }
+
+    private suspend fun setEditorVersion(id: String, pageProperty: PageProperty? = null) {
+        setOrUpdateProperty(pageProperty, id)
+    }
+
+    private suspend fun setOrUpdateProperty(
+        pageProperty: PageProperty?,
+        id: String
+    ) {
+        if (pageProperty == null) {
+            client.setPageProperty(id, EDITOR_PROPERTY, PagePropertyInput.newProperty(editorVersion.propertyValue))
+        } else if (pageProperty.value != editorVersion.propertyValue) {
+            client.setPageProperty(
+                id,
+                EDITOR_PROPERTY,
+                PagePropertyInput.updateOf(pageProperty, editorVersion.propertyValue)
+            )
+        }
+    }
+
     private suspend fun createNewPage(
         space: String,
         parentPageId: String,
@@ -135,6 +170,7 @@ class ContentUploader(
             PageUpdateOptions(notifyWatchers, uploadMessage)
         )
         client.setPageProperty(serverPage.id, HASH_PROPERTY, PagePropertyInput.newProperty(page.content.hash))
+        setEditorVersion(serverPage.id)
         return ServerPage(serverPage.id, parentPageId, emptyList(), emptyList())
     }
 

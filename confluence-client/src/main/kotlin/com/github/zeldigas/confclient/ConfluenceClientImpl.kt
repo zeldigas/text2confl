@@ -1,7 +1,6 @@
 package com.github.zeldigas.confclient
 
 import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -12,7 +11,6 @@ import com.github.zeldigas.confclient.model.Space
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.auth.*
-import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -23,7 +21,7 @@ import javax.net.ssl.X509TrustManager
 import kotlin.io.path.fileSize
 
 class ConfluenceClientImpl(
-    private val apiBase:String,
+    private val apiBase: String,
     private val httpClient: HttpClient
 ) : ConfluenceClient {
     override suspend fun describeSpace(key: String, expansions: List<String>): Space {
@@ -74,7 +72,7 @@ class ConfluenceClientImpl(
         status: List<String>?,
         expansions: List<String>
     ): List<ConfluencePage> {
-        val result:PageSearchResult = httpClient.get("$apiBase/content") {
+        val result: PageSearchResult = httpClient.get("$apiBase/content") {
             space?.let { parameter("spaceKey", it) }
             parameter("title", title)
             status?.let { parameter("status", it.toString()) }
@@ -99,7 +97,11 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage {
+    override suspend fun updatePage(
+        pageId: String,
+        value: PageContentInput,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage {
         return httpClient.put("$apiBase/content/$pageId") {
             contentType(ContentType.Application.Json)
             body = toPageData(value, updateParameters)
@@ -122,7 +124,7 @@ class ConfluenceClientImpl(
                     )
                 )
             )
-            put("version", buildMap {
+            put("version", buildMap<String, Any> {
                 put("number", value.version)
                 put("minorEdit", !pageUpdateOptions.notifyWatchers)
                 pageUpdateOptions.message?.let { put("message", it) }
@@ -151,8 +153,11 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun addAttachments(pageId: String, pageAttachmentInput: List<PageAttachmentInput>): PageAttachments {
-        return  httpClient.submitFormWithBinaryData("$apiBase/content/$pageId/child/attachment", formData {
+    override suspend fun addAttachments(
+        pageId: String,
+        pageAttachmentInput: List<PageAttachmentInput>
+    ): PageAttachments {
+        return httpClient.submitFormWithBinaryData("$apiBase/content/$pageId/child/attachment", formData {
             for (attachment in pageAttachmentInput) {
                 addAttachmentToForm(attachment)
             }
@@ -165,11 +170,13 @@ class ConfluenceClientImpl(
     override suspend fun updateAttachment(
         pageId: String,
         attachmentId: String,
-        attachment: PageAttachmentInput
+        pageAttachmentInput: PageAttachmentInput
     ): Attachment {
-        return httpClient.submitFormWithBinaryData("$apiBase/content/$pageId/child/attachment/$attachmentId/data", formData {
-            addAttachmentToForm(attachment)
-        }) {
+        return httpClient.submitFormWithBinaryData(
+            "$apiBase/content/$pageId/child/attachment/$attachmentId/data",
+            formData {
+                addAttachmentToForm(pageAttachmentInput)
+            }) {
             header("X-Atlassian-Token", "nocheck")
             header("Accept", "application/json")
         }
@@ -195,9 +202,11 @@ private data class PageSearchResult(
     val results: List<ConfluencePage>
 )
 
-fun confluenceClient(confluenceUrl:String, username:String, secret:String, skipSsl:Boolean = false): ConfluenceClient {
+fun confluenceClient(
+    config: ConfluenceClientConfig
+): ConfluenceClient {
     val client = HttpClient(CIO) {
-        if (skipSsl) {
+        if (config.skipSsl) {
             engine {
                 https {
                     trustManager = object : X509TrustManager {
@@ -209,19 +218,16 @@ fun confluenceClient(confluenceUrl:String, username:String, secret:String, skipS
             }
         }
         install(JsonFeature) {
-            serializer = JacksonSerializer(jacksonObjectMapper()
-                .registerModule(Jdk8Module()).registerModule(JavaTimeModule())
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES))
+            serializer = JacksonSerializer(
+                jacksonObjectMapper()
+                    .registerModule(Jdk8Module()).registerModule(JavaTimeModule())
+                    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            )
         }
         install(Auth) {
-            basic {
-                credentials {
-                    BasicAuthCredentials(username = username, password = secret)
-                }
-                sendWithoutRequest { true }
-            }
+            config.auth.create(this)
         }
     }
 
-    return ConfluenceClientImpl("$confluenceUrl/rest/api", client)
+    return ConfluenceClientImpl("${config.server}/rest/api", client)
 }

@@ -6,6 +6,7 @@ fun interface LanguageMapper {
 
     companion object {
         fun nop() : LanguageMapper = LanguageMapper { null }
+        fun forServer(defaultLanguage: String? = null): LanguageMapper = LanguageMapperImpl(CONFLUENCE_SERVER_LANGUAGES, defaultLanguage = defaultLanguage)
         fun forCloud(defaultLanguage:String? = null): LanguageMapper = LanguageMapperImpl(CONFLUENCE_CLOUD_LANGUAGES, defaultLanguage = defaultLanguage)
     }
 
@@ -29,6 +30,18 @@ val LANG_REMAPPING = mapOf(
     "sh" to "bash",
     "html" to "xml",
     "javascript" to "js"
+)
+
+private val CONFLUENCE_SERVER_LANGUAGES = setOf(
+    "actionscript3", "applescript", "bash",
+    "c#", "cpp", "css",
+    "coldfusion", "delphi", "diff",
+    "erl", "groovy", "xml",
+    "java", "jfx", "js",
+    "php", "perl", "text",
+    "powershell", "py", "ruby",
+    "sql", "sass", "scala",
+    "vb", "yml"
 )
 
 private val CONFLUENCE_CLOUD_LANGUAGES = setOf(

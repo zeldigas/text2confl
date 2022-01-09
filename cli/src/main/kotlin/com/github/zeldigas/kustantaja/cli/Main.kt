@@ -22,7 +22,9 @@ class ConfluencePublisher : CliktCommand() {
         }
     }
 
-    override fun run() = Unit
+    override fun run() {
+        currentContext.obj = ServiceProviderImpl()
+    }
 
 }
 

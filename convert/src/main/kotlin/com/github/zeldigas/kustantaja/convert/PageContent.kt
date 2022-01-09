@@ -37,7 +37,8 @@ data class Attachment(
         val md = MessageDigest.getInstance("SHA-256")
         resourceLocation.inputStream().use {
             val byteArray = ByteArray(4096)
-            while (DigestInputStream(it, md).read(byteArray) != -1) {
+            val digestInputStream = DigestInputStream(it, md)
+            while (digestInputStream.read(byteArray) != -1) {
             }
         }
         toBase64(md.digest())

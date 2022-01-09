@@ -1,6 +1,7 @@
 package com.github.zeldigas.kustantaja.convert.markdown
 
 import com.github.zeldigas.kustantaja.convert.*
+import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
@@ -21,7 +22,8 @@ class MarkdownFileConverter : FileConverter {
 
     private val standardExtensions = listOf(
         TablesExtension.create(), YamlFrontMatterExtension.create(),
-        TaskListExtension.create(), StrikethroughSubscriptExtension.create()
+        TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
+        AttributesExtension.create()
     )
     private val parserOptions: DataHolder = MutableDataSet()
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
