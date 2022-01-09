@@ -1,20 +1,11 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
-import assertk.Assert
 import assertk.assertThat
-import assertk.assertions.isEqualTo
-import com.github.zeldigas.text2confl.convert.Attachment
-import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
-import com.github.zeldigas.text2confl.convert.confluence.LanguageMapperImpl
-import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import org.junit.jupiter.api.Test
-import kotlin.io.path.Path
 
-internal class ConfluenceNodeRendererTest {
-    private val parser: MarkdownParser = MarkdownParser()
+internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
 
-    private val languageMapper: LanguageMapper = LanguageMapperImpl(setOf("java", "kotlin"), "fallback")
 
     @Test
     internal fun `Fenced code block with language tag rendering`() {
@@ -100,48 +91,6 @@ internal class ConfluenceNodeRendererTest {
         )
     }
 
-    @Test
-    internal fun `Headings rendering`() {
-        val result = toHtml(
-            """
-            # First header
-            
-            Some paragraph
-            
-            ## Subheader
-            
-            Par inside
-        """.trimIndent()
-        )
-
-        assertThat(result).isEqualToConfluenceFormat(
-            """
-            <h1>First header<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">first-header</ac:parameter></ac:structured-macro></h1>
-            <p>Some paragraph</p>
-            <h2>Subheader<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">subheader</ac:parameter></ac:structured-macro></h2>
-            <p>Par inside</p>
-        """.trimIndent()
-        )
-    }
-
-    private fun toHtml(
-        src: String,
-        attachments: Map<String, Attachment> = emptyMap(),
-        referenceProvider: ReferenceProvider = ReferenceProvider.nop(),
-        languageMapper: LanguageMapper? = null
-    ): String {
-        val ast = parser.parseString(src)
-
-        val htmlRenderer = parser.htmlRenderer(
-            Path("src.md"), attachments, ConvertingContext(
-                referenceProvider, languageMapper ?: this.languageMapper, "TEST", { _, title -> title }
-            )
-        )
-
-        return htmlRenderer.render(ast)
-    }
 }
 
-private fun <T> Assert<T>.isEqualToConfluenceFormat(expected: String) {
-    isEqualTo(expected + "\n")
-}
+
