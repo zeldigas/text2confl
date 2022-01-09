@@ -2,7 +2,10 @@ package com.github.zeldigas.text2confl.convert.confluence
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
 import com.github.zeldigas.text2confl.convert.PageHeader
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.nio.file.Path
@@ -49,4 +52,17 @@ internal class ReferenceProviderImplTest {
         assertThat(result).isEqualTo(expectedTitle?.ifEmpty { null }?.let { Xref(it, null) })
     }
 
+    @Test
+    internal fun `Anchor resolution`() {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), "#test")
+
+        assertThat(result).isNotNull().isEqualTo(Anchor("test"))
+    }
+
+    @Test
+    internal fun `Xref with anchor resolution`() {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), "sub/one.md#test")
+
+        assertThat(result).isNotNull().isEqualTo(Xref("Sub Title One", "test"))
+    }
 }

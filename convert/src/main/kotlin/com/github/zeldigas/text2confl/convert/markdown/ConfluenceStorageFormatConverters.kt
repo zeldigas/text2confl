@@ -21,7 +21,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
 import java.nio.file.Path
 
-internal class ConfluenceFormatExtension() : HtmlRendererExtension {
+internal class ConfluenceFormatExtension : HtmlRendererExtension {
 
     companion object {
         val DOCUMENT_LOCATION = NullableDataKey<Path>("DOCUMENT_LOCATION", null)
@@ -30,7 +30,6 @@ internal class ConfluenceFormatExtension() : HtmlRendererExtension {
     }
 
     override fun rendererOptions(options: MutableDataHolder) {
-
     }
 
     override fun extend(htmlRendererBuilder: HtmlRenderer.Builder, rendererType: String) {
@@ -38,6 +37,9 @@ internal class ConfluenceFormatExtension() : HtmlRendererExtension {
     }
 }
 
+/**
+ * Confluence storage format customizations that override [com.vladsch.flexmark.html.renderer.CoreNodeRenderer]
+ */
 class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
 
     private val sourcePath = ConfluenceFormatExtension.DOCUMENT_LOCATION[options]!!
@@ -96,8 +98,14 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private fun render(node: Image, context: NodeRendererContext, html: HtmlWriter) {
         val altText = TextCollectingVisitor().collectAndGetText(node)
         val url = node.url.unescape()
-        //todo support custom attributes via attributes extension: alignment, width, height, caption
-        html.openTag("ac:image", mapOf("ac:alt" to altText, "ac:title" to altText))
+        val attributes = buildMap<String, String> {
+            //todo support custom attributes via attributes extension: alignment, width, height, caption
+            put("ac:alt", altText)
+            if (node.title.isNotNull) {
+                put("ac:title", node.title.unescape())
+            }
+        }
+        html.openTag("ac:image", attributes)
         if (url in attachments) {
             html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(url).attachmentName))
         } else {
@@ -160,7 +168,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
-    fun render(node: Heading, context: NodeRendererContext, html: HtmlWriter) {
+    private fun render(node: Heading, context: NodeRendererContext, html: HtmlWriter) {
         html.srcPos(node.text).withAttr().tagLine("h" + node.level) {
             context.renderChildren(node)
             if (context.htmlOptions.renderHeaderId) {

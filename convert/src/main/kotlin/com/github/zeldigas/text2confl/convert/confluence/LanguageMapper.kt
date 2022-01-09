@@ -6,16 +6,24 @@ fun interface LanguageMapper {
 
     companion object {
         fun nop() : LanguageMapper = LanguageMapper { null }
-        fun forServer(defaultLanguage: String? = null): LanguageMapper = LanguageMapperImpl(CONFLUENCE_SERVER_LANGUAGES, defaultLanguage = defaultLanguage)
-        fun forCloud(defaultLanguage:String? = null): LanguageMapper = LanguageMapperImpl(CONFLUENCE_CLOUD_LANGUAGES, defaultLanguage = defaultLanguage)
+        fun forServer(defaultLanguage: String? = null): LanguageMapper = LanguageMapperImpl(
+            CONFLUENCE_SERVER_LANGUAGES,
+            mapping = SERVER_REMAPPING,
+            defaultLanguage = defaultLanguage
+        )
+        fun forCloud(defaultLanguage:String? = null): LanguageMapper = LanguageMapperImpl(
+            CONFLUENCE_CLOUD_LANGUAGES,
+            mapping = CLOUD_REMAPPING,
+            defaultLanguage = defaultLanguage
+        )
     }
 
 }
 
-private class LanguageMapperImpl(
-    private val supportedLanguages: Set<String>,
-    private val defaultLanguage: String? = null,
-    private val mapping: Map<String, String> = LANG_REMAPPING
+internal class LanguageMapperImpl(
+    val supportedLanguages: Set<String>,
+    val defaultLanguage: String? = null,
+    val mapping: Map<String, String> = LANG_REMAPPING
 ) : LanguageMapper {
     override fun mapToConfluenceLanguage(language: String): String? {
         val normalized = language.lowercase()
@@ -24,15 +32,22 @@ private class LanguageMapperImpl(
 }
 
 val LANG_REMAPPING = mapOf(
-    "yaml" to "yml",
     "shell" to "bash",
     "zsh" to "bash",
     "sh" to "bash",
-    "html" to "xml",
     "javascript" to "js"
 )
 
-private val CONFLUENCE_SERVER_LANGUAGES = setOf(
+val SERVER_REMAPPING = LANG_REMAPPING + mapOf(
+    "yaml" to "yml",
+    "html" to "xml",
+)
+
+val CLOUD_REMAPPING = LANG_REMAPPING + mapOf(
+    "yml" to "yaml"
+)
+
+val CONFLUENCE_SERVER_LANGUAGES = setOf(
     "actionscript3", "applescript", "bash",
     "c#", "cpp", "css",
     "coldfusion", "delphi", "diff",
@@ -44,7 +59,7 @@ private val CONFLUENCE_SERVER_LANGUAGES = setOf(
     "vb", "yml"
 )
 
-private val CONFLUENCE_CLOUD_LANGUAGES = setOf(
+val CONFLUENCE_CLOUD_LANGUAGES = setOf(
     "abap", "actionscript3", "ada",
     "applescript", "arduino", "autoit",
     "bash", "c", "cpp", "clojure",

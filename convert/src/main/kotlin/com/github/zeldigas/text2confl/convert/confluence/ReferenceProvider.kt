@@ -12,12 +12,14 @@ interface ReferenceProvider {
             return ReferenceProviderImpl(basePath, documents)
         }
 
-        fun nop(): ReferenceProvider {
-            return object : ReferenceProvider {
-                override fun resolveReference(source: Path, refTo: String): Reference? {
-                    return null;
-                }
+        private val NOP_PROVIDER = object : ReferenceProvider {
+            override fun resolveReference(source: Path, refTo: String): Reference? {
+                return null;
             }
+        }
+
+        fun nop(): ReferenceProvider {
+            return NOP_PROVIDER
         }
     }
 }
@@ -49,5 +51,25 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
         val document = normalizedDocs[targetPath]?.title ?: return null
         return Xref(document, anchor);
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ReferenceProviderImpl
+
+        if (basePath != other.basePath) return false
+        if (normalizedDocs != other.normalizedDocs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = basePath.hashCode()
+        result = 31 * result + normalizedDocs.hashCode()
+        return result
+    }
+
+
 }
 

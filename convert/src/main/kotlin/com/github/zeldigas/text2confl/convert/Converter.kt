@@ -6,6 +6,7 @@ import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
@@ -18,30 +19,33 @@ interface Converter {
 
 }
 
+class FileDoesNotExistException(val file: Path) : RuntimeException("File does not exist: $file")
+
 fun universalConverter(
     space: String,
     languageMapper: LanguageMapper,
     titleConverter: (Path, String) -> String = { _, title -> title },
 ): Converter {
-    return UniversalConverter(space, languageMapper, titleConverter)
+    return UniversalConverter(space, languageMapper, titleConverter, mapOf(
+        "md" to MarkdownFileConverter()
+    ))
 }
 
 internal class UniversalConverter(
-    private val space: String,
-    private val languageMapper: LanguageMapper,
-    private val titleConverter: (Path, String) -> String,
+    val space: String,
+    val languageMapper: LanguageMapper,
+    val titleConverter: (Path, String) -> String,
+    val converters: Map<String, FileConverter>
 ) : Converter {
 
-    private val converters: Map<String, FileConverter> = mapOf(
-        "md" to MarkdownFileConverter()
-    )
-
     override fun convertFile(file: Path): Page {
-        val converter = converters[file.extension]
-            ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
+        val converter = converterFor(file)
+        if (!file.exists()) {
+            throw FileDoesNotExistException(file)
+        }
 
         return Page(
-            converter.convert(file, ConvertingContext(ReferenceProvider.nop(), languageMapper, "", titleConverter)),
+            converter.convert(file, ConvertingContext(ReferenceProvider.nop(), languageMapper, space, titleConverter)),
             file,
             emptyList()
         )
@@ -76,10 +80,11 @@ internal class UniversalConverter(
     }
 
     private fun convertSupported(file: Path, context: ConvertingContext): PageContent {
-        val converter =
-            converters[file.extension] ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
-        return converter.convert(file, context)
+        return converterFor(file).convert(file, context)
     }
+
+    private fun converterFor(file: Path) =
+        converters[file.extension] ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
 
     private fun File.supported() = isFile && !name.startsWith("_") && extension.lowercase() in converters
     private fun Path.supported() = toFile().supported()
