@@ -5,7 +5,7 @@ Is a tool for publishing documentation written in structured text formats like m
 
 ## Scope
 
-`text2confl` does not care and assume the purpose of publishing process and the type of content you are going to upload - it can be some formal docs managed as a code or todo list or some report of tickets from jira. Due to this fact there is no clear end state of features (so far) that should be supported and features that should not be in this tool. If you find something missing - feel free to create an issue and describe your request.
+`text2confl` does not care or assume the purpose of publishing process and the type of content you are going to upload - it can be some formal docs managed as a code or todo list or some report of tickets from jira. Due to this fact there is no clear end state of features (so far) that should be supported and features that should not be in this tool. If you find something missing - feel free to create an issue and describe your needs.
 
 ## Design and usability goals
 
