@@ -12,7 +12,7 @@ Is a tool for publishing documentation written in structured text formats like m
 Here are a number of items that tool tries to follow:
 1. Provide good features coverage for every supported source format - if you pick asciidoc you should feel comfortable by using its features and not always bumping into the fact that something is not supported.
 
-   The important note here is that feature should somehow be mapped to Confluence feature of formatting
+   The important note here is that feature should somehow be mapped to Confluence feature or formatting capabilities.
 2. Provide reasonable defaults and auto-detection of parameters where possible - if you use Confluence Cloud there is no need to specify editor version unless you have some non-standard needs
 3. Support both Confluence Server and Cloud and be aware of their differences in editors or features
 4. If source format supports extensibility and customization - support it. There should be no need to create a fork just because you need to add some macros for your asciidoc documents.
