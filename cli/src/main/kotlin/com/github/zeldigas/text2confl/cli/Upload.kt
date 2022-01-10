@@ -16,13 +16,18 @@ import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.text2confl.cli.config.*
+import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
 private class UserCreds : OptionGroup("Confluence user credentials") {
     val confluenceUser: String by option("--user", envvar = "CONFLUENCE_USER").required()
-    val confluencePassword: String? by option("--password", envvar = "CONFLUENCE_PASSWORD", help = "User password or personal API token")
+    val confluencePassword: String? by option(
+        "--password",
+        envvar = "CONFLUENCE_PASSWORD",
+        help = "User password or personal API token provided instead of password (e.g. in Confluence Cloud)"
+    )
 }
 
 class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence") {
@@ -31,9 +36,9 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         "--confluence-url", envvar = "CONFLUENCE_URL",
         help = "Address of confluence server. For Confluence cloud it is usually https://<site>.atlassian.net/wiki"
     ).convert { Url(it) }
-    private val oauthToken: String? by option(
-        "--oauth-token", envvar = "CONFLUENCE_OAUTH_TOKEN",
-        help = "OAuth2 access token"
+    private val accessToken: String? by option(
+        "--access-token", envvar = "CONFLUENCE_ACCESS_TOKEN",
+        help = "Confluence api token. Used for token only authorization in api (NO username)"
     )
     private val userCreds: UserCreds? by UserCreds().cooccurring()
     private val skipSsl: Boolean? by option(
@@ -105,7 +110,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         val server = confluenceUrl ?: configuration.server?.let { Url(it) }
         ?: parameterMissing("Confluence url", "--confluence-url", "server")
         val auth = when {
-            oauthToken != null -> TokenAuth(oauthToken!!)
+            accessToken != null && userCreds != null -> throw PrintMessage("Both access token and username/password specified, but only one of them allowed")
+            accessToken != null -> TokenAuth(accessToken!!)
             userCreds != null -> passwordAuth(userCreds!!)
             else -> throw PrintMessage("Either access token or username/password should be specified", error = true)
         }

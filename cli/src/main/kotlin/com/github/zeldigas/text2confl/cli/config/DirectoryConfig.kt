@@ -2,7 +2,7 @@ package com.github.zeldigas.text2confl.cli.config
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import com.github.zeldigas.text2confl.cli.ChangeDetector
+import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 
 /**
  * Holder of data that can be put to `.text2confl.yml` configuration file that is located in root directory of directory structure

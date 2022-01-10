@@ -19,6 +19,8 @@ import com.github.zeldigas.text2confl.cli.config.ConverterConfig
 import com.github.zeldigas.text2confl.cli.config.DirectoryConfig
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
+import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
+import com.github.zeldigas.text2confl.cli.upload.ContentUploader
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.Page
 import io.ktor.http.*
@@ -39,8 +41,8 @@ internal class UploadTest(
     @MockK private val confluenceClient: ConfluenceClient,
     @MockK private val converter: Converter
 ) {
-    private val commnad = Upload()
-    private val parentContext = Context.build(commnad) {}
+    private val command = Upload()
+    private val parentContext = Context.build(command) {}
 
     @BeforeEach
     internal fun setUp() {
@@ -56,7 +58,7 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
 
-        commnad.parse(
+        command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
                 "--space", "TR",
@@ -97,9 +99,9 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
 
-        commnad.parse(
+        command.parse(
             listOf(
-                "--oauth-token", "token",
+                "--access-token", "token",
                 "--message", "custom upload message",
                 "--docs", tempDir.toString()
             ),
@@ -129,7 +131,7 @@ internal class UploadTest(
 
     @Test
     internal fun `Any credential type must be specified`(@TempDir tempDir: Path) {
-        assertThat { commnad.parse(
+        assertThat { command.parse(
             listOf(
                 "--space", "TR",
                 "--confluence-url", "https://wiki.example.org",
@@ -145,7 +147,7 @@ internal class UploadTest(
 
     @Test
     internal fun `Space is required`(@TempDir tempDir: Path) {
-        assertThat { commnad.parse(
+        assertThat { command.parse(
             listOf(
                 "--docs", tempDir.toString()
             ),
@@ -159,7 +161,7 @@ internal class UploadTest(
 
     @Test
     internal fun `Confluence url is required`(@TempDir tempDir: Path) {
-        assertThat { commnad.parse(
+        assertThat { command.parse(
             listOf(
                 "--space", "TR",
                 "--docs", tempDir.toString()
@@ -178,11 +180,11 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.getPage("TR", "Test page").id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        commnad.parse(
+        command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
                 "--space", "TR",
-                "--oauth-token", "test",
+                "--access-token", "test",
                 "--parent", "Test page",
                 "--docs", tempDir.toString()
             ),
@@ -200,11 +202,11 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.describeSpace("TR", listOf("homepage")).homepage?.id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        commnad.parse(
+        command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
                 "--space", "TR",
-                "--oauth-token", "test",
+                "--access-token", "test",
                 "--docs", tempDir.toString()
             ),
             parentContext

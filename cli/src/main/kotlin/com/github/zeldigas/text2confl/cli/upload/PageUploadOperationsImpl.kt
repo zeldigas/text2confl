@@ -1,9 +1,7 @@
-package com.github.zeldigas.text2confl.cli
+package com.github.zeldigas.text2confl.cli.upload
 
 import com.github.zeldigas.confclient.*
-import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.Label
 import com.github.zeldigas.confclient.model.PageProperty
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
@@ -14,71 +12,25 @@ import mu.KotlinLogging
 import java.nio.file.Path
 import kotlin.io.path.extension
 
-
-private val EditorVersion.propertyValue: String
-    get() = name.lowercase()
-
-private val PageContent.labels: List<String>
-    get() = when (val result = header.attributes["labels"]) {
-        is List<*> -> result as List<String>
-        is String -> result.split(",").map { it.trim() }
-        else -> emptyList()
-    }
-
-
-enum class ChangeDetector(
-    val extraData: List<String>,
-    val strategy: (serverPage: ConfluencePage, content: PageContent) -> Boolean
-) {
-    HASH(emptyList(), { serverPage, content ->
-        serverPage.metadata?.properties?.get(ContentUploader.HASH_PROPERTY)?.value != content.hash
-    }),
-    CONTENT(listOf("body.storage"), { serverPage, content ->
-        serverPage.body?.storage?.value != content.body
-    })
-}
-
-
-class ContentUploader(
+internal class PageUploadOperationsImpl(
     val client: ConfluenceClient,
     val uploadMessage: String,
     val notifyWatchers: Boolean,
     val pageContentChangeDetector: ChangeDetector,
     val editorVersion: EditorVersion
-) {
+) : PageUploadOperations {
 
     companion object {
-        const val HASH_PROPERTY = "content-hash"
-        const val EDITOR_PROPERTY = "editor"
-        private val logger = KotlinLogging.logger {}
+        private val logger = KotlinLogging.logger {  }
     }
 
-    suspend fun uploadPages(pages: List<Page>, space: String, parentPageId: String) {
-        coroutineScope {
-            for (page in pages) {
-                launch {
-                    logger.info { "Uploading page: ${page.title}" }
-                    val pageId = uploadPage(page, space, parentPageId)
-                    uploadPages(page.children, space, pageId)
-                }
-            }
-        }
-    }
-
-    private suspend fun uploadPage(page: Page, space: String, parentPageId: String): String {
-        val serverPage = createOrUpdatePageContent(page, space, parentPageId)
-        updatePageLabels(serverPage, page.content)
-        updatePageAttachments(serverPage, page.content)
-        return serverPage.id
-    }
-
-    private suspend fun createOrUpdatePageContent(page: Page, space: String, parentPageId: String): ServerPage {
+    override suspend fun createOrUpdatePageContent(page: Page, space: String, parentPageId: String): ServerPage {
         val serverPage = client.getPageOrNull(
             space = space, title = page.title, expansions =
             listOf(
                 "metadata.labels",
-                "metadata.properties.$HASH_PROPERTY",
-                "metadata.properties.$EDITOR_PROPERTY",
+                "metadata.properties.${HASH_PROPERTY}",
+                "metadata.properties.${EDITOR_PROPERTY}",
                 "version",
                 "children.attachment"
             ) + pageContentChangeDetector.extraData
@@ -107,11 +59,7 @@ class ContentUploader(
                 ),
                 PageUpdateOptions(notifyWatchers, uploadMessage)
             )
-            client.setPageProperty(
-                serverPage.id,
-                HASH_PROPERTY,
-                hashProperty(serverPage.pageProperty(HASH_PROPERTY), page.content.hash)
-            )
+            setPageContentHash(serverPage.id, page.content, serverPage.pageProperty(HASH_PROPERTY))
             setEditorVersion(serverPage.id, serverPage.pageProperty(EDITOR_PROPERTY))
         } else {
             logger.info { "Page is up to date, nothing to do: ${serverPage.id}, ${serverPage.title}" }
@@ -124,41 +72,6 @@ class ContentUploader(
         )
     }
 
-    private fun hashProperty(pageProperty: PageProperty?, hash: String): PagePropertyInput {
-        return if (pageProperty == null) {
-            PagePropertyInput.newProperty(hash)
-        } else {
-            PagePropertyInput.updateOf(pageProperty, hash)
-        }
-    }
-
-    private suspend fun setContentHash(id: String, pageProperty: PageProperty? = null, hash:String) {
-        if (pageProperty == null) {
-            client.setPageProperty(id, HASH_PROPERTY, PagePropertyInput.newProperty(hash))
-        } else if (pageProperty.value != editorVersion.propertyValue) {
-            client.setPageProperty(id, EDITOR_PROPERTY, PagePropertyInput.updateOf(pageProperty, editorVersion.propertyValue))
-        }
-    }
-
-    private suspend fun setEditorVersion(id: String, pageProperty: PageProperty? = null) {
-        setOrUpdateProperty(pageProperty, id)
-    }
-
-    private suspend fun setOrUpdateProperty(
-        pageProperty: PageProperty?,
-        id: String
-    ) {
-        if (pageProperty == null) {
-            client.setPageProperty(id, EDITOR_PROPERTY, PagePropertyInput.newProperty(editorVersion.propertyValue))
-        } else if (pageProperty.value != editorVersion.propertyValue) {
-            client.setPageProperty(
-                id,
-                EDITOR_PROPERTY,
-                PagePropertyInput.updateOf(pageProperty, editorVersion.propertyValue)
-            )
-        }
-    }
-
     private suspend fun createNewPage(
         space: String,
         parentPageId: String,
@@ -169,12 +82,36 @@ class ContentUploader(
             PageContentInput(parentPageId, page.title, page.content.body, space),
             PageUpdateOptions(notifyWatchers, uploadMessage)
         )
-        client.setPageProperty(serverPage.id, HASH_PROPERTY, PagePropertyInput.newProperty(page.content.hash))
+        setPageContentHash(serverPage.id, page.content)
         setEditorVersion(serverPage.id)
         return ServerPage(serverPage.id, parentPageId, emptyList(), emptyList())
     }
 
-    private suspend fun updatePageLabels(serverPage: ServerPage, content: PageContent) {
+    private suspend fun setPageContentHash(pageId: String, pageContent: PageContent, pageProperty: PageProperty? = null) {
+        setOrUpdateProperty(pageId, pageContent.hash, pageProperty)
+    }
+
+    private suspend fun setEditorVersion(pageId: String, pageProperty: PageProperty? = null) {
+        setOrUpdateProperty(pageId, editorVersion.propertyValue, pageProperty)
+    }
+
+    private suspend fun setOrUpdateProperty(
+        pageId: String,
+        value: String,
+        existingProperty: PageProperty?
+    ) {
+        if (existingProperty == null) {
+            client.setPageProperty(pageId, EDITOR_PROPERTY, PagePropertyInput.newProperty(value))
+        } else if (existingProperty.value != value) {
+            client.setPageProperty(
+                pageId,
+                EDITOR_PROPERTY,
+                PagePropertyInput.updateOf(existingProperty, value)
+            )
+        }
+    }
+
+    override suspend fun updatePageLabels(serverPage: ServerPage, content: PageContent) {
         val labels = serverPage.labels.map { it.label }
         if (labels != content.labels) {
 
@@ -187,11 +124,15 @@ class ContentUploader(
         }
     }
 
-    private suspend fun updatePageAttachments(serverPage: ServerPage, content: PageContent) {
+    override suspend fun updatePageAttachments(serverPage: ServerPage, content: PageContent) {
         if (serverPage.attachments.isEmpty() && content.attachments.isEmpty()) return
 
         val serverAttachments =
-            serverPage.attachments.map { it.title to ServerAttachment(it.id, it.metadata.attachmentHash) }.toMap()
+            serverPage.attachments.map { it.title to ServerAttachment(
+                it.id,
+                it.metadata.attachmentHash
+            )
+            }.toMap()
         val new = content.attachments.filter { it.attachmentName !in serverAttachments }
         val reUpload =
             content.attachments.filter { it.attachmentName in serverAttachments && serverAttachments[it.attachmentName]?.hash != it.hash }
@@ -221,18 +162,35 @@ class ContentUploader(
         }
     }
 
-    private data class ServerPage(
-        val id: String, val parent: String?, val labels: List<Label>, val attachments: List<Attachment>
-    )
-
     private data class ServerAttachment(
         val id: String, val hash: String?
     )
-
 }
+
+private val EditorVersion.propertyValue: String
+    get() = name.lowercase()
+
+private val PageContent.labels: List<String>
+    get() = when (val result = header.attributes["labels"]) {
+        is List<*> -> result as List<String>
+        is String -> result.split(",").map { it.trim() }
+        else -> emptyList()
+    }
+
+private fun ConfluencePage.pageProperty(name: String): PageProperty? {
+    return metadata?.properties?.get(name)
+}
+
+private val Map<String, Any?>.attachmentHash: String?
+    get() {
+        val comment = this["comment"] as? String ?: return null
+        return """HASH:(\w+)""".toRegex().find(comment)?.groups?.get(1)?.value
+    }
 
 private fun com.github.zeldigas.text2confl.convert.Attachment.toAttachmentInput(): PageAttachmentInput =
     PageAttachmentInput(attachmentName, resourceLocation, "HASH:${hash}", resolveContentType(resourceLocation))
+
+private fun resolveContentType(file: Path): String? = CONTENT_TYPES[file.extension.lowercase().trim()]
 
 private val CONTENT_TYPES = mapOf(
     "png" to "image/png",
@@ -261,15 +219,3 @@ private val CONTENT_TYPES = mapOf(
     "zip" to "application/zip",
     "pdf" to "application/pdf"
 )
-
-private fun resolveContentType(file:Path) : String? = CONTENT_TYPES[file.extension.lowercase().trim()]
-
-private fun ConfluencePage.pageProperty(name: String): PageProperty? {
-    return metadata?.properties?.get(name)
-}
-
-private val Map<String, Any?>.attachmentHash: String?
-    get() {
-        val comment = this["comment"] as? String ?: return null
-        return """HASH:(\w+)""".toRegex().find(comment)?.groups?.get(1)?.value
-    }

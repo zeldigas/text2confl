@@ -5,6 +5,7 @@ import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.text2confl.cli.config.ConverterConfig
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
+import com.github.zeldigas.text2confl.cli.upload.ContentUploader
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.universalConverter
 

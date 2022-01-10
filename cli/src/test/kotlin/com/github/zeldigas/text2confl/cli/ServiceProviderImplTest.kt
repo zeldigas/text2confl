@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.cli
 import assertk.all
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
 import assertk.assertions.prop
 import com.github.zeldigas.confclient.ConfluenceClient
@@ -12,6 +13,9 @@ import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.text2confl.cli.config.ConverterConfig
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
+import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
+import com.github.zeldigas.text2confl.cli.upload.ContentUploader
+import com.github.zeldigas.text2confl.cli.upload.PageUploadOperationsImpl
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.universalConverter
 import io.ktor.http.*
@@ -40,11 +44,13 @@ internal class ServiceProviderImplTest {
         )
 
         assertThat(result).all {
-            prop(ContentUploader::client).isEqualTo(client)
-            prop(ContentUploader::editorVersion).isEqualTo(EditorVersion.V2)
-            prop(ContentUploader::notifyWatchers).isTrue()
-            prop(ContentUploader::pageContentChangeDetector).isEqualTo(ChangeDetector.CONTENT)
-            prop(ContentUploader::uploadMessage).isEqualTo("test")
+            prop(ContentUploader::pageUploadOperations).isInstanceOf(PageUploadOperationsImpl::class).all {
+                prop(PageUploadOperationsImpl::client).isEqualTo(client)
+                prop(PageUploadOperationsImpl::editorVersion).isEqualTo(EditorVersion.V2)
+                prop(PageUploadOperationsImpl::notifyWatchers).isTrue()
+                prop(PageUploadOperationsImpl::pageContentChangeDetector).isEqualTo(ChangeDetector.CONTENT)
+                prop(PageUploadOperationsImpl::uploadMessage).isEqualTo("test")
+            }
         }
     }
 

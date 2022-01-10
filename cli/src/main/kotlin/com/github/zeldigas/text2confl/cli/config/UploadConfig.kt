@@ -1,6 +1,6 @@
 package com.github.zeldigas.text2confl.cli.config
 
-import com.github.zeldigas.text2confl.cli.ChangeDetector
+import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 
 data class UploadConfig(
     val space: String,
