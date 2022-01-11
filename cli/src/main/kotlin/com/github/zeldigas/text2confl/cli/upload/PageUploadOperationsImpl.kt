@@ -172,7 +172,7 @@ private val EditorVersion.propertyValue: String
 
 private val PageContent.labels: List<String>
     get() = when (val result = header.attributes["labels"]) {
-        is List<*> -> result as List<String>
+        is List<*> -> result.map { it.toString() }
         is String -> result.split(",").map { it.trim() }
         else -> emptyList()
     }
