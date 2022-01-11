@@ -1,9 +1,12 @@
 package com.github.zeldigas.text2confl.cli.upload
 
-import com.github.zeldigas.confclient.ConfluenceClient
-import com.github.zeldigas.confclient.PageAttachmentInput
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.Label
+import com.github.zeldigas.confclient.model.PageProperty
+import com.github.zeldigas.confclient.model.PropertyVersion
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.convert.PageContent
 import com.github.zeldigas.text2confl.convert.PageHeader
@@ -13,6 +16,8 @@ import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import kotlin.io.path.Path
 
 private const val PAGE_ID = "id"
@@ -21,6 +26,149 @@ private const val PAGE_ID = "id"
 internal class PageUploadOperationsImplTest(
     @MockK private val client: ConfluenceClient
 ) {
+
+    @Test
+    internal fun `Creation of new page`() {
+        coEvery {
+            client.getPageOrNull(
+                "TEST", "Page title", expansions = listOf(
+                    "metadata.labels",
+                    "metadata.properties.content-hash",
+                    "metadata.properties.editor",
+                    "version",
+                    "children.attachment",
+                )
+            )
+        } returns null
+
+        coEvery { client.createPage(any(), any()) } returns mockk {
+            every { id } returns "new_id"
+        }
+        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+
+        val result = runBlocking {
+            uploadOperations("create-page", false).createOrUpdatePageContent(mockk {
+                every { title } returns "Page title"
+                every { content } returns mockk {
+                    every { body } returns "body"
+                    every { hash } returns "body-hash"
+                }
+            }, "TEST", "parentId")
+        }
+
+        assertThat(result).isEqualTo(ServerPage("new_id", "parentId", emptyList(), emptyList()))
+
+        coVerify {
+            client.createPage(
+                PageContentInput("parentId", "Page title", "body", "TEST"),
+                PageUpdateOptions(false, "create-page")
+            )
+        }
+        coVerify {
+            client.setPageProperty("new_id", "content-hash", PagePropertyInput.newProperty("body-hash"))
+        }
+        coVerify {
+            client.setPageProperty("new_id", "editor", PagePropertyInput.newProperty("v2"))
+        }
+    }
+
+    @Test
+    internal fun `Update of existing page`() {
+        coEvery {
+            client.getPageOrNull(
+                "TEST", "Page title", expansions = listOf(
+                    "metadata.labels",
+                    "metadata.properties.content-hash",
+                    "metadata.properties.editor",
+                    "version",
+                    "children.attachment",
+                )
+            )
+        } returns mockk {
+            every { id } returns PAGE_ID
+            every { version?.number } returns 42
+            every { metadata?.labels?.results } returns listOf(serverLabel("one"))
+            every { metadata?.properties } returns mapOf(
+                "editor" to PageProperty("123", "editor", "v1", PropertyVersion(2)),
+                "content-hash" to PageProperty("124", "content-hash", "abc", PropertyVersion(3))
+            )
+            every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
+        }
+
+        coEvery { client.updatePage(PAGE_ID, any(), any()) } returns  mockk()
+        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+
+        val result = runBlocking {
+            uploadOperations("update-page", editorVersion = EditorVersion.V1).createOrUpdatePageContent(mockk {
+                every { title } returns "Page title"
+                every { content } returns mockk {
+                    every { body } returns "body"
+                    every { hash } returns "body-hash"
+                }
+            }, "TEST", "parentId")
+        }
+
+        assertThat(result).isEqualTo(ServerPage(PAGE_ID, "parentId",
+            listOf(serverLabel("one")),
+            listOf(serverAttachment("one", "HASH:123"))))
+
+        coVerify {
+            client.updatePage(
+                PAGE_ID,
+                PageContentInput("parentId", "Page title", "body", null, 43),
+                PageUpdateOptions(true, "update-page")
+            )
+        }
+        coVerify {
+            client.setPageProperty(PAGE_ID, "content-hash", PagePropertyInput("body-hash", PropertyVersion(4)))
+        }
+        coVerify(exactly = 0) {
+            client.setPageProperty(PAGE_ID, "editor", any())
+        }
+    }
+
+    @EnumSource(ChangeDetector::class)
+    @ParameterizedTest
+    internal fun `No update if content is not changed`(changeDetector: ChangeDetector) {
+        coEvery {
+            client.getPageOrNull(
+                "TEST", "Page title", expansions = listOf(
+                    "metadata.labels",
+                    "metadata.properties.content-hash",
+                    "metadata.properties.editor",
+                    "version",
+                    "children.attachment",
+                ) + changeDetector.extraData
+            )
+        } returns mockk {
+            every { id } returns PAGE_ID
+            every { metadata?.labels?.results } returns emptyList()
+            every { children?.attachment?.results } returns emptyList()
+            when(changeDetector) {
+                ChangeDetector.CONTENT -> {
+                    every { body?.storage?.value } returns "body"
+                }
+                ChangeDetector.HASH -> {
+                    every { metadata?.properties } returns mapOf(
+                        "content-hash" to PageProperty("124", "content-hash", "hash", PropertyVersion(3))
+                    )
+                }
+            }
+        }
+
+        val result = runBlocking {
+            uploadOperations(changeDetector = changeDetector).createOrUpdatePageContent(mockk {
+                every { title } returns "Page title"
+                every { content } returns mockk {
+                    every { body } returns "body"
+                    every { hash } returns "hash"
+                }
+            }, "TEST", "parentId")
+        }
+
+        assertThat(result.id).isEqualTo(PAGE_ID)
+        coVerify(exactly = 0) { client.updatePage(any(), any(), any()) }
+    }
 
     @Test
     internal fun `Update of page labels with deletion of missing`() {
@@ -158,7 +306,12 @@ internal class PageUploadOperationsImplTest(
 
     private fun serverLabel(label: String) = Label("", label, label, label)
 
-    private fun uploadOperations(): PageUploadOperationsImpl {
-        return PageUploadOperationsImpl(client, "message", true, ChangeDetector.HASH, EditorVersion.V2)
+    private fun uploadOperations(
+        changeMessage: String = "message",
+        notifyWatchers: Boolean = true,
+        editorVersion: EditorVersion = EditorVersion.V2,
+        changeDetector: ChangeDetector = ChangeDetector.HASH
+    ): PageUploadOperationsImpl {
+        return PageUploadOperationsImpl(client, changeMessage, notifyWatchers, changeDetector, editorVersion)
     }
 }

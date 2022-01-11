@@ -66,7 +66,7 @@ internal class PageUploadOperationsImpl(
         }
         return ServerPage(
             serverPage.id,
-            null,
+            parentPageId,
             serverPage.metadata?.labels?.results ?: emptyList(),
             serverPage.children?.attachment?.results ?: emptyList()
         )
@@ -88,24 +88,25 @@ internal class PageUploadOperationsImpl(
     }
 
     private suspend fun setPageContentHash(pageId: String, pageContent: PageContent, pageProperty: PageProperty? = null) {
-        setOrUpdateProperty(pageId, pageContent.hash, pageProperty)
+        setOrUpdateProperty(pageId, HASH_PROPERTY, pageContent.hash, pageProperty)
     }
 
     private suspend fun setEditorVersion(pageId: String, pageProperty: PageProperty? = null) {
-        setOrUpdateProperty(pageId, editorVersion.propertyValue, pageProperty)
+        setOrUpdateProperty(pageId, EDITOR_PROPERTY, editorVersion.propertyValue, pageProperty)
     }
 
     private suspend fun setOrUpdateProperty(
         pageId: String,
+        propertyName: String,
         value: String,
         existingProperty: PageProperty?
     ) {
         if (existingProperty == null) {
-            client.setPageProperty(pageId, EDITOR_PROPERTY, PagePropertyInput.newProperty(value))
+            client.setPageProperty(pageId, propertyName, PagePropertyInput.newProperty(value))
         } else if (existingProperty.value != value) {
             client.setPageProperty(
                 pageId,
-                EDITOR_PROPERTY,
+                propertyName,
                 PagePropertyInput.updateOf(existingProperty, value)
             )
         }

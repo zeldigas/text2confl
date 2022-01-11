@@ -61,8 +61,11 @@ internal class ContentUploaderTest(
 
         runBlocking { contentUploader.uploadPages(listOf(fastPage, mediumPage, slowPage), "TEST", "id") }
 
-        registry.keys.forEach {
-            coVerify { uploadOperations.createOrUpdatePageContent(it, "TEST", any()) }
+        listOf(fastPage, mediumPage, slowPage).forEach {
+            coVerify { uploadOperations.createOrUpdatePageContent(it, "TEST", "id") }
+        }
+        fastPage.children.forEach {
+            coVerify { uploadOperations.createOrUpdatePageContent(it, "TEST", "1") }
         }
     }
 
