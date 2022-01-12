@@ -4,8 +4,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.output.TermUi
-import com.github.ajalt.clikt.parameters.groups.OptionGroup
-import com.github.ajalt.clikt.parameters.groups.cooccurring
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -21,26 +19,22 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-private class UserCreds : OptionGroup("Confluence user credentials") {
-    val confluenceUser: String by option("--user", envvar = "CONFLUENCE_USER").required()
-    val confluencePassword: String? by option(
-        "--password",
-        envvar = "CONFLUENCE_PASSWORD",
-        help = "User password or personal API token provided instead of password (e.g. in Confluence Cloud)"
-    )
-}
-
 class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence") {
 
     private val confluenceUrl: Url? by option(
         "--confluence-url", envvar = "CONFLUENCE_URL",
         help = "Address of confluence server. For Confluence cloud it is usually https://<site>.atlassian.net/wiki"
     ).convert { Url(it) }
+    val confluenceUser: String? by option("--user", envvar = "CONFLUENCE_USER")
+    val confluencePassword: String? by option(
+        "--password",
+        envvar = "CONFLUENCE_PASSWORD",
+        help = "User password or personal API token provided instead of password (e.g. in Confluence Cloud)"
+    )
     private val accessToken: String? by option(
         "--access-token", envvar = "CONFLUENCE_ACCESS_TOKEN",
         help = "Confluence api token. Used for token only authorization in api (NO username)"
     )
-    private val userCreds: UserCreds? by UserCreds().cooccurring()
     private val skipSsl: Boolean? by option(
         "--skip-ssl-verification",
         help = "If ssl checks should be skipped when connecting to server"
@@ -110,9 +104,9 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         val server = confluenceUrl ?: configuration.server?.let { Url(it) }
         ?: parameterMissing("Confluence url", "--confluence-url", "server")
         val auth = when {
-            accessToken != null && userCreds != null -> throw PrintMessage("Both access token and username/password specified, but only one of them allowed")
+            accessToken != null && confluenceUser != null -> throw PrintMessage("Both access token and username/password specified, but only one of them allowed")
             accessToken != null -> TokenAuth(accessToken!!)
-            userCreds != null -> passwordAuth(userCreds!!)
+            confluenceUser != null -> passwordAuth(confluenceUser!!, confluencePassword)
             else -> throw PrintMessage("Either access token or username/password should be specified", error = true)
         }
         return ConfluenceClientConfig(
@@ -122,11 +116,11 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         )
     }
 
-    private fun passwordAuth(creds: UserCreds): PasswordAuth {
-        val password = creds.confluencePassword
+    private fun passwordAuth(username: String, password: String?): PasswordAuth {
+        val effectivePassword = password
             ?: TermUi.prompt("Enter password: ", hideInput = true, requireConfirmation = true)
             ?: throw PrintMessage("Password can't be null")
-        return PasswordAuth(creds.confluenceUser, password)
+        return PasswordAuth(username, effectivePassword)
     }
 
     private fun createConversionConfig(directoryConfig: DirectoryConfig, server: Url): ConverterConfig {
