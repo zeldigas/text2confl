@@ -51,6 +51,11 @@
             <artifactId>flexmark-ext-toc</artifactId>
             <version>${flexmark.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-ext-admonition</artifactId>
+            <version>${flexmark.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>io.github.microutils</groupId>

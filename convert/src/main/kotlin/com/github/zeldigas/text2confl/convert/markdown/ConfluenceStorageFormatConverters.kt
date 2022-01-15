@@ -5,6 +5,7 @@ import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.Xref
 import com.vladsch.flexmark.ast.*
+import com.vladsch.flexmark.ext.admonition.AdmonitionBlock
 import com.vladsch.flexmark.ext.attributes.AttributeNode
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.attributes.internal.NodeAttributeRepository
@@ -54,6 +55,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         private val logger = KotlinLogging.logger { }
 
         val ALLOWED_TOC_ATTRIBUTES = listOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type")
+        val ADMONITION_TYPES = listOf("tip", "note", "info", "warning")
+        const val DEFAULT_ADMONITION_TYPE = "note"
     }
 
     private val sourcePath = ConfluenceFormatExtension.DOCUMENT_LOCATION[options]!!
@@ -77,6 +80,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             NodeRenderingHandler(BulletList::class.java, this::render),
             NodeRenderingHandler(TaskListItem::class.java, this::render),
             NodeRenderingHandler(TocBlock::class.java, this::render),
+            NodeRenderingHandler(AdmonitionBlock::class.java, this::render),
         )
     }
 
@@ -313,6 +317,19 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
                 attributes.forEach { (name, value) -> html.addParameter(name, value, withTagLine = true) }
             }
         }
+    }
+
+    private fun render(node: AdmonitionBlock, context: NodeRendererContext, html: HtmlWriter) {
+        val type = node.info.toString().lowercase()
+        val confluenceType = if (type in ADMONITION_TYPES) type else DEFAULT_ADMONITION_TYPE
+        html.openTag("ac:structured-macro", mapOf("ac:name" to confluenceType))
+        if (!node.title.isNull) {
+            html.addParameter("title", node.title.toString())
+        }
+        html.tag("ac:rich-text-body") {
+            context.renderChildren(node)
+        }
+        html.closeTag("ac:structured-macro")
     }
 
     private val ListBlock.taskList: Boolean

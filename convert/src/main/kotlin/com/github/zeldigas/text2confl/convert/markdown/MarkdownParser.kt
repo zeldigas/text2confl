@@ -21,7 +21,7 @@ internal class MarkdownParser {
     private val standardExtensions = listOf(
         TablesExtension.create(), YamlFrontMatterExtension.create(),
         TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
-        SimpleAttributesExtension(), TocExtension.create()
+        SimpleAttributesExtension(), TocExtension.create(), SimpleAdmonitionExtension()
     )
     private val parserOptions: DataHolder = MutableDataSet()
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
