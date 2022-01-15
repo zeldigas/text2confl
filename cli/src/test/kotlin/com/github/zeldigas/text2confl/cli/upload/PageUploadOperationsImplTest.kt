@@ -33,7 +33,7 @@ internal class PageUploadOperationsImplTest(
             client.getPageOrNull(
                 "TEST", "Page title", expansions = listOf(
                     "metadata.labels",
-                    "metadata.properties.content-hash",
+                    "metadata.properties.contenthash",
                     "metadata.properties.editor",
                     "version",
                     "children.attachment",
@@ -65,7 +65,7 @@ internal class PageUploadOperationsImplTest(
             )
         }
         coVerify {
-            client.setPageProperty("new_id", "content-hash", PagePropertyInput.newProperty("body-hash"))
+            client.setPageProperty("new_id", "contenthash", PagePropertyInput.newProperty("body-hash"))
         }
         coVerify {
             client.setPageProperty("new_id", "editor", PagePropertyInput.newProperty("v2"))
@@ -78,7 +78,7 @@ internal class PageUploadOperationsImplTest(
             client.getPageOrNull(
                 "TEST", "Page title", expansions = listOf(
                     "metadata.labels",
-                    "metadata.properties.content-hash",
+                    "metadata.properties.contenthash",
                     "metadata.properties.editor",
                     "version",
                     "children.attachment",
@@ -90,7 +90,7 @@ internal class PageUploadOperationsImplTest(
             every { metadata?.labels?.results } returns listOf(serverLabel("one"))
             every { metadata?.properties } returns mapOf(
                 "editor" to PageProperty("123", "editor", "v1", PropertyVersion(2)),
-                "content-hash" to PageProperty("124", "content-hash", "abc", PropertyVersion(3))
+                "contenthash" to PageProperty("124", "contenthash", "abc", PropertyVersion(3))
             )
             every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
         }
@@ -120,7 +120,7 @@ internal class PageUploadOperationsImplTest(
             )
         }
         coVerify {
-            client.setPageProperty(PAGE_ID, "content-hash", PagePropertyInput("body-hash", PropertyVersion(4)))
+            client.setPageProperty(PAGE_ID, "contenthash", PagePropertyInput("body-hash", PropertyVersion(4)))
         }
         coVerify(exactly = 0) {
             client.setPageProperty(PAGE_ID, "editor", any())
@@ -134,7 +134,7 @@ internal class PageUploadOperationsImplTest(
             client.getPageOrNull(
                 "TEST", "Page title", expansions = listOf(
                     "metadata.labels",
-                    "metadata.properties.content-hash",
+                    "metadata.properties.contenthash",
                     "metadata.properties.editor",
                     "version",
                     "children.attachment",
@@ -150,7 +150,7 @@ internal class PageUploadOperationsImplTest(
                 }
                 ChangeDetector.HASH -> {
                     every { metadata?.properties } returns mapOf(
-                        "content-hash" to PageProperty("124", "content-hash", "hash", PropertyVersion(3))
+                        "contenthash" to PageProperty("124", "contenthash", "hash", PropertyVersion(3))
                     )
                 }
             }
