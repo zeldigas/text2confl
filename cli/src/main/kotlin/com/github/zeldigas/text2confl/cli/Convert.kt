@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.universalConverter
@@ -16,7 +17,7 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
 
     private val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
         .help("File or directory with files to convert")
-    private val space:String by option("--space")
+    private val space: String by option("--space")
         .help("Space key to use if it is required in output format").default("AAA")
     private val useTitleAsOutFile by option("--use-title").flag("--no-use-title")
         .help("If title of document should be used in resulting filename instead of plain original filenames")
@@ -29,6 +30,14 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
 
     override fun run() {
         val converter = universalConverter(space, LanguageMapper.forCloud())
+        try {
+            tryConvert(converter)
+        } catch (ex: Exception) {
+            tryHandleException(ex)
+        }
+    }
+
+    private fun tryConvert(converter: Converter) {
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {

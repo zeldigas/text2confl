@@ -2,16 +2,18 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import assertk.all
 import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.prop
+import assertk.assertions.*
 import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
-import org.junit.jupiter.api.Assertions.*
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createFile
 import kotlin.io.path.writeText
 
 internal class MarkdownFileConverterTest {
@@ -21,9 +23,11 @@ internal class MarkdownFileConverterTest {
     @Test
     internal fun `Read header with no title frontmatter`(@TempDir dir: Path) {
         val file = dir.resolve("src.md")
-        file.writeText("""
+        file.writeText(
+            """
             Some markdown
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val result = converter.readHeader(file, HeaderReadingContext(titleTransformer()))
 
@@ -33,7 +37,8 @@ internal class MarkdownFileConverterTest {
     @Test
     internal fun `Read header with title frontmatter`(@TempDir dir: Path) {
         val file = dir.resolve("src.md")
-        file.writeText("""
+        file.writeText(
+            """
             ---
             title: Custom title
             labels:
@@ -42,14 +47,19 @@ internal class MarkdownFileConverterTest {
             ---
             
             Some markdown
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val result = converter.readHeader(file, HeaderReadingContext(titleTransformer()))
 
-        assertThat(result).isEqualTo(PageHeader("Prefixed: Custom title", mapOf(
-            "title" to "Custom title",
-            "labels" to listOf("one", "two")
-        )))
+        assertThat(result).isEqualTo(
+            PageHeader(
+                "Prefixed: Custom title", mapOf(
+                    "title" to "Custom title",
+                    "labels" to listOf("one", "two")
+                )
+            )
+        )
     }
 
     private fun titleTransformer(): (Path, String) -> String = { _, title -> "Prefixed: $title" }
@@ -57,7 +67,8 @@ internal class MarkdownFileConverterTest {
     @Test
     internal fun `Convert file`(@TempDir dir: Path) {
         val file = dir.resolve("src.md")
-        file.writeText("""            
+        file.writeText(
+            """            
             Some markdown [with attachment](test.txt)
             
             Code block:
@@ -68,27 +79,51 @@ internal class MarkdownFileConverterTest {
             ## Second level section
             
             [Link](https://example.org)
-        """.trimIndent())
+        """.trimIndent()
+        )
         Files.createFile(dir.resolve("test.txt"))
 
-        val result = converter.convert(file, ConvertingContext(
-            ReferenceProvider.nop(), LanguageMapper.forServer(), "TEST",
-            titleTransformer()
-        ))
+        val result = converter.convert(
+            file, ConvertingContext(
+                ReferenceProvider.nop(), LanguageMapper.forServer(), "TEST",
+                titleTransformer()
+            )
+        )
 
         assertThat(result).all {
             prop(PageContent::header).isEqualTo(PageHeader("Prefixed: src", emptyMap()))
             prop(PageContent::attachments).isEqualTo(
                 listOf(Attachment("test.txt", "test.txt", dir.resolve("test.txt")))
             )
-            prop(PageContent::body).isEqualTo("""
+            prop(PageContent::body).isEqualTo(
+                """
             <p>Some markdown <ac:link><ri:attachment ri:filename="test.txt" /><ac:plain-text-link-body><![CDATA[with attachment]]></ac:plain-text-link-body></ac:link></p>
             <p>Code block:</p>
             <ac:structured-macro ac:name="code"><ac:parameter ac:name="language">java</ac:parameter><ac:plain-text-body><![CDATA[System.out.println("Hello world!");]]></ac:plain-text-body></ac:structured-macro>
             <h2>Second level section<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">second-level-section</ac:parameter></ac:structured-macro></h2>
             
             <p><a href="https://example.org">Link</a></p>
-            """.trimIndent() + "\n\n")
+            """.trimIndent() + "\n\n"
+            )
         }
+    }
+
+    @Test
+    internal fun `AST parsing failure is thrown as specific exception`(@TempDir dir: Path) {
+        val file = dir.resolve("test").createFile().also { it.writeText("test") }
+
+        val cause = IOException("error during file parsing")
+        val parser = mockk<MarkdownParser> {
+            every { parseReader(any()) } throws cause
+        }
+
+        assertThat {
+            MarkdownFileConverter(parser).convert(file, mockk())
+        }.isFailure().isInstanceOf(ConversionFailedException::class).all {
+            hasCause(cause)
+            hasMessage("Document parsing failed")
+        }
+
+
     }
 }

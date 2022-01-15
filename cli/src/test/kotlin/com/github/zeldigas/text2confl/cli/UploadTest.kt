@@ -21,7 +21,9 @@ import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import com.github.zeldigas.text2confl.cli.upload.ContentUploader
+import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.Converter
+import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
 import com.github.zeldigas.text2confl.convert.Page
 import io.ktor.http.*
 import io.mockk.*
@@ -216,6 +218,40 @@ internal class UploadTest(
             contentUploader.uploadPages(result, "TR", "1234")
         }
 
+    }
+
+    @Test
+    internal fun `Handling of file does not exist exception`(@TempDir tempDir: Path) {
+        every { converter.convertDir(tempDir) } throws FileDoesNotExistException(tempDir)
+
+        assertThat {
+            command.parse(
+                listOf(
+                    "--confluence-url", "https://test.atlassian.net/wiki",
+                    "--space", "TR",
+                    "--access-token", "test",
+                    "--docs", tempDir.toString()
+                ),
+                parentContext
+            )
+        }.isFailure().isInstanceOf(PrintMessage::class).hasMessage("File does not exist: $tempDir")
+    }
+
+    @Test
+    internal fun `Handling of conversion failed exception`(@TempDir tempDir: Path) {
+        every { converter.convertDir(tempDir) } throws ConversionFailedException(tempDir, "Conversion error message", RuntimeException("cause"))
+
+        assertThat {
+            command.parse(
+                listOf(
+                    "--confluence-url", "https://test.atlassian.net/wiki",
+                    "--space", "TR",
+                    "--access-token", "test",
+                    "--docs", tempDir.toString()
+                ),
+                parentContext
+            )
+        }.isFailure().isInstanceOf(PrintMessage::class).hasMessage("Failed to convert $tempDir: Conversion error message (cause: java.lang.RuntimeException: cause)")
     }
 
     private fun sampleConfig(): DirectoryConfig {

@@ -12,6 +12,8 @@ interface FileConverter {
 
 }
 
+class ConversionFailedException(val file: Path, message: String, cause: Exception? = null) : RuntimeException(message, cause)
+
 data class HeaderReadingContext(
     val titleTransformer: (Path, String) -> String
 )

@@ -73,6 +73,14 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     private val serviceProvider: ServiceProvider by requireObject()
 
     override fun run() = runBlocking {
+        try {
+            tryUpload()
+        } catch (ex: Exception) {
+            tryHandleException(ex)
+        }
+    }
+
+    private suspend fun tryUpload() {
         val directoryStoredParams = readDirectoryConfig(docs.toPath());
         val uploadConfig = createUploadConfig(directoryStoredParams)
         val clientConfig = createClientConfig(directoryStoredParams)
