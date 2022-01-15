@@ -1,8 +1,8 @@
-name: Verify PR
+name: Build and package
 on:
   push:
     branches:
-      - $default-branch
+      - master
   workflow_dispatch:
 
 jobs:

@@ -2,10 +2,10 @@ name: Verify PR
 on:
   push:
     branches-ignore:
-      - $default-branch
+      - master
   pull_request:
     branches:
-      - $default-branch
+      - master
 
 jobs:
   build:
