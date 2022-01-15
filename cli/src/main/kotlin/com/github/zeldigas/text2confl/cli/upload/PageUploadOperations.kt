@@ -6,7 +6,7 @@ import com.github.zeldigas.confclient.model.Label
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 
-const val HASH_PROPERTY = "content-hash"
+const val HASH_PROPERTY = "contenthash"
 const val EDITOR_PROPERTY = "editor"
 
 interface PageUploadOperations {
