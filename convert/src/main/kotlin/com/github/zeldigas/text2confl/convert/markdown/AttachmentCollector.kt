@@ -40,7 +40,12 @@ class AttachmentCollector(private val source: Path, private val referencesProvid
     }
 
     private fun tryCollect(node: LinkRef, ast: Document) {
-        addFileIfExists(node.getReferenceNode(ast).url.unescape())
+        val referenceNode = node.getReferenceNode(ast)
+        if (referenceNode == null) {
+            logger.debug { "Skipping link reference with no resolved url: $node" }
+            return
+        }
+        addFileIfExists(referenceNode.url.unescape())
     }
 
     private fun tryCollect(node: Image) {
@@ -48,7 +53,12 @@ class AttachmentCollector(private val source: Path, private val referencesProvid
     }
 
     private fun tryCollect(node: ImageRef, ast: Document) {
-        addFileIfExists(node.getReferenceNode(ast).url.unescape())
+        val referenceNode = node.getReferenceNode(ast)
+        if (referenceNode == null) {
+            logger.debug { "Skipping image reference with no resolved url: $node" }
+            return
+        }
+        addFileIfExists(referenceNode.url.unescape())
     }
 
     private fun addFileIfExists(pathToFile: String) {
@@ -65,6 +75,8 @@ class AttachmentCollector(private val source: Path, private val referencesProvid
     }
 
     private fun isLocal(pathToFile: String): Boolean {
+        if (pathToFile.isEmpty()) return false
+
         return try {
             val uri = URI.create(pathToFile)
             uri.scheme == null

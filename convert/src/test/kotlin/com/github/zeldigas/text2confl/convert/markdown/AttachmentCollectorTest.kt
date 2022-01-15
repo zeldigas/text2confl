@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
@@ -57,6 +58,26 @@ internal class AttachmentCollectorTest {
     }
 
     @Test
+    internal fun `Attachment collection for empty links`(@TempDir dir: Path, @MockK referenceProvider: ReferenceProvider) {
+        val ast = parser.parse(
+            """
+            Link to [empty link]()
+            Link to [smth][test]            
+            [dangling]
+            
+            [test]: 
+            
+        """.trimIndent()
+        )
+
+        val doc = dir.resolve("doc.md")
+
+        val attachments = AttachmentCollector(doc, referenceProvider).collectAttachments(ast)
+
+        assertThat(attachments).isEmpty()
+    }
+
+    @Test
     internal fun `Attachment collection for images`(@TempDir dir: Path, @MockK referenceProvider: ReferenceProvider) {
         Files.createFile(dir.resolve("existing"))
         Files.createFile(dir.resolve("existing1"))
@@ -86,5 +107,25 @@ internal class AttachmentCollectorTest {
             "existing" to dir.resolve("existing"),
             "existing1" to dir.resolve("existing1")
         ))
+    }
+
+    @Test
+    internal fun `Attachment collection for empty image links`(@TempDir dir: Path, @MockK referenceProvider: ReferenceProvider) {
+        val ast = parser.parse(
+            """
+            Link to ![empty link]()
+            Link to ![smth][test]
+            ![dangling]
+            
+            [test]: 
+            
+        """.trimIndent()
+        )
+
+        val doc = dir.resolve("doc.md")
+
+        val attachments = AttachmentCollector(doc, referenceProvider).collectAttachments(ast)
+
+        assertThat(attachments).isEmpty()
     }
 }
