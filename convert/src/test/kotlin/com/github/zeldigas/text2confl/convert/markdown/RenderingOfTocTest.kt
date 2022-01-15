@@ -43,6 +43,7 @@ internal class RenderingOfTocTest : RenderingTestBase() {
               <ac:parameter ac:name="minLevel">2</ac:parameter>
               <ac:parameter ac:name="style">circle</ac:parameter>
               <ac:parameter ac:name="separator">pipe</ac:parameter>
+              <ac:parameter ac:name="type">list</ac:parameter>
               <ac:parameter ac:name="include">.*</ac:parameter>
               <ac:parameter ac:name="exclude">smth</ac:parameter>
             </ac:structured-macro>
