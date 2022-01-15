@@ -5,11 +5,13 @@ import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.Xref
 import com.vladsch.flexmark.ast.*
+import com.vladsch.flexmark.ext.gfm.tasklist.TaskListItem
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension
 import com.vladsch.flexmark.html.HtmlRendererOptions
 import com.vladsch.flexmark.html.HtmlWriter
 import com.vladsch.flexmark.html.renderer.*
+import com.vladsch.flexmark.parser.ListOptions
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.ast.TextCollectingVisitor
@@ -17,7 +19,6 @@ import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.DataKey
 import com.vladsch.flexmark.util.data.MutableDataHolder
 import com.vladsch.flexmark.util.data.NullableDataKey
-import com.vladsch.flexmark.util.misc.CharPredicate
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
 import mu.KotlinLogging
@@ -54,6 +55,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private val recheckUndefinedReferences = HtmlRenderer.RECHECK_UNDEFINED_REFERENCES.get(options)
     private val attachments: Map<String, Attachment> = ConfluenceFormatExtension.ATTACHMENTS[options]
     private val convertingContext: ConvertingContext = ConfluenceFormatExtension.CONTEXT[options]!!
+    private val listOptions = ListOptions.get(options)
     private val basicRenderer = CoreNodeRenderer(options)
 
     override fun getNodeRenderingHandlers(): Set<NodeRenderingHandler<*>> {
@@ -64,6 +66,9 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             NodeRenderingHandler(Link::class.java, this::render),
             NodeRenderingHandler(LinkRef::class.java, this::render),
             NodeRenderingHandler(Heading::class.java, this::render),
+            NodeRenderingHandler(OrderedList::class.java, this::render),
+            NodeRenderingHandler(BulletList::class.java, this::render),
+            NodeRenderingHandler(TaskListItem::class.java, this::render)
             )
     }
 
@@ -244,6 +249,53 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
                     html.closeTag("ac:structured-macro")
                 }
             }
+        }
+    }
+
+    private fun render(node: OrderedList, context: NodeRendererContext, html: HtmlWriter) {
+        if (node.taskList) {
+            renderTaskList(node, context, html)
+        } else {
+            val start: Int = node.getStartNumber()
+            if (listOptions.isOrderedListManualStart() && start != 1) html.attr("start", start.toString())
+            html.withAttr().tagIndent("ol") { context.renderChildren(node) }
+        }
+    }
+
+    private fun render(node: BulletList, context: NodeRendererContext, html: HtmlWriter) {
+        if (node.taskList) {
+            renderTaskList(node, context, html)
+        } else {
+            html.withAttr().tagIndent("ul") { context.renderChildren(node) }
+        }
+    }
+
+    private fun renderTaskList(node: ListBlock, context: NodeRendererContext, html: HtmlWriter) {
+        html.tag("ac:task-list", false, true) {
+            node.children.filterIsInstance<TaskListItem>().forEach { taskItem ->
+                html.line()
+                html.tag("ac:task") {
+                    html.tag("ac:task-status") {
+                        html.text(when(taskItem.isItemDoneMarker) {
+                            true -> "complete"
+                            false -> "incomplete"
+                        })
+                    }
+                    html.tag("ac:task-body") {
+                        context.renderChildren(taskItem)
+                    }
+                }
+            }
+        }
+    }
+
+    private val ListBlock.taskList: Boolean
+        get() = children.all { it is TaskListItem }
+
+    private fun render(node: TaskListItem, context: NodeRendererContext, html: HtmlWriter) {
+        html.tagLine("li") {
+            node.markerSuffix?.let { html.text(it.unescape()).text(" ") }
+            context.renderChildren(node)
         }
     }
 
