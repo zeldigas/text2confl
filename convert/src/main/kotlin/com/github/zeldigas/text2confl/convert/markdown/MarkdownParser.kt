@@ -52,7 +52,7 @@ internal class MarkdownParser {
         return HtmlRenderer.builder(
             parserOptions.toMutable()
                 .set(HtmlRenderer.RENDER_HEADER_ID, true)
-                .set(Parser.EXTENSIONS, listOf(ConfluenceFormatExtension()) + standardExtensions)
+                .set(Parser.EXTENSIONS, standardExtensions + listOf(ConfluenceFormatExtension()))
                 .set(ConfluenceFormatExtension.DOCUMENT_LOCATION, location)
                 .set(ConfluenceFormatExtension.ATTACHMENTS, attachments)
                 .set(ConfluenceFormatExtension.CONTEXT, context)
