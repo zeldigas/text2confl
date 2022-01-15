@@ -2,10 +2,10 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.ConvertingContext
-import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
+import com.vladsch.flexmark.ext.toc.TocExtension
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
@@ -21,7 +21,7 @@ internal class MarkdownParser {
     private val standardExtensions = listOf(
         TablesExtension.create(), YamlFrontMatterExtension.create(),
         TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
-        AttributesExtension.create()
+        SimpleAttributesExtension(), TocExtension.create()
     )
     private val parserOptions: DataHolder = MutableDataSet()
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)

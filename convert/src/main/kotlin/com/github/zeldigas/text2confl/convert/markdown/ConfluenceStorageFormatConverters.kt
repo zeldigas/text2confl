@@ -5,7 +5,11 @@ import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.Xref
 import com.vladsch.flexmark.ast.*
+import com.vladsch.flexmark.ext.attributes.AttributeNode
+import com.vladsch.flexmark.ext.attributes.AttributesExtension
+import com.vladsch.flexmark.ext.attributes.internal.NodeAttributeRepository
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListItem
+import com.vladsch.flexmark.ext.toc.TocBlock
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension
 import com.vladsch.flexmark.html.HtmlRendererOptions
@@ -48,6 +52,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
 
     companion object {
         private val logger = KotlinLogging.logger { }
+
+        val ALLOWED_TOC_ATTRIBUTES = listOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type")
     }
 
     private val sourcePath = ConfluenceFormatExtension.DOCUMENT_LOCATION[options]!!
@@ -57,6 +63,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private val convertingContext: ConvertingContext = ConfluenceFormatExtension.CONTEXT[options]!!
     private val listOptions = ListOptions.get(options)
     private val basicRenderer = CoreNodeRenderer(options)
+    private val nodeAttributeRepository: NodeAttributeRepository = AttributesExtension.NODE_ATTRIBUTES.get(options)
 
     override fun getNodeRenderingHandlers(): Set<NodeRenderingHandler<*>> {
         return setOf(
@@ -68,8 +75,9 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             NodeRenderingHandler(Heading::class.java, this::render),
             NodeRenderingHandler(OrderedList::class.java, this::render),
             NodeRenderingHandler(BulletList::class.java, this::render),
-            NodeRenderingHandler(TaskListItem::class.java, this::render)
-            )
+            NodeRenderingHandler(TaskListItem::class.java, this::render),
+            NodeRenderingHandler(TocBlock::class.java, this::render),
+        )
     }
 
     private fun render(node: FencedCodeBlock, context: NodeRendererContext, html: HtmlWriter) {
@@ -173,7 +181,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
-    private inline fun <reified T: Node> renderLink(
+    private inline fun <reified T : Node> renderLink(
         url: String,
         html: HtmlWriter,
         node: T,
@@ -208,7 +216,12 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
-    private fun <T: Node> appendLinkBody(node: T, html: HtmlWriter, context: NodeRendererContext, textExtractor: (T) -> String?) {
+    private fun <T : Node> appendLinkBody(
+        node: T,
+        html: HtmlWriter,
+        context: NodeRendererContext,
+        textExtractor: (T) -> String?
+    ) {
         if (node.withRichFormatting) {
             html.tag("ac:link-body")
             context.renderChildren(node)
@@ -276,15 +289,28 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
                 html.line()
                 html.tag("ac:task") {
                     html.tag("ac:task-status") {
-                        html.text(when(taskItem.isItemDoneMarker) {
-                            true -> "complete"
-                            false -> "incomplete"
-                        })
+                        html.text(
+                            when (taskItem.isItemDoneMarker) {
+                                true -> "complete"
+                                false -> "incomplete"
+                            }
+                        )
                     }
                     html.tag("ac:task-body") {
                         context.renderChildren(taskItem)
                     }
                 }
+            }
+        }
+    }
+
+    private fun render(node: TocBlock, context: NodeRendererContext, html: HtmlWriter) {
+        val attributes: Map<String, String> = node.attributes.filterKeys { it in ALLOWED_TOC_ATTRIBUTES }
+        if (attributes.isEmpty()) {
+            html.voidTag("ac:structured-macro", mapOf("ac:name" to "toc"))
+        } else {
+            html.withAttr().attr("ac:name", "toc").tagIndent("ac:structured-macro") {
+                attributes.forEach { (name, value) -> html.addParameter(name, value, withTagLine = true) }
             }
         }
     }
@@ -299,8 +325,12 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
-    private fun HtmlWriter.addParameter(name: String, value: String) {
-        attr("ac:name", name).withAttr().tag("ac:parameter").text(value).closeTag("ac:parameter")
+    private fun HtmlWriter.addParameter(name: String, value: String, withTagLine:Boolean = false) {
+        attr("ac:name", name).withAttr().tag("ac:parameter")
+        text(value).closeTag("ac:parameter")
+        if (withTagLine) {
+            line()
+        }
     }
 
     private fun HtmlWriter.openTag(name: String, attrs: Map<String, CharSequence> = emptyMap()): HtmlWriter {
@@ -322,6 +352,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
 
     private val Node.withRichFormatting: Boolean
         get() = !children.all { it is Text }
+
+    private val Node.attributes: Map<String, String>
+        get() = (nodeAttributeRepository[this]?.flatMap { it.children.filterIsInstance<AttributeNode>() }
+            ?: emptyList()).associate { it.name.unescape() to it.value.unescape() }
 
     private fun HtmlWriter.tagWithCData(
         tagName: String,
