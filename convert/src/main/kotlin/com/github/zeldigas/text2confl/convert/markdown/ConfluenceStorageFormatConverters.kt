@@ -54,8 +54,9 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     companion object {
         private val logger = KotlinLogging.logger { }
 
-        val ALLOWED_TOC_ATTRIBUTES = listOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type")
-        val ADMONITION_TYPES = listOf("tip", "note", "info", "warning")
+        val ALLOWED_TOC_ATTRIBUTES = setOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type")
+        val ALLOWED_IMAGE_ATTRIBUTES = setOf("align", "border", "class", "title", "style", "thumbnail", "alt", "height", "width", "vspace", "hspace", "queryparams")
+        val ADMONITION_TYPES = setOf("tip", "note", "info", "warning")
         const val DEFAULT_ADMONITION_TYPE = "note"
     }
 
@@ -107,7 +108,11 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     }
 
     private fun render(node: Image, context: NodeRendererContext, html: HtmlWriter) {
-        renderImage(html, node.url.unescape(), imageAltText(node), imageTitle(node)) { buildUrl(context, node) }
+        val attributes = node.attributes + mapOf(
+            "alt" to imageAltText(node),
+            "title" to imageTitle(node)
+        )
+        renderImage(html, node.url.unescape(), attributes) { buildUrl(context, node) }
     }
 
     private fun buildUrl(
@@ -140,11 +145,14 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         } else {
             val reference = node.getReferenceNode(referenceRepository)
             val resolvedLink = context.resolveLink(LinkType.IMAGE, reference.url.unescape(), null)
+            val attributes = node.attributes + mapOf(
+                "alt" to imageAltText(node),
+                "title" to imageTitle(reference)
+            )
             renderImage(
                 html,
                 resolvedLink.url,
-                imageAltText(node),
-                imageTitle(reference)
+                attributes
             ) { resolvedLink.url }
         }
 
@@ -158,18 +166,15 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private fun renderImage(
         html: HtmlWriter,
         url: String,
-        alt: String,
-        title: String?,
+        attributes: Map<String, String?>,
         externalUrlProvider: () -> String
     ) {
-        val attributes = buildMap {
-            //todo support custom attributes via attributes extension: alignment, width, height, caption
-            put("ac:alt", alt)
-            if (title != null) {
-                put("ac:title", title)
-            }
-        }
-        html.openTag("ac:image", attributes)
+        val imageAttributes = attributes
+            .filter {(key, value) -> key in ALLOWED_IMAGE_ATTRIBUTES && value != null && value.isNotBlank() }
+            .map { (key, v) -> "ac:$key" to v!! }
+            .toMap()
+
+        html.openTag("ac:image", imageAttributes)
         if (url in attachments) {
             html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(url).attachmentName))
         } else {
