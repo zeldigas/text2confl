@@ -15,7 +15,10 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension
 import com.vladsch.flexmark.html.HtmlRendererOptions
 import com.vladsch.flexmark.html.HtmlWriter
-import com.vladsch.flexmark.html.renderer.*
+import com.vladsch.flexmark.html.renderer.LinkType
+import com.vladsch.flexmark.html.renderer.NodeRenderer
+import com.vladsch.flexmark.html.renderer.NodeRendererContext
+import com.vladsch.flexmark.html.renderer.NodeRenderingHandler
 import com.vladsch.flexmark.parser.ListOptions
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
@@ -66,7 +69,6 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private val attachments: Map<String, Attachment> = ConfluenceFormatExtension.ATTACHMENTS[options]
     private val convertingContext: ConvertingContext = ConfluenceFormatExtension.CONTEXT[options]!!
     private val listOptions = ListOptions.get(options)
-    private val basicRenderer = CoreNodeRenderer(options)
     private val nodeAttributeRepository: NodeAttributeRepository = AttributesExtension.NODE_ATTRIBUTES.get(options)
 
     override fun getNodeRenderingHandlers(): Set<NodeRenderingHandler<*>> {
@@ -190,12 +192,12 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
-    private inline fun <reified T : Node> renderLink(
+    private fun <T : Node> renderLink(
         url: String,
         html: HtmlWriter,
         node: T,
         context: NodeRendererContext,
-        noinline textExtractor: (T) -> String?
+        textExtractor: (T) -> String?
     ) {
         val xref = convertingContext.referenceProvider.resolveReference(sourcePath, url)
         if (xref != null) {
@@ -214,6 +216,9 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
                     appendLinkBody(node, html, context, textExtractor)
                     html.closeTag("ac:link")
                 }
+                else -> {
+                    logger.warn { "Unsupported type of xref: $xref" }
+                }
             }
         } else if (url in attachments) {
             html.openTag("ac:link")
@@ -221,7 +226,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             appendLinkBody(node, html, context, textExtractor)
             html.closeTag("ac:link")
         } else {
-            delegateToStandardRenderer(node, context, html)
+            context.delegateRender()
         }
     }
 
@@ -250,7 +255,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             }
         }
         if (!node.isDefined) {
-            delegateToStandardRenderer(node, context, html)
+            context.delegateRender()
         } else {
             val reference = node.getReferenceNode(referenceRepository)!!
             val resolvedLink = context.resolveLink(LinkType.LINK, reference.url.unescape(), null)
@@ -279,7 +284,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             renderTaskList(node, context, html)
         } else {
             val start: Int = node.getStartNumber()
-            if (listOptions.isOrderedListManualStart() && start != 1) html.attr("start", start.toString())
+            if (listOptions.isOrderedListManualStart && start != 1) html.attr("start", start.toString())
             html.withAttr().tagIndent("ol") { context.renderChildren(node) }
         }
     }
@@ -313,6 +318,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun render(node: TocBlock, context: NodeRendererContext, html: HtmlWriter) {
         val attributes: Map<String, String> = node.attributes.filterKeys { it in ALLOWED_TOC_ATTRIBUTES }
         if (attributes.isEmpty()) {
@@ -388,11 +394,4 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             .closeTag(tagName)
     }
 
-    private inline fun <reified T : Node> delegateToStandardRenderer(
-        node: T,
-        context: NodeRendererContext,
-        html: HtmlWriter
-    ) {
-        basicRenderer.nodeRenderingHandlers?.find { it.nodeType == T::class.java }?.render(node, context, html)
-    }
 }

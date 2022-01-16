@@ -27,7 +27,6 @@ internal class MarkdownParser {
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
         .set(HtmlRenderer.INDENT_SIZE, 2)
         .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
-
         // for full GFM table compatibility add the following table extension options:
         .set(TablesExtension.COLUMN_SPANS, false)
         .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
