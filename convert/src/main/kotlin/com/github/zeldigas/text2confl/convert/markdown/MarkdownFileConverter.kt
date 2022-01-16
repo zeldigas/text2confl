@@ -1,7 +1,9 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
 import com.github.zeldigas.text2confl.convert.*
+import com.vladsch.flexmark.ast.Heading
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
+import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterBlock
 import com.vladsch.flexmark.util.ast.Document
 import java.nio.file.Files
 import java.nio.file.Path
@@ -10,20 +12,17 @@ import java.nio.file.Path
 internal class MarkdownFileConverter(private val parser:MarkdownParser = MarkdownParser()) : FileConverter {
 
     override fun readHeader(file: Path, context: HeaderReadingContext): PageHeader {
-        val ast = parseToAst(file)
-
-        val attributes = readAttributes(ast)
-        return createHeader(attributes, file, context.titleTransformer)
+        val (header, _) = parseToHeaderAndBody(file, context.titleTransformer)
+        return header
     }
 
     override fun convert(file: Path, context: ConvertingContext): PageContent {
-        val ast = parseToAst(file)
+        val (header, ast) = parseToHeaderAndBody(file, context.titleTransformer)
 
-        val attributes = readAttributes(ast)
         val attachments = collectAttachments(file, context, ast)
         val generator = parser.htmlRenderer(file, attachments, context)
         return PageContent(
-            createHeader(attributes, file, context.titleTransformer),
+            header,
             generator.render(ast),
             attachments.values.toList()
         )
@@ -50,13 +49,33 @@ internal class MarkdownFileConverter(private val parser:MarkdownParser = Markdow
         }
     }
 
+    private fun parseToHeaderAndBody(file: Path, titleTransformer: (Path, String) -> String): Pair<PageHeader, Document> {
+        val ast = parseToAst(file)
+
+        val attributes = readAttributes(ast)
+        return createHeader(attributes, file, ast, titleTransformer)
+    }
+
     private fun createHeader(
         attributes: Map<String, Any>,
         file: Path,
+        document: Document,
         titleTransformer: (Path, String) -> String
-    ): PageHeader {
-        val title = attributes["title"]?.toString() ?: file.toFile().nameWithoutExtension
-        return PageHeader(titleTransformer(file, title), attributes)
+    ): Pair<PageHeader, Document> {
+        val title = attributes["title"]?.toString()
+            ?: documentTitle(document)
+            ?: file.toFile().nameWithoutExtension
+        return PageHeader(titleTransformer(file, title), attributes) to document
+    }
+
+    private fun documentTitle(document: Document): String? {
+        val firstChild = document.children.firstOrNull { it !is YamlFrontMatterBlock }
+        if (firstChild is Heading && firstChild.level == 1) {
+            val title = firstChild.text.unescape()
+            firstChild.unlink()
+            return title
+        }
+        return null
     }
 
     private fun readAttributes(ast: Document): Map<String, Any> =

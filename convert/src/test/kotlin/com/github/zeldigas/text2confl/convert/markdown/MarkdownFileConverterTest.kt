@@ -10,6 +10,8 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -46,7 +48,7 @@ internal class MarkdownFileConverterTest {
              - two
             ---
             
-            Some markdown
+            # Some markdown
         """.trimIndent()
         )
 
@@ -58,6 +60,70 @@ internal class MarkdownFileConverterTest {
                     "title" to "Custom title",
                     "labels" to listOf("one", "two")
                 )
+            )
+        )
+    }
+
+    @ValueSource(strings = [
+        "Simple title", "Title: special chars", "Title & another special chars"
+    ])
+    @ParameterizedTest
+    internal fun `Read header from first header`(title: String, @TempDir dir: Path) {
+        val file = dir.resolve("src.md")
+        file.writeText(
+            """
+            ---
+            labels:
+             - one
+             - two
+            ---
+            
+            # $title
+            
+        """.trimIndent()
+        )
+
+        val result = converter.readHeader(file, HeaderReadingContext(titleTransformer()))
+
+        assertThat(result).isEqualTo(
+            PageHeader(
+                "Prefixed: $title", mapOf(
+                    "labels" to listOf("one", "two")
+                )
+            )
+        )
+    }
+
+    @Test
+    internal fun `Read header from file header`(@TempDir dir: Path) {
+        val file = dir.resolve("src.md")
+        file.writeText("text")
+
+        val result = converter.readHeader(file, HeaderReadingContext(titleTransformer()))
+
+        assertThat(result).isEqualTo(
+            PageHeader(
+                "Prefixed: src", emptyMap()
+            )
+        )
+    }
+
+    @Test
+    internal fun `Read header from file header with non first level heading`(@TempDir dir: Path) {
+        val file = dir.resolve("src.md")
+        file.writeText(
+            """
+            ## Ignored heading
+            
+            text
+            """.trimIndent()
+        )
+
+        val result = converter.readHeader(file, HeaderReadingContext(titleTransformer()))
+
+        assertThat(result).isEqualTo(
+            PageHeader(
+                "Prefixed: src", emptyMap()
             )
         )
     }
@@ -109,6 +175,34 @@ internal class MarkdownFileConverterTest {
     }
 
     @Test
+    internal fun `Convert file with first header removal`(@TempDir dir: Path) {
+        val file = dir.resolve("src.md")
+        file.writeText(
+            """
+            # Page title
+
+            text
+        """.trimIndent()
+        )
+
+        val result = converter.convert(
+            file, ConvertingContext(
+                ReferenceProvider.nop(), LanguageMapper.forServer(), "TEST",
+                titleTransformer()
+            )
+        )
+
+        assertThat(result).all {
+            prop(PageContent::header).isEqualTo(PageHeader("Prefixed: Page title", emptyMap()))
+            prop(PageContent::body).isEqualTo(
+                """
+            <p>text</p>
+            """.trimIndent() + "\n"
+            )
+        }
+    }
+
+    @Test
     internal fun `AST parsing failure is thrown as specific exception`(@TempDir dir: Path) {
         val file = dir.resolve("test").createFile().also { it.writeText("test") }
 
@@ -118,7 +212,9 @@ internal class MarkdownFileConverterTest {
         }
 
         assertThat {
-            MarkdownFileConverter(parser).convert(file, mockk())
+            MarkdownFileConverter(parser).convert(file, mockk() {
+                every { titleTransformer } returns mockk()
+            })
         }.isFailure().isInstanceOf(ConversionFailedException::class).all {
             hasCause(cause)
             hasMessage("Document parsing failed")
