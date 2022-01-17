@@ -57,8 +57,23 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     companion object {
         private val logger = KotlinLogging.logger { }
 
-        val ALLOWED_TOC_ATTRIBUTES = setOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type")
-        val ALLOWED_IMAGE_ATTRIBUTES = setOf("align", "border", "class", "title", "style", "thumbnail", "alt", "height", "width", "vspace", "hspace", "queryparams")
+        val ALLOWED_TOC_ATTRIBUTES =
+            setOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type")
+        val ALLOWED_IMAGE_ATTRIBUTES = setOf(
+            "align",
+            "border",
+            "class",
+            "title",
+            "style",
+            "thumbnail",
+            "alt",
+            "height",
+            "width",
+            "vspace",
+            "hspace",
+            "queryparams"
+        )
+        val ALLOWED_CODE_ATTRIBUTES = setOf("title", "collapse", "linenumbers", "firstline", "theme")
         val ADMONITION_TYPES = setOf("tip", "note", "info", "warning")
         const val DEFAULT_ADMONITION_TYPE = "note"
     }
@@ -105,12 +120,14 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         if (language != null) {
             html.addParameter("language", language)
         }
+        node.attributesMap.filter { (key, value) -> key in ALLOWED_CODE_ATTRIBUTES && value.isNotBlank()}
+            .forEach { (key, value) -> html.addParameter(key, value) }
         html.tagWithCData("ac:plain-text-body", node.contentChars.normalizeEOL().trimEnd())
         html.closeTag("ac:structured-macro")
     }
 
     private fun render(node: Image, context: NodeRendererContext, html: HtmlWriter) {
-        val attributes = node.attributes + mapOf(
+        val attributes = node.attributesMap + mapOf(
             "alt" to imageAltText(node),
             "title" to imageTitle(node)
         )
@@ -147,7 +164,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         } else {
             val reference = node.getReferenceNode(referenceRepository)
             val resolvedLink = context.resolveLink(LinkType.IMAGE, reference.url.unescape(), null)
-            val attributes = node.attributes + mapOf(
+            val attributes = node.attributesMap + mapOf(
                 "alt" to imageAltText(node),
                 "title" to imageTitle(reference)
             )
@@ -172,7 +189,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         externalUrlProvider: () -> String
     ) {
         val imageAttributes = attributes
-            .filter {(key, value) -> key in ALLOWED_IMAGE_ATTRIBUTES && value != null && value.isNotBlank() }
+            .filter { (key, value) -> key in ALLOWED_IMAGE_ATTRIBUTES && value != null && value.isNotBlank() }
             .map { (key, v) -> "ac:$key" to v!! }
             .toMap()
 
@@ -215,9 +232,6 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
                     html.openTag("ac:link", mapOf("ac:anchor" to xref.target))
                     appendLinkBody(node, html, context, textExtractor)
                     html.closeTag("ac:link")
-                }
-                else -> {
-                    logger.warn { "Unsupported type of xref: $xref" }
                 }
             }
         } else if (url in attachments) {
@@ -355,7 +369,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         }
     }
 
-    private fun HtmlWriter.addParameter(name: String, value: String, withTagLine:Boolean = false) {
+    private fun HtmlWriter.addParameter(name: String, value: String, withTagLine: Boolean = false) {
         attr("ac:name", name).withAttr().tag("ac:parameter")
         text(value).closeTag("ac:parameter")
         if (withTagLine) {
@@ -383,7 +397,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
     private val Node.withRichFormatting: Boolean
         get() = !children.all { it is Text }
 
-    private val Node.attributes: Map<String, String>
+    private val Node.attributesMap: Map<String, String>
         get() = (nodeAttributeRepository[this]?.flatMap { it.children.filterIsInstance<AttributeNode>() }
             ?: emptyList()).associate { it.name.unescape() to it.value.unescape() }
 

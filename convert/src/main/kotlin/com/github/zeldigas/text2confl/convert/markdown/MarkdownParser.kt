@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.ConvertingContext
+import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
@@ -27,6 +28,7 @@ internal class MarkdownParser {
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
         .set(HtmlRenderer.INDENT_SIZE, 2)
         .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
+        .set(AttributesExtension.FENCED_CODE_INFO_ATTRIBUTES, true)
         // for full GFM table compatibility add the following table extension options:
         .set(TablesExtension.COLUMN_SPANS, false)
         .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
