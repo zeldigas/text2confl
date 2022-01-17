@@ -320,12 +320,14 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
 
     @Suppress("UNUSED_PARAMETER")
     private fun render(node: TocBlock, context: NodeRendererContext, html: HtmlWriter) {
-        val attributes: Map<String, String> = node.attributes.filterKeys { it in ALLOWED_TOC_ATTRIBUTES }
-        if (attributes.isEmpty()) {
-            html.voidTag("ac:structured-macro", mapOf("ac:name" to "toc"))
-        } else {
-            html.withAttr().attr("ac:name", "toc").tagIndent("ac:structured-macro") {
-                attributes.forEach { (name, value) -> html.addParameter(name, value, withTagLine = true) }
+        html.tagLine("p") {
+            val attributes: Map<String, String> = node.attributesMap.filterKeys { it in ALLOWED_TOC_ATTRIBUTES }
+            if (attributes.isEmpty()) {
+                html.voidTag("ac:structured-macro", mapOf("ac:name" to "toc"))
+            } else {
+                html.withAttr().attr("ac:name", "toc").tagIndent("ac:structured-macro") {
+                    attributes.forEach { (name, value) -> html.addParameter(name, value, withTagLine = true) }
+                }
             }
         }
     }

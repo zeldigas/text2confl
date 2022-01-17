@@ -18,7 +18,7 @@ internal class RenderingOfTocTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat("""
             <p>Intro paragraph</p>
-            <ac:structured-macro ac:name="toc" />
+            <p><ac:structured-macro ac:name="toc" /></p>
             <h2>Hello<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">hello</ac:parameter></ac:structured-macro></h2>
             <h2>World<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">world</ac:parameter></ac:structured-macro></h2>
         """.trimIndent())
@@ -38,6 +38,7 @@ internal class RenderingOfTocTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat("""
             <p>Intro paragraph</p>
+            <p>
             <ac:structured-macro ac:name="toc">
               <ac:parameter ac:name="maxLevel">5</ac:parameter>
               <ac:parameter ac:name="minLevel">2</ac:parameter>
@@ -47,6 +48,7 @@ internal class RenderingOfTocTest : RenderingTestBase() {
               <ac:parameter ac:name="include">.*</ac:parameter>
               <ac:parameter ac:name="exclude">smth</ac:parameter>
             </ac:structured-macro>
+            </p>
             <h2>Hello<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">hello</ac:parameter></ac:structured-macro></h2>
             <h2>World<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">world</ac:parameter></ac:structured-macro></h2>
         """.trimIndent())
