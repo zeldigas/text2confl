@@ -21,6 +21,7 @@ internal class MarkdownParser {
 
     private val parserOptions: DataHolder = MutableDataSet()
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
+        .set(Parser.HTML_BLOCK_DEEP_PARSER, true)
         .set(HtmlRenderer.RENDER_HEADER_ID, true)
         .set(HtmlRenderer.INDENT_SIZE, 2)
         .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)

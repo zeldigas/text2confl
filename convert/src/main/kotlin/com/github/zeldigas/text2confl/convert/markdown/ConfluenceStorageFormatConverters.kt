@@ -21,7 +21,11 @@ import com.vladsch.flexmark.html.renderer.NodeRendererContext
 import com.vladsch.flexmark.html.renderer.NodeRenderingHandler
 import com.vladsch.flexmark.parser.ListOptions
 import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.parser.block.NodePostProcessor
+import com.vladsch.flexmark.parser.block.NodePostProcessorFactory
+import com.vladsch.flexmark.util.ast.Document
 import com.vladsch.flexmark.util.ast.Node
+import com.vladsch.flexmark.util.ast.NodeTracker
 import com.vladsch.flexmark.util.ast.TextCollectingVisitor
 import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.DataKey
@@ -33,7 +37,7 @@ import mu.KotlinLogging
 import java.nio.file.Path
 
 
-internal class ConfluenceFormatExtension : HtmlRendererExtension {
+internal class ConfluenceFormatExtension : HtmlRendererExtension, Parser.ParserExtension {
 
     companion object {
         val DOCUMENT_LOCATION = NullableDataKey<Path>("DOCUMENT_LOCATION", null)
@@ -46,6 +50,38 @@ internal class ConfluenceFormatExtension : HtmlRendererExtension {
 
     override fun extend(htmlRendererBuilder: HtmlRenderer.Builder, rendererType: String) {
         htmlRendererBuilder.nodeRendererFactory { ConfluenceNodeRenderer(it) }
+    }
+
+    override fun extend(parserBuilder: Parser.Builder) {
+        parserBuilder.postProcessorFactory(ConfluenceRawTagsFactory())
+    }
+
+    override fun parserOptions(options: MutableDataHolder) {
+    }
+}
+
+class ConfluenceRawTagsFactory : NodePostProcessorFactory(false) {
+
+    init {
+        addNodes(HtmlBlock::class.java, HtmlInline::class.java)
+    }
+
+    override fun apply(document: Document): NodePostProcessor {
+        return ConfluenceRawTagsPostProcessor()
+    }
+}
+
+class ConfluenceRawTagsPostProcessor : NodePostProcessor() {
+
+    companion object {
+        val REPLACEMENTS = mapOf("<ac-" to "<ac:", "</ac-" to "</ac:", "<ri-" to "<ri:", "</ri-" to "</ri:")
+    }
+
+    override fun process(state: NodeTracker, node: Node) {
+        if (!(node is HtmlBlock || node is HtmlInline)) return
+
+        val replacement = REPLACEMENTS.keys.firstOrNull { node.chars.startsWith(it) } ?: return
+        node.chars = node.chars.replace(0, replacement.length, REPLACEMENTS.getValue(replacement))
     }
 }
 
