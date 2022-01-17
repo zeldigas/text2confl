@@ -74,7 +74,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             "queryparams"
         )
         val ALLOWED_CODE_ATTRIBUTES = setOf("title", "collapse", "linenumbers", "firstline", "theme")
-        val ADMONITION_TYPES = setOf("tip", "note", "info", "warning")
+        val ADMONITION_TYPES = setOf("tip", "note", "info", "warning", "expand")
         const val DEFAULT_ADMONITION_TYPE = "note"
     }
 
@@ -120,7 +120,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         if (language != null) {
             html.addParameter("language", language)
         }
-        node.attributesMap.filter { (key, value) -> key in ALLOWED_CODE_ATTRIBUTES && value.isNotBlank()}
+        node.attributesMap.filter { (key, value) -> key in ALLOWED_CODE_ATTRIBUTES && value.isNotBlank() }
             .forEach { (key, value) -> html.addParameter(key, value) }
         html.tagWithCData("ac:plain-text-body", node.contentChars.normalizeEOL().trimEnd())
         html.closeTag("ac:structured-macro")

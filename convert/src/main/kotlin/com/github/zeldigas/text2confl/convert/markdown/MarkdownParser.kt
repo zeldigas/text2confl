@@ -19,13 +19,9 @@ import java.nio.file.Path
 
 internal class MarkdownParser {
 
-    private val standardExtensions = listOf(
-        TablesExtension.create(), YamlFrontMatterExtension.create(),
-        TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
-        SimpleAttributesExtension(), TocExtension.create(), SimpleAdmonitionExtension()
-    )
     private val parserOptions: DataHolder = MutableDataSet()
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
+        .set(HtmlRenderer.RENDER_HEADER_ID, true)
         .set(HtmlRenderer.INDENT_SIZE, 2)
         .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
         .set(AttributesExtension.FENCED_CODE_INFO_ATTRIBUTES, true)
@@ -35,7 +31,11 @@ internal class MarkdownParser {
         .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
         .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
         .set(
-            Parser.EXTENSIONS, standardExtensions
+            Parser.EXTENSIONS, listOf(
+                TablesExtension.create(), YamlFrontMatterExtension.create(),
+                TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
+                SimpleAttributesExtension(), TocExtension.create(), SimpleAdmonitionExtension(), ConfluenceFormatExtension()
+            )
         )
         .toImmutable()
 
@@ -52,8 +52,6 @@ internal class MarkdownParser {
     fun htmlRenderer(location: Path, attachments: Map<String, Attachment>, context: ConvertingContext): HtmlRenderer {
         return HtmlRenderer.builder(
             parserOptions.toMutable()
-                .set(HtmlRenderer.RENDER_HEADER_ID, true)
-                .set(Parser.EXTENSIONS, standardExtensions + listOf(ConfluenceFormatExtension()))
                 .set(ConfluenceFormatExtension.DOCUMENT_LOCATION, location)
                 .set(ConfluenceFormatExtension.ATTACHMENTS, attachments)
                 .set(ConfluenceFormatExtension.CONTEXT, context)

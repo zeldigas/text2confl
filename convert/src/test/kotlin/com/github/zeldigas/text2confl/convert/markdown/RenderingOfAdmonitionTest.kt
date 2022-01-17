@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 internal class RenderingOfAdmonitionTest : RenderingTestBase() {
 
-    @ValueSource(strings = ["tip", "note", "warning", "info"])
+    @ValueSource(strings = ["tip", "note", "warning", "info", "expand"])
     @ParameterizedTest
     internal fun `Confluence supported admonitions`(type: String) {
         val result = toHtml(
@@ -37,7 +37,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     internal fun `Confluence unsupported admonitions is rendered as note`() {
         val result = toHtml(
             """
-            !!! bug
+            !!! bug "Title test"
             
                 Test
         """.trimIndent()
@@ -45,7 +45,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <ac:structured-macro ac:name="note"><ac:rich-text-body>
+            <ac:structured-macro ac:name="note"><ac:parameter ac:name="title">Title test</ac:parameter><ac:rich-text-body>
             <p>Test</p>
             </ac:rich-text-body></ac:structured-macro>
         """.trimIndent()
