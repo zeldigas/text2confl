@@ -41,8 +41,16 @@ internal class PageUploadOperationsImplTest(
             )
         } returns null
 
-        coEvery { client.createPage(any(), any()) } returns mockk {
+        coEvery { client.createPage(any(), any(), listOf(
+            "metadata.labels",
+            "metadata.properties.contenthash",
+            "metadata.properties.editor",
+            "version",
+            "children.attachment"
+        )) } returns mockk {
             every { id } returns "new_id"
+            every { metadata } returns null
+            every { children } returns null
         }
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
 
@@ -61,7 +69,8 @@ internal class PageUploadOperationsImplTest(
         coVerify {
             client.createPage(
                 PageContentInput("parentId", "Page title", "body", "TEST"),
-                PageUpdateOptions(false, "create-page")
+                PageUpdateOptions(false, "create-page"),
+                any()
             )
         }
         coVerify {

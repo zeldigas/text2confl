@@ -87,11 +87,14 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun createPage(value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage {
+    override suspend fun createPage(value: PageContentInput, updateParameters: PageUpdateOptions, expansions: List<String>?): ConfluencePage {
         if (value.space.isNullOrEmpty()) {
             throw IllegalArgumentException("Space is required when creating pages")
         }
         return httpClient.post("$apiBase/content") {
+            if (expansions != null){
+                addExpansions(expansions)
+            }
             contentType(ContentType.Application.Json)
             body = toPageData(value, updateParameters)
         }

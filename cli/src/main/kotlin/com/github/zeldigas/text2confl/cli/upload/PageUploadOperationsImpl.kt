@@ -25,22 +25,27 @@ internal class PageUploadOperationsImpl(
     }
 
     override suspend fun createOrUpdatePageContent(page: Page, space: String, parentPageId: String): ServerPage {
-        val serverPage = client.getPageOrNull(
-            space = space, title = page.title, expansions =
-            listOf(
-                "metadata.labels",
-                "metadata.properties.${HASH_PROPERTY}",
-                "metadata.properties.${EDITOR_PROPERTY}",
-                "version",
-                "children.attachment"
-            ) + pageContentChangeDetector.extraData
-        )
+        val serverPage = findPageOnServer(space, page)
         return if (serverPage != null) {
             updateExistingPage(serverPage, page, parentPageId)
         } else {
             createNewPage(space, parentPageId, page)
         }
     }
+
+    private suspend fun findPageOnServer(
+        space: String,
+        page: Page
+    ) = client.getPageOrNull(
+        space = space, title = page.title, expansions =
+        listOf(
+            "metadata.labels",
+            "metadata.properties.${HASH_PROPERTY}",
+            "metadata.properties.${EDITOR_PROPERTY}",
+            "version",
+            "children.attachment"
+        ) + pageContentChangeDetector.extraData
+    )
 
     private suspend fun updateExistingPage(
         serverPage: ConfluencePage,
@@ -64,13 +69,18 @@ internal class PageUploadOperationsImpl(
         } else {
             logger.info { "Page is up to date, nothing to do: ${serverPage.id}, ${serverPage.title}" }
         }
-        return ServerPage(
-            serverPage.id,
-            parentPageId,
-            serverPage.metadata?.labels?.results ?: emptyList(),
-            serverPage.children?.attachment?.results ?: emptyList()
-        )
+        return createServerPage(serverPage, parentPageId)
     }
+
+    private fun createServerPage(
+        serverPage: ConfluencePage,
+        parentPageId: String
+    ) = ServerPage(
+        serverPage.id,
+        parentPageId,
+        serverPage.metadata?.labels?.results ?: emptyList(),
+        serverPage.children?.attachment?.results ?: emptyList()
+    )
 
     private suspend fun createNewPage(
         space: String,
@@ -80,11 +90,18 @@ internal class PageUploadOperationsImpl(
         logger.info { "Page does not exist, need to create it" }
         val serverPage = client.createPage(
             PageContentInput(parentPageId, page.title, page.content.body, space),
-            PageUpdateOptions(notifyWatchers, uploadMessage)
+            PageUpdateOptions(notifyWatchers, uploadMessage),
+            expansions = listOf(
+                "metadata.labels",
+                "metadata.properties.${HASH_PROPERTY}",
+                "metadata.properties.${EDITOR_PROPERTY}",
+                "version",
+                "children.attachment"
+            )
         )
-        setPageContentHash(serverPage.id, page.content)
-        setEditorVersion(serverPage.id)
-        return ServerPage(serverPage.id, parentPageId, emptyList(), emptyList())
+        setPageContentHash(serverPage.id, page.content, serverPage.pageProperty(HASH_PROPERTY))
+        setEditorVersion(serverPage.id, serverPage.pageProperty(EDITOR_PROPERTY))
+        return createServerPage(serverPage, parentPageId)
     }
 
     private suspend fun setPageContentHash(pageId: String, pageContent: PageContent, pageProperty: PageProperty? = null) {

@@ -23,7 +23,7 @@ interface ConfluenceClient {
                         expansions: List<String> = emptyList()
     ): List<ConfluencePage>
 
-    suspend fun createPage(value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage
+    suspend fun createPage(value: PageContentInput, updateParameters: PageUpdateOptions, expansions: List<String>? = null): ConfluencePage
 
     suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage
 

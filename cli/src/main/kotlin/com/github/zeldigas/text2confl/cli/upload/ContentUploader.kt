@@ -3,13 +3,15 @@ package com.github.zeldigas.text2confl.cli.upload
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
+import com.github.zeldigas.text2confl.convert.PageHeader
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
 
 class ContentUploader(
-    val pageUploadOperations: PageUploadOperations
+    val pageUploadOperations: PageUploadOperations,
+    val client: ConfluenceClient
 ) {
 
     constructor(
@@ -18,7 +20,7 @@ class ContentUploader(
         notifyWatchers: Boolean,
         pageContentChangeDetector: ChangeDetector,
         editorVersion: EditorVersion
-    ) : this(PageUploadOperationsImpl(client, uploadMessage, notifyWatchers, pageContentChangeDetector, editorVersion))
+    ) : this(PageUploadOperationsImpl(client, uploadMessage, notifyWatchers, pageContentChangeDetector, editorVersion), client)
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -39,11 +41,27 @@ class ContentUploader(
         }
     }
 
-    private suspend fun uploadPage(page: Page, space: String, parentPageId: String): String {
-        val serverPage = pageUploadOperations.createOrUpdatePageContent(page, space, parentPageId)
+    private suspend fun uploadPage(page: Page, space: String, defaultParentPage: String): String {
+        val parentId = customPageParent(page, space) ?: defaultParentPage
+        val serverPage = pageUploadOperations.createOrUpdatePageContent(page, space, parentId)
         pageUploadOperations.updatePageLabels(serverPage, page.content)
         pageUploadOperations.updatePageAttachments(serverPage, page.content)
         return serverPage.id
     }
 
+    private suspend fun customPageParent(page: Page, space: String): String? {
+        val header = page.content.header
+
+        if (header.parentId != null) return header.parentId
+        if (header.parent != null) return client.getPage(space, header.parent!!).id
+
+        return null
+    }
+
 }
+
+private val PageHeader.parentId: String?
+    get()  = attributes["parentId"]?.toString()
+
+private val PageHeader.parent: String?
+    get()  = attributes["parent"]?.toString()
