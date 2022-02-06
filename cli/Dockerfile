@@ -1,6 +1,8 @@
 FROM openjdk:17-alpine3.14 as build
 
-ADD target/cli-dist/text2confl /opt/app
+ARG VERSION=""
+
+ADD target/text2confl${VERSION}-dist/text2confl /opt/app
 
 RUN find /opt/app -exec touch -t 200001010101 {} \;
 

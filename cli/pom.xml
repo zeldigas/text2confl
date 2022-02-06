@@ -13,10 +13,12 @@
 
     <properties>
         <jackson.version>2.13.0</jackson.version>
+        <!--version suffix is redefined in ci pipelines-->
+        <versionSuffix/>
     </properties>
 
     <build>
-        <finalName>cli</finalName>
+        <finalName>text2confl${versionSuffix}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
