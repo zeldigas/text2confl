@@ -25,7 +25,7 @@ class ConfluenceClientImpl(
     private val httpClient: HttpClient
 ) : ConfluenceClient {
     override suspend fun describeSpace(key: String, expansions: List<String>): Space {
-        return httpClient.get("$apiBase/space/TR") {
+        return httpClient.get("$apiBase/space/$key") {
             addExpansions(expansions)
         }
     }
