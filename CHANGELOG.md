@@ -11,7 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-* Ability to override parent via page attributes. This can be handy for use-cases when root pages do not belong to one
+* Ability to override parent via page attributes. This can be handy for use-cases when root pages do not belong to single
   parent
 * \[Markdown] Support for status macro via custom html tag: `<status color="red">STATUS text</status>`
 * \[Markdown] Support for confluence username reference (`@username`)
@@ -21,7 +21,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 * \[Confluence Cloud] Creation of page - turns out cloud version sets editor property on page creation, so call to
   create this property fails
-* \[Confluence Cloud] - fixed line soft wraps. Editor v2 does paragraph breaks on soft wraps that is undesirable
+* \[Confluence Cloud] Fixed line soft wraps. Editor v2 does paragraph breaks on soft wraps that is undesirable
 * Space details resolution used hardcoded space key, now provided key is used properly
 
 ## 0.1.0 - 2022-02-06
