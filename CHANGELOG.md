@@ -16,6 +16,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 * Creation of page in confluence cloud - turns out cloud version sets editor property on page creation, so call to
   create this property fails
+* Space details resolution used hardcoded space key, now provided key is used properly
 
 ## 0.1.0 - 2022-02-06
 
