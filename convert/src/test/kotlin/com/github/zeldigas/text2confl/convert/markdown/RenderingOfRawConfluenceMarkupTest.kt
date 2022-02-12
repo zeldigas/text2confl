@@ -35,12 +35,7 @@ internal class RenderingOfRawConfluenceMarkupTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:structured-macro ac:name="expand" ac:schema-version="1">
-            <ac:parameter ac:name="title">Title</ac:parameter>
-            <ac:rich-text-body>
-            <ac:image><ri:url ri:value="images/test.png" /></ac:image>
-            </ac:rich-text-body>
-            </ac:structured-macro></p>
+            <p><ac:structured-macro ac:name="expand" ac:schema-version="1"> <ac:parameter ac:name="title">Title</ac:parameter> <ac:rich-text-body> <ac:image><ri:url ri:value="images/test.png" /></ac:image> </ac:rich-text-body> </ac:structured-macro></p>
         """.trimIndent(),
         )
     }

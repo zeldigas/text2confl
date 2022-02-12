@@ -135,6 +135,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             NodeRenderingHandler(TaskListItem::class.java, this::render),
             NodeRenderingHandler(TocBlock::class.java, this::render),
             NodeRenderingHandler(AdmonitionBlock::class.java, this::render),
+            NodeRenderingHandler(ConfluenceStatusNode::class.java, this::render),
+            NodeRenderingHandler(ConfluenceUserNode::class.java, this::render),
         )
     }
 
@@ -395,6 +397,20 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
         html.closeTag("ac:structured-macro")
     }
 
+    private fun render(node: ConfluenceStatusNode, context: NodeRendererContext, html: HtmlWriter) {
+        html.macro("status") {
+            html.addParameter("title", node.text)
+            html.addParameter("colour",
+                node.color.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() })
+        }
+    }
+
+    private fun render(node: ConfluenceUserNode, context: NodeRendererContext, html: HtmlWriter) {
+        html.tag("ac:link") {
+            html.voidTag("ri:user", mapOf("ri:username" to node.text))
+        }
+    }
+
     private val ListBlock.taskList: Boolean
         get() = children.all { it is TaskListItem }
 
@@ -403,6 +419,12 @@ class ConfluenceNodeRenderer(options: DataHolder) : NodeRenderer {
             node.markerSuffix?.let { html.text(it.unescape()).text(" ") }
             context.renderChildren(node)
         }
+    }
+
+    private fun HtmlWriter.macro(name: String, block: () -> Unit) {
+        openTag("ac:structured-macro", mapOf("ac:name" to name))
+        block()
+        closeTag("ac:structured-macro")
     }
 
     private fun HtmlWriter.addParameter(name: String, value: String, withTagLine: Boolean = false) {

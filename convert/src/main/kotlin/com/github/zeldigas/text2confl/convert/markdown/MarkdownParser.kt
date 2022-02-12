@@ -5,6 +5,7 @@ import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
+import com.vladsch.flexmark.ext.superscript.SuperscriptExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.toc.TocExtension
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
@@ -25,6 +26,7 @@ internal class MarkdownParser {
         .set(HtmlRenderer.RENDER_HEADER_ID, true)
         .set(HtmlRenderer.INDENT_SIZE, 2)
         .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
+        .set(HtmlRenderer.SOFT_BREAK, " ")
         .set(AttributesExtension.FENCED_CODE_INFO_ATTRIBUTES, true)
         // for full GFM table compatibility add the following table extension options:
         .set(TablesExtension.COLUMN_SPANS, false)
@@ -35,7 +37,11 @@ internal class MarkdownParser {
             Parser.EXTENSIONS, listOf(
                 TablesExtension.create(), YamlFrontMatterExtension.create(),
                 TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
-                SimpleAttributesExtension(), TocExtension.create(), SimpleAdmonitionExtension(), ConfluenceFormatExtension()
+                SimpleAttributesExtension(), TocExtension.create(),
+                SimpleAdmonitionExtension(), SuperscriptExtension.create(),
+                StatusExtension(), ConfluenceUserExtension(),
+                ConfluenceFormatExtension(),
+
             )
         )
         .toImmutable()

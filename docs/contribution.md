@@ -1,6 +1,4 @@
----
-title: "Contributing to codebase"
----
+# Contributing to codebase
 
 # Adding support for Confluence formatting features
 
