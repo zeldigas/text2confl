@@ -22,7 +22,7 @@ interface Converter {
 class FileDoesNotExistException(val file: Path) : RuntimeException("File does not exist: $file")
 
 const val DEFAULT_AUTOGEN_BANNER = "Edit <a href=\"__doc-root____file__\">source file</a> instead of changing page in Confluence. " +
-        "<span style=\"color: rgb(122,134,154); font-size: small;\">Page was generated with <a href=\"https://github.com/zeldigas/text2confl\">text2confl</a> from it.</span>"
+        "<span style=\"color: rgb(122,134,154); font-size: small;\">Page was generated from source with <a href=\"https://github.com/zeldigas/text2confl\">text2confl</a>.</span>"
 
 
 data class ConversionParameters(
