@@ -2,14 +2,14 @@
 
 mkdir -p target/ci
 
-target_verison${1:-${RELEASE_VERSION}}
+target_version=${1:-${RELEASE_VERSION}}
 
 echo "# Changes
 " > target/ci/CHANGELOG.md
 
-start=`grep -n -P "^##\\s+\\[?0.1.0" CHANGELOG.md | cut -d: -f1`
+start=`grep -n -P "^##\\s+\\[?$target_version" CHANGELOG.md | cut -d: -f1`
 if [[ -z "$start" ]]; then
-  echo "No changelog found for $target_verison"
+  echo "No changelog found for $target_version"
   exit 0
 fi
 
