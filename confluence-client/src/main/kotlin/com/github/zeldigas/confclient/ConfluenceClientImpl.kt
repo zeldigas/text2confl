@@ -24,6 +24,11 @@ class ConfluenceClientImpl(
     private val apiBase: String,
     private val httpClient: HttpClient
 ) : ConfluenceClient {
+
+    companion object {
+        private const val PAGE_SIZE = 100
+    }
+
     override suspend fun describeSpace(key: String, expansions: List<String>): Space {
         return httpClient.get("$apiBase/space/$key") {
             addExpansions(expansions)
@@ -145,6 +150,29 @@ class ConfluenceClientImpl(
         }
     }
 
+    override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
+        val result = mutableListOf<ConfluencePage>()
+        var start = 0
+        var limit = PAGE_SIZE
+        var completed = false
+        do {
+            val page = httpClient.get<PageSearchResult>("$apiBase/content/$pageId/child/page") {
+                addExpansions(expansions ?: emptyList())
+                parameter("start", start)
+                parameter("limit", limit)
+            }
+            result.addAll(page.results)
+            limit = page.limit
+            start += limit
+            completed = page.size != page.limit
+        } while (!completed)
+        return result
+    }
+
+    override suspend fun deletePage(pageId: String) {
+        httpClient.delete<Unit>("$apiBase/content/$pageId")
+    }
+
     override suspend fun deleteLabel(pageId: String, label: String) {
         httpClient.delete<Unit>("$apiBase/content/$pageId/label/$label")
     }
@@ -202,7 +230,10 @@ class ConfluenceClientImpl(
 }
 
 private data class PageSearchResult(
-    val results: List<ConfluencePage>
+    val results: List<ConfluencePage>,
+    val start: Int,
+    val limit: Int,
+    val size: Int
 )
 
 fun confluenceClient(

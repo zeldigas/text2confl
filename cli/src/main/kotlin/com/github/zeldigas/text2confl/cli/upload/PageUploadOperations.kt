@@ -17,6 +17,9 @@ interface PageUploadOperations {
 
     suspend fun updatePageAttachments(serverPage: ServerPage, content: PageContent)
 
+    suspend fun findChildPages(pageId: String): List<ConfluencePage>
+    suspend fun deletePageWithChildren(pageId: String)
+
 }
 
 enum class ChangeDetector(
@@ -24,7 +27,7 @@ enum class ChangeDetector(
     val strategy: (serverPage: ConfluencePage, content: PageContent) -> Boolean
 ) {
     HASH(emptyList(), { serverPage, content ->
-        serverPage.metadata?.properties?.get(HASH_PROPERTY)?.value != content.hash
+        serverPage.pageProperty(HASH_PROPERTY)?.value != content.hash
     }),
     CONTENT(listOf("body.storage"), { serverPage, content ->
         serverPage.body?.storage?.value != content.body

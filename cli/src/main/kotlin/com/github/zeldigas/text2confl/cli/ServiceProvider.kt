@@ -47,7 +47,7 @@ class ServiceProviderImpl : ServiceProvider {
         return ContentUploader(
             client, uploadConfig.uploadMessage, uploadConfig.notifyWatchers,
             uploadConfig.modificationCheck,
-            converterConfig.editorVersion
+            converterConfig.editorVersion, uploadConfig.removeOrphans
         )
     }
 }

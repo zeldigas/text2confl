@@ -21,7 +21,7 @@ internal class PageUploadOperationsImpl(
 ) : PageUploadOperations {
 
     companion object {
-        private val logger = KotlinLogging.logger {  }
+        private val logger = KotlinLogging.logger { }
     }
 
     override suspend fun createOrUpdatePageContent(page: Page, space: String, parentPageId: String): ServerPage {
@@ -104,7 +104,11 @@ internal class PageUploadOperationsImpl(
         return createServerPage(serverPage, parentPageId)
     }
 
-    private suspend fun setPageContentHash(pageId: String, pageContent: PageContent, pageProperty: PageProperty? = null) {
+    private suspend fun setPageContentHash(
+        pageId: String,
+        pageContent: PageContent,
+        pageProperty: PageProperty? = null
+    ) {
         setOrUpdateProperty(pageId, HASH_PROPERTY, pageContent.hash, pageProperty)
     }
 
@@ -146,10 +150,11 @@ internal class PageUploadOperationsImpl(
         if (serverPage.attachments.isEmpty() && content.attachments.isEmpty()) return
 
         val serverAttachments =
-            serverPage.attachments.map { it.title to ServerAttachment(
-                it.id,
-                it.metadata.attachmentHash
-            )
+            serverPage.attachments.map {
+                it.title to ServerAttachment(
+                    it.id,
+                    it.metadata.attachmentHash
+                )
             }.toMap()
         val new = content.attachments.filter { it.attachmentName !in serverAttachments }
         val reUpload =
@@ -180,6 +185,21 @@ internal class PageUploadOperationsImpl(
         }
     }
 
+    override suspend fun findChildPages(pageId: String): List<ConfluencePage> {
+        return client.findChildPages(pageId, listOf("metadata.properties.${HASH_PROPERTY}"));
+    }
+
+    override suspend fun deletePageWithChildren(pageId: String) {
+        coroutineScope {
+            for (subpage in client.findChildPages(pageId)) {
+                launch {
+                    deletePageWithChildren(subpage.id)
+                }
+            }
+        }
+        client.deletePage(pageId)
+    }
+
     private data class ServerAttachment(
         val id: String, val hash: String?
     )
@@ -194,10 +214,6 @@ private val PageContent.labels: List<String>
         is String -> result.split(",").map { it.trim() }
         else -> emptyList()
     }
-
-private fun ConfluencePage.pageProperty(name: String): PageProperty? {
-    return metadata?.properties?.get(name)
-}
 
 private val Map<String, Any?>.attachmentHash: String?
     get() {

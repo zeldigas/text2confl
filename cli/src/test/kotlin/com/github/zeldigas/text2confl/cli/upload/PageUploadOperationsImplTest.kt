@@ -3,10 +3,7 @@ package com.github.zeldigas.text2confl.cli.upload
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.confclient.*
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.Label
-import com.github.zeldigas.confclient.model.PageProperty
-import com.github.zeldigas.confclient.model.PropertyVersion
+import com.github.zeldigas.confclient.model.*
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.convert.PageContent
 import com.github.zeldigas.text2confl.convert.PageHeader
@@ -49,6 +46,7 @@ internal class PageUploadOperationsImplTest(
             "children.attachment"
         )) } returns mockk {
             every { id } returns "new_id"
+            every { pageProperty(any()) } returns null
             every { metadata } returns null
             every { children } returns null
         }
@@ -97,10 +95,8 @@ internal class PageUploadOperationsImplTest(
             every { id } returns PAGE_ID
             every { version?.number } returns 42
             every { metadata?.labels?.results } returns listOf(serverLabel("one"))
-            every { metadata?.properties } returns mapOf(
-                "editor" to PageProperty("123", "editor", "v1", PropertyVersion(2)),
-                "contenthash" to PageProperty("124", "contenthash", "abc", PropertyVersion(3))
-            )
+            every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
+            every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
             every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
         }
 
@@ -158,9 +154,7 @@ internal class PageUploadOperationsImplTest(
                     every { body?.storage?.value } returns "body"
                 }
                 ChangeDetector.HASH -> {
-                    every { metadata?.properties } returns mapOf(
-                        "contenthash" to PageProperty("124", "contenthash", "hash", PropertyVersion(3))
-                    )
+                    every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "hash", PropertyVersion(3))
                 }
             }
         }
@@ -322,5 +316,40 @@ internal class PageUploadOperationsImplTest(
         changeDetector: ChangeDetector = ChangeDetector.HASH
     ): PageUploadOperationsImpl {
         return PageUploadOperationsImpl(client, changeMessage, notifyWatchers, changeDetector, editorVersion)
+    }
+
+    @Test
+    internal fun `Search child pages`() {
+        val expectedResult = listOf<ConfluencePage>(mockk())
+
+        coEvery { client.findChildPages("123", listOf("metadata.properties.$HASH_PROPERTY")) } returns expectedResult
+
+        val result = runBlocking {
+            uploadOperations().findChildPages("123")
+        }
+
+        assertThat(result).isEqualTo(expectedResult)
+    }
+
+    @Test
+    internal fun `Search delete page with children`() {
+        val expectedResult = listOf<ConfluencePage>(mockk {
+            every { id } returns "567"
+        })
+
+        coEvery { client.findChildPages("123") } returns expectedResult
+        coEvery { client.findChildPages("567") } returns emptyList()
+        coEvery { client.deletePage(any()) } just Runs
+
+        val result = runBlocking {
+            uploadOperations().deletePageWithChildren("123")
+        }
+
+        coVerifyOrder {
+            client.findChildPages("123")
+            client.findChildPages("567")
+            client.deletePage("567")
+            client.deletePage("123")
+        }
     }
 }
