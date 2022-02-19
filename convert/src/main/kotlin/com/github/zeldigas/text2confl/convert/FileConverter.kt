@@ -20,7 +20,12 @@ data class HeaderReadingContext(
 
 data class ConvertingContext(
     val referenceProvider: ReferenceProvider,
-    val languageMapper: LanguageMapper,
-    val targetSpace: String,
+    val conversionParameters: ConversionParameters,
+    val targetSpace: String
+) {
+    val languageMapper: LanguageMapper
+        get() = conversionParameters.languageMapper
+
     val titleTransformer: (Path, String) -> String
-)
+        get() = conversionParameters.titleConverter
+}

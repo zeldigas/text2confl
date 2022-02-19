@@ -23,6 +23,7 @@ By design multiple formats can be supported and even mixed together thus given y
 
 Here are the state of support of formats:
 
-1. 🚧 Markdown *in progress*
-2. 📅️ Asciidoc *planned️*
+1. ✅ Markdown - supported
+2. 📅️ Asciidoc - [*planned️*](https://github.com/zeldigas/text2confl/issues/14)
+
 

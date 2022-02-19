@@ -7,6 +7,8 @@ import kotlin.io.path.relativeTo
 interface ReferenceProvider {
     fun resolveReference(source: Path, refTo: String): Reference?
 
+    fun pathFromDocsRoot(source: Path): Path
+
     companion object {
         fun fromDocuments(basePath: Path, documents: Map<Path, PageHeader>): ReferenceProvider {
             return ReferenceProviderImpl(basePath, documents)
@@ -16,9 +18,13 @@ interface ReferenceProvider {
             override fun resolveReference(source: Path, refTo: String): Reference? {
                 return null;
             }
+
+            override fun pathFromDocsRoot(source: Path): Path {
+                return source.fileName
+            }
         }
 
-        fun nop(): ReferenceProvider {
+        fun singleFile(): ReferenceProvider {
             return NOP_PROVIDER
         }
     }
@@ -50,6 +56,10 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
 
         val document = normalizedDocs[targetPath]?.title ?: return null
         return Xref(document, anchor);
+    }
+
+    override fun pathFromDocsRoot(source: Path): Path {
+        return source.relativeTo(basePath)
     }
 
     override fun equals(other: Any?): Boolean {

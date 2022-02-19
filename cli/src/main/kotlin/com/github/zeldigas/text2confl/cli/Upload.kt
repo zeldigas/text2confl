@@ -6,9 +6,7 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
-import com.github.ajalt.clikt.parameters.types.file
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
@@ -19,7 +17,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence") {
+class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence"), WithConversionOptions {
 
     private val confluenceUrl: Url? by option(
         "--confluence-url", envvar = "CONFLUENCE_URL",
@@ -41,10 +39,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     )
         .optionalFlag("--no-skip-ssl-verification")
 
-    private val spaceKey: String? by option(
-        "--space", envvar = "CONFLUENCE_SPACE",
-        help = "Destination confluence space"
-    )
+    override val spaceKey: String? by confluenceSpace()
     private val parentId: String? by option("--parent-id", help = "Id of parent page where root pages should be added")
     private val parentTitle: String? by option(
         "--parent",
@@ -63,12 +58,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         "--notify-watchers",
         help = "If watchers should be notified about change"
     ).optionalFlag("--no-notify-watchers")
-    private val editorVersion: EditorVersion? by option(
-        "--editor-version",
-        help = "Version of editor and page renderer on server. Autodected if not specified"
-    ).enum<EditorVersion> { it.name.lowercase() }
-
-    private val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
+    override val editorVersion: EditorVersion? by editorVersion()
+    private val docs: File by docsLocation()
 
     private val serviceProvider: ServiceProvider by requireObject()
 
@@ -84,7 +75,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         val directoryStoredParams = readDirectoryConfig(docs.toPath());
         val uploadConfig = createUploadConfig(directoryStoredParams)
         val clientConfig = createClientConfig(directoryStoredParams)
-        val conversionConfig = createConversionConfig(directoryStoredParams, clientConfig.server)
+        val conversionConfig = createConversionConfig(directoryStoredParams, editorVersion, clientConfig.server)
         val converter = serviceProvider.createConverter(uploadConfig.space, conversionConfig)
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
@@ -129,23 +120,6 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
             ?: TermUi.prompt("Enter password: ", hideInput = true, requireConfirmation = true)
             ?: throw PrintMessage("Password can't be null")
         return PasswordAuth(username, effectivePassword)
-    }
-
-    private fun createConversionConfig(directoryConfig: DirectoryConfig, server: Url): ConverterConfig {
-        val selectedVersion = editorVersion ?: directoryConfig.editorVersion
-        return ConverterConfig(
-            titlePrefix = directoryConfig.titlePrefix,
-            titlePostfix = directoryConfig.titlePostfix,
-            editorVersion = selectedVersion ?: inferFromUrl(server)
-        )
-    }
-
-    private fun inferFromUrl(server: Url): EditorVersion {
-        return if (server.host.endsWith(".atlassian.net", ignoreCase = true)) {
-            EditorVersion.V2
-        } else {
-            EditorVersion.V1
-        }
     }
 
     private suspend fun resolveParent(

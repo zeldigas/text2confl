@@ -1,24 +1,26 @@
 package com.github.zeldigas.text2confl.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.zeldigas.text2confl.cli.config.EditorVersion
+import com.github.zeldigas.text2confl.cli.config.createConversionConfig
+import com.github.zeldigas.text2confl.cli.config.readDirectoryConfig
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.Page
-import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
-import com.github.zeldigas.text2confl.convert.universalConverter
+import io.ktor.http.*
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.div
-import kotlin.io.path.nameWithoutExtension
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
-class Convert : CliktCommand(name = "convert", help = "Converts source files to confluence markup") {
+class Convert : CliktCommand(name = "convert", help = "Converts source files to confluence markup"), WithConversionOptions {
 
-    private val docs: File by option("--docs").file(canBeFile = true, canBeDir = true).required()
-        .help("File or directory with files to convert")
-    private val space: String by option("--space")
-        .help("Space key to use if it is required in output format").default("AAA")
+    private val docs: File by docsLocation()
+    override val spaceKey: String? by confluenceSpace()
     private val useTitleAsOutFile by option("--use-title").flag("--no-use-title")
         .help("If title of document should be used in resulting filename instead of plain original filenames")
     private val copyAttachments by option("--copy-attachments").flag("--no-copy-attachments")
@@ -26,10 +28,15 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
     private val out: File by option("--out").file(canBeFile = false, canBeDir = true, mustExist = false)
         .default(File("out"))
         .help("Output directory where converted contents should be generated")
+    override val editorVersion: EditorVersion? by editorVersion()
 
+    private val serviceProvider: ServiceProvider by requireObject()
 
     override fun run() {
-        val converter = universalConverter(space, LanguageMapper.forCloud())
+        val directoryConfig = readDirectoryConfig(docs.toPath())
+        val conversionConfig = createConversionConfig(directoryConfig, editorVersion, directoryConfig.server?.let { Url(it) })
+        val space = spaceKey ?: directoryConfig.space ?: "AAA"
+        val converter = serviceProvider.createConverter(space, conversionConfig)
         try {
             tryConvert(converter)
         } catch (ex: Exception) {
@@ -64,7 +71,11 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
 
     private fun savePage(outPath: Path, resultName: String, page: Page) {
         (outPath / "${resultName}.html").writeText(page.content.body)
+        if (copyAttachments && page.content.attachments.isNotEmpty()) {
+            val attachmentDir = (outPath / "${resultName}_attachments").createDirectories()
+            page.content.attachments.forEach{it.resourceLocation.copyTo(attachmentDir / it.attachmentName)}
+        }
     }
 
-    private fun sanitizeTitle(page: Page) = page.content.header.title //todo sanitize title
+    private fun sanitizeTitle(page: Page) = page.content.header.title.replace("""[^a-zA-Z0-9._ -]+""".toRegex(), "_")
 }

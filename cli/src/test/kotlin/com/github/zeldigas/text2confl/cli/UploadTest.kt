@@ -81,13 +81,14 @@ internal class UploadTest(
                 )
             )
         }
-        verify { serviceProvider.createConverter("TR", ConverterConfig("", "", EditorVersion.V2)) }
+        val expectedConverterConfig = ConverterConfig("", "", EditorVersion.V2, null, null, null)
+        verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(
                     "TR", false, "Automated upload by text2confl", true, ChangeDetector.HASH
                 ),
-                ConverterConfig("", "", EditorVersion.V2)
+                expectedConverterConfig
             )
         }
     }
@@ -119,7 +120,7 @@ internal class UploadTest(
                 )
             )
         }
-        val converterConfig = ConverterConfig(directoryConfig.titlePrefix, directoryConfig.titlePostfix, directoryConfig.editorVersion!!)
+        val converterConfig = ConverterConfig(directoryConfig.titlePrefix, directoryConfig.titlePostfix, directoryConfig.editorVersion!!, null, "http://example.com/", null)
         verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
         verify {
             serviceProvider.createUploader(
@@ -265,7 +266,8 @@ internal class UploadTest(
             titlePrefix = "Prefix: ",
             titlePostfix = " - Postfix",
             editorVersion = EditorVersion.V1,
-            modificationCheck = ChangeDetector.CONTENT
+            modificationCheck = ChangeDetector.CONTENT,
+            docsLocation = "http://example.com/"
         )
     }
 

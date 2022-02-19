@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.convert.markdown
 import assertk.Assert
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.ConversionParameters
 import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapperImpl
@@ -22,14 +23,19 @@ internal open class RenderingTestBase  {
     fun toHtml(
         src: String,
         attachments: Map<String, Attachment> = emptyMap(),
-        referenceProvider: ReferenceProvider = ReferenceProvider.nop(),
-        languageMapper: LanguageMapper? = null
+        referenceProvider: ReferenceProvider = ReferenceProvider.singleFile(),
+        languageMapper: LanguageMapper? = null,
+        addAutogenHeader:Boolean = false,
+        autogenText:String = "Generated for __doc-root____file__"
     ): String {
         val ast = parser.parseString(src)
 
         val htmlRenderer = parser.htmlRenderer(
             Path("src.md"), attachments, ConvertingContext(
-                referenceProvider, languageMapper ?: this.languageMapper, "TEST", { _, title -> title }
+                referenceProvider,
+                ConversionParameters(languageMapper ?: this.languageMapper,
+                    { _, title -> title }, addAutogenHeader, noteText = autogenText, docRootLocation = "http://example.com/")
+                , "TEST",
             )
         )
 

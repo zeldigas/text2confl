@@ -24,9 +24,9 @@ internal class UniversalConverterTest(
 ) {
 
     val titleConverter: (Path, String) -> String = { _, t -> "Prefixed: $t" }
-
+    val conversionParameters = ConversionParameters(languageMapper, titleConverter)
     val converter = UniversalConverter(
-        "TEST", languageMapper, titleConverter, mapOf(
+        "TEST", conversionParameters, mapOf(
             "t" to fileConverter
         )
     )
@@ -50,7 +50,7 @@ internal class UniversalConverterTest(
         verify {
             fileConverter.convert(
                 src,
-                ConvertingContext(ReferenceProvider.nop(), languageMapper, "TEST", titleConverter)
+                ConvertingContext(ReferenceProvider.singleFile(), conversionParameters, "TEST")
             )
         }
     }
@@ -116,7 +116,7 @@ internal class UniversalConverterTest(
                         docAndHeader(dir.resolve("three.t")),
                         docAndHeader(dir.resolve("three/foo.t")),
                     )),
-                    languageMapper, "TEST", titleConverter
+                    conversionParameters, "TEST"
                 )
             )
         }
@@ -136,11 +136,10 @@ internal class UniversalConverterTest(
     @Test
     internal fun `Factory method for converter`() {
 
-        val result = universalConverter("TEST", languageMapper, titleConverter)
+        val result = universalConverter("TEST", conversionParameters)
 
         assertThat(result).isInstanceOf(UniversalConverter::class).all {
-            prop(UniversalConverter::titleConverter).isSameAs(titleConverter)
-            prop(UniversalConverter::languageMapper).isSameAs(languageMapper)
+            prop(UniversalConverter::conversionParameters).isSameAs(conversionParameters)
             prop(UniversalConverter::space).isEqualTo("TEST")
             prop(UniversalConverter::converters).all {
                 hasSize(1)

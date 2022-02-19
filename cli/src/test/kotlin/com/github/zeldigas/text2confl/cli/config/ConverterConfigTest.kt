@@ -11,19 +11,19 @@ internal class ConverterConfigTest {
 
     @Test
     internal fun `Title mapper from prefix and postfix`() {
-        assertThat(ConverterConfig("Pre ", " - Post", EditorVersion.V1).titleConverter(Path(""), "test"))
+        assertThat(ConverterConfig("Pre ", " - Post", EditorVersion.V1, null, null, null).titleConverter(Path(""), "test"))
             .isEqualTo("Pre test - Post")
     }
 
     @Test
     internal fun `languageMapper for v1 editor`() {
-        assertThat(ConverterConfig("", "", EditorVersion.V1).languageMapper.supportedLanguages)
+        assertThat(ConverterConfig("", "", EditorVersion.V1, null, null, null).languageMapper.supportedLanguages)
             .isEqualTo(CONFLUENCE_SERVER_LANGUAGES)
     }
 
     @Test
     internal fun `language mapper for v2 editor`() {
-        assertThat(ConverterConfig("", "", EditorVersion.V2).languageMapper.supportedLanguages)
+        assertThat(ConverterConfig("", "", EditorVersion.V2, null, null, null).languageMapper.supportedLanguages)
             .isEqualTo(CONFLUENCE_CLOUD_LANGUAGES)
 
     }
