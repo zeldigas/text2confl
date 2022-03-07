@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 mkdir -p target/ci
 
 target_version=${1:-${RELEASE_VERSION}}
@@ -13,7 +15,7 @@ if [[ -z "$start" ]]; then
   exit 0
 fi
 
-end=`tail -n +$(( $start + 1 )) CHANGELOG.md | grep -n "^## " | cut -d: -f1`
+end=`tail -n +$(( $start + 1 )) CHANGELOG.md | grep -n "^## " | head -n 1 | cut -d: -f1`
 
 if [[ -z "$end" ]]; then
   tail -n +$start CHANGELOG.md >> target/ci/CHANGELOG.md
