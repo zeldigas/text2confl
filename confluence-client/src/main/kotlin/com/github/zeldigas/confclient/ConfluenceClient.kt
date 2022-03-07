@@ -29,6 +29,10 @@ interface ConfluenceClient {
 
     suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput)
 
+    suspend fun findChildPages(pageId: String, expansions: List<String>? = null): List<ConfluencePage>
+
+    suspend fun deletePage(pageId: String)
+
     suspend fun deleteLabel(pageId: String, label: String)
 
     suspend fun addLabels(pageId: String, labels: List<String>)

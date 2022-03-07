@@ -4,8 +4,12 @@ import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 
 data class UploadConfig(
     val space: String,
-    val removeOrphans: Boolean,
+    val removeOrphans: Cleanup,
     val uploadMessage: String,
     val notifyWatchers: Boolean,
     val modificationCheck: ChangeDetector
 )
+
+enum class Cleanup {
+    None, Managed, All
+}

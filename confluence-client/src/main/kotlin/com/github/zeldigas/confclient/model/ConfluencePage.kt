@@ -13,7 +13,11 @@ data class ConfluencePage(
     val body: PageBody?,
     val version: PageVersionInfo?,
     val children: PageChildren?
-)
+) {
+    fun pageProperty(name: String): PageProperty? {
+        return metadata?.properties?.get(name)
+    }
+}
 
 enum class ContentType {
     page, blogpost

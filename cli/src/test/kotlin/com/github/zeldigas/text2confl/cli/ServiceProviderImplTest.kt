@@ -10,6 +10,7 @@ import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.confclient.confluenceClient
+import com.github.zeldigas.text2confl.cli.config.Cleanup
 import com.github.zeldigas.text2confl.cli.config.ConverterConfig
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
@@ -41,7 +42,7 @@ internal class ServiceProviderImplTest {
     ) {
         val result = provider.createUploader(
             client,
-            UploadConfig("TEST", false, "test", true, ChangeDetector.CONTENT),
+            UploadConfig("TEST", Cleanup.Managed, "test", true, ChangeDetector.CONTENT),
             ConverterConfig("pre", "post", EditorVersion.V2, null, "root/", null)
         )
 

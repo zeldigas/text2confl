@@ -14,7 +14,9 @@ import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.text2confl.cli.config.*
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence"), WithConversionOptions {
@@ -49,10 +51,13 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         "--check-modification",
         help = "Strategy to check changes for existing pages: `hash` - by content hash stored as page property, `content` - by comparing content in storage format"
     ).enum<ChangeDetector> { it.name.lowercase() }
-    private val removeOrphans: Boolean? by option(
+    private val removeOrphans: Cleanup? by option(
         "--remove-orphans",
-        help = "If pages that are not stored as code should be removed"
-    ).optionalFlag("--keep-orphans")
+        help = """What to do with child pages that are not managed by: 
+            |1) managed - remove only pages that were previosly managed by text2confl
+            |2) all - remove pages
+            |3) none - don't remove any pages""".trimMargin()
+    ).enum<Cleanup> { it.name.lowercase() }
     private val changeMessage: String? by option("-m", "--message", help = "Comment message for created/updated pages")
     private val notifyWatchers: Boolean? by option(
         "--notify-watchers",
@@ -86,13 +91,20 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
         val contentUploader = serviceProvider.createUploader(confluenceClient, uploadConfig, conversionConfig)
-        contentUploader.uploadPages(pages = result, uploadConfig.space, publishUnder)
+        withContext(Dispatchers.Default) {
+            contentUploader.uploadPages(pages = result, uploadConfig.space, publishUnder)
+        }
     }
 
     private fun createUploadConfig(configuration: DirectoryConfig): UploadConfig {
+        val orphanRemoval = if (docs.isFile) {
+            Cleanup.None
+        } else {
+            removeOrphans ?: configuration.removeOrphans
+        }
         return UploadConfig(
             space = spaceKey ?: configuration.space ?: parameterMissing("Space", "--space", "space"),
-            removeOrphans = removeOrphans ?: configuration.removeOrphans,
+            removeOrphans = orphanRemoval,
             uploadMessage = changeMessage ?: "Automated upload by text2confl",
             notifyWatchers = notifyWatchers ?: configuration.notifyWatchers,
             modificationCheck = modificationCheck ?: configuration.modificationCheck

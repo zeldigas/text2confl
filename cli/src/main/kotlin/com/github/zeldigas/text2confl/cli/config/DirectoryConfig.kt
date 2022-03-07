@@ -14,7 +14,7 @@ data class DirectoryConfig(
     val space: String? = null,
     val defaultParentId: String? = null,
     val defaultParent: String? = null,
-    val removeOrphans: Boolean = false,
+    val removeOrphans: Cleanup = Cleanup.Managed,
     val notifyWatchers: Boolean = true,
     val titlePrefix: String = "",
     val titlePostfix: String = "",

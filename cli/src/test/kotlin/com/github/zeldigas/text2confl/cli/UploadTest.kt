@@ -15,10 +15,7 @@ import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.confclient.TokenAuth
-import com.github.zeldigas.text2confl.cli.config.ConverterConfig
-import com.github.zeldigas.text2confl.cli.config.DirectoryConfig
-import com.github.zeldigas.text2confl.cli.config.EditorVersion
-import com.github.zeldigas.text2confl.cli.config.UploadConfig
+import com.github.zeldigas.text2confl.cli.config.*
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import com.github.zeldigas.text2confl.cli.upload.ContentUploader
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
@@ -67,6 +64,7 @@ internal class UploadTest(
                 "--user", "test",
                 "--password", "test",
                 "--parent-id", "1234",
+                "--remove-orphans", "all",
                 "--docs", tempDir.toString()
             ),
             parentContext
@@ -86,7 +84,7 @@ internal class UploadTest(
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(
-                    "TR", false, "Automated upload by text2confl", true, ChangeDetector.HASH
+                    "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH
                 ),
                 expectedConverterConfig
             )
@@ -261,7 +259,7 @@ internal class UploadTest(
             skipSsl = true,
             space = "TR",
             defaultParentId = "1234",
-            removeOrphans = true,
+            removeOrphans = Cleanup.None,
             notifyWatchers = false,
             titlePrefix = "Prefix: ",
             titlePostfix = " - Postfix",
