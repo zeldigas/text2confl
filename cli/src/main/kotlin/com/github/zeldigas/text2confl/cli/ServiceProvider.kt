@@ -6,6 +6,7 @@ import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.text2confl.cli.config.ConverterConfig
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
 import com.github.zeldigas.text2confl.cli.upload.ContentUploader
+import com.github.zeldigas.text2confl.cli.upload.DryRunClient
 import com.github.zeldigas.text2confl.convert.ConversionParameters
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.DEFAULT_AUTOGEN_BANNER
@@ -13,7 +14,7 @@ import com.github.zeldigas.text2confl.convert.universalConverter
 
 interface ServiceProvider {
     fun createConverter(space: String, config: ConverterConfig): Converter
-    fun createConfluenceClient(clientConfig: ConfluenceClientConfig): ConfluenceClient
+    fun createConfluenceClient(clientConfig: ConfluenceClientConfig, dryRun: Boolean): ConfluenceClient
     fun createUploader(
         client: ConfluenceClient,
         uploadConfig: UploadConfig,
@@ -35,8 +36,9 @@ class ServiceProviderImpl : ServiceProvider {
         )
     }
 
-    override fun createConfluenceClient(clientConfig: ConfluenceClientConfig): ConfluenceClient {
-        return confluenceClient(clientConfig)
+    override fun createConfluenceClient(clientConfig: ConfluenceClientConfig, dryRun: Boolean): ConfluenceClient {
+        val client = confluenceClient(clientConfig)
+        return if (dryRun) DryRunClient(client) else client
     }
 
     override fun createUploader(

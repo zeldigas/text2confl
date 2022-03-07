@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.zeldigas.confclient.ConfluenceClient
@@ -63,6 +64,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         "--notify-watchers",
         help = "If watchers should be notified about change"
     ).optionalFlag("--no-notify-watchers")
+    private val dryRun: Boolean by option("--dry", help = "Enables dry run simulation of documents upload")
+        .flag("--no-dry")
     override val editorVersion: EditorVersion? by editorVersion()
     private val docs: File by docsLocation()
 
@@ -87,7 +90,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         } else {
             converter.convertDir(docs.toPath())
         }
-        val confluenceClient = serviceProvider.createConfluenceClient(clientConfig)
+        val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
         val contentUploader = serviceProvider.createUploader(confluenceClient, uploadConfig, conversionConfig)

@@ -46,7 +46,7 @@ internal class UploadTest(
     @BeforeEach
     internal fun setUp() {
         every { serviceProvider.createConverter(any(), any()) } returns converter
-        every { serviceProvider.createConfluenceClient(any()) } returns confluenceClient
+        every { serviceProvider.createConfluenceClient(any(), any()) } returns confluenceClient
         every { serviceProvider.createUploader(confluenceClient, any(), any()) } returns contentUploader
         parentContext.obj = serviceProvider
     }
@@ -76,7 +76,8 @@ internal class UploadTest(
                     Url("https://test.atlassian.net/wiki"),
                     false,
                     PasswordAuth("test", "test")
-                )
+                ),
+                false
             )
         }
         val expectedConverterConfig = ConverterConfig("", "", EditorVersion.V2, null, null, null)
@@ -104,7 +105,8 @@ internal class UploadTest(
             listOf(
                 "--access-token", "token",
                 "--message", "custom upload message",
-                "--docs", tempDir.toString()
+                "--docs", tempDir.toString(),
+                "--dry"
             ),
             parentContext
         )
@@ -115,7 +117,8 @@ internal class UploadTest(
                     Url(directoryConfig.server!!),
                     directoryConfig.skipSsl,
                     TokenAuth("token")
-                )
+                ),
+                true
             )
         }
         val converterConfig = ConverterConfig(directoryConfig.titlePrefix, directoryConfig.titlePostfix, directoryConfig.editorVersion!!, null, "http://example.com/", null)

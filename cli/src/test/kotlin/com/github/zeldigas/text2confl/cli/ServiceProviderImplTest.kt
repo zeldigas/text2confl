@@ -16,17 +16,15 @@ import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import com.github.zeldigas.text2confl.cli.upload.ContentUploader
+import com.github.zeldigas.text2confl.cli.upload.DryRunClient
 import com.github.zeldigas.text2confl.cli.upload.PageUploadOperationsImpl
 import com.github.zeldigas.text2confl.convert.ConversionParameters
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.universalConverter
 import io.ktor.http.*
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
-import io.mockk.slot
-import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.io.path.Path
@@ -64,9 +62,20 @@ internal class ServiceProviderImplTest {
 
             every { confluenceClient(config) } returns client
 
-            val result = provider.createConfluenceClient(config)
+            val result = provider.createConfluenceClient(config, false)
 
             assertThat(result).isEqualTo(client)
+        }
+    }
+
+    @Test
+    internal fun `Confluence dry client creation`(@MockK client: ConfluenceClient) {
+        mockkStatic(::confluenceClient) {
+            every { confluenceClient(any()) } returns client
+
+            val result = provider.createConfluenceClient(mockk(), true)
+
+            assertThat(result).isInstanceOf(DryRunClient::class)
         }
     }
 

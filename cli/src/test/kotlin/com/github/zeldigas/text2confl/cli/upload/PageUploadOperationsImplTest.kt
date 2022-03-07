@@ -200,6 +200,26 @@ internal class PageUploadOperationsImplTest(
     }
 
     @Test
+    internal fun `Add of page labels to page without labels`() {
+        val operations = uploadOperations()
+
+        coEvery { client.addLabels(PAGE_ID, any()) } just Runs
+
+        runBlocking {
+            operations.updatePageLabels(
+                serverPage(
+                    labels = emptyList()
+                ),
+                PageContent(
+                    pageHeader(mapOf("labels" to listOf("one", "two", "four", "five"))), "body", emptyList()
+                )
+            )
+        }
+
+        coVerify { client.addLabels(PAGE_ID, listOf("one", "two", "four", "five")) }
+    }
+
+    @Test
     internal fun `No update of page labels when nothing to change`() {
         val operations = uploadOperations()
 

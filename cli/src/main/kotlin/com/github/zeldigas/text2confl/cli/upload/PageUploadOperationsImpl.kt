@@ -140,7 +140,7 @@ internal class PageUploadOperationsImpl(
             val labelsToDelete = labels - content.labels
             labelsToDelete.forEach { client.deleteLabel(serverPage.id, it) }
             val labelsToAdd = content.labels - labels
-            if (labels.isNotEmpty()) {
+            if (labelsToAdd.isNotEmpty()) {
                 client.addLabels(serverPage.id, labelsToAdd)
             }
         }
