@@ -15,7 +15,9 @@ find something missing - feel free to create an issue and describe your needs.
 To get started and learn how to start using text2confl, consult with [user guide](docs/user-guide.md).
 
 If you want to quickly check how `text2confl` works you can upload documentation of text2confl itself. For this you need
-to have your personal (or your company) Confluence server or account in Confluence cloud. Find a space where you want docs to be published and parent page where docs will be created under:
+to have your personal (or your company) Confluence server or account in Confluence cloud. Find a space where you want
+docs to be published and parent page where docs will be created under:
+
 ```shell
 # if you are in root of checked out text2confl repo
 text2confl upload --docs ./docs \
@@ -28,6 +30,10 @@ text2confl upload --docs ./docs \
 
 Will upload docs producing pages similar to this one:
 ![](docs/text2confl-page-tree.png)
+
+**Note on having public showcase for docs**: I would be happy to use confluence cloud for this, but free tier does not
+allow making space or pages available to non-members of wiki (wide open to internet) that's why so far you need to
+publish to your own server or spend 10-15 minutes and create your own free wiki in Confluence Cloud.
 
 ## Design and usability goals
 
