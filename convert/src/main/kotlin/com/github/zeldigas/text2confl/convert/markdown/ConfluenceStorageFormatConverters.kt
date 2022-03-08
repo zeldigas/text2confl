@@ -91,7 +91,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
         private val logger = KotlinLogging.logger { }
 
         val ALLOWED_TOC_ATTRIBUTES =
-            setOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type")
+            setOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type", "outline")
+        private val OPTIONS_ITEM_REGEX = """(?<key>\w+)=((?<value>\w+)|"(?<quotedvalue>[^"]+?)")""".toRegex()
         val ALLOWED_IMAGE_ATTRIBUTES = setOf(
             "align",
             "border",
@@ -393,7 +394,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
     @Suppress("UNUSED_PARAMETER")
     private fun render(node: TocBlock, context: NodeRendererContext, html: HtmlWriter) {
         html.tagLine("p") {
-            val attributes: Map<String, String> = node.attributesMap.filterKeys { it in ALLOWED_TOC_ATTRIBUTES }
+            val attributes: Map<String, String> = (node.attributesMap + parseTocOptions(node.style.toString())
+                    ).filterKeys { it in ALLOWED_TOC_ATTRIBUTES }
             if (attributes.isEmpty()) {
                 html.voidTag("ac:structured-macro", mapOf("ac:name" to "toc"))
             } else {
@@ -402,6 +404,12 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
                 }
             }
         }
+    }
+
+    private fun parseTocOptions(options: String): Map<String, String> {
+        return OPTIONS_ITEM_REGEX.findAll(options).map {
+            it.groups["key"]?.value!! to (it.groups["value"] ?: it.groups["quotedvalue"])!!.value
+        }.toMap()
     }
 
     private fun render(node: AdmonitionBlock, context: NodeRendererContext, html: HtmlWriter) {
