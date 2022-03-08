@@ -1,3 +1,4 @@
 server: https://text2conf.atlassian.net/wiki
 space: DOCS
 docs-location: https://github.com/zeldigas/text2confl/tree/master/docs/
+title-prefix: "[text2confl] "

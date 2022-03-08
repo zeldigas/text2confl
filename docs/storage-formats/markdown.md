@@ -1,15 +1,115 @@
+---
+labels: supported-format,markdown
+---
+
 # Markdown
 
-[TOC]
+[TOC exclude="(.*\.md|.*\.kt)"]
 
 # Document structure
+
+Every Markdown document corresponds to separate confluence page.
+
+Document can contain *yaml frontmatter* block at the beginning - section in YAML format where various metadata can be
+defined like custom title for page or confluence labels.
+
+Example document with *yaml* block that has 2 *attributes*: `title` and `labels`
+
+```markdown
+---
+title: hello 
+labels: docs,intro
+---
+
+Document content 
+```
+
+## Document title
+
+Document title (name) can be defined in the following ways (from top priority to bottom):
+
+1. `title` attribute in *yaml frontmatter*
+2. first level heading at the top of document. If it is used, heading will be removed from resulting document to avoid
+   duplication
+3. name of Markdown file
+
+Recommended approach is to use first level heading as it provides also good looking markdown content outside of
+confluence. Usage of `title` attribute also fine, especially if you prefer to hide as much confluence-specific things
+from content as possible.
+
+### Example 1 - title will be taken from *yaml frontmatter*
+
+```markdown {title=my-page.md}
+---
+title: My page
+---
+Document content
+```
+
+Result title - `My page`
+
+### Example 2 - title will be taken from *yaml frontmatter* regardless presence of top level header
+
+```markdown {title=my-page.md}
+---
+title: My page
+---
+
+# Header that is not used as a title
+
+Document content
+```
+
+Result title - `My page`
+
+### Example 3 - title will be taken from first level header
+
+```markdown {title=my-page.md}
+# My Page
+
+Document content
+```
+
+Result title - `My page`
+
+**Note**: resulting page content will not include first level header
+
+### Example 4 - title will be taken from filename
+
+```markdown {title=my-page.md}
+Document content
+```
+
+Resulting title - `my-page`
+
+## Page labels
+
+Confluence page labels can be set by `labels` attribute in *yaml frontmatter* block
+
+Example - document that will have 3 labels (`one`, `two`, `three`):
+
+```markdown
+---
+labels: one, two, three
+---
+Document content
+```
+
+## Custom parent
+
+It is possible to specify custom parent for every page using `parent` or `parentId` attributes in *yaml frontmatter*
+block. While it's not restricted on every level, it makes sense to use this only for top level pages for configuring
+location of subtree (root page and all its children).
+
+Attribute `parentId` should contain id of parent page and attribute `parent` should contain parent page title. When
+specified both, `parentId` is used and `parent` will be ignored.
 
 # Supported features
 
 ## Text styling
 
-All basic styling features are supported &mdash; text can be **bold**, _italic_, ~~strikethrough~~ or mixed one like **
-bold with _emphasis_ part**, all  ***bold and italic***. For those who need ~subscript~ or ^superscript^ text - it is
+All basic styling features are supported &mdash; text can be **bold**, _italic_, ~~strikethrough~~ or mixed one like
+**bold with _emphasis_ part**, all  ***bold and italic***. For those who need ~subscript~ or ^superscript^ text - it is
 supported as well.
 
 Quotation blocks:
@@ -164,6 +264,44 @@ configure expand for these macros (and wrapping them into separate expand sectio
 
     Information message
 
+## Table of contents
+
+Table of contents is supported
+via [custom extension](https://github.com/vsch/flexmark-java/wiki/Table-of-Contents-Extension) that can be put in any
+document location by special `[TOC]` reference put on separate line. You can control representation of table of contents
+with (supported options)[https://confluence.atlassian.com/doc/table-of-contents-macro-182682099.html]:
+
+| parameter | description                                                                                                    |
+|-----------|----------------------------------------------------------------------------------------------------------------|
+| type      | Style of TOC: `list` (default) or `flat`                                                                       |
+| maxLevel  | maximum heading level to include in toc. E.g. if specified as `3` headings 4, 5 and so on will not be included |
+| outline   | Adds numbering to TOC elements (1.1, 1.2, 1.2.3 and so on). By default is disabled, to enable set to `true`    |
+| minLevel  | minimum heading level to include in toc. E.g. if specified as `2` headings 1 will not be included              |
+| style     | style of toc items in list: `circle`, `disc`, `square` as well as other valid css style of elements            |
+| separator | Separator between items for **flat*** toc style: `brackets`, `braces`, `pipe`                                  |
+| indent    | Indent for a ***list** toc style. Valid css size, e.g. `10px`                                                  |
+| include   | Filter headings to include according to specified regex                                                        |
+| exclude   | Filter headings to exclude according to specified regex                                                        |
+| class     | Css class to add to wrapping div where toc is put                                                              |
+
+
+Example of table of contents that is put after foreword block:
+```markdown
+This page will tell you about important widget `FOO` usage in our project
+
+[TOC maxLevel=2]
+
+## Setting up
+
+....
+
+## Using in project
+
+....
+
+## Tips and trics
+```
+
 ## Confluence specific goodies
 
 ### Status
@@ -192,7 +330,11 @@ more standard format of this tag by putting text inside time block: <time dateti
 
 ### Expand blocks
 
-You can use admonition-like syntax to add Confluence expand block
+You can use admonition-like syntax to add Confluence expand block:
+
+!!! expand
+
+    I'm text that is put inside expand block
 
 ### Adding raw confluence formatting
 
