@@ -1,5 +1,7 @@
 # text2confl
 
+![](https://img.shields.io/docker/v/zeldigas/text2confl?label=latest%20version&sort=semver) ![](https://img.shields.io/docker/image-size/zeldigas/text2confl?label=docker%20image%20size&sort=semver)
+
 Is a tool for publishing documentation written in structured text formats like markdown to Confluence (either server or
 cloud edition).
 
