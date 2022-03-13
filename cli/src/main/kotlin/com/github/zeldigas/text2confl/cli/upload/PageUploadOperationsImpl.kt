@@ -77,6 +77,7 @@ internal class PageUploadOperationsImpl(
         parentPageId: String
     ) = ServerPage(
         serverPage.id,
+        serverPage.title,
         parentPageId,
         serverPage.metadata?.labels?.results ?: emptyList(),
         serverPage.children?.attachment?.results ?: emptyList()

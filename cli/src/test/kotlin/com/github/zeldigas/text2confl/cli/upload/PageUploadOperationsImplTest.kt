@@ -46,6 +46,7 @@ internal class PageUploadOperationsImplTest(
             "children.attachment"
         )) } returns mockk {
             every { id } returns "new_id"
+            every { title } returns "Page title"
             every { pageProperty(any()) } returns null
             every { metadata } returns null
             every { children } returns null
@@ -62,7 +63,7 @@ internal class PageUploadOperationsImplTest(
             }, "TEST", "parentId")
         }
 
-        assertThat(result).isEqualTo(ServerPage("new_id", "parentId", emptyList(), emptyList()))
+        assertThat(result).isEqualTo(ServerPage("new_id", "Page title", "parentId", emptyList(), emptyList()))
 
         coVerify {
             client.createPage(
@@ -93,6 +94,7 @@ internal class PageUploadOperationsImplTest(
             )
         } returns mockk {
             every { id } returns PAGE_ID
+            every { title } returns "Page title"
             every { version?.number } returns 42
             every { metadata?.labels?.results } returns listOf(serverLabel("one"))
             every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
@@ -113,7 +115,7 @@ internal class PageUploadOperationsImplTest(
             }, "TEST", "parentId")
         }
 
-        assertThat(result).isEqualTo(ServerPage(PAGE_ID, "parentId",
+        assertThat(result).isEqualTo(ServerPage(PAGE_ID, "Page title", "parentId",
             listOf(serverLabel("one")),
             listOf(serverAttachment("one", "HASH:123"))))
 
@@ -147,6 +149,7 @@ internal class PageUploadOperationsImplTest(
             )
         } returns mockk {
             every { id } returns PAGE_ID
+            every { title } returns "Page title"
             every { metadata?.labels?.results } returns emptyList()
             every { children?.attachment?.results } returns emptyList()
             when(changeDetector) {
@@ -238,7 +241,7 @@ internal class PageUploadOperationsImplTest(
         labels: List<Label> = emptyList(),
         attachments: List<Attachment> = emptyList()
     ) = ServerPage(
-        PAGE_ID, null, labels = labels, attachments = attachments
+        PAGE_ID, "Title","parent_id", labels = labels, attachments = attachments
     )
 
     private fun pageHeader(attributes: Map<String, List<String>> = emptyMap()) = PageHeader("title", attributes)
@@ -254,7 +257,7 @@ internal class PageUploadOperationsImplTest(
         runBlocking {
             operations.updatePageAttachments(
                 serverPage = ServerPage(
-                    PAGE_ID, null,
+                    PAGE_ID, "Title", "parent_id",
                     labels = emptyList(), attachments = listOf(
                         serverAttachment("one", "unrelated"),
                         serverAttachment("two", "a HASH:123 b"),

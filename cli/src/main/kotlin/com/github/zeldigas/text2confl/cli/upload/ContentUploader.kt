@@ -5,6 +5,8 @@ import com.github.zeldigas.text2confl.cli.config.Cleanup
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageHeader
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -34,27 +36,46 @@ class ContentUploader(
     }
 
     suspend fun uploadPages(pages: List<Page>, space: String, parentPageId: String) {
-        coroutineScope {
-            for (page in pages) {
-                launch {
-                    logger.info { "Uploading page: title=${page.title}" }
-                    val pageId = uploadPage(page, space, parentPageId)
-                    logger.debug { "Page uploaded: title=${page.title}, id=$pageId" }
-                    if (page.children.isNotEmpty()) {
-                        uploadPages(page.children, space, pageId)
-                    }
-                    deleteOrphanedChildren(pageId, page.children)
-                }
-            }
+        val uploadedPages = uploadPagesRecursive(pages, space, parentPageId)
+        val uploadedPagesByParent = buildOrphanedRemovalRegistry(uploadedPages)
+        for ((parent, children) in uploadedPagesByParent) {
+            deleteOrphanedChildren(parent, children)
         }
     }
 
-    private suspend fun uploadPage(page: Page, space: String, defaultParentPage: String): String {
+    private fun buildOrphanedRemovalRegistry(
+        uploadedPages: List<Pair<String, ServerPage>>
+    ): Map<String, List<ServerPage>> {
+        val nonLeafPages =
+            uploadedPages.groupBy { it.first }.mapValues { (_, v) -> v.map { (_, serverPage) -> serverPage } }
+        val leafPages = uploadedPages.asSequence().map { (_, serverPage) -> serverPage.id }
+            .filter { it !in nonLeafPages }.map { it to emptyList<ServerPage>() }.toMap()
+        return nonLeafPages + leafPages
+    }
+
+    private suspend fun uploadPagesRecursive(pages: List<Page>, space: String, parentPageId: String): List<Pair<String, ServerPage>> {
+        return coroutineScope {
+            pages.map { page ->
+                async {
+                    logger.info { "Uploading page: title=${page.title}" }
+                    val (realParent, serverPage) = uploadPage(page, space, parentPageId)
+                    logger.debug { "Page uploaded: title=${page.title}, id=${serverPage.id}" }
+                    listOf(realParent to serverPage) + if (page.children.isNotEmpty()) {
+                        uploadPagesRecursive(page.children, space, serverPage.id)
+                    } else {
+                        emptyList()
+                    }
+                }
+            }.awaitAll().flatten()
+        }
+    }
+
+    private suspend fun uploadPage(page: Page, space: String, defaultParentPage: String): Pair<String, ServerPage> {
         val parentId = customPageParent(page, space) ?: defaultParentPage
         val serverPage = pageUploadOperations.createOrUpdatePageContent(page, space, parentId)
         pageUploadOperations.updatePageLabels(serverPage, page.content)
         pageUploadOperations.updatePageAttachments(serverPage, page.content)
-        return serverPage.id
+        return parentId to serverPage
     }
 
     private suspend fun customPageParent(page: Page, space: String): String? {
@@ -66,7 +87,7 @@ class ContentUploader(
         return null
     }
 
-    private suspend fun deleteOrphanedChildren(pageId: String, children: List<Page>) {
+    private suspend fun deleteOrphanedChildren(pageId: String, children: List<ServerPage>) {
         if (cleanup == Cleanup.None) return
 
         val managedTitles = children.map { it.title }.toSet()

@@ -35,5 +35,5 @@ enum class ChangeDetector(
 }
 
 data class ServerPage(
-    val id: String, val parent: String?, val labels: List<Label>, val attachments: List<Attachment>
+    val id: String, val title: String, val parent: String, val labels: List<Label>, val attachments: List<Attachment>
 )

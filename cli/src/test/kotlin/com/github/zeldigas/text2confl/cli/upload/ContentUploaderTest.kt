@@ -87,7 +87,7 @@ internal class ContentUploaderTest(
         val failedPage = aPage("Failed page")
         val slowPage = aPage("Slow page")
 
-        val fastServerPage = ServerPage("fastId", "id", emptyList(), emptyList())
+        val fastServerPage = ServerPage("fastId", "Fast page","id", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(fastPage, "TEST", "id") } returns fastServerPage
 
         coEvery { uploadOperations.createOrUpdatePageContent(failedPage, any(), any()) } coAnswers {
@@ -95,7 +95,7 @@ internal class ContentUploaderTest(
             throw RuntimeException("Upload failed")
         }
 
-        val slowServerPage = ServerPage("slowId", "id", emptyList(), emptyList())
+        val slowServerPage = ServerPage("slowId", "Slow page", "id", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(slowPage, "TEST", "id") } coAnswers {
             delay(20000)
             slowServerPage
@@ -122,13 +122,13 @@ internal class ContentUploaderTest(
             every { children } returns emptyList()
         }
 
-        val defaultServerPage = ServerPage("defaultId", "id", emptyList(), emptyList())
+        val defaultServerPage = ServerPage("defaultId", "Default page", "id", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(defaultPage, "TEST", "id") } returns defaultServerPage
 
-        val parentIdServerPage = ServerPage("pIdPage", "123", emptyList(), emptyList())
+        val parentIdServerPage = ServerPage("pIdPage", "Parent id", "123", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(pageWithParentId, any(), "123") } returns parentIdServerPage
 
-        val parentTitleServerPage = ServerPage("tIdPage", "345", emptyList(), emptyList())
+        val parentTitleServerPage = ServerPage("tIdPage", "Parent title", "345", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(pageWithParentTitle, "TEST", "345") } returns parentTitleServerPage
 
         coEvery { confluenceClient.getPage("TEST", "Custom") } returns mockk { every { id } returns "345" }
@@ -145,88 +145,160 @@ internal class ContentUploaderTest(
     @Test
     internal fun `Removal of all orphans`() {
         val contentUploader = contentUploader(Cleanup.All)
-        val (childPage, fastPage) = simplePageStructure()
-        givenPagesCreated(fastPage, childPage)
-        givenChildPagesFound()
+        val pages = inputPagesStructure()
+        givenPagesCreated(pages)
+        givenChildPagesFound(serverPagesStructure(), "root_id")
         coEvery { uploadOperations.deletePageWithChildren(any()) } just Runs
 
-        runBlocking { contentUploader.uploadPages(listOf(fastPage), "TEST", "id") }
+        runBlocking { contentUploader.uploadPages(pages, "TEST", "root_id") }
 
-        coVerify { uploadOperations.createOrUpdatePageContent(fastPage, "TEST", "id") }
-        coVerify { uploadOperations.deletePageWithChildren("child1")}
-        coVerify { uploadOperations.deletePageWithChildren("child2") }
-        coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("child3") }
-    }
+        listOf("c", "d", "a3", "a4", "a5", "b3", "b4", "a11", "a12", "b21").forEach {
+            coVerify { uploadOperations.deletePageWithChildren("id_$it") }
+        }
+        listOf("root_id", "a_root", "b_root", "a", "b", "a1", "a2", "b1", "b2").forEach {
+            coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("id_$it") }
+        }
 
-    private fun simplePageStructure(): Pair<Page, Page> {
-        val childPage = aPage("child3") {
-            every { children } returns emptyList()
-        }
-        val fastPage = aPage("parent") {
-            every { children } returns listOf(childPage)
-        }
-        return Pair(childPage, fastPage)
-    }
-
-    private fun givenPagesCreated(
-        fastPage: Page,
-        childPage: Page
-    ) {
-        coEvery { uploadOperations.createOrUpdatePageContent(fastPage, any(), any()) } returns mockk {
-            every { id } returns "1"
-        }
-        coEvery { uploadOperations.createOrUpdatePageContent(childPage, any(), any()) } returns mockk {
-            every { id } returns "child3"
-        }
     }
 
     @Test
     internal fun `Removal of managed pages`() {
         val contentUploader = contentUploader(Cleanup.Managed)
-        val (childPage, fastPage) = simplePageStructure()
-        givenPagesCreated(fastPage, childPage)
-        givenChildPagesFound()
+        val pages = inputPagesStructure()
+        givenPagesCreated(pages)
+        givenChildPagesFound(serverPagesStructure(), "root_id")
         coEvery { uploadOperations.deletePageWithChildren(any()) } just Runs
 
-        runBlocking { contentUploader.uploadPages(listOf(fastPage), "TEST", "id") }
+        runBlocking { contentUploader.uploadPages(pages, "TEST", "root_id") }
 
-        coVerify { uploadOperations.createOrUpdatePageContent(fastPage, "TEST", "id") }
-        coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("child1")}
-        coVerify { uploadOperations.deletePageWithChildren("child2") }
-        coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("child3")}
+        listOf("d", "a3", "a5", "b4", "a11", "b21").forEach {
+            coVerify { uploadOperations.deletePageWithChildren("id_$it") }
+        }
+        listOf("root_id", "a_root", "b_root", "a", "b", "a1", "a2", "a4", "b1", "b2", "b3", "a12").forEach {
+            coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("id_$it") }
+        }
     }
 
     @Test
     internal fun `Removal of no pages`() {
         val contentUploader = contentUploader(Cleanup.None)
-        val (childPage, fastPage) = simplePageStructure()
-        givenPagesCreated(fastPage, childPage)
-        givenChildPagesFound()
+        val pages = inputPagesStructure()
+        givenPagesCreated(pages)
+        givenChildPagesFound(serverPagesStructure(), "root_id")
 
-        runBlocking { contentUploader.uploadPages(listOf(fastPage), "TEST", "id") }
+        runBlocking { contentUploader.uploadPages(pages, "TEST", "root_id") }
 
         coVerify(exactly = 0) { uploadOperations.deletePageWithChildren(any())}
     }
 
-    private fun givenChildPagesFound() {
-        coEvery { uploadOperations.findChildPages("1") } returns listOf(
-            mockk {
-                every { title } returns "child1"
-                every { id } returns "child1"
-                every { pageProperty(HASH_PROPERTY) } returns null
+    private fun inputPagesStructure(): List<Page> {
+        return listOf(
+            page("a") {
+                parentId = "id_a_root"
+                children(
+                    page("a1"),
+                    page("a2"),
+                )
             },
-            mockk {
-                every { title } returns "child2"
-                every { id } returns "child2"
-                every { pageProperty(HASH_PROPERTY) } returns mockk()
-            },
-            mockk {
-                every { title } returns "child3"
-                every { id } returns "child3"
-                every { pageProperty(HASH_PROPERTY) } returns mockk()
+            page("b") {
+                parentId = "id_b_root"
+                children(
+                    page("b1") { parentId = "id_a" /*case when page is set to another parent*/},
+                    page("b2")
+                )
             }
         )
-        coEvery { uploadOperations.findChildPages("child3") } returns emptyList()
+    }
+
+    private fun serverPagesStructure(): List<ServerPageNode> {
+        return listOf(
+            ServerPageNode("a_root", managed = false, listOf(
+                ServerPageNode("a", managed = true, children = listOf(
+                    ServerPageNode("a1", managed = true, children = listOf(ServerPageNode("a11"), ServerPageNode("a12", managed = false))),
+                    ServerPageNode("a2", managed = true),
+                    ServerPageNode("a3", managed = true),
+                    ServerPageNode("a4", managed = false),
+                    ServerPageNode("a5", managed = true),
+                    ServerPageNode("b1", managed = false),
+                )),
+                ServerPageNode("c", managed = false, children = listOf(
+                    ServerPageNode("c1", managed = false),
+                    ServerPageNode("c2", managed = true)
+                )),
+                ServerPageNode("d", managed = true, children = listOf(
+                    ServerPageNode("d1")
+                ))
+            )),
+            ServerPageNode("b_root", managed = false, listOf(
+                ServerPageNode("b", children = listOf(
+                    ServerPageNode("b2", children = listOf(ServerPageNode("b21"))),
+                    ServerPageNode("b3", managed = false),
+                    ServerPageNode("b4", managed = true),
+                )),
+            ))
+        )
+    }
+
+    private fun page(title: String, configurer:PageBuilder.() -> Unit = { }) : Page {
+        val builder = PageBuilder()
+        builder.title = title
+        builder.configurer()
+        return builder.build()
+    }
+
+    @DslMarker
+    annotation class InputPagesBuilder
+
+    @InputPagesBuilder
+    class PageBuilder {
+        var title: String = ""
+        var children: MutableList<Page> = mutableListOf()
+        var parentId:String? = null
+        fun children(vararg pages: Page) {
+            children += pages
+        }
+
+        fun build() : Page {
+            val titleValue = title;
+            val childValue = children
+            return mockk {
+                every {title} returns titleValue
+                every { children } returns childValue
+                if (parentId != null) {
+                    every { content.header.attributes } returns mapOf("parentId" to parentId)
+                } else {
+                    every { content.header.attributes } returns emptyMap()
+                }
+            }
+        }
+    }
+
+    private data class ServerPageNode(val title: String, val managed:Boolean = true, val children: List<ServerPageNode> = emptyList()) {
+        val id: String
+            get() = "id_$title"
+    }
+
+    private fun givenPagesCreated(pages: List<Page>) {
+        for (page in pages) {
+            coEvery { uploadOperations.createOrUpdatePageContent(page, any(), any()) } returns mockk {
+                every { id } returns "id_${page.title}"
+                every { title } returns page.title
+            }
+            givenPagesCreated(page.children)
+        }
+    }
+
+    private fun givenChildPagesFound(pages: List<ServerPageNode>, parentId: String) {
+        coEvery { uploadOperations.findChildPages(parentId) } returns pages.map {
+            mockk {
+                every { id } returns it.id
+                every { title } returns it.title
+                every { pageProperty(HASH_PROPERTY) } returns (if (it.managed) mockk() else null)
+            }
+        }
+        for (page in pages) {
+            givenChildPagesFound(page.children, page.id)
+        }
     }
 
     private fun aPage(creationTime: Long, creationTimeRegistry: MutableMap<Page, Long>, attributesValues: Map<String, Any?> = emptyMap(), block: Page.() -> Unit = {}) : Page {
