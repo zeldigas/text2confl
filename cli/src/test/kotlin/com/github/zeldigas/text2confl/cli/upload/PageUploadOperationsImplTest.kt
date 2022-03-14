@@ -189,7 +189,7 @@ internal class PageUploadOperationsImplTest(
                     labels = listOf(
                         serverLabel("one"),
                         serverLabel("two"),
-                        serverLabel("three")
+                        serverLabel(null, "three")
                     )
                 ),
                 PageContent(
@@ -228,7 +228,7 @@ internal class PageUploadOperationsImplTest(
 
         runBlocking {
             operations.updatePageLabels(
-                serverPage(labels = listOf(serverLabel("one"), serverLabel("two"))),
+                serverPage(labels = listOf(serverLabel("one"), serverLabel(null, "two"))),
                 PageContent(pageHeader(mapOf("labels" to listOf("one", "two"))), "body", emptyList())
             )
         }
@@ -331,6 +331,8 @@ internal class PageUploadOperationsImplTest(
     }
 
     private fun serverLabel(label: String) = Label("", label, label, label)
+
+    private fun serverLabel(label: String?, name: String) = Label("", name, name, label)
 
     private fun uploadOperations(
         changeMessage: String = "message",
