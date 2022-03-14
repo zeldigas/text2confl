@@ -135,7 +135,7 @@ internal class PageUploadOperationsImpl(
     }
 
     override suspend fun updatePageLabels(serverPage: ServerPage, content: PageContent) {
-        val labels = serverPage.labels.map { it.label }
+        val labels = serverPage.labels.map { it.label ?: it.name }
         if (labels != content.labels) {
 
             val labelsToDelete = labels - content.labels

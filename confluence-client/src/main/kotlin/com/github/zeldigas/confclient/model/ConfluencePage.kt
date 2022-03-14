@@ -38,7 +38,7 @@ data class Label(
     val prefix: String,
     val name: String,
     val id: String,
-    val label: String
+    val label: String? = null
 )
 
 data class PageProperty(
@@ -63,8 +63,8 @@ data class StorageFormat(
 
 data class PageVersionInfo(
     val number:Int,
-    @JsonProperty("when") val createdAt:ZonedDateTime,
-    val minorEdit: Boolean
+    val minorEdit: Boolean,
+    @JsonProperty("when") val createdAt:ZonedDateTime?
 )
 
 data class PageChildren(
