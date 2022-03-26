@@ -38,8 +38,15 @@ class ContentUploader(
     suspend fun uploadPages(pages: List<Page>, space: String, parentPageId: String) {
         val uploadedPages = uploadPagesRecursive(pages, space, parentPageId)
         val uploadedPagesByParent = buildOrphanedRemovalRegistry(uploadedPages)
-        for ((parent, children) in uploadedPagesByParent) {
-            deleteOrphanedChildren(parent, children)
+        deleteOrphans(uploadedPagesByParent)
+    }
+
+    private suspend fun deleteOrphans(uploadedPagesByParent: Map<String, List<ServerPage>>) {
+        logger.debug { "Running cleanup operation using strategy: $cleanup" }
+        coroutineScope {
+            for ((parent, children) in uploadedPagesByParent) {
+                launch { deleteOrphanedChildren(parent, children) }
+            }
         }
     }
 
