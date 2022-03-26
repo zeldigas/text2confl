@@ -173,16 +173,14 @@ internal class PageUploadOperationsImpl(
                         new.map { it.toAttachmentInput() })
                 }
             }
-            reUpload.forEach {
-                launch {
-                    client.updateAttachment(
-                        serverPage.id, serverAttachments.getValue(it.attachmentName).id, it.toAttachmentInput()
-                    )
-                }
-            }
-            extraAttachments.values.forEach {
-                launch { client.deleteAttachment(it.id) }
-            }
+        }
+        reUpload.forEach {
+            client.updateAttachment(
+                serverPage.id, serverAttachments.getValue(it.attachmentName).id, it.toAttachmentInput()
+            )
+        }
+        extraAttachments.values.forEach {
+            client.deleteAttachment(it.id)
         }
     }
 

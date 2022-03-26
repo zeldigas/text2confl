@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Fixed
+
+* Don't fail when modifying/deleting attachment in Confluence Server (#18)
+
 ## 0.4.1 - 2022-03-14
 
 ### Fixed
