@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 * Don't fail when modifying/deleting attachment in Confluence Server (#18)
+* User reference now supports `-` symbol in the middle of username, e.g. `~user-name` (#21)
 
 ## 0.4.1 - 2022-03-14
 

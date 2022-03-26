@@ -29,6 +29,10 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
             Hello @v.uS_er.
                         
             Hello @__user__.
+            
+            Hello @user-name.
+            
+            Hello @user-name-.
                         
             Hello @..            
         """.trimIndent()
@@ -39,7 +43,24 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
             <p>Hello <ac:link><ri:user ri:username="useRname" /></ac:link>.</p>
             <p>Hello <ac:link><ri:user ri:username="v.uS_er" /></ac:link>.</p>
             <p>Hello <ac:link><ri:user ri:username="__user__" /></ac:link>.</p>
+            <p>Hello <ac:link><ri:user ri:username="user-name" /></ac:link>.</p>
+            <p>Hello <ac:link><ri:user ri:username="user-name" /></ac:link>-.</p>
             <p>Hello @..</p>
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    internal fun `Confluence user macro is ignored in code block`() {
+        val result = toHtml(
+            """
+            Hello `code block with @useRname @user-name and @__user__.`
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <p>Hello <code>code block with @useRname @user-name and @__user__.</code></p>
         """.trimIndent()
         )
     }

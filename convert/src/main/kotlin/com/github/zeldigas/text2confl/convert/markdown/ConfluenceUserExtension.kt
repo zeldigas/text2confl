@@ -55,7 +55,7 @@ class ConfluenceUserNode(
 
 private class UserTagParser : InlineParserExtension {
     companion object {
-        val PATTERN = """^(@)([a-z\d_]([.a-z\d_]+[a-z\d_])?)""".toRegex(RegexOption.IGNORE_CASE).toPattern()
+        val PATTERN = """^(@)([a-z\d_]([.a-z\d_-]+[a-z\d_])?)""".toRegex(RegexOption.IGNORE_CASE).toPattern()
     }
 
     override fun finalizeDocument(inlineParser: InlineParser) {
