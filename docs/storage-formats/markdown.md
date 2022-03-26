@@ -306,8 +306,8 @@ This page will tell you about important widget `FOO` usage in our project
 
 ### Status
 
-Status is a specific element that can serve as eye candy element for varios reporting: <status color="green">on
-track</status>, <status color="grey">on hold</status>, <status color="red">off track</status>
+Status is a specific element that can serve as eye candy element for varios reporting: 
+<status color="green">on track</status>, <status color="grey">on hold</status>, <status color="red">off track</status>
 
 For this you need to put custom tag: `<status color="$color">$text_of_status</status>`, where `$color` is valid color
 and `$text_of_status` is simple text that will be put in block.
@@ -336,18 +336,36 @@ You can use admonition-like syntax to add Confluence expand block:
 
     I'm text that is put inside expand block
 
+### Jira key macro
+
+If your confluence instance has connected jira, then you can put inline reference to ticket using `[JIRA:SI-1]` notation.
+From markdown perspective it is a link reference, but if reference resolution (`[JIRA:SI-1]: my-link`) is not defined on
+page, then it will be replaced with macro that renders information about issue (description and status): [JIRA:SI-1]
+
 ### Adding raw confluence formatting
 
 Flexmark library that is used to parse markdown follows common mark spec that prohibits html tags with colons, but this
 is the heart of custom Confluence markup becase they use `ac:` and `ri:` as their namespace prefices for all macro tags.
 To overcome this limitation, text2confl supports alternative format confluence tags with dashes.
 
-So to put a link to jira issue (e.g. <ac-structured-macro ac:name="jira" ac:schema-version="1">
+So to put a link to jira query report (e.g. <ac-structured-macro ac:name="jira" ac:schema-version="1">
 <ac-parameter ac:name="key">SI-1</ac-parameter></ac-structured-macro>), you can use the following notation:
 
 ```xml
-<ac-structured-macro ac:name="jira" ac:schema-version="1"><ac-parameter ac:name="key">SI-1</ac-parameter></ac-structured-macro>
+<ac-structured-macro ac:name="jira">
+   <ac-parameter ac:name="columns">key,summary,assignee,reporter,status</ac-parameter>
+   <ac-parameter ac:name="maximumIssues">20</ac-parameter>
+   <ac-parameter ac:name="jqlQuery">project = SI</ac-parameter>
+</ac-structured-macro>
 ```
+
+That will generate
+
+<ac-structured-macro ac:name="jira">
+<ac-parameter ac:name="columns">key,summary,assignee,reporter,status</ac-parameter>
+<ac-parameter ac:name="maximumIssues">20</ac-parameter>
+<ac-parameter ac:name="jqlQuery">project = SI</ac-parameter>
+</ac-structured-macro>
 
 Right now this can't be used for block macros e.g. setting up page layouts.
 

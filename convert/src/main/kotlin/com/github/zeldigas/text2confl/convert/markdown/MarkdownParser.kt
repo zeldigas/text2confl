@@ -2,6 +2,9 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.ConvertingContext
+import com.github.zeldigas.text2confl.convert.markdown.ext.JiraKeyExtension
+import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAdmonitionExtension
+import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAttributesExtension
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
@@ -40,6 +43,7 @@ internal class MarkdownParser {
                 SimpleAttributesExtension(), TocExtension.create(),
                 SimpleAdmonitionExtension(), SuperscriptExtension.create(),
                 StatusExtension(), ConfluenceUserExtension(),
+                JiraKeyExtension(),
                 ConfluenceFormatExtension(),
 
             )

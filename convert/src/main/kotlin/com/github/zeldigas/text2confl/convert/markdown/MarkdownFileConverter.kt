@@ -9,7 +9,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 
-internal class MarkdownFileConverter(private val parser:MarkdownParser = MarkdownParser()) : FileConverter {
+internal class MarkdownFileConverter(private val parser: MarkdownParser = MarkdownParser()) : FileConverter {
 
     override fun readHeader(file: Path, context: HeaderReadingContext): PageHeader {
         val (header, _) = parseToHeaderAndBody(file, context.titleTransformer)
