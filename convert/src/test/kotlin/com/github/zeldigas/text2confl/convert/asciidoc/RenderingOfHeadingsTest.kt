@@ -9,11 +9,11 @@ internal class RenderingOfHeadingsTest : RenderingTestBase() {
     internal fun `Headings rendering`() {
         val result = toHtml(
             """
-            # First header
+            == First header
             
             Some paragraph
             
-            ## Subheader
+            === Subheader
             
             Par inside
         """.trimIndent()
