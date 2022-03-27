@@ -1,9 +1,11 @@
 - if title?
   div class="t2c-ulist-title"
     em =title
-- if (option? 'checklist')
+- is_checklist = (option? 'checklist')
+- if is_checklist && items.all? {|item| (item.attr? :checkbox)}
   ac:task-list
     - items.each do |item|
+      = line_break
       ac:task
         ac:task-status
           = ((item.attr? :checked) ? 'complete' : 'incomplete')
@@ -14,7 +16,10 @@
 -else
   ul
     - items.each do |item|
+      = line_break
       li
+        - if is_checklist && (item.attr? :checkbox)
+          = (item.attr? 'checked') ? "[X] " : "[ ] "
         =item.text
         - if item.blocks?
           =item.content
