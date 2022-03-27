@@ -13,9 +13,12 @@
 
     <properties>
         <flexmark.version>0.64.4</flexmark.version>
+        <asciidoctorj.version>2.5.3</asciidoctorj.version>
+        <asciidoctorj-diagram.version>2.2.1</asciidoctorj-diagram.version>
     </properties>
 
     <dependencies>
+        <!--markdown libraries-->
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark</artifactId>
@@ -82,6 +85,21 @@
             <version>${flexmark.version}</version>
         </dependency>
 
+        <!--asciidoc libraries-->
+
+        <dependency>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctorj</artifactId>
+            <version>${asciidoctorj.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctorj-diagram</artifactId>
+            <version>${asciidoctorj-diagram.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!--common libraries-->
+
         <dependency>
             <groupId>io.github.microutils</groupId>
             <artifactId>kotlin-logging-jvm</artifactId>
@@ -103,6 +121,8 @@
             <groupId>io.ktor</groupId>
             <artifactId>ktor-serialization-jackson-jvm</artifactId>
         </dependency>
+
+        <!--test libraries-->
 
         <dependency>
             <groupId>io.mockk</groupId>

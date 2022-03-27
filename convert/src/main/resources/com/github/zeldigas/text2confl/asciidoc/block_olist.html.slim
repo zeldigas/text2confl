@@ -1,0 +1,9 @@
+- if title?
+  div class="t2c-olist-title"
+    em =title
+ol
+  - items.each do |item|
+    li
+      =item.text
+      - if item.blocks?
+        =item.content

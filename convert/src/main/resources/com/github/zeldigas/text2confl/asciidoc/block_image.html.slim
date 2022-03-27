@@ -1,0 +1,9 @@
+= html_a_tag_if (attr? :link)
+  ac:image ac:height=(attr :height) ac:width=(attr :width) ac:title=(title if title?) ac:alt=(title if title?)
+    - if uriish? attr :target
+      ri:url ri:value=(attr :target)
+    - else
+      ri:attachment ri:filename=(attr :target)
+  - if title?
+    div class="t2c-image-title"
+      em =captioned_title

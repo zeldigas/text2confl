@@ -1,0 +1,13 @@
+- if attr? "t2c-add-auto-text", true
+  p
+    ac:structured-macro ac:name="note"
+      ac:rich-text-body
+        p
+          == (attr "t2c-auto-text")
+  = line_break
+
+- if (attr? :toc) && (attr? 'toc-placement', 'auto')
+  include _toc.html
+  = line_break
+
+=content

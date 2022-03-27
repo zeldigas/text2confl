@@ -1,0 +1,14 @@
+p
+  -if attributes.empty? and not (attr? :toclevels)
+     ac:structured-macro ac:name="toc" /
+  -else
+    ac:structured-macro ac:name="toc"
+      - if attr? :toclevels
+          ac:parameter ac:name="maxLevel" =(attr :toclevels)
+      = (macro_param_if_present_in_attr "maxLevel")
+      = (macro_param_if_present_in_attr "minLevel")
+      = (macro_param_if_present_in_attr "style")
+      = (macro_param_if_present_in_attr "separator")
+      = (macro_param_if_present_in_attr "type")
+      = (macro_param_if_present_in_attr "include")
+      = (macro_param_if_present_in_attr "exclude")
