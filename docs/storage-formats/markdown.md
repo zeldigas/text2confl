@@ -33,7 +33,7 @@ Document title (name) can be defined in the following ways (from top priority to
    duplication
 3. name of Markdown file
 
-Recommended approach is to use first level heading as it provides also good looking markdown content outside of
+Recommended approach is to use first level heading as it provides also good-looking markdown content outside of
 confluence. Usage of `title` attribute also fine, especially if you prefer to hide as much confluence-specific things
 from content as possible.
 
@@ -132,8 +132,8 @@ class Test {
 }
 ```
 
-Text2confl is familiar with different list of supported language highlights in Confluence Server/DataCenter and Cloud,
-so it will keep language from language tag if Confluence will support it and remove it when such languages is not
+**Text2confl** is familiar with different list of supported language highlights in Confluence Server/DataCenter and Cloud,
+so it will keep language from language tag if Confluence will support it and remove it when such languages are not
 supported.
 
 Some confluence specific features for code blocks, like line numbers or collapsible block are supported
@@ -157,13 +157,13 @@ List of supported attributes:
 | Attribute     | Description                                                                                         | Confluence Server | Confluence Cloud                        |
 |---------------|-----------------------------------------------------------------------------------------------------|-------------------|-----------------------------------------|
 | `title`       | Title for codeblock                                                                                 | ✅️                | ✅️                                      |
-| `collapse`    | Flag that control if code block is collapsed on page by default. Allowed values - `true` or `false` | ✅️                | ⚠️ Only if editor v1 is forcebly set ⚠️ |
-| `linenumbers` | Flag that controls if line numbers are displayed. Allowed values - `true` or `false`                | ✅️                | ⚠️ Only if editor v1 is forcebly set ⚠️ |
-| `firstline`   | Sets starting line number for codeblocks                                                            | ✅️                | ⚠️ Only if editor v1 is forcebly set ⚠️ |
+| `collapse`    | Flag that control if code block is collapsed on page by default. Allowed values - `true` or `false` | ✅️                | ⚠️ Only if editor v1 is forcibly set ⚠️ |
+| `linenumbers` | Flag that controls if line numbers are displayed. Allowed values - `true` or `false`                | ✅️                | ⚠️ Only if editor v1 is forcibly set ⚠️ |
+| `firstline`   | Sets starting line number for codeblocks                                                            | ✅️                | ⚠️ Only if editor v1 is forcibly set ⚠️ |
 
 ## Links
 
-[Text2confl](https://github.com/zeldigas/text2confl) supports both [external] links as well cross linking to
+[**Text2confl**](https://github.com/zeldigas/text2confl) supports both [external] links as well cross-linking to
 another [pages](../storage-formats.md) or [anchors inside page](../storage-formats.md#markdown). If you need to put a
 link to [anchor on same page](#admonitions) it is supported too.
 
@@ -208,7 +208,7 @@ But this will not work:
 
 ## Tables
 
-You can use tables based on [Github Flavored Format](https://github.github.com/gfm/#tables-extension-):
+You can use tables based on [GitHub Flavored Format](https://github.github.com/gfm/#tables-extension-):
 
 | foo | bar |
 |-----|-----|
@@ -269,7 +269,7 @@ configure expand for these macros (and wrapping them into separate expand sectio
 Table of contents is supported
 via [custom extension](https://github.com/vsch/flexmark-java/wiki/Table-of-Contents-Extension) that can be put in any
 document location by special `[TOC]` reference put on separate line. You can control representation of table of contents
-with (supported options)[https://confluence.atlassian.com/doc/table-of-contents-macro-182682099.html]:
+with [supported options](https://confluence.atlassian.com/doc/table-of-contents-macro-182682099.html):
 
 | parameter | description                                                                                                    |
 |-----------|----------------------------------------------------------------------------------------------------------------|
@@ -299,20 +299,20 @@ This page will tell you about important widget `FOO` usage in our project
 
 ....
 
-## Tips and trics
+## Tips and tricks
 ```
 
 ## Confluence specific goodies
 
 ### Status
 
-Status is a specific element that can serve as eye candy element for varios reporting: 
+Status is a specific element that can serve as eye candy element for various reporting: 
 <status color="green">on track</status>, <status color="grey">on hold</status>, <status color="red">off track</status>
 
 For this you need to put custom tag: `<status color="$color">$text_of_status</status>`, where `$color` is valid color
 and `$text_of_status` is simple text that will be put in block.
 
-Note that only limited colors are supported and you need to properly specify one of the following allowed values: `grey`
+Note that only limited colors are supported, and you need to properly specify one of the following allowed values: `grey`
 , `red`, `green`, `purple`, `blue`.
 
 ### Mentioning user (Confluence Server only)
@@ -336,20 +336,48 @@ You can use admonition-like syntax to add Confluence expand block:
 
     I'm text that is put inside expand block
 
-### Jira key macro
+### Confluence macros with simple options
 
-If your confluence instance has connected jira, then you can put inline reference to ticket using `[JIRA:SI-1]` notation.
-From markdown perspective it is a link reference, but if reference resolution (`[JIRA:SI-1]: my-link`) is not defined on
-page, then it will be replaced with macro that renders information about issue (description and status): [JIRA:SI-1]
+Confluence has a lot of [*macros*](https://confluence.atlassian.com/doc/macros-139387.html) - special gadgets that can
+add extra features to your confluence page. While some of them has comprehensive configuration or can embed text
+content (like expand block), a lot of macros are as simple as macro keyword and a number of options that helps you
+configure behavior.
+
+**Text2confl** introduce custom format that helps you to insert any macro that does not require complex parameters with
+`[MACRONAME key1=value1 key2=value2]` format. In markdown such format is used for link references, but just as
+with [table of contents](#table-of-contents) it is treated in special way if you don't define link reference somewhere
+down the road. Values can be unquoted if they don't contain spaces, or you can put value in quotes if you have spaces - 
+`[MYMACRo width=100 searchQuery="project in (A,B,C)"]`. 
+
+!!! info "Parameters for macros - how to find them?"
+
+    Parameters are ***not validated***, so make sure that you use expected params for your macro. This can be done by 
+    adding the macro you need on sample page in WYSIWYG editor and then opening page in "storage format".
+    Macro name will be in `<ac-structured-macro ac:name="MACRONAME">` block and all `<ac-parameter ac:name="columns">`
+    elements are macro parameters.
+    
+    This is especially helpful for special hidden parameters like `serverId` in jira chart macro, that is GUID string
+    and unique per jira server integration.
+
+By default, any `MACRONAME` is supported, but if you want to limit usage, you can explicitly set what macros are enabled
+with this notation. More details on this in [configuration reference](../configuration-reference.md)
+
+Some examples:
+
+| Type of macros                                | Markdown text                                                                                  | Result                                                                                      |
+|-----------------------------------------------|------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [Reference to single jira ticket][JIRA_MACRO] | `[JIRA key=SI-1]`                                                                              | [JIRA key=SI-1]                                                                             |
+| [Jira report table][JIRA_MACRO_TABLE]         | `[JIRA jqlQuery="project = SI" columns=key,summary,assignee,reporter,status maximumIssues=20]` | [JIRA jqlQuery="project = SI" columns=key,summary,assignee,reporter,status maximumIssues=5] |
+| [Jira charts][JIRA_CHART]                     | `[JIRACHART jql="project = SI" chartType=pie statType=components serverId=<JIRA_SERVER_ID>]`   | [JIRACHART jql="project = SI" chartType=pie statType=components serverId=<JIRA_SERVER_ID>]  |
+
 
 ### Adding raw confluence formatting
 
 Flexmark library that is used to parse markdown follows common mark spec that prohibits html tags with colons, but this
-is the heart of custom Confluence markup becase they use `ac:` and `ri:` as their namespace prefices for all macro tags.
-To overcome this limitation, text2confl supports alternative format confluence tags with dashes.
+is the heart of custom Confluence markup because they use `ac:` and `ri:` as their namespace prefixes for all macro tags.
+To overcome this limitation, **text2confl** supports alternative format confluence tags with dashes.
 
-So to put a link to jira query report (e.g. <ac-structured-macro ac:name="jira" ac:schema-version="1">
-<ac-parameter ac:name="key">SI-1</ac-parameter></ac-structured-macro>), you can use the following notation:
+So this tags
 
 ```xml
 <ac-structured-macro ac:name="jira">
@@ -359,7 +387,7 @@ So to put a link to jira query report (e.g. <ac-structured-macro ac:name="jira" 
 </ac-structured-macro>
 ```
 
-That will generate
+Will generate
 
 <ac-structured-macro ac:name="jira">
 <ac-parameter ac:name="columns">key,summary,assignee,reporter,status</ac-parameter>
@@ -370,3 +398,6 @@ That will generate
 Right now this can't be used for block macros e.g. setting up page layouts.
 
 [external]: https://example.org
+[JIRA_MACRO]: https://confluence.atlassian.com/doc/jira-issues-macro-139380.html#JiraIssuesMacro-Displayingasingleissue,orselectedissues
+[JIRA_MACRO_TABLE]: https://confluence.atlassian.com/doc/jira-issues-macro-139380.html#JiraIssuesMacro-DisplayingissuesviaaJiraQueryLanguage(JQL)search
+[JIRA_CHART]: https://confluence.atlassian.com/doc/jira-chart-macro-427623467.html

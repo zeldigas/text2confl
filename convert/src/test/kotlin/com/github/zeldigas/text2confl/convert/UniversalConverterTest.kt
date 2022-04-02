@@ -5,6 +5,7 @@ import assertk.assertThat
 import assertk.assertions.*
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -23,9 +24,10 @@ internal class UniversalConverterTest(
     @MockK private val fileConverter: FileConverter
 ) {
 
-    val titleConverter: (Path, String) -> String = { _, t -> "Prefixed: $t" }
-    val conversionParameters = ConversionParameters(languageMapper, titleConverter)
-    val converter = UniversalConverter(
+    private val titleConverter: (Path, String) -> String = { _, t -> "Prefixed: $t" }
+    private val conversionParameters = ConversionParameters(languageMapper, titleConverter,
+        markdownConfiguration =  MarkdownConfiguration(true, emptyList()))
+    private val converter = UniversalConverter(
         "TEST", conversionParameters, mapOf(
             "t" to fileConverter
         )

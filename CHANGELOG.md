@@ -9,8 +9,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-* \[Markdown] Support for jira quick refs. Ref with format `[JIRA:ABC-123]` will insert jira issue reference macro if
-  reference is not defined in document explicitly (#20)
+* \[Markdown] Support for any Confluence macros with simple key-value parameters. Ref with format `[MACRONAME param1=value1]`
+  will insert `macroname` macros with one parameter `param1` (#20).
 
 ### Fixed
 
@@ -46,7 +46,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
       after rename while allowing humans to maintain pages under generated ones
     * `all` - to remove all child pages. It is good if you want to enforce policy that all pages should be managed in
       code
-* Support for dry run upload - no modifications will be done. Instead potential actions will be logged with (dryrun)
+* Support for dry run upload - no modifications will be done. Instead, potential actions will be logged with (dryrun)
   marker
 
 ### Fixed
@@ -79,7 +79,7 @@ Initial release of application.
 * Uploading to confluence with username/password and access tokens
 * Parallel upload of pages to reduce time
 * Support for editor v1 and v2. Uploaded page is marked accordingly
-* Support for files in markdown format with the following features specific to Confluence
+* Support for files in Markdown format with the following features specific to Confluence
     * Table of Contents
     * Task lists
     * Admonitions (tip, note, warning, info blocks)

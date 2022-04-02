@@ -10,9 +10,7 @@ import com.github.zeldigas.text2confl.convert.confluence.LanguageMapperImpl
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import kotlin.io.path.Path
 
-internal open class RenderingTestBase  {
-
-    val parser: MarkdownParser = MarkdownParser()
+internal open class RenderingTestBase {
 
     val languageMapper: LanguageMapper = LanguageMapperImpl(setOf("java", "kotlin"), "fallback")
 
@@ -25,17 +23,25 @@ internal open class RenderingTestBase  {
         attachments: Map<String, Attachment> = emptyMap(),
         referenceProvider: ReferenceProvider = ReferenceProvider.singleFile(),
         languageMapper: LanguageMapper? = null,
-        addAutogenHeader:Boolean = false,
-        autogenText:String = "Generated for __doc-root____file__"
+        addAutogenHeader: Boolean = false,
+        autogenText: String = "Generated for __doc-root____file__",
+        config: MarkdownConfiguration = MarkdownConfiguration(true, emptyList())
     ): String {
+        val parser = MarkdownParser(config)
         val ast = parser.parseString(src)
 
         val htmlRenderer = parser.htmlRenderer(
             Path("src.md"), attachments, ConvertingContext(
                 referenceProvider,
-                ConversionParameters(languageMapper ?: this.languageMapper,
-                    { _, title -> title }, addAutogenHeader, noteText = autogenText, docRootLocation = "http://example.com/")
-                , "TEST",
+                ConversionParameters(
+                    languageMapper ?: this.languageMapper,
+                    { _, title -> title },
+                    addAutogenHeader,
+                    noteText = autogenText,
+                    docRootLocation = "http://example.com/",
+                    markdownConfiguration = config
+                ),
+                "TEST",
             )
         )
 
