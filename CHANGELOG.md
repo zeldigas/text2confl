@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.5.1 - 2022-04-02
+
+### Fixed
+
+* Symlink to command was missing in PATH of docker image
 
 ## 0.5.0 - 2022-04-02
 

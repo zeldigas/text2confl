@@ -12,7 +12,8 @@ COPY --from=build /opt/app/lib /opt/text2confl/lib
 COPY --from=build /opt/app/app /opt/text2confl/app
 COPY --from=build /opt/app/text2confl /opt/text2confl/text2confl
 
-RUN adduser -DH user
+RUN adduser -DH user \
+    && ln -s /opt/text2confl/text2confl /usr/local/bin/text2confl
 
 USER user
 
