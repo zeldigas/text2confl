@@ -92,7 +92,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
 
         val ALLOWED_TOC_ATTRIBUTES =
             setOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type", "outline")
-        private val OPTIONS_ITEM_REGEX = """(?<key>\w+)=((?<value>\w+)|"(?<quotedvalue>[^"]+?)")""".toRegex()
+        private val OPTIONS_ITEM_REGEX = """(?<key>\w+)=((?<value>[^\s"]+)|"(?<quotedvalue>[^"]+?)")""".toRegex()
         val ALLOWED_IMAGE_ATTRIBUTES = setOf(
             "align",
             "border",
@@ -425,15 +425,15 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
         html.closeTag("ac:structured-macro")
     }
 
-    private fun render(node: ConfluenceStatusNode, context: NodeRendererContext, html: HtmlWriter) {
+    private fun render(node: ConfluenceStatusNode, @Suppress("UNUSED_PARAMETER") context: NodeRendererContext, html: HtmlWriter) {
         html.macro("status") {
-            html.addParameter("title", node.text)
-            html.addParameter("colour",
+            addParameter("title", node.text)
+            addParameter("colour",
                 node.color.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() })
         }
     }
 
-    private fun render(node: ConfluenceUserNode, context: NodeRendererContext, html: HtmlWriter) {
+    private fun render(node: ConfluenceUserNode, @Suppress("UNUSED_PARAMETER") context: NodeRendererContext, html: HtmlWriter) {
         html.tag("ac:link") {
             html.voidTag("ri:user", mapOf("ri:username" to node.text))
         }
@@ -446,37 +446,6 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
         html.tagLine("li") {
             node.markerSuffix?.let { html.text(it.unescape()).text(" ") }
             context.renderChildren(node)
-        }
-    }
-
-    private fun HtmlWriter.macro(name: String, block: () -> Unit) {
-        openTag("ac:structured-macro", mapOf("ac:name" to name))
-        block()
-        closeTag("ac:structured-macro")
-    }
-
-    private fun HtmlWriter.addParameter(name: String, value: String, withTagLine: Boolean = false) {
-        attr("ac:name", name).withAttr().tag("ac:parameter")
-        text(value).closeTag("ac:parameter")
-        if (withTagLine) {
-            line()
-        }
-    }
-
-    private fun HtmlWriter.openTag(name: String, attrs: Map<String, CharSequence> = emptyMap()): HtmlWriter {
-        addAttributes(attrs)
-        return tag(name)
-    }
-
-    private fun HtmlWriter.voidTag(name: String, attrs: Map<String, CharSequence> = emptyMap()): HtmlWriter {
-        addAttributes(attrs)
-        return tagVoid(name)
-    }
-
-    private fun HtmlWriter.addAttributes(attrs: Map<String, CharSequence>) {
-        if (attrs.isNotEmpty()) {
-            attrs.forEach { (k, v) -> attr(k, v) }
-            withAttr()
         }
     }
 

@@ -20,6 +20,7 @@ import com.github.zeldigas.text2confl.cli.upload.DryRunClient
 import com.github.zeldigas.text2confl.cli.upload.PageUploadOperationsImpl
 import com.github.zeldigas.text2confl.convert.ConversionParameters
 import com.github.zeldigas.text2confl.convert.Converter
+import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.universalConverter
 import io.ktor.http.*
 import io.mockk.*
@@ -41,7 +42,11 @@ internal class ServiceProviderImplTest {
         val result = provider.createUploader(
             client,
             UploadConfig("TEST", Cleanup.Managed, "test", true, ChangeDetector.CONTENT),
-            ConverterConfig("pre", "post", EditorVersion.V2, null, "root/", null)
+            ConverterConfig(
+                "pre", "post", EditorVersion.V2, null,
+                "root/", null,
+                MarkdownConfiguration()
+            )
         )
 
         assertThat(result).all {
@@ -85,7 +90,8 @@ internal class ServiceProviderImplTest {
             every { universalConverter("TEST", any()) } returns converter
 
             val result = provider.createConverter("TEST", ConverterConfig("pre", "post", EditorVersion.V1,
-            null, "http://example.org/", "custom text"))
+            null, "http://example.org/", "custom text",
+            MarkdownConfiguration()))
 
             assertThat(result).isEqualTo(converter)
 

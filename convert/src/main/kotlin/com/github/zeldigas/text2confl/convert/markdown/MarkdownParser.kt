@@ -2,6 +2,9 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.ConvertingContext
+import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAdmonitionExtension
+import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAttributesExtension
+import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleMacroExtension
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
@@ -15,10 +18,15 @@ import com.vladsch.flexmark.util.ast.Document
 import com.vladsch.flexmark.util.ast.KeepType
 import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.MutableDataSet
+import com.vladsch.flexmark.util.data.NullableDataKey
 import java.io.BufferedReader
 import java.nio.file.Path
 
-internal class MarkdownParser {
+internal class MarkdownParser(config: MarkdownConfiguration) {
+
+    companion object {
+        val PARSE_OPTIONS = NullableDataKey<MarkdownConfiguration>("T2C_CONFIG")
+    }
 
     private val parserOptions: DataHolder = MutableDataSet()
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
@@ -33,6 +41,7 @@ internal class MarkdownParser {
         .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
         .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
         .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
+        .set(PARSE_OPTIONS, config)
         .set(
             Parser.EXTENSIONS, listOf(
                 TablesExtension.create(), YamlFrontMatterExtension.create(),
@@ -40,6 +49,7 @@ internal class MarkdownParser {
                 SimpleAttributesExtension(), TocExtension.create(),
                 SimpleAdmonitionExtension(), SuperscriptExtension.create(),
                 StatusExtension(), ConfluenceUserExtension(),
+                SimpleMacroExtension(),
                 ConfluenceFormatExtension(),
 
             )

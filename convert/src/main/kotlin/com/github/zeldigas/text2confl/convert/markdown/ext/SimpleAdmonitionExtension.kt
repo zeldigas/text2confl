@@ -1,4 +1,4 @@
-package com.github.zeldigas.text2confl.convert.markdown
+package com.github.zeldigas.text2confl.convert.markdown.ext
 
 import com.vladsch.flexmark.ext.admonition.internal.AdmonitionBlockParser
 import com.vladsch.flexmark.ext.attributes.AttributesExtension

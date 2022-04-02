@@ -7,10 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 0.4.2 - 2022-03-26
 
+### Added
+
+* \[Markdown] Support for any Confluence macros with simple key-value parameters. Ref with format `[MACRONAME param1=value1]`
+  will insert `macroname` macros with one parameter `param1` (#20).
+
 ### Fixed
 
 * Don't fail when modifying/deleting attachment in Confluence Server (#18)
-* User reference now supports `-` symbol in the middle of username, e.g. `~user-name` (#21)
+* \[Markdown] User reference now supports `-` symbol in the middle of username, e.g. `~user-name` (#21)
 
 ### Changed
 
@@ -45,7 +50,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
       after rename while allowing humans to maintain pages under generated ones
     * `all` - to remove all child pages. It is good if you want to enforce policy that all pages should be managed in
       code
-* Support for dry run upload - no modifications will be done. Instead potential actions will be logged with (dryrun)
+* Support for dry run upload - no modifications will be done. Instead, potential actions will be logged with (dryrun)
   marker
 
 ### Fixed
@@ -78,7 +83,7 @@ Initial release of application.
 * Uploading to confluence with username/password and access tokens
 * Parallel upload of pages to reduce time
 * Support for editor v1 and v2. Uploaded page is marked accordingly
-* Support for files in markdown format with the following features specific to Confluence
+* Support for files in Markdown format with the following features specific to Confluence
     * Table of Contents
     * Task lists
     * Admonitions (tip, note, warning, info blocks)

@@ -22,6 +22,7 @@ import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
 import com.github.zeldigas.text2confl.convert.Page
+import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import io.ktor.http.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -80,7 +81,10 @@ internal class UploadTest(
                 false
             )
         }
-        val expectedConverterConfig = ConverterConfig("", "", EditorVersion.V2, null, null, null)
+        val expectedConverterConfig = ConverterConfig(
+            "", "", EditorVersion.V2, null, null, null,
+            MarkdownConfiguration()
+        )
         verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
         verify {
             serviceProvider.createUploader(
@@ -121,7 +125,12 @@ internal class UploadTest(
                 true
             )
         }
-        val converterConfig = ConverterConfig(directoryConfig.titlePrefix, directoryConfig.titlePostfix, directoryConfig.editorVersion!!, null, "http://example.com/", null)
+        val converterConfig = ConverterConfig(
+            directoryConfig.titlePrefix, directoryConfig.titlePostfix,
+            directoryConfig.editorVersion!!, null,
+            "http://example.com/", null,
+            directoryConfig.markdown.toConfig()
+        )
         verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
         verify {
             serviceProvider.createUploader(
