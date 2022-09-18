@@ -55,7 +55,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     private val removeOrphans: Cleanup? by option(
         "--remove-orphans",
         help = """What to do with child pages that are not managed by: 
-            |1) managed - remove only pages that were previosly managed by text2confl
+            |1) managed - remove only pages that were previously managed by text2confl
             |2) all - remove pages
             |3) none - don't remove any pages""".trimMargin()
     ).enum<Cleanup> { it.name.lowercase() }
@@ -90,6 +90,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         } else {
             converter.convertDir(docs.toPath())
         }
+        serviceProvider.createContentValidator().validate(result)
         val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 

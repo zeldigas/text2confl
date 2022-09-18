@@ -28,6 +28,8 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
     private val out: File by option("--out").file(canBeFile = false, canBeDir = true, mustExist = false)
         .default(File("out"))
         .help("Output directory where converted contents should be generated")
+    private val validate by option("--validate").flag("--no-validate", default = true)
+        .help("Perform validation of converted files for correctness")
     override val editorVersion: EditorVersion? by editorVersion()
 
     private val serviceProvider: ServiceProvider by requireObject()
@@ -38,19 +40,24 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
         val space = spaceKey ?: directoryConfig.space ?: "AAA"
         val converter = serviceProvider.createConverter(space, conversionConfig)
         try {
-            tryConvert(converter)
+            val result = tryConvert(converter)
+            if (validate) {
+                val validator = serviceProvider.createContentValidator()
+                validator.validate(result)
+            }
         } catch (ex: Exception) {
             tryHandleException(ex)
         }
     }
 
-    private fun tryConvert(converter: Converter) {
+    private fun tryConvert(converter: Converter): List<Page> {
         val result = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {
             converter.convertDir(docs.toPath())
         }
         save(result, out)
+        return result
     }
 
     private fun save(result: List<Page>, out: File) {
@@ -73,7 +80,7 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
         (outPath / "${resultName}.html").writeText(page.content.body)
         if (copyAttachments && page.content.attachments.isNotEmpty()) {
             val attachmentDir = (outPath / "${resultName}_attachments").createDirectories()
-            page.content.attachments.forEach{it.resourceLocation.copyTo(attachmentDir / it.attachmentName)}
+            page.content.attachments.forEach{it.resourceLocation.copyTo(attachmentDir / it.attachmentName, overwrite = true)}
         }
     }
 

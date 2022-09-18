@@ -29,10 +29,11 @@ data class DirectoryConfig(
 
 data class MarkdownParams(
     val anyMacro: Boolean? = null,
-    val enabledMacros:List<String> = emptyList()
+    val enabledMacros:List<String> = emptyList(),
+    val emoji: Boolean = true
 ) {
     fun toConfig(): MarkdownConfiguration {
         val any = anyMacro ?: enabledMacros.isEmpty()
-        return MarkdownConfiguration(any, enabledMacros)
+        return MarkdownConfiguration(any, enabledMacros, emoji)
     }
 }

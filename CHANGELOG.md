@@ -7,6 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.6.0
+
+### Changed
+
+* Updated dependencies: kotlin 1.7, ktor 2.1, latest jackson
+
+### Added
+
+* Added check that converted file is a valid xml before trying to upload content to server
+* Support for emoji text-codes using :metal:
+
 ## 0.5.1 - 2022-04-02
 
 ### Fixed

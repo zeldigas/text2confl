@@ -16,7 +16,7 @@ fun RawOption.optionalFlag(vararg secondaryNames: String): FlagOption<Boolean?> 
     return switch(allOptions.toMap())
 }
 
-fun tryHandleException(ex: Exception) {
+fun tryHandleException(ex: Exception) : Nothing {
     when (ex) {
         is FileDoesNotExistException -> throw PrintMessage(ex.message!!, error = true)
         is ConversionFailedException -> {
@@ -27,6 +27,10 @@ fun tryHandleException(ex: Exception) {
                 }
             }
             throw PrintMessage("Failed to convert ${ex.file}: $reason", error = true)
+        }
+        is ContentValidationFailedException -> {
+            val issues = ex.errors.mapIndexed { index, error -> "${index + 1}. $error"}.joinToString(separator = "\n")
+            throw PrintMessage("Some pages content is invalid:\n${issues}")
         }
         else -> throw ex
     }

@@ -7,9 +7,11 @@ import com.github.ajalt.clikt.core.Context
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.Page
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,7 +25,8 @@ import kotlin.io.path.exists
 @ExtendWith(MockKExtension::class)
 class ConvertTest (
     @MockK private val serviceProvider: ServiceProvider,
-    @MockK private val converter: Converter
+    @MockK private val converter: Converter,
+    @MockK private val contentValidator: ContentValidator
 ) {
 
     private val command = Convert()
@@ -32,6 +35,9 @@ class ConvertTest (
     @BeforeEach
     internal fun setUp() {
         every { serviceProvider.createConverter(any(), any()) } returns converter
+        every { serviceProvider.createContentValidator() } returns contentValidator
+        every { contentValidator.validate(any()) } just Runs
+
         parentContext.obj = serviceProvider
     }
 

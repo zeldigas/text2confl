@@ -366,7 +366,7 @@ internal class PageUploadOperationsImplTest(
         coEvery { client.findChildPages("567") } returns emptyList()
         coEvery { client.deletePage(any()) } just Runs
 
-        val result = runBlocking {
+        runBlocking {
             uploadOperations().deletePageWithChildren("123")
         }
 

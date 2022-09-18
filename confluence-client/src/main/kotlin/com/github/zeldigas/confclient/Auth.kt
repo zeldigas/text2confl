@@ -1,7 +1,7 @@
 package com.github.zeldigas.confclient
 
-import io.ktor.client.features.auth.*
-import io.ktor.client.features.auth.providers.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
 
 interface ConfluenceAuth {
 
@@ -10,7 +10,7 @@ interface ConfluenceAuth {
 }
 
 data class PasswordAuth(private val username: String, private val password:String) : ConfluenceAuth {
-    override fun create(auth:Auth) {
+    override fun create(auth: Auth) {
         val creds = BasicAuthCredentials(username, password)
         auth.basic {
             credentials { creds }

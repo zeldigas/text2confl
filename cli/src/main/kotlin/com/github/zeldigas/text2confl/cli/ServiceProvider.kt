@@ -20,6 +20,7 @@ interface ServiceProvider {
         uploadConfig: UploadConfig,
         converterConfig: ConverterConfig
     ): ContentUploader
+    fun createContentValidator(): ContentValidator
 }
 
 class ServiceProviderImpl : ServiceProvider {
@@ -52,5 +53,9 @@ class ServiceProviderImpl : ServiceProvider {
             uploadConfig.modificationCheck,
             converterConfig.editorVersion, uploadConfig.removeOrphans
         )
+    }
+
+    override fun createContentValidator(): ContentValidator {
+        return ContentValidatorImpl()
     }
 }

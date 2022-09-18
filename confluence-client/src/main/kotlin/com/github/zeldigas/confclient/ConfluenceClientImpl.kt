@@ -3,18 +3,20 @@ package com.github.zeldigas.confclient
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageAttachments
 import com.github.zeldigas.confclient.model.Space
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.auth.*
-import io.ktor.client.features.json.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.utils.io.streams.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
@@ -32,7 +34,7 @@ class ConfluenceClientImpl(
     override suspend fun describeSpace(key: String, expansions: List<String>): Space {
         return httpClient.get("$apiBase/space/$key") {
             addExpansions(expansions)
-        }
+        }.body()
     }
 
     override suspend fun getPage(
@@ -82,7 +84,7 @@ class ConfluenceClientImpl(
             parameter("title", title)
             status?.let { parameter("status", it.toString()) }
             addExpansions(expansions)
-        }
+        }.body()
         return result.results
     }
 
@@ -92,17 +94,21 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun createPage(value: PageContentInput, updateParameters: PageUpdateOptions, expansions: List<String>?): ConfluencePage {
+    override suspend fun createPage(
+        value: PageContentInput,
+        updateParameters: PageUpdateOptions,
+        expansions: List<String>?
+    ): ConfluencePage {
         if (value.space.isNullOrEmpty()) {
             throw IllegalArgumentException("Space is required when creating pages")
         }
         return httpClient.post("$apiBase/content") {
-            if (expansions != null){
+            if (expansions != null) {
                 addExpansions(expansions)
             }
             contentType(ContentType.Application.Json)
-            body = toPageData(value, updateParameters)
-        }
+            setBody(toPageData(value, updateParameters))
+        }.body()
     }
 
     override suspend fun updatePage(
@@ -110,9 +116,14 @@ class ConfluenceClientImpl(
         value: PageContentInput,
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
-        return httpClient.put("$apiBase/content/$pageId") {
+        val response = httpClient.put("$apiBase/content/$pageId") {
             contentType(ContentType.Application.Json)
-            body = toPageData(value, updateParameters)
+            setBody(toPageData(value, updateParameters))
+        }
+        if (response.status.isSuccess()) {
+            return response.body()
+        } else {
+            throw RuntimeException(response.bodyAsText())
         }
     }
 
@@ -146,8 +157,8 @@ class ConfluenceClientImpl(
     override suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
         return httpClient.put("$apiBase/content/$pageId/property/$name") {
             contentType(ContentType.Application.Json)
-            body = value
-        }
+            setBody(value)
+        }.body()
     }
 
     override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
@@ -156,11 +167,11 @@ class ConfluenceClientImpl(
         var limit = PAGE_SIZE
         var completed = false
         do {
-            val page = httpClient.get<PageSearchResult>("$apiBase/content/$pageId/child/page") {
+            val page = httpClient.get("$apiBase/content/$pageId/child/page") {
                 addExpansions(expansions ?: emptyList())
                 parameter("start", start)
                 parameter("limit", limit)
-            }
+            }.body<PageSearchResult>()
             result.addAll(page.results)
             limit = page.limit
             start += limit
@@ -170,17 +181,17 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun deletePage(pageId: String) {
-        httpClient.delete<Unit>("$apiBase/content/$pageId")
+        httpClient.delete("$apiBase/content/$pageId")
     }
 
     override suspend fun deleteLabel(pageId: String, label: String) {
-        httpClient.delete<Unit>("$apiBase/content/$pageId/label/$label")
+        httpClient.delete("$apiBase/content/$pageId/label/$label")
     }
 
     override suspend fun addLabels(pageId: String, labels: List<String>) {
-        httpClient.post<Unit>("$apiBase/content/$pageId/label") {
+        httpClient.post("$apiBase/content/$pageId/label") {
             contentType(ContentType.Application.Json)
-            body = labels.map { mapOf("name" to it) }
+            setBody(labels.map { mapOf("name" to it) })
         }
     }
 
@@ -195,7 +206,7 @@ class ConfluenceClientImpl(
         }) {
             header("X-Atlassian-Token", "nocheck")
             header("Accept", "application/json")
-        }
+        }.body()
     }
 
     override suspend fun updateAttachment(
@@ -210,11 +221,11 @@ class ConfluenceClientImpl(
             }) {
             header("X-Atlassian-Token", "nocheck")
             header("Accept", "application/json")
-        }
+        }.body()
     }
 
     override suspend fun deleteAttachment(attachmentId: String) {
-        httpClient.delete<String>("$apiBase/content/$attachmentId")
+        httpClient.delete("$apiBase/content/$attachmentId").body<String>()
     }
 
     private fun FormBuilder.addAttachmentToForm(attachment: PageAttachmentInput) {
@@ -251,13 +262,14 @@ fun confluenceClient(
                 }
             }
         }
-        install(JsonFeature) {
-            serializer = JacksonSerializer(
-                jacksonObjectMapper()
-                    .registerModule(Jdk8Module()).registerModule(JavaTimeModule())
-                    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            )
+        install(ContentNegotiation) {
+            jackson {
+                registerModule(Jdk8Module())
+                registerModule(JavaTimeModule())
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            }
         }
+
         install(Auth) {
             config.auth.create(this)
         }

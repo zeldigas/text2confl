@@ -39,6 +39,7 @@ internal class UploadTest(
     @MockK private val serviceProvider: ServiceProvider,
     @MockK private val contentUploader: ContentUploader,
     @MockK private val confluenceClient: ConfluenceClient,
+    @MockK private val contentValidator: ContentValidator,
     @MockK private val converter: Converter
 ) {
     private val command = Upload()
@@ -49,6 +50,7 @@ internal class UploadTest(
         every { serviceProvider.createConverter(any(), any()) } returns converter
         every { serviceProvider.createConfluenceClient(any(), any()) } returns confluenceClient
         every { serviceProvider.createUploader(confluenceClient, any(), any()) } returns contentUploader
+        every { serviceProvider.createContentValidator() } returns contentValidator
         parentContext.obj = serviceProvider
     }
 
@@ -57,6 +59,7 @@ internal class UploadTest(
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
+        every { contentValidator.validate(result)} just Runs
 
         command.parse(
             listOf(
@@ -104,6 +107,7 @@ internal class UploadTest(
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
+        every { contentValidator.validate(result)} just Runs
 
         command.parse(
             listOf(
@@ -193,6 +197,7 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.getPage("TR", "Test page").id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
+        every { contentValidator.validate(result)} just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
@@ -215,6 +220,7 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.describeSpace("TR", listOf("homepage")).homepage?.id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
+        every { contentValidator.validate(result)} just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
@@ -263,6 +269,25 @@ internal class UploadTest(
                 parentContext
             )
         }.isFailure().isInstanceOf(PrintMessage::class).hasMessage("Failed to convert $tempDir: Conversion error message (cause: java.lang.RuntimeException: cause)")
+    }
+
+    @Test
+    internal fun `Handling of content validation exception`(@TempDir tempDir: Path) {
+        val result = mockk<List<Page>>()
+        every { converter.convertDir(tempDir) } returns result
+        every { contentValidator.validate(result)} throws ContentValidationFailedException(listOf("error message1", "error message2"))
+
+        assertThat {
+            command.parse(
+                listOf(
+                    "--confluence-url", "https://test.atlassian.net/wiki",
+                    "--space", "TR",
+                    "--access-token", "test",
+                    "--docs", tempDir.toString()
+                ),
+                parentContext
+            )
+        }.isFailure().isInstanceOf(PrintMessage::class).hasMessage("Some pages content is invalid:\n1. error message1\n2. error message2")
     }
 
     private fun sampleConfig(): DirectoryConfig {

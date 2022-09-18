@@ -156,10 +156,10 @@ List of supported attributes:
 
 | Attribute     | Description                                                                                         | Confluence Server | Confluence Cloud                        |
 |---------------|-----------------------------------------------------------------------------------------------------|-------------------|-----------------------------------------|
-| `title`       | Title for codeblock                                                                                 | ✅️                | ✅️                                      |
-| `collapse`    | Flag that control if code block is collapsed on page by default. Allowed values - `true` or `false` | ✅️                | ⚠️ Only if editor v1 is forcibly set ⚠️ |
-| `linenumbers` | Flag that controls if line numbers are displayed. Allowed values - `true` or `false`                | ✅️                | ⚠️ Only if editor v1 is forcibly set ⚠️ |
-| `firstline`   | Sets starting line number for codeblocks                                                            | ✅️                | ⚠️ Only if editor v1 is forcibly set ⚠️ |
+| `title`       | Title for codeblock                                                                                 | :white_check_mark:️                | :white_check_mark:️                                      |
+| `collapse`    | Flag that control if code block is collapsed on page by default. Allowed values - `true` or `false` | :white_check_mark:️                | :warning:️ Only if editor v1 is forcibly set :warning:️ |
+| `linenumbers` | Flag that controls if line numbers are displayed. Allowed values - `true` or `false`                | :white_check_mark:️                | :warning:️ Only if editor v1 is forcibly set :warning:️ |
+| `firstline`   | Sets starting line number for codeblocks                                                            | :white_check_mark:️                | :warning:️ Only if editor v1 is forcibly set :warning:️ |
 
 ## Links
 
@@ -179,6 +179,12 @@ External:
 Attached:
 
 ![markdown logo](./markdown.png){width=200}
+
+## Emojis :rocket:
+
+You can embed emojis supported in unicode by using `:emoji-code:` notation :metal:. In some cases it is way easier compared to putting just unicode symbol.
+
+You can :mag_right: supported codes on [emoji cheat sheet](https://www.webfx.com/tools/emoji-cheat-sheet/) page.
 
 ## Lists
 

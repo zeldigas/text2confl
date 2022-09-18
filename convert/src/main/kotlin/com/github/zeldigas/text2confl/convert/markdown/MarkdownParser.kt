@@ -6,6 +6,9 @@ import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAdmonitionExten
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAttributesExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleMacroExtension
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
+import com.vladsch.flexmark.ext.emoji.EmojiExtension
+import com.vladsch.flexmark.ext.emoji.EmojiImageType
+import com.vladsch.flexmark.ext.emoji.EmojiShortcutType
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension
@@ -19,6 +22,7 @@ import com.vladsch.flexmark.util.ast.KeepType
 import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.MutableDataSet
 import com.vladsch.flexmark.util.data.NullableDataKey
+import com.vladsch.flexmark.util.misc.Extension
 import java.io.BufferedReader
 import java.nio.file.Path
 
@@ -41,9 +45,8 @@ internal class MarkdownParser(config: MarkdownConfiguration) {
         .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
         .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
         .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
-        .set(PARSE_OPTIONS, config)
-        .set(
-            Parser.EXTENSIONS, listOf(
+        .set(PARSE_OPTIONS, config).let { parserConfig ->
+            parserConfig.set(Parser.EXTENSIONS, listOf(
                 TablesExtension.create(), YamlFrontMatterExtension.create(),
                 TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
                 SimpleAttributesExtension(), TocExtension.create(),
@@ -51,10 +54,19 @@ internal class MarkdownParser(config: MarkdownConfiguration) {
                 StatusExtension(), ConfluenceUserExtension(),
                 SimpleMacroExtension(),
                 ConfluenceFormatExtension(),
-
-            )
-        )
+            ) + extraExtensions(parserConfig, config))
+        }
         .toImmutable()
+
+    private fun extraExtensions(parserConfig: MutableDataSet, config: MarkdownConfiguration): List<Extension> {
+        return buildList {
+            if (config.emoji) {
+                add(EmojiExtension.create())
+                parserConfig.set(EmojiExtension.USE_SHORTCUT_TYPE, EmojiShortcutType.ANY_EMOJI_CHEAT_SHEET_PREFERRED)
+                parserConfig.set(EmojiExtension.USE_IMAGE_TYPE, EmojiImageType.UNICODE_ONLY)
+            }
+        }
+    }
 
     private val parser = Parser.builder(parserOptions).build()
 

@@ -2,7 +2,9 @@ package com.github.zeldigas.text2confl.convert
 
 import assertk.all
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import assertk.assertions.prop
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -51,5 +53,35 @@ class PageContentTest {
             prop(Attachment::attachmentName).isEqualTo(name)
             prop(Attachment::linkName).isEqualTo(path)
         }
+    }
+
+    @Test
+    internal fun `Ok result for well-formed xml`() {
+        assertThat(
+            PageContent(PageHeader("", emptyMap()),
+            """
+                <p>hello world</p>                
+            """.trimIndent(),
+            emptyList()
+            ).validate()
+        ).isEqualTo(Validation.Ok)
+    }
+
+    @Test
+    internal fun `Invalid result for unbalanced xml`() {
+        val sampleXml = """
+                <table>    
+                <p ac:parameter="hello">hello world</p>                                
+                <p>hello world &lt;/p>                
+                <p>hello world</p>
+                </table>""".trimIndent()
+        print(sampleXml)
+        assertThat(
+            PageContent(PageHeader("", emptyMap()),
+                sampleXml,
+                emptyList()
+            ).validate()
+        ).isInstanceOf(Validation.Invalid::class)
+            .transform { it.issue }.contains("[5:3] The element type \"p\" must be terminated by the matching end-tag \"</p>\". Start tag location - [3:4]")
     }
 }
