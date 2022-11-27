@@ -24,6 +24,15 @@ data class Page(
 ) {
     val title: String
         get() = content.header.title
+    val virtual: Boolean
+        get() {
+            val virtualAttr:Any = content.header.attributes["_virtual_"] ?: return false
+            return when(virtualAttr) {
+                is Boolean -> virtualAttr
+                is String -> virtualAttr.toBoolean()
+                else -> false
+            }
+        }
 }
 
 data class PageHeader(
@@ -90,7 +99,7 @@ data class PageContent(
                 }
             }
         } catch (e: XMLStreamException) {
-            val message = (e.message ?: "Unknown error occured").substringAfter("Message: ")
+            val message = (e.message ?: "Unknown error occurred").substringAfter("Message: ")
             return if (message.contains("must be terminated by the matching")) {
                 val startTag = stack.pop()
                 Validation.Invalid("${e.location.formatted()} $message Start tag location - ${startTag.location.formatted()}")

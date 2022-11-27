@@ -27,6 +27,8 @@ interface ConfluenceClient {
 
     suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage
 
+    suspend fun changeParent(pageId: String, title: String, version: Int, newParentId: String, updateParameters: PageUpdateOptions): ConfluencePage
+
     suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput)
 
     suspend fun findChildPages(pageId: String, expansions: List<String>? = null): List<ConfluencePage>

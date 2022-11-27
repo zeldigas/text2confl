@@ -18,7 +18,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         expansions: List<String>?
     ): ConfluencePage {
         log.info { "(dryrun) Creating page under parent ${value.parentPage} with title ${value.title}" }
-        return ConfluencePage(UNDEFINED_ID, ContentType.page, "created", value.title, null, null, PageVersionInfo(value.version, true, ZonedDateTime.now()), null)
+        return ConfluencePage(UNDEFINED_ID, ContentType.page, "created", value.title, null, null, PageVersionInfo(value.version, true, ZonedDateTime.now()), null, null)
     }
 
     override suspend fun updatePage(
@@ -27,7 +27,18 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
         log.info { "(dryrun) Updating page $pageId with title ${value.title}" }
-        return ConfluencePage(pageId, ContentType.page, "updated", value.title, null, null, PageVersionInfo(value.version, true, ZonedDateTime.now()), null)
+        return ConfluencePage(pageId, ContentType.page, "updated", value.title, null, null, PageVersionInfo(value.version, true, ZonedDateTime.now()), null, null)
+    }
+
+    override suspend fun changeParent(
+        pageId: String,
+        title: String,
+        version: Int,
+        newParentId: String,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage {
+        log.info { "(dryrun) Changing parent of page $pageId with title ${title} to $newParentId" }
+        return ConfluencePage(pageId, ContentType.page, "updated", title, null, null, PageVersionInfo(version, true, ZonedDateTime.now()), null, null)
     }
 
     override suspend fun deletePage(pageId: String) {

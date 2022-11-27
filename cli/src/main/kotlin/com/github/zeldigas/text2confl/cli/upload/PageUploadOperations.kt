@@ -13,10 +13,11 @@ interface PageUploadOperations {
 
     suspend fun createOrUpdatePageContent(page: Page, space: String, parentPageId: String): ServerPage
 
+    suspend fun checkPageAndUpdateParentIfRequired(title: String, space: String, parentId: String): ServerPage
+
     suspend fun updatePageLabels(serverPage: ServerPage, content: PageContent)
 
     suspend fun updatePageAttachments(serverPage: ServerPage, content: PageContent)
-
     suspend fun findChildPages(pageId: String): List<ConfluencePage>
     suspend fun deletePageWithChildren(pageId: String)
 

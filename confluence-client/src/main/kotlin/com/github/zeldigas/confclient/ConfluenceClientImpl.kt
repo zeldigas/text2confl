@@ -116,14 +116,32 @@ class ConfluenceClientImpl(
         value: PageContentInput,
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
+        return performPageUpdate(pageId, toPageData(value, updateParameters))
+    }
+
+    override suspend fun changeParent(
+        pageId: String,
+        title: String,
+        version: Int,
+        newParentId: String,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage =
+        performPageUpdate(pageId, mapOf(
+            "type" to "page",
+            "title" to title,
+            "ancestors" to listOf(mapOf("id" to newParentId)),
+            "version" to versionNode(version, updateParameters)
+        ))
+
+    private suspend fun performPageUpdate(pageId: String, body: Map<String, Any?>): ConfluencePage {
         val response = httpClient.put("$apiBase/content/$pageId") {
             contentType(ContentType.Application.Json)
-            setBody(toPageData(value, updateParameters))
+            setBody(body)
         }
         if (response.status.isSuccess()) {
             return response.body()
         } else {
-            throw RuntimeException(response.bodyAsText())
+            throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
         }
     }
 
@@ -143,15 +161,20 @@ class ConfluenceClientImpl(
                     )
                 )
             )
-            put("version", buildMap<String, Any> {
-                put("number", value.version)
-                put("minorEdit", !pageUpdateOptions.notifyWatchers)
-                pageUpdateOptions.message?.let { put("message", it) }
-            })
+            put("version", versionNode(value.version, pageUpdateOptions))
             if (value.space != null) {
                 put("space", mapOf("key" to value.space))
             }
         }
+    }
+
+    private fun versionNode(
+        version: Int,
+        pageUpdateOptions: PageUpdateOptions
+    ): Map<String, Any> = buildMap {
+        put("number", version)
+        put("minorEdit", !pageUpdateOptions.notifyWatchers)
+        pageUpdateOptions.message?.let { put("message", it) }
     }
 
     override suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {

@@ -12,7 +12,8 @@ data class ConfluencePage(
     val metadata: PageMetadata?,
     val body: PageBody?,
     val version: PageVersionInfo?,
-    val children: PageChildren?
+    val children: PageChildren?,
+    val ancestors: List<ConfluencePage>?
 ) {
     fun pageProperty(name: String): PageProperty? {
         return metadata?.properties?.get(name)

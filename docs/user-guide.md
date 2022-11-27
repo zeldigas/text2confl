@@ -63,8 +63,7 @@ For full list of possible configuration options consult with [configuration refe
 So now you are ready to start working on your documents. `tesxt2confl` process document tree using the following
 approach:
 
-1. All files in documents root with supported formats and don't have name starting with `_` are found - these are ***
-   root documents***.
+1. All files in documents root with supported formats and don't have name starting with `_` are found - these are ***root documents***.
 2. For every found document, we check if directory with same name and without extension exists. If it is found search is
    repeated there with corresponding root documents considered as parent for documents inside this folder
 3. All found files represent tree of documents that is then converted and uploaded. Documents can refer to each other if

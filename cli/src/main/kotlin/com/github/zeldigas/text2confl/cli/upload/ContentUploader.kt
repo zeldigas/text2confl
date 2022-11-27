@@ -64,7 +64,6 @@ class ContentUploader(
         return coroutineScope {
             pages.map { page ->
                 async {
-                    logger.info { "Uploading page: title=${page.title}" }
                     val (realParent, serverPage) = uploadPage(page, space, parentPageId)
                     logger.debug { "Page uploaded: title=${page.title}, id=${serverPage.id}" }
                     listOf(realParent to serverPage) + if (page.children.isNotEmpty()) {
@@ -79,10 +78,17 @@ class ContentUploader(
 
     private suspend fun uploadPage(page: Page, space: String, defaultParentPage: String): Pair<String, ServerPage> {
         val parentId = customPageParent(page, space) ?: defaultParentPage
-        val serverPage = pageUploadOperations.createOrUpdatePageContent(page, space, parentId)
-        pageUploadOperations.updatePageLabels(serverPage, page.content)
-        pageUploadOperations.updatePageAttachments(serverPage, page.content)
-        return parentId to serverPage
+        val resolvedPage: ServerPage = if (!page.virtual) {
+            logger.info { "Uploading page: title=${page.title}" }
+            val serverPage = pageUploadOperations.createOrUpdatePageContent(page, space, parentId)
+            pageUploadOperations.updatePageLabels(serverPage, page.content)
+            pageUploadOperations.updatePageAttachments(serverPage, page.content)
+            serverPage
+        } else {
+            logger.info { "Checking that virtual page exists and properly located: ${page.title}" }
+            pageUploadOperations.checkPageAndUpdateParentIfRequired(page.title, space, parentId)
+        }
+        return parentId to resolvedPage
     }
 
     private suspend fun customPageParent(page: Page, space: String): String? {

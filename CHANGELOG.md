@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+* Executable for Windows in distro
+* Support for virtual pages: pages that are present in hierarchy but maintained manually. Read more in [user guide](docs/user-guide/virtual-pages.md)
+* Fixing of pages parent even when content is not changed
+
 ## 0.6.0 - 2022-09-18
 
 ### Changed
@@ -16,7 +22,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 * Added check that converted file is a valid xml before trying to upload content to server
-* Support for emoji text-codes using :metal:
+* Support for emoji text-codes using `:metal:` formatting: :metal:
 
 ## 0.5.1 - 2022-04-02
 
@@ -28,7 +34,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-* \[Markdown] Support for any Confluence macros with simple key-value parameters. Ref with format `[MACRONAME param1=value1]`
+* \[Markdown] Support for any Confluence macros with simple key-value parameters. Ref with
+  format `[MACRONAME param1=value1]`
   will insert `macroname` macros with one parameter `param1` (#20).
 
 ## 0.4.2 - 2022-03-26

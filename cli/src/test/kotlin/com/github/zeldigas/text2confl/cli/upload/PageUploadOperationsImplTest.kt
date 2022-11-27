@@ -1,7 +1,10 @@
 package com.github.zeldigas.text2confl.cli.upload
 
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isInstanceOf
 import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.*
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
@@ -34,17 +37,22 @@ internal class PageUploadOperationsImplTest(
                     "metadata.properties.editor",
                     "version",
                     "children.attachment",
+                    "ancestors"
                 )
             )
         } returns null
 
-        coEvery { client.createPage(any(), any(), listOf(
-            "metadata.labels",
-            "metadata.properties.contenthash",
-            "metadata.properties.editor",
-            "version",
-            "children.attachment"
-        )) } returns mockk {
+        coEvery {
+            client.createPage(
+                any(), any(), listOf(
+                    "metadata.labels",
+                    "metadata.properties.contenthash",
+                    "metadata.properties.editor",
+                    "version",
+                    "children.attachment"
+                )
+            )
+        } returns mockk {
             every { id } returns "new_id"
             every { title } returns "Page title"
             every { pageProperty(any()) } returns null
@@ -90,6 +98,7 @@ internal class PageUploadOperationsImplTest(
                     "metadata.properties.editor",
                     "version",
                     "children.attachment",
+                    "ancestors"
                 )
             )
         } returns mockk {
@@ -102,7 +111,7 @@ internal class PageUploadOperationsImplTest(
             every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
         }
 
-        coEvery { client.updatePage(PAGE_ID, any(), any()) } returns  mockk()
+        coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
 
         val result = runBlocking {
@@ -115,9 +124,13 @@ internal class PageUploadOperationsImplTest(
             }, "TEST", "parentId")
         }
 
-        assertThat(result).isEqualTo(ServerPage(PAGE_ID, "Page title", "parentId",
-            listOf(serverLabel("one")),
-            listOf(serverAttachment("one", "HASH:123"))))
+        assertThat(result).isEqualTo(
+            ServerPage(
+                PAGE_ID, "Page title", "parentId",
+                listOf(serverLabel("one")),
+                listOf(serverAttachment("one", "HASH:123"))
+            )
+        )
 
         coVerify {
             client.updatePage(
@@ -145,6 +158,7 @@ internal class PageUploadOperationsImplTest(
                     "metadata.properties.editor",
                     "version",
                     "children.attachment",
+                    "ancestors"
                 ) + changeDetector.extraData
             )
         } returns mockk {
@@ -152,12 +166,19 @@ internal class PageUploadOperationsImplTest(
             every { title } returns "Page title"
             every { metadata?.labels?.results } returns emptyList()
             every { children?.attachment?.results } returns emptyList()
-            when(changeDetector) {
+            every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
+            when (changeDetector) {
                 ChangeDetector.CONTENT -> {
                     every { body?.storage?.value } returns "body"
                 }
+
                 ChangeDetector.HASH -> {
-                    every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "hash", PropertyVersion(3))
+                    every { pageProperty("contenthash") } returns PageProperty(
+                        "124",
+                        "contenthash",
+                        "hash",
+                        PropertyVersion(3)
+                    )
                 }
             }
         }
@@ -241,7 +262,7 @@ internal class PageUploadOperationsImplTest(
         labels: List<Label> = emptyList(),
         attachments: List<Attachment> = emptyList()
     ) = ServerPage(
-        PAGE_ID, "Title","parent_id", labels = labels, attachments = attachments
+        PAGE_ID, "Title", "parent_id", labels = labels, attachments = attachments
     )
 
     private fun pageHeader(attributes: Map<String, List<String>> = emptyMap()) = PageHeader("title", attributes)
@@ -376,5 +397,65 @@ internal class PageUploadOperationsImplTest(
             client.deletePage("567")
             client.deletePage("123")
         }
+    }
+
+    @Test
+    internal fun virtualPageWithWrongParent() {
+        coEvery {
+            client.getPageOrNull(any(), any(), expansions = any())
+        } returns mockk {
+            every { id } returns "page_id"
+            every { title } returns "Title"
+            every { ancestors } returns listOf( mockk{ every { id } returns "wrong_id"})
+            every { version } returns mockk {
+                every { number } returns 1
+            }
+            every { children } returns null
+            every { metadata } returns null
+        }
+
+        coEvery { client.changeParent("page_id", "Title", 2, "id", any())
+        } returns mockk {
+
+        }
+
+        val result = runBlocking {
+            uploadOperations().checkPageAndUpdateParentIfRequired("Title", "TEST", "id")
+        }
+
+        coVerify { client.changeParent("page_id", "Title", 2, "id", any()) }
+
+        assertThat(result).isEqualTo(ServerPage("page_id", "Title", "id", emptyList(), emptyList()))
+    }
+
+    @Test
+    internal fun virtualPageWithCorrectParent() {
+        coEvery {
+            client.getPageOrNull(any(), any(), expansions = any())
+        } returns mockk {
+            every { id } returns "page_id"
+            every { title } returns "Title"
+            every { ancestors } returns listOf( mockk{ every { id } returns "id"})
+            every { metadata } returns null
+            every { children } returns null
+        }
+
+        runBlocking {
+            uploadOperations().checkPageAndUpdateParentIfRequired("Title", "TEST", "id")
+        }
+
+        coVerify(exactly = 0) { client.changeParent(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    internal fun missingVirtualPageThrowsError() {
+        coEvery {
+            client.getPageOrNull(any(), any(), expansions = listOf("ancestors", "version"))
+        } returns null
+
+        assertThat {
+            runBlocking { uploadOperations().checkPageAndUpdateParentIfRequired("page title", "TEST", "parentId") }
+        }.isFailure().isInstanceOf(IllegalStateException::class)
+            .hasMessage("Page not found in TEST: page title")
     }
 }

@@ -87,7 +87,7 @@ internal class ContentUploaderTest(
         val failedPage = aPage("Failed page")
         val slowPage = aPage("Slow page")
 
-        val fastServerPage = ServerPage("fastId", "Fast page","id", emptyList(), emptyList())
+        val fastServerPage = ServerPage("fastId", "Fast page", "id", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(fastPage, "TEST", "id") } returns fastServerPage
 
         coEvery { uploadOperations.createOrUpdatePageContent(failedPage, any(), any()) } coAnswers {
@@ -126,15 +126,33 @@ internal class ContentUploaderTest(
         coEvery { uploadOperations.createOrUpdatePageContent(defaultPage, "TEST", "id") } returns defaultServerPage
 
         val parentIdServerPage = ServerPage("pIdPage", "Parent id", "123", emptyList(), emptyList())
-        coEvery { uploadOperations.createOrUpdatePageContent(pageWithParentId, any(), "123") } returns parentIdServerPage
+        coEvery {
+            uploadOperations.createOrUpdatePageContent(
+                pageWithParentId,
+                any(),
+                "123"
+            )
+        } returns parentIdServerPage
 
         val parentTitleServerPage = ServerPage("tIdPage", "Parent title", "345", emptyList(), emptyList())
-        coEvery { uploadOperations.createOrUpdatePageContent(pageWithParentTitle, "TEST", "345") } returns parentTitleServerPage
+        coEvery {
+            uploadOperations.createOrUpdatePageContent(
+                pageWithParentTitle,
+                "TEST",
+                "345"
+            )
+        } returns parentTitleServerPage
 
         coEvery { confluenceClient.getPage("TEST", "Custom") } returns mockk { every { id } returns "345" }
 
         assertThat {
-            runBlocking { contentUploader.uploadPages(listOf(defaultPage, pageWithParentId, pageWithParentTitle), "TEST", "id") }
+            runBlocking {
+                contentUploader.uploadPages(
+                    listOf(defaultPage, pageWithParentId, pageWithParentTitle),
+                    "TEST",
+                    "id"
+                )
+            }
         }.isSuccess()
 
         coVerify { uploadOperations.createOrUpdatePageContent(defaultPage, "TEST", "id") }
@@ -188,7 +206,31 @@ internal class ContentUploaderTest(
 
         runBlocking { contentUploader.uploadPages(pages, "TEST", "root_id") }
 
-        coVerify(exactly = 0) { uploadOperations.deletePageWithChildren(any())}
+        coVerify(exactly = 0) { uploadOperations.deletePageWithChildren(any()) }
+    }
+
+    @Test
+    internal fun uploadOfVirtualPages() {
+        val pages = listOf(
+            page("a") {
+                virtual = true
+                children(
+                    page("a1")
+                )
+            }
+        )
+
+        coEvery {
+            uploadOperations.checkPageAndUpdateParentIfRequired("a", "TEST", "root")
+        } returns ServerPage("id_a", "a", "", emptyList(), emptyList())
+        givenPagesCreated(pages[0].children)
+
+        val contentUploader = contentUploader()
+
+        runBlocking { contentUploader.uploadPages(pages, "TEST", "root") }
+
+        coVerify { uploadOperations.checkPageAndUpdateParentIfRequired("a", "TEST", "root") }
+
     }
 
     private fun inputPagesStructure(): List<Page> {
@@ -203,7 +245,7 @@ internal class ContentUploaderTest(
             page("b") {
                 parentId = "id_b_root"
                 children(
-                    page("b1") { parentId = "id_a" /*case when page is set to another parent*/},
+                    page("b1") { parentId = "id_a" /*case when page is set to another parent*/ },
                     page("b2")
                 )
             }
@@ -212,34 +254,50 @@ internal class ContentUploaderTest(
 
     private fun serverPagesStructure(): List<ServerPageNode> {
         return listOf(
-            ServerPageNode("a_root", managed = false, listOf(
-                ServerPageNode("a", managed = true, children = listOf(
-                    ServerPageNode("a1", managed = true, children = listOf(ServerPageNode("a11"), ServerPageNode("a12", managed = false))),
-                    ServerPageNode("a2", managed = true),
-                    ServerPageNode("a3", managed = true),
-                    ServerPageNode("a4", managed = false),
-                    ServerPageNode("a5", managed = true),
-                    ServerPageNode("b1", managed = false),
-                )),
-                ServerPageNode("c", managed = false, children = listOf(
-                    ServerPageNode("c1", managed = false),
-                    ServerPageNode("c2", managed = true)
-                )),
-                ServerPageNode("d", managed = true, children = listOf(
-                    ServerPageNode("d1")
-                ))
-            )),
-            ServerPageNode("b_root", managed = false, listOf(
-                ServerPageNode("b", children = listOf(
-                    ServerPageNode("b2", children = listOf(ServerPageNode("b21"))),
-                    ServerPageNode("b3", managed = false),
-                    ServerPageNode("b4", managed = true),
-                )),
-            ))
+            ServerPageNode(
+                "a_root", managed = false, listOf(
+                    ServerPageNode(
+                        "a", managed = true, children = listOf(
+                            ServerPageNode(
+                                "a1",
+                                managed = true,
+                                children = listOf(ServerPageNode("a11"), ServerPageNode("a12", managed = false))
+                            ),
+                            ServerPageNode("a2", managed = true),
+                            ServerPageNode("a3", managed = true),
+                            ServerPageNode("a4", managed = false),
+                            ServerPageNode("a5", managed = true),
+                            ServerPageNode("b1", managed = false),
+                        )
+                    ),
+                    ServerPageNode(
+                        "c", managed = false, children = listOf(
+                            ServerPageNode("c1", managed = false),
+                            ServerPageNode("c2", managed = true)
+                        )
+                    ),
+                    ServerPageNode(
+                        "d", managed = true, children = listOf(
+                            ServerPageNode("d1")
+                        )
+                    )
+                )
+            ),
+            ServerPageNode(
+                "b_root", managed = false, listOf(
+                    ServerPageNode(
+                        "b", children = listOf(
+                            ServerPageNode("b2", children = listOf(ServerPageNode("b21"))),
+                            ServerPageNode("b3", managed = false),
+                            ServerPageNode("b4", managed = true),
+                        )
+                    ),
+                )
+            )
         )
     }
 
-    private fun page(title: String, configurer:PageBuilder.() -> Unit = { }) : Page {
+    private fun page(title: String, configurer: PageBuilder.() -> Unit = { }): Page {
         val builder = PageBuilder()
         builder.title = title
         builder.configurer()
@@ -253,17 +311,21 @@ internal class ContentUploaderTest(
     class PageBuilder {
         var title: String = ""
         var children: MutableList<Page> = mutableListOf()
-        var parentId:String? = null
+        var parentId: String? = null
+        var virtual: Boolean = false
+
         fun children(vararg pages: Page) {
             children += pages
         }
 
-        fun build() : Page {
+        fun build(): Page {
             val titleValue = title;
             val childValue = children
+            val virtualValue = virtual
             return mockk {
-                every {title} returns titleValue
+                every { title } returns titleValue
                 every { children } returns childValue
+                every { virtual } returns virtualValue
                 if (parentId != null) {
                     every { content.header.attributes } returns mapOf("parentId" to parentId)
                 } else {
@@ -273,7 +335,11 @@ internal class ContentUploaderTest(
         }
     }
 
-    private data class ServerPageNode(val title: String, val managed:Boolean = true, val children: List<ServerPageNode> = emptyList()) {
+    private data class ServerPageNode(
+        val title: String,
+        val managed: Boolean = true,
+        val children: List<ServerPageNode> = emptyList()
+    ) {
         val id: String
             get() = "id_$title"
     }
@@ -301,21 +367,24 @@ internal class ContentUploaderTest(
         }
     }
 
-    private fun aPage(creationTime: Long, creationTimeRegistry: MutableMap<Page, Long>, attributesValues: Map<String, Any?> = emptyMap(), block: Page.() -> Unit = {}) : Page {
-        val page = mockk<Page>(block = {
-            every { content } returns mockk {
-                every { header } returns mockk {
-                    every { attributes } returns attributesValues
-                }
-            }
-            every { title } returns "Page created for ${creationTime}ms"
-            block()
-        })
+    private fun aPage(
+        creationTime: Long,
+        creationTimeRegistry: MutableMap<Page, Long>,
+        attributesValues: Map<String, Any?> = emptyMap(),
+        virtualValue: Boolean = false,
+        block: Page.() -> Unit = {}
+    ): Page {
+        val page = aPage("Page created for ${creationTime}ms", attributesValues, virtualValue, block)
         creationTimeRegistry[page] = creationTime
         return page
     }
 
-    private fun aPage(pageTitle: String, attributesValues: Map<String, Any?> = emptyMap(), block: Page.() -> Unit = {}) : Page {
+    private fun aPage(
+        pageTitle: String,
+        attributesValues: Map<String, Any?> = emptyMap(),
+        virtualValue: Boolean = false,
+        block: Page.() -> Unit = {}
+    ): Page {
         val page = mockk<Page>(block = {
             every { content } returns mockk {
                 every { header } returns mockk {
@@ -323,6 +392,7 @@ internal class ContentUploaderTest(
                 }
             }
             every { title } returns pageTitle
+            every { virtual } returns virtualValue
             block()
         })
         return page

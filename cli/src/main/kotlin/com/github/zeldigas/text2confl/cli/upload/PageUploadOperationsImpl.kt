@@ -43,7 +43,8 @@ internal class PageUploadOperationsImpl(
             "metadata.properties.${HASH_PROPERTY}",
             "metadata.properties.${EDITOR_PROPERTY}",
             "version",
-            "children.attachment"
+            "children.attachment",
+            "ancestors"
         ) + pageContentChangeDetector.extraData
     )
 
@@ -60,16 +61,45 @@ internal class PageUploadOperationsImpl(
                     parentPageId,
                     page.title,
                     page.content.body,
-                    version = serverPage.version?.number!! + 1
+                    version = serverPage.version!!.number + 1
                 ),
                 PageUpdateOptions(notifyWatchers, uploadMessage)
             )
             setPageContentHash(serverPage.id, page.content, serverPage.pageProperty(HASH_PROPERTY))
             setEditorVersion(serverPage.id, serverPage.pageProperty(EDITOR_PROPERTY))
+        } else if (serverPage.parent?.id != parentPageId){
+            changeParent(serverPage, parentPageId)
         } else {
             logger.info { "Page is up to date, nothing to do: ${serverPage.id}, ${serverPage.title}" }
         }
         return createServerPage(serverPage, parentPageId)
+    }
+
+    override suspend fun checkPageAndUpdateParentIfRequired(
+        title: String,
+        space: String,
+        parentId: String
+    ): ServerPage {
+        val serverPage = client.getPageOrNull(space, title, expansions = listOf("ancestors", "version"))
+            ?: throw IllegalStateException("Page not found in $space: $title")
+        if (serverPage.parent?.id != parentId) {
+            changeParent(serverPage, parentId)
+        }
+        return createServerPage(serverPage, parentId)
+    }
+
+    private suspend fun changeParent(
+        serverPage: ConfluencePage,
+        parentPageId: String
+    ) {
+        logger.info { "Changing page parent from ${serverPage.parent?.id} to $parentPageId" }
+        client.changeParent(
+            serverPage.id,
+            serverPage.title,
+            serverPage.version!!.number + 1,
+            parentPageId,
+            PageUpdateOptions(notifyWatchers, uploadMessage)
+        )
     }
 
     private fun createServerPage(
@@ -88,7 +118,7 @@ internal class PageUploadOperationsImpl(
         parentPageId: String,
         page: Page
     ): ServerPage {
-        logger.info { "Page does not exist, need to create it" }
+        logger.info { "Page does not exist, need to create it: ${page.title}" }
         val serverPage = client.createPage(
             PageContentInput(parentPageId, page.title, page.content.body, space),
             PageUpdateOptions(notifyWatchers, uploadMessage),
@@ -203,6 +233,9 @@ internal class PageUploadOperationsImpl(
         val id: String, val hash: String?
     )
 }
+
+private val ConfluencePage.parent: ConfluencePage?
+    get() = ancestors?.lastOrNull()
 
 private val EditorVersion.propertyValue: String
     get() = name.lowercase()
