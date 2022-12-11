@@ -210,7 +210,7 @@ internal class MarkdownFileConverterTest {
 
         val cause = IOException("error during file parsing")
         val parser = mockk<MarkdownParser> {
-            every { parseReader(any()) } throws cause
+            every { parseReader(any(), any(), any(), any()) } throws cause
         }
 
         assertThat {

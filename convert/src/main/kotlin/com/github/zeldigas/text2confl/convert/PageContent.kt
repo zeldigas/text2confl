@@ -132,5 +132,5 @@ fun traverseDocument(body: String) = sequence<XMLEvent> {
 
 private fun Location.formatted() = "[${lineNumber - 1}:${columnNumber}]"
 
-private fun toBase64(digest: ByteArray) =
+fun toBase64(digest: ByteArray) =
     digest.fold(StringBuilder()) { builder, it -> builder.append("%02x".format(it)) }.toString()

@@ -12,7 +12,8 @@ interface FileConverter {
 
 }
 
-class ConversionFailedException(val file: Path, message: String, cause: Exception? = null) : RuntimeException(message, cause)
+class ConversionFailedException(val file: Path, message: String, cause: Exception? = null) :
+    RuntimeException(message, cause)
 
 data class HeaderReadingContext(
     val titleTransformer: (Path, String) -> String
@@ -28,4 +29,18 @@ data class ConvertingContext(
 
     val titleTransformer: (Path, String) -> String
         get() = conversionParameters.titleConverter
+}
+
+
+class AttachmentsRegistry {
+    private val attachments: MutableMap<String, Attachment> = hashMapOf()
+
+    fun register(ref: String, attachment: Attachment, overwrite: Boolean = false) {
+        attachments[ref] = attachment
+    }
+
+    fun hasRef(ref: String) = ref in attachments
+
+    val collectedAttachments: Map<String, Attachment>
+        get() = attachments
 }

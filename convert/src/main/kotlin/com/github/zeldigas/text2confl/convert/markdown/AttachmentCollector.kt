@@ -1,5 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
+import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.vladsch.flexmark.ast.Image
 import com.vladsch.flexmark.ast.ImageRef
@@ -15,24 +17,26 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.exists
 
-class AttachmentCollector(private val source: Path, private val referencesProvider: ReferenceProvider) {
+class AttachmentCollector(
+    private val source: Path,
+    private val referencesProvider: ReferenceProvider,
+    private val attachmentsRegistry: AttachmentsRegistry
+) {
 
     companion object {
-        private val logger = KotlinLogging.logger {  }
+        private val logger = KotlinLogging.logger { }
     }
 
     private val parentDir: Path = source.parent ?: Paths.get(".")
-    private val attachments = mutableMapOf<String, Path>()
 
 
-    fun collectAttachments(ast: Node): Map<String, Path> {
+    fun collectAttachments(ast: Node) {
         NodeVisitor(listOf(
             VisitHandler(Link::class.java) { tryCollect(it) },
             VisitHandler(LinkRef::class.java) { tryCollect(it, ast as Document) },
             VisitHandler(Image::class.java) { tryCollect(it) },
             VisitHandler(ImageRef::class.java) { tryCollect(it, ast as Document) }
         )).visit(ast)
-        return attachments
     }
 
     private fun tryCollect(node: Link) {
@@ -66,9 +70,9 @@ class AttachmentCollector(private val source: Path, private val referencesProvid
         if (referencesProvider.resolveReference(source, pathToFile) != null) return
 
         val file = parentDir.resolve(pathToFile).normalize()
-        if (file.exists()) {
+        if (file.exists() && !attachmentsRegistry.hasRef(pathToFile)) {
             logger.debug { "File exists, adding as attachment: $file" }
-            attachments[pathToFile] = file
+            attachmentsRegistry.register(pathToFile, Attachment.fromLink(pathToFile, file))
         } else {
             logger.warn { "File does not exist: $file" }
         }
