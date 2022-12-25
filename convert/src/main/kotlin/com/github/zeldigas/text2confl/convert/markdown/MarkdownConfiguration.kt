@@ -12,7 +12,6 @@ data class MarkdownConfiguration(
 
 data class DiagramsConfiguration(
     val diagramsBaseDir: Path,
-    val preferredFormat: String = "svg",
     val mermaid: MermaidDiagramsConfiguration = MermaidDiagramsConfiguration(),
     val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration()
 )
@@ -22,6 +21,7 @@ interface DiagramsProviderConfiguration {
 }
 
 data class MermaidDiagramsConfiguration(
+    val defaultFormat: String = "png",
     override val executable: String? = null
 ) : DiagramsProviderConfiguration
 

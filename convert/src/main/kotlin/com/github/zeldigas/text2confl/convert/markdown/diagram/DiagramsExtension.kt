@@ -87,7 +87,7 @@ class DiagramsInjectingPostProcessor(document: Document) : NodePostProcessor(), 
         }
         paragraph.appendChild(image)
         nodeAttributeRepository.put(image, AttributesNode().apply {
-            imageInfo.attributes.map { (key, value) ->
+            (attributes + imageInfo.attributes).map { (key, value) ->
                 AttributeNode().also { attr ->
                     attr.name = BasedSequence.of(key)
                     attr.value = BasedSequence.of(value)

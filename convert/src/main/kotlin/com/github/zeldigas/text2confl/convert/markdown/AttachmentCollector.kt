@@ -67,6 +67,7 @@ class AttachmentCollector(
 
     private fun addFileIfExists(pathToFile: String) {
         if (!isLocal(pathToFile)) return
+        if (attachmentsRegistry.hasRef(pathToFile)) return;
         if (referencesProvider.resolveReference(source, pathToFile) != null) return
 
         val file = parentDir.resolve(pathToFile).normalize()

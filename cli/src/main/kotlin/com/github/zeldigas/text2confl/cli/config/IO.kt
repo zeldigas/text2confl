@@ -23,9 +23,11 @@ fun readDirectoryConfig(dirOfFile: Path): DirectoryConfig {
         dirOfFile::resolve
     }
 
-    return CONFIG_FILE_NAMES.asSequence()
+    val directoryConfig = CONFIG_FILE_NAMES.asSequence()
         .map(resolver)
         .filter { it.exists() }
         .map { mapper.readValue<DirectoryConfig>(it.toFile()) }
         .firstOrNull() ?: DirectoryConfig()
+    directoryConfig.docsDir = if (dirOfFile.isRegularFile()) dirOfFile.parent else dirOfFile
+    return directoryConfig
 }

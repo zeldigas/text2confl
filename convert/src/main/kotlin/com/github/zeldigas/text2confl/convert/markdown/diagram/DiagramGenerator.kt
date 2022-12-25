@@ -15,9 +15,11 @@ fun interface DiagramGeneratorsRegistry {
 
 interface DiagramGenerator {
 
-    fun generate(source: String, target: Path, attributes: Map<String, String> = emptyMap()): ImageInfo?
+    fun generate(source: String, target: Path, attributes: Map<String, String> = emptyMap()): ImageInfo
 
     fun name(baseName: String, attributes: Map<String, String> = emptyMap()): String
+
+    fun supports(lang: String) : Boolean
 
 }
 
