@@ -46,6 +46,7 @@ class OsCommandExecutorTest {
             #/usr/bin/env sh
             
             echo "args: $@"
+            >&2 echo -n "to stderr"
             cat -
             
         """.trimIndent())
@@ -62,7 +63,7 @@ class OsCommandExecutorTest {
             ExecutionResult(0, """
             args: --test hello world
             test input
-        """.trimIndent())
+        """.trimIndent(), "to stderr")
         )
     }
 }

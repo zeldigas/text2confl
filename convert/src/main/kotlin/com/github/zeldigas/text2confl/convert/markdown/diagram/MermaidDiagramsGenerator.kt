@@ -10,13 +10,15 @@ class MermaidDiagramsGenerator(
     private val command: String = DEFAULT_COMMAND,
     private val commandExecutor: CommandExecutor = OsCommandExecutor(),
     private val configFile: String? = null,
-    private val cssFile: String? = null
+    private val cssFile: String? = null,
+    private val puppeterConfig: String? = null
 ) : DiagramGenerator {
     companion object {
         const val DEFAULT_COMMAND = "mmdc"
         const val DEFAULT_FORMAT = "png"
         private val SUPPORTED_LANGUAGES = setOf("mermaid")
         private val SUPPORTED_FORMATS = setOf("png", "svg")
+        private val PUPPETER_CONFIG_ENV = "T2C_PUPPEETER_CONFIG"
 
         private val log = KotlinLogging.logger {}
     }
@@ -27,6 +29,7 @@ class MermaidDiagramsGenerator(
         config.executable ?: DEFAULT_COMMAND,
         configFile = config.configFile,
         cssFile =  config.cssFile,
+        puppeterConfig = config.puppeeterConfig,
         commandExecutor = commandExecutor
     )
 
@@ -38,6 +41,7 @@ class MermaidDiagramsGenerator(
             opt("--outputFormat", resolveFormat(attributes))
             configFile?.let { opt("--configFile", it) }
             cssFile?.let { opt("--cssFile", it) }
+            effectivePuppeeterConfig()?.let { opt("--puppeteerConfigFile", it)}
             flag("--quiet")
 
             stdin(source)
@@ -50,6 +54,8 @@ class MermaidDiagramsGenerator(
         }
         return ImageInfo()
     }
+
+    private fun effectivePuppeeterConfig(): String? = puppeterConfig ?: System.getenv(PUPPETER_CONFIG_ENV)
 
     override fun name(baseName: String, attributes: Map<String, String>): String {
         return "$baseName.${resolveFormat(attributes)}"

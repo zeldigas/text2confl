@@ -28,7 +28,8 @@ data class MermaidDiagramsConfiguration(
     val defaultFormat: String = MermaidDiagramsGenerator.DEFAULT_FORMAT,
     override val executable: String? = null,
     val configFile: String? = null,
-    val cssFile: String? = null
+    val cssFile: String? = null,
+    val puppeeterConfig: String? = null,
 ) : DiagramsProviderConfiguration
 
 data class PlantUmlDiagramsConfiguration(

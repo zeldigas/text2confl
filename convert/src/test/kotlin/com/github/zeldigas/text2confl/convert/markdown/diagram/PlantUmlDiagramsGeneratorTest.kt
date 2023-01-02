@@ -7,65 +7,68 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.IOException
 import kotlin.io.path.Path
 
 @ExtendWith(MockKExtension::class)
-class MermaidDiagramsGeneratorTest(
+class PlantUmlDiagramsGeneratorTest(
     @MockK val commandExecutor: CommandExecutor
 ) {
 
-    @Test
-    fun `Supported formats`() {
-        assertThat(MermaidDiagramsGenerator().supports("mermaid")).isTrue()
+    @ValueSource(strings = ["puml", "plantuml"])
+    @ParameterizedTest
+    fun `Supported formats`(lang: String) {
+        assertThat(PlantUmlDiagramsGenerator(commandExecutor = commandExecutor).supports(lang)).isTrue()
     }
 
     @Test
     fun generatorIsNotAvaialbleWhenDisabled() {
-        val generator = MermaidDiagramsGenerator(enabled = false)
+        val generator = PlantUmlDiagramsGenerator(enabled = false, commandExecutor = commandExecutor)
 
         assertThat(generator.available()).isFalse()
     }
 
     @Test
     fun `Generator is not available when executable is not available`() {
-        val generator = MermaidDiagramsGenerator(commandExecutor = commandExecutor)
+        val generator = PlantUmlDiagramsGenerator(commandExecutor = commandExecutor)
 
-        every { commandExecutor.commandAvailable("mmdc") } returns false
+        every { commandExecutor.commandAvailable("plantuml") } returns false
 
         assertThat(generator.available()).isFalse()
     }
 
     @Test
     fun `Generator is not available when command for version fails`() {
-        every { commandExecutor.commandAvailable("mmdc") } returns true
+        every { commandExecutor.commandAvailable("plantuml") } returns true
         every {
             commandExecutor.execute(
                 Command(
-                    "mmdc",
-                    mutableListOf("-V")
+                    "plantuml",
+                    mutableListOf("-version")
                 )
             )
-        } throws IOException("mmdc command not found")
+        } throws IOException("plantuml command not found")
 
-        val generator = MermaidDiagramsGenerator(commandExecutor = commandExecutor)
+        val generator = PlantUmlDiagramsGenerator(commandExecutor = commandExecutor)
 
         assertThat(generator.available()).isFalse()
     }
 
     @Test
     fun `Generator available when version command is fine`() {
-        every { commandExecutor.commandAvailable("mmdc") } returns true
-        every { commandExecutor.execute(Command("mmdc", mutableListOf("-V"))) } returns ExecutionResult(0, "1.2.3", "")
+        every { commandExecutor.commandAvailable("plantuml") } returns true
+        every { commandExecutor.execute(Command("plantuml", mutableListOf("-version"))) } returns ExecutionResult(0, "1.2.3\nsome other info", "")
 
-        val generator = MermaidDiagramsGenerator(commandExecutor = commandExecutor)
+        val generator = PlantUmlDiagramsGenerator(commandExecutor = commandExecutor)
 
         assertThat(generator.available()).isTrue()
     }
 
     @Test
     fun `Generation of diagram with default format`() {
-        val generator = MermaidDiagramsGenerator(command = "custom", commandExecutor = commandExecutor)
+        val generator = PlantUmlDiagramsGenerator(command = "custom", commandExecutor = commandExecutor)
 
         assertThat(generator.name("test")).isEqualTo("test.png")
 
@@ -73,8 +76,8 @@ class MermaidDiagramsGeneratorTest(
             commandExecutor.execute(
                 Command(
                     "custom", mutableListOf(
-                        "--output", "test.png", "--outputFormat", "png", "--quiet"
-                    ), "test".toByteArray()
+                        "-pipe", "-tpng"
+                    ), "test".toByteArray(), Path("test.png")
                 )
             )
         } returns ExecutionResult(0, "", "")
@@ -86,9 +89,8 @@ class MermaidDiagramsGeneratorTest(
 
     @Test
     fun `Generation of diagram with custom format and extra options`() {
-        val generator = MermaidDiagramsGenerator(
-            command = "custom", commandExecutor = commandExecutor,
-            configFile = "mermaid-config.json", cssFile = "mermaid.css", puppeterConfig = "/etc/.config.json"
+        val generator = PlantUmlDiagramsGenerator(
+            command = "custom", commandExecutor = commandExecutor
         )
 
         assertThat(generator.name("test", mapOf("format" to "svg"))).isEqualTo("test.svg")
@@ -97,46 +99,39 @@ class MermaidDiagramsGeneratorTest(
             commandExecutor.execute(
                 Command(
                     "custom", mutableListOf(
-                        "--output",
-                        "test.svg",
-                        "--outputFormat",
-                        "png",
-                        "--configFile",
-                        "mermaid-config.json",
-                        "--cssFile",
-                        "mermaid.css",
-                        "--puppeteerConfigFile",
-                        "/etc/.config.json",
-                        "--quiet"
-                    ), "test".toByteArray()
+                        "-pipe",
+                        "-tsvg",
+                        "-theme",
+                        "custom",
+                    ), "test".toByteArray(), Path("test.svg")
                 )
             )
         } returns ExecutionResult(0, "", "")
 
-        val result = generator.generate("test", Path("test.svg"))
+        val result = generator.generate("test", Path("test.svg"), mapOf("theme" to "custom", "format" to "svg"))
 
         assertThat(result).isEqualTo(ImageInfo())
     }
 
     @Test
     fun `Failure during diagram generations produces exception`() {
-        val generator = MermaidDiagramsGenerator(commandExecutor = commandExecutor)
+        val generator = PlantUmlDiagramsGenerator(commandExecutor = commandExecutor)
 
         assertThat(generator.name("test")).isEqualTo("test.png")
 
         every {
             commandExecutor.execute(
                 Command(
-                    "mmdc", mutableListOf(
-                        "--output", "test.png", "--outputFormat", "png", "--quiet"
-                    ), "test".toByteArray()
+                    "plantuml", mutableListOf(
+                        "-pipe", "-tpng"
+                    ), "test".toByteArray(), Path("test.png")
                 )
             )
-        } returns ExecutionResult(1, "some error", "")
+        } returns ExecutionResult(1, "", "error text")
 
         assertThat {
             generator.generate("test", Path("test.png"))
         }.isFailure()
-            .hasMessage("mmdc execution returned non-zero exit code: 1.\nsome error")
+            .hasMessage("plantuml execution returned non-zero exit code: 1.\nerror text")
     }
 }
