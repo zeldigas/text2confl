@@ -7,12 +7,24 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+* \[Markdown] Support for diagrams as code blocks when corresponding tool is present
+    * PlantUML diagrams (`puml` or `plantuml`) when `planuml` command is present
+    * Mermaid diagrams (`mermaid`) when `mmdc` command is present
+### Changed
+* Dockerfile bundles `plantuml` jar file so, plantuml diagrams can be generated out of the box when docker image is used
+* Using `eclipse-temurin` as base docker image, as `openjdk` is deprecated
+* Updated various kotlin and generic dependencies
+
+
 ## 0.7.0 - 2022-11-27
 
 ### Added
 
 * Executable for Windows in distro
-* Support for virtual pages: pages that are present in hierarchy but maintained manually. Read more in [user guide](docs/user-guide/virtual-pages.md)
+* Support for virtual pages: pages that are present in hierarchy but maintained manually. Read more
+  in [user guide](docs/user-guide/virtual-pages.md)
 * Fixing of pages parent even when content is not changed
 
 ## 0.6.0 - 2022-09-18
