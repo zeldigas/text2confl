@@ -57,7 +57,7 @@ class DiagramsInjectingPostProcessor(document: Document) : NodePostProcessor(), 
     private val attachmentsRegistry = MarkdownParser.ATTACHMENTS_REGISTRY[document]!!
     private val convertingContext: ConvertingContext = MarkdownParser.CONTEXT[document]!!
     private val location: Path? = MarkdownParser.DOCUMENT_LOCATION[document]
-    private val generatorsProvider: DiagramMakers = DiagramsExtension.DIAGRAM_MAKERS[document]
+    private val diagramMakers: DiagramMakers = DiagramsExtension.DIAGRAM_MAKERS[document]
     override val nodeAttributeRepository: NodeAttributeRepository = AttributesExtension.NODE_ATTRIBUTES[document]
 
     override fun process(state: NodeTracker, node: Node) {
@@ -68,7 +68,7 @@ class DiagramsInjectingPostProcessor(document: Document) : NodePostProcessor(), 
 
         val lang = node.getInfoDelimitedByAny(DELIMITER).unescape()
 
-        val maker = generatorsProvider.find(lang) ?: return
+        val maker = diagramMakers.find(lang) ?: return
         val script = node.contentChars.normalizeEOL().trimEnd()
         val attributes = node.attributesMap
 

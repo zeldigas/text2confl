@@ -33,7 +33,7 @@ internal class RenderingOfDiagramsTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:image ac:height="500" ac:width="600" ac:title="Diagram title"><ri:attachment ri:filename="custom_name" /></ac:image></p>
+            <p><ac:image ac:title="Diagram title" ac:height="500" ac:width="600"><ri:attachment ri:filename="custom_name" /></ac:image></p>
             """.trimIndent()
         )
         assertThat(attachmentsRegistry.collectedAttachments).isEqualTo(

@@ -3,24 +3,15 @@ package com.github.zeldigas.text2confl.convert.markdown.diagram
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import java.nio.file.Path
 
-fun interface DiagramGeneratorsRegistry {
-
-    companion object {
-        val NOP: DiagramGeneratorsRegistry = DiagramGeneratorsRegistry { null }
-    }
-
-    fun findGenerator(lang: String): DiagramGenerator?
-
-}
-
 interface DiagramGenerator {
 
     fun generate(source: String, target: Path, attributes: Map<String, String> = emptyMap()): ImageInfo
 
     fun name(baseName: String, attributes: Map<String, String> = emptyMap()): String
 
-    fun supports(lang: String) : Boolean
+    fun supports(lang: String): Boolean
 
+    fun available(): Boolean
 }
 
 data class ImageInfo(
@@ -35,14 +26,16 @@ data class ImageInfo(
         }
 }
 
-class SimpleDiagramsRegistry(private val generators: Map<String, DiagramGenerator>) : DiagramGeneratorsRegistry {
-    override fun findGenerator(lang: String): DiagramGenerator? = generators[lang]
-}
-
-fun loadAvailableGenerators(config: DiagramsConfiguration): DiagramGeneratorsRegistry {
-    return SimpleDiagramsRegistry(buildMap {
-
-    })
+fun loadAvailableGenerators(
+    config: DiagramsConfiguration,
+    commandExecutor: CommandExecutor = OsCommandExecutor()
+): List<DiagramGenerator> {
+    val candidates: List<DiagramGenerator> = listOf(
+        PlantUmlDiagramsGenerator(config.plantuml, commandExecutor),
+        MermaidDiagramsGenerator(config.mermaid, commandExecutor),
+//        KrokiDiagramsGenerator(config.kroki)
+    )
+    return candidates.filter { it.available() }
 }
 
 

@@ -17,21 +17,22 @@ fun interface DiagramMakers {
     fun find(lang: String): DiagramMaker?
 }
 
-class DiagramMakersImpl(val baseDir: Path, val generators: List<DiagramGenerator>) : DiagramMakers {
+class DiagramMakersImpl(private val baseDir: Path, private val generators: List<DiagramGenerator>) : DiagramMakers {
 
     override fun find(lang: String): DiagramMaker? {
         val generator = generators.find { it.supports(lang) } ?: return null
 
-        return DiagramMaker(generator, baseDir)
+        return DiagramMaker(baseDir, lang, generator)
     }
 }
 
 class DiagramMaker(
-    private val generator: DiagramGenerator,
-    private val baseDir: Path,
+    internal val baseDir: Path,
+    internal val lang: String,
+    internal val generator: DiagramGenerator,
 ) {
     fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): Pair<Attachment, ImageInfo> {
-        val name = generator.name(baseName(script, attributes), attributes)
+        val name = generator.name(baseName(script, attributes), attributes + mapOf("lang" to lang))
 
         val generatedFileLocation = if (pathPrefix == null) baseDir / name else baseDir / pathPrefix / name
 
@@ -39,7 +40,7 @@ class DiagramMaker(
             Files.createDirectories(generatedFileLocation.parent)
         }
 
-        val result = generator.generate(script, generatedFileLocation, attributes)
+        val result = generator.generate(script, generatedFileLocation, attributes + mapOf("lang" to lang))
 
         return Attachment(name, "_generated_diagram_${name}", generatedFileLocation) to result
     }
@@ -59,8 +60,6 @@ class DiagramMaker(
 fun createDiagramMakers(config: DiagramsConfiguration): DiagramMakers {
     return DiagramMakersImpl(
         config.diagramsBaseDir,
-        listOf(
-            MermaidDiagramsGenerator(config.mermaid.defaultFormat, config.mermaid.executable ?: "mmdc")
-        )
+        loadAvailableGenerators(config)
     )
 }
