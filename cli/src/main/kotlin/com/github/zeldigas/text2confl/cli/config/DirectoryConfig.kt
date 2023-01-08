@@ -8,6 +8,7 @@ import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MermaidDiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.PlantUmlDiagramsConfiguration
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.div
 
@@ -56,7 +57,16 @@ data class MarkdownDiagramParameters(
 
     fun toConfig(docsDir: Path): DiagramsConfiguration {
         val baseDir = if (tempDir) createTempDirectory() else docsDir / baseDir
-        return DiagramsConfiguration(diagramsBaseDir = baseDir, mermaid, plantuml)
+        return DiagramsConfiguration(diagramsBaseDir = baseDir,
+            mermaid = mermaid.copy(
+                configFile = mermaid.configFile?.relativeTo(docsDir),
+                cssFile = mermaid.cssFile?.relativeTo(docsDir),
+                puppeeterConfig = mermaid.puppeeterConfig?.relativeTo(docsDir)
+            ),
+            plantuml = plantuml
+        )
     }
+
+    private fun String.relativeTo(base: Path) : String = base.resolve(Path(this)).toString()
 
 }

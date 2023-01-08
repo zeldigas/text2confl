@@ -1,6 +1,6 @@
 # Maintaining documents tree
 
-In addition to uploading pages, text2confl can also remove pages that are detected as "orphans", i.e. those that are no
+In addition to uploading pages, **text2confl** can also remove pages that are detected as "orphans", i.e. those that are no
 longer part of the documents tree.
 
 There are 3 modes available:
@@ -11,7 +11,7 @@ There are 3 modes available:
 
 ## Managed page removal
 
-Page is considered managed if its content was uploaded by text2confl.
+Page is considered managed if its content was uploaded by **text2confl**.
 
 ## All pages removal
 
