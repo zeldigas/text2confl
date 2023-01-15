@@ -7,15 +7,19 @@ import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
+import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramMakersImpl
+import com.github.zeldigas.text2confl.convert.markdown.diagram.createDiagramMakers
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.createFile
 
 @ExtendWith(MockKExtension::class)
@@ -138,14 +142,18 @@ internal class UniversalConverterTest(
     @Test
     internal fun `Factory method for converter`() {
 
-        val result = universalConverter("TEST", conversionParameters)
+        mockkStatic(::createDiagramMakers) {
+            every { createDiagramMakers(any()) } returns DiagramMakersImpl(Paths.get("."), emptyList())
 
-        assertThat(result).isInstanceOf(UniversalConverter::class).all {
-            prop(UniversalConverter::conversionParameters).isSameAs(conversionParameters)
-            prop(UniversalConverter::space).isEqualTo("TEST")
-            prop(UniversalConverter::converters).all {
-                hasSize(1)
-                transform { it["md"] }.isNotNull().isInstanceOf(MarkdownFileConverter::class)
+            val result = universalConverter("TEST", conversionParameters)
+
+            assertThat(result).isInstanceOf(UniversalConverter::class).all {
+                prop(UniversalConverter::conversionParameters).isSameAs(conversionParameters)
+                prop(UniversalConverter::space).isEqualTo("TEST")
+                prop(UniversalConverter::converters).all {
+                    hasSize(1)
+                    transform { it["md"] }.isNotNull().isInstanceOf(MarkdownFileConverter::class)
+                }
             }
         }
     }

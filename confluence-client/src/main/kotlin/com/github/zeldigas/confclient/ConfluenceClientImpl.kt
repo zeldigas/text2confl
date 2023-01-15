@@ -10,6 +10,7 @@ import com.github.zeldigas.confclient.model.Space
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -295,6 +296,10 @@ fun confluenceClient(
 
         install(Auth) {
             config.auth.create(this)
+        }
+
+        install(UserAgent) {
+            agent = "text2confl"
         }
     }
 

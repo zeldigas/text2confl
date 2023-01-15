@@ -22,6 +22,7 @@ import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
 import com.github.zeldigas.text2confl.convert.Page
+import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import io.ktor.http.*
 import io.mockk.*
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
+import kotlin.io.path.div
 
 
 @ExtendWith(MockKExtension::class)
@@ -86,7 +88,7 @@ internal class UploadTest(
         }
         val expectedConverterConfig = ConverterConfig(
             "", "", EditorVersion.V2, null, null, null,
-            MarkdownConfiguration()
+            MarkdownConfiguration(diagrams = DiagramsConfiguration(tempDir / ".diagrams"))
         )
         verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
         verify {
@@ -102,6 +104,7 @@ internal class UploadTest(
     @Test
     internal fun `Data from yaml config file`(@TempDir tempDir: Path) {
         val directoryConfig = sampleConfig()
+        directoryConfig.docsDir = tempDir
         writeToFile(tempDir.resolve(".text2confl.yml"), directoryConfig)
 
         val result = mockk<List<Page>>()
@@ -133,7 +136,7 @@ internal class UploadTest(
             directoryConfig.titlePrefix, directoryConfig.titlePostfix,
             directoryConfig.editorVersion!!, null,
             "http://example.com/", null,
-            directoryConfig.markdown.toConfig()
+            directoryConfig.markdown.toConfig(directoryConfig.docsDir)
         )
         verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
         verify {

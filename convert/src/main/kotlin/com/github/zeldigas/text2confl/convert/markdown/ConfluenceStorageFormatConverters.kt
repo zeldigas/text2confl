@@ -4,9 +4,9 @@ import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.Xref
+import com.github.zeldigas.text2confl.convert.markdown.ext.AttributeRepositoryAware
 import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.ext.admonition.AdmonitionBlock
-import com.vladsch.flexmark.ext.attributes.AttributeNode
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.attributes.internal.NodeAttributeRepository
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListItem
@@ -27,19 +27,15 @@ import com.vladsch.flexmark.util.ast.TextCollectingVisitor
 import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.DataKey
 import com.vladsch.flexmark.util.data.MutableDataHolder
-import com.vladsch.flexmark.util.data.NullableDataKey
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
 import mu.KotlinLogging
-import java.nio.file.Path
 
 
 internal class ConfluenceFormatExtension : HtmlRendererExtension, Parser.ParserExtension {
 
     companion object {
-        val DOCUMENT_LOCATION = NullableDataKey<Path>("DOCUMENT_LOCATION", null)
         val ATTACHMENTS = DataKey<Map<String, Attachment>>("FENCED_CODE_CONTENT_BLOCK", emptyMap())
-        val CONTEXT = NullableDataKey<ConvertingContext>("FENCED_CODE_CONTENT_BLOCK", null)
     }
 
     override fun rendererOptions(options: MutableDataHolder) {
@@ -85,7 +81,7 @@ class ConfluenceRawTagsPostProcessor : NodePostProcessor() {
 /**
  * Confluence storage format customizations that override [com.vladsch.flexmark.html.renderer.CoreNodeRenderer]
  */
-class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
+class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, AttributeRepositoryAware {
 
     companion object {
         private val logger = KotlinLogging.logger { }
@@ -112,13 +108,13 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
         const val DEFAULT_ADMONITION_TYPE = "note"
     }
 
-    private val sourcePath = ConfluenceFormatExtension.DOCUMENT_LOCATION[options]!!
+    private val sourcePath = MarkdownParser.DOCUMENT_LOCATION[options]!!
     private val referenceRepository = Parser.REFERENCES.get(options)
     private val recheckUndefinedReferences = HtmlRenderer.RECHECK_UNDEFINED_REFERENCES.get(options)
     private val attachments: Map<String, Attachment> = ConfluenceFormatExtension.ATTACHMENTS[options]
-    private val convertingContext: ConvertingContext = ConfluenceFormatExtension.CONTEXT[options]!!
+    private val convertingContext: ConvertingContext = MarkdownParser.CONTEXT[options]!!
     private val listOptions = ListOptions.get(options)
-    private val nodeAttributeRepository: NodeAttributeRepository = AttributesExtension.NODE_ATTRIBUTES.get(options)
+    override val nodeAttributeRepository: NodeAttributeRepository = AttributesExtension.NODE_ATTRIBUTES.get(options)
 
     override fun getNodeRenderingHandlers(): Set<NodeRenderingHandler<*>> {
         return setOf(
@@ -451,10 +447,6 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer {
 
     private val Node.withRichFormatting: Boolean
         get() = !children.all { it is Text }
-
-    private val Node.attributesMap: Map<String, String>
-        get() = (nodeAttributeRepository[this]?.flatMap { it.children.filterIsInstance<AttributeNode>() }
-            ?: emptyList()).associate { it.name.unescape() to it.value.unescape() }
 
     private fun HtmlWriter.tagWithCData(
         tagName: String,

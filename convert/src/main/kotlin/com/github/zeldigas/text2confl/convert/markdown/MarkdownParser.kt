@@ -1,7 +1,10 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
 import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
 import com.github.zeldigas.text2confl.convert.ConvertingContext
+import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramMakers
+import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramsExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAdmonitionExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAttributesExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleMacroExtension
@@ -23,14 +26,23 @@ import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.MutableDataSet
 import com.vladsch.flexmark.util.data.NullableDataKey
 import com.vladsch.flexmark.util.misc.Extension
-import java.io.BufferedReader
+import java.io.Reader
 import java.nio.file.Path
 
-internal class MarkdownParser(config: MarkdownConfiguration) {
+internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: DiagramMakers = DiagramMakers.NOP) {
 
     companion object {
         val PARSE_OPTIONS = NullableDataKey<MarkdownConfiguration>("T2C_CONFIG")
+        val CONTEXT = NullableDataKey<ConvertingContext>("T2C_CONVERTING_CONTEXT", null)
+        val DOCUMENT_LOCATION = NullableDataKey<Path>("T2C_DOCUMENT_LOCATION", null)
+        val ATTACHMENTS_REGISTRY = NullableDataKey<AttachmentsRegistry>("T2C_ATTACHMENTS_REGISTRY", null)
     }
+
+    private val headerParserOptions = MutableDataSet()
+        .set(Parser.EXTENSIONS, listOf(
+            YamlFrontMatterExtension.create()
+        ))
+        .toImmutable()
 
     private val parserOptions: DataHolder = MutableDataSet()
         .set(Parser.REFERENCES_KEEP, KeepType.LAST)
@@ -45,6 +57,7 @@ internal class MarkdownParser(config: MarkdownConfiguration) {
         .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
         .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
         .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
+        .set(DiagramsExtension.DIAGRAM_MAKERS, diagramMakers)
         .set(PARSE_OPTIONS, config).let { parserConfig ->
             parserConfig.set(Parser.EXTENSIONS, listOf(
                 TablesExtension.create(), YamlFrontMatterExtension.create(),
@@ -53,6 +66,7 @@ internal class MarkdownParser(config: MarkdownConfiguration) {
                 SimpleAdmonitionExtension(), SuperscriptExtension.create(),
                 StatusExtension(), ConfluenceUserExtension(),
                 SimpleMacroExtension(),
+                DiagramsExtension(),
                 ConfluenceFormatExtension(),
             ) + extraExtensions(parserConfig, config))
         }
@@ -68,25 +82,43 @@ internal class MarkdownParser(config: MarkdownConfiguration) {
         }
     }
 
+    private val headerParser = Parser.builder(headerParserOptions).build()
     private val parser = Parser.builder(parserOptions).build()
 
-    fun parseReader(reader: BufferedReader): Document {
-        return parser.parseReader(reader)
+    fun parseReader(reader: Reader,
+                    context: ConvertingContext,
+                    attachmentsRegistry: AttachmentsRegistry,
+                    location: Path): Document {
+        return createParser(context, attachmentsRegistry, location).parseReader(reader)
     }
 
-    fun parseString(document: String): Document {
-        return parser.parse(document)
+    private fun createParser(context: ConvertingContext, attachmentsRegistry: AttachmentsRegistry, location: Path): Parser {
+        return Parser.builder(parserOptions.toMutable()
+            .set(ATTACHMENTS_REGISTRY, attachmentsRegistry)
+            .set(CONTEXT, context)
+            .set(DOCUMENT_LOCATION, location)
+        ).build()
+    }
+
+    fun parseString(document: String,
+                    context: ConvertingContext,
+                    attachmentsRegistry: AttachmentsRegistry,
+                    location: Path): Document {
+        return createParser(context, attachmentsRegistry, location).parse(document)
     }
 
     fun htmlRenderer(location: Path, attachments: Map<String, Attachment>, context: ConvertingContext): HtmlRenderer {
         return HtmlRenderer.builder(
             parserOptions.toMutable()
-                .set(ConfluenceFormatExtension.DOCUMENT_LOCATION, location)
+                .set(DOCUMENT_LOCATION, location)
                 .set(ConfluenceFormatExtension.ATTACHMENTS, attachments)
-                .set(ConfluenceFormatExtension.CONTEXT, context)
+                .set(CONTEXT, context)
                 .toImmutable()
         ).build()
     }
 
+    fun parseForHeader(reader: Reader): Document {
+        return headerParser.parseReader(reader)
+    }
 
 }

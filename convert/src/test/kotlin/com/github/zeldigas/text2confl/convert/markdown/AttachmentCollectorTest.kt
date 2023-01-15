@@ -3,6 +3,8 @@ package com.github.zeldigas.text2confl.convert.markdown
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.github.zeldigas.text2confl.convert.confluence.Xref
@@ -20,6 +22,7 @@ import java.nio.file.Path
 internal class AttachmentCollectorTest {
 
     private val parser = Parser.builder().build()
+    private val registry = AttachmentsRegistry()
 
     @Test
     internal fun `Attachment collection for links`(@TempDir dir: Path, @MockK referenceProvider: ReferenceProvider) {
@@ -49,11 +52,11 @@ internal class AttachmentCollectorTest {
         every { referenceProvider.resolveReference(doc, "existing.md") } returns Xref("test", null)
         every { referenceProvider.resolveReference(doc, "anchor") } returns Anchor("anchor")
 
-        val attachments = AttachmentCollector(doc, referenceProvider).collectAttachments(ast)
+        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
-        assertThat(attachments).isEqualTo(mapOf(
-            "existing" to dir.resolve("existing"),
-            "existing1" to dir.resolve("existing1")
+        assertThat(registry.collectedAttachments).isEqualTo(mapOf(
+            "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
+            "existing1" to Attachment.fromLink("existing1", dir.resolve("existing1"))
         ))
     }
 
@@ -72,9 +75,9 @@ internal class AttachmentCollectorTest {
 
         val doc = dir.resolve("doc.md")
 
-        val attachments = AttachmentCollector(doc, referenceProvider).collectAttachments(ast)
+        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
-        assertThat(attachments).isEmpty()
+        assertThat(registry.collectedAttachments).isEmpty()
     }
 
     @Test
@@ -101,11 +104,11 @@ internal class AttachmentCollectorTest {
 
         every { referenceProvider.resolveReference(doc, any()) } returns null
 
-        val attachments = AttachmentCollector(doc, referenceProvider).collectAttachments(ast)
+        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
-        assertThat(attachments).isEqualTo(mapOf(
-            "existing" to dir.resolve("existing"),
-            "existing1" to dir.resolve("existing1")
+        assertThat(registry.collectedAttachments).isEqualTo(mapOf(
+            "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
+            "existing1" to Attachment.fromLink("existing1", dir.resolve("existing1"))
         ))
     }
 
@@ -124,8 +127,8 @@ internal class AttachmentCollectorTest {
 
         val doc = dir.resolve("doc.md")
 
-        val attachments = AttachmentCollector(doc, referenceProvider).collectAttachments(ast)
+        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
-        assertThat(attachments).isEmpty()
+        assertThat(registry.collectedAttachments).isEmpty()
     }
 }

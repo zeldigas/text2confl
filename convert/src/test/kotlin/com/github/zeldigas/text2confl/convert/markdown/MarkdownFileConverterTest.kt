@@ -15,12 +15,18 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.createFile
 import kotlin.io.path.writeText
 
 internal class MarkdownFileConverterTest {
 
-    private val converter = MarkdownFileConverter(MarkdownConfiguration(true, emptyList()))
+    private val converter = MarkdownFileConverter(MarkdownConfiguration(true, emptyList(),
+        diagrams = DiagramsConfiguration(
+            diagramsBaseDir = Paths.get("."),
+            mermaid = MermaidDiagramsConfiguration(enabled = false),
+            plantuml = PlantUmlDiagramsConfiguration(enabled = false)
+        )))
 
     @Test
     internal fun `Read header with no title frontmatter`(@TempDir dir: Path) {
@@ -210,7 +216,7 @@ internal class MarkdownFileConverterTest {
 
         val cause = IOException("error during file parsing")
         val parser = mockk<MarkdownParser> {
-            every { parseReader(any()) } throws cause
+            every { parseReader(any(), any(), any(), any()) } throws cause
         }
 
         assertThat {
