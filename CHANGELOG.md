@@ -13,6 +13,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     * PlantUML diagrams (`puml` or `plantuml`) when `planuml` command is present
     * Mermaid diagrams (`mermaid`) when `mmdc` command is present
     * [Kroki](https://kroki.io) diagrams
+* Ability to set extra properties for pages (more in [docs](./docs/user-guide/page-attributes.md#page-properties)):
+  * any page attribute with name `property_<property_name>`
 ### Changed
 * Dockerfile bundles `plantuml` jar file so, plantuml diagrams can be generated out of the box when docker image is used
 * Using `eclipse-temurin` as base docker image, as `openjdk` is deprecated

@@ -4,10 +4,10 @@ import com.github.zeldigas.confclient.model.PageProperty
 import com.github.zeldigas.confclient.model.PropertyVersion
 import java.nio.file.Path
 
-data class PagePropertyInput(val value: String, val version: PropertyVersion) {
+data class PagePropertyInput(val value: Any, val version: PropertyVersion) {
     companion object {
-        fun newProperty(value: String) = PagePropertyInput(value, PropertyVersion(1))
-        fun updateOf(property: PageProperty, newValue: String) =
+        fun newProperty(value: Any) = PagePropertyInput(value, PropertyVersion(1))
+        fun updateOf(property: PageProperty, newValue: Any) =
             PagePropertyInput(newValue, PropertyVersion(property.version.number + 1))
     }
 }

@@ -42,7 +42,7 @@ class ConfluenceClientImpl(
         space: String,
         title: String,
         status: List<String>?,
-        expansions: List<String>
+        expansions: Set<String>
     ): ConfluencePage {
         val results = findPages(space, title, status, expansions)
 
@@ -53,7 +53,7 @@ class ConfluenceClientImpl(
         space: String,
         title: String,
         status: List<String>?,
-        expansions: List<String>
+        expansions: Set<String>
     ): ConfluencePage? {
         val results = findPages(space, title, status, expansions)
 
@@ -78,7 +78,7 @@ class ConfluenceClientImpl(
         space: String?,
         title: String,
         status: List<String>?,
-        expansions: List<String>
+        expansions: Set<String>
     ): List<ConfluencePage> {
         val result: PageSearchResult = httpClient.get("$apiBase/content") {
             space?.let { parameter("spaceKey", it) }
@@ -89,7 +89,7 @@ class ConfluenceClientImpl(
         return result.results
     }
 
-    private fun HttpRequestBuilder.addExpansions(expansions: List<String>) {
+    private fun HttpRequestBuilder.addExpansions(expansions: Collection<String>) {
         if (expansions.isNotEmpty()) {
             parameter("expand", expansions.joinToString(","))
         }

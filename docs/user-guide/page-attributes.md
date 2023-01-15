@@ -96,7 +96,43 @@ parent: Custom Parent Page
 Document content
 ```
 
+## Page properties
+
+Page properties is set of special key-value pairs in confluence. Confluence and plugins use them to configure page
+behavior.
+
+Properties can be of the following types: string, boolean, list of strings, object (json)
+
+**text2confl** supports setting properties and extracts them from page attributes. 
+
+Attribute patterns to be properties:
+
+* every attribute `property_<property_name>` is taken into account.
+
+Example:
+
+Here we use `property_` prefix to define 2 properties - `first` is simple string and `complex` is an object with 2 fields
+
+```yaml
+property_first: hello
+property_complex: { "first": one, "flag": false }
+```
+
+### Known properties:
+
+* Confluence Cloud 
+  * `editor` property holds the version of editor (v1 or v2)
+  * `content_appearance_published` property set to `full-width` makes page to take full width of screen
+* [BobSwift Numbered Heading plugin][page_numbering_plugin] [uses properties](https://bobswift.atlassian.net/wiki/spaces/NH/pages/2585657347/Page+properties)
+  to enable page numbering on specific pages in Confluence Server.
+
+### Limitations
+
+Confluence Server does not support properties with dashes, trying to set such property will cause request to fail.
+
 ## Virtual pages
 
 Special attribute `_virtual_` allows you to define _virtual pages_ in tree structure. Read more
 on [dedicated page](./virtual-pages.md).
+
+[page_numbering_plugin]: https://bobswift.atlassian.net/wiki/spaces/NH/overview

@@ -24,13 +24,13 @@ interface PageUploadOperations {
 }
 
 enum class ChangeDetector(
-    val extraData: List<String>,
+    val extraData: Set<String>,
     val strategy: (serverPage: ConfluencePage, content: PageContent) -> Boolean
 ) {
-    HASH(emptyList(), { serverPage, content ->
+    HASH(emptySet(), { serverPage, content ->
         serverPage.pageProperty(HASH_PROPERTY)?.value != content.hash
     }),
-    CONTENT(listOf("body.storage"), { serverPage, content ->
+    CONTENT(setOf("body.storage"), { serverPage, content ->
         serverPage.body?.storage?.value != content.body
     })
 }

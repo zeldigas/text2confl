@@ -11,16 +11,20 @@ labels: supported-format,markdown
 Every Markdown document corresponds to separate confluence page.
 
 Document can contain *YAML Front Matter* block at the very beginning - section in YAML format where various metadata can
-be
-defined like custom title for page or confluence labels. You read about supported attributes
-on [dedicated page](../user-guide/page-attributes.md)
+be defined like custom title for page, page labels and properties. You can read about supported attributes
+on [dedicated page](../user-guide/page-attributes.md).
 
-Example document with *yaml* block that has 2 *attributes*: `title` and `labels`
+If attribute value is enclosed in `{}` or in `[]`, then value is treated as JSON and parsed. This approach allows to set
+complex properties on page.
+
+Example document with *yaml* block that has 4 *attributes*: `title`, `labels` and 2 properties - `simple` and `nl_avisi_nh`
 
 ```markdown {title="Page with front matter"}
 ---
 title: hello
 labels: docs,intro
+property_simple: custom_value
+property_nl_avisi_nh: { "isEnabled": true }
 ---
 
 Document content 

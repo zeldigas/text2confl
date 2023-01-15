@@ -11,16 +11,17 @@ interface ConfluenceClient {
 
     suspend fun getPage(space: String, title: String,
                         status:List<String>? = null,
-                        expansions: List<String> = emptyList()
+                        expansions: Set<String> = emptySet()
     ): ConfluencePage
 
     suspend fun getPageOrNull(space: String, title: String,
                               status:List<String>? = null,
-                              expansions: List<String> = emptyList()): ConfluencePage?
+                              expansions: Set<String> = emptySet()
+    ): ConfluencePage?
 
     suspend fun findPages(space: String?, title: String,
                         status:List<String>? = null,
-                        expansions: List<String> = emptyList()
+                        expansions: Set<String> = emptySet()
     ): List<ConfluencePage>
 
     suspend fun createPage(value: PageContentInput, updateParameters: PageUpdateOptions, expansions: List<String>? = null): ConfluencePage

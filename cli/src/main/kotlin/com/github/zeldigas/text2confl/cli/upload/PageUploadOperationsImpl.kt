@@ -38,14 +38,16 @@ internal class PageUploadOperationsImpl(
         page: Page
     ) = client.getPageOrNull(
         space = space, title = page.title, expansions =
-        listOf(
+        setOf(
             "metadata.labels",
             "metadata.properties.${HASH_PROPERTY}",
             "metadata.properties.${EDITOR_PROPERTY}",
             "version",
             "children.attachment",
             "ancestors"
-        ) + pageContentChangeDetector.extraData
+        )
+                + page.properties.keys.map { "metadata.properties.$it" }
+                + pageContentChangeDetector.extraData
     )
 
     private suspend fun updateExistingPage(
@@ -65,13 +67,12 @@ internal class PageUploadOperationsImpl(
                 ),
                 PageUpdateOptions(notifyWatchers, uploadMessage)
             )
-            setPageContentHash(serverPage.id, page.content, serverPage.pageProperty(HASH_PROPERTY))
-            setEditorVersion(serverPage.id, serverPage.pageProperty(EDITOR_PROPERTY))
-        } else if (serverPage.parent?.id != parentPageId){
+        } else if (serverPage.parent?.id != parentPageId) {
             changeParent(serverPage, parentPageId)
         } else {
             logger.info { "Page is up to date, nothing to do: ${serverPage.id}, ${serverPage.title}" }
         }
+        setPageProperties(page, serverPage)
         return createServerPage(serverPage, parentPageId)
     }
 
@@ -80,7 +81,7 @@ internal class PageUploadOperationsImpl(
         space: String,
         parentId: String
     ): ServerPage {
-        val serverPage = client.getPageOrNull(space, title, expansions = listOf("ancestors", "version"))
+        val serverPage = client.getPageOrNull(space, title, expansions = setOf("ancestors", "version"))
             ?: throw IllegalStateException("Page not found in $space: $title")
         if (serverPage.parent?.id != parentId) {
             changeParent(serverPage, parentId)
@@ -130,27 +131,28 @@ internal class PageUploadOperationsImpl(
                 "children.attachment"
             )
         )
-        setPageContentHash(serverPage.id, page.content, serverPage.pageProperty(HASH_PROPERTY))
-        setEditorVersion(serverPage.id, serverPage.pageProperty(EDITOR_PROPERTY))
+        setPageProperties(page, serverPage)
         return createServerPage(serverPage, parentPageId)
     }
 
-    private suspend fun setPageContentHash(
-        pageId: String,
-        pageContent: PageContent,
-        pageProperty: PageProperty? = null
+    private suspend fun setPageProperties(
+        page: Page,
+        serverPage: ConfluencePage
     ) {
-        setOrUpdateProperty(pageId, HASH_PROPERTY, pageContent.hash, pageProperty)
-    }
+        val allProperties = mapOf(
+            HASH_PROPERTY to page.content.hash,
+            EDITOR_PROPERTY to editorVersion.propertyValue
+        ) + page.properties.filterKeys { it != HASH_PROPERTY }
 
-    private suspend fun setEditorVersion(pageId: String, pageProperty: PageProperty? = null) {
-        setOrUpdateProperty(pageId, EDITOR_PROPERTY, editorVersion.propertyValue, pageProperty)
+        allProperties.forEach { (name, value) ->
+            setOrUpdateProperty(serverPage.id, propertyName = name, value = value, existingProperty = serverPage.pageProperty(name))
+        }
     }
 
     private suspend fun setOrUpdateProperty(
         pageId: String,
         propertyName: String,
-        value: String,
+        value: Any,
         existingProperty: PageProperty?
     ) {
         if (existingProperty == null) {

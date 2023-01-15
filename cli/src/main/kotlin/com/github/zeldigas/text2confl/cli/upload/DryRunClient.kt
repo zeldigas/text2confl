@@ -54,6 +54,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
     }
 
     override suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
+        log.info { "(dryrun) Setting property on page $pageId: $name=${value.value}, version=${value.version.number}" }
     }
 
     override suspend fun deleteLabel(pageId: String, label: String) {

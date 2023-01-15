@@ -1,13 +1,10 @@
 package com.github.zeldigas.text2confl.convert
 
-import org.xml.sax.ErrorHandler
-import org.xml.sax.SAXParseException
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 import java.security.DigestInputStream
 import java.security.MessageDigest
 import java.util.*
-import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.stream.Location
 import javax.xml.stream.XMLEventReader
 import javax.xml.stream.XMLInputFactory
@@ -24,10 +21,12 @@ data class Page(
 ) {
     val title: String
         get() = content.header.title
+    val properties: Map<String, Any>
+        get() = content.header.pageProperties
     val virtual: Boolean
         get() {
-            val virtualAttr:Any = content.header.attributes["_virtual_"] ?: return false
-            return when(virtualAttr) {
+            val virtualAttr: Any = content.header.attributes["_virtual_"] ?: return false
+            return when (virtualAttr) {
                 is Boolean -> virtualAttr
                 is String -> virtualAttr.toBoolean()
                 else -> false
@@ -37,7 +36,18 @@ data class Page(
 
 data class PageHeader(
     val title: String, val attributes: Map<String, Any?>
-)
+) {
+    val pageProperties: Map<String, Any> = buildMap {
+        val propertyMap = attributes["properties"]
+        if (propertyMap is Map<*, *>) {
+            putAll(propertyMap.filterValues { it != null }.map { (k, v) -> "$k" to v!! })
+        }
+        putAll(attributes.asSequence()
+            .filter { (k, v) -> k.startsWith("property_") && v != null }
+            .map { (k, v) -> k.substringAfter("property_") to v!! }
+        )
+    }
+}
 
 data class Attachment(
     val attachmentName: String, val linkName: String, val resourceLocation: Path
@@ -64,16 +74,6 @@ data class Attachment(
         }
         toBase64(md.digest())
     }
-}
-
-private val XML_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
-
-private object NullErrorHandler : ErrorHandler {
-    override fun warning(p0: SAXParseException?) = Unit
-
-    override fun error(p0: SAXParseException?) = Unit
-
-    override fun fatalError(p0: SAXParseException?) = Unit
 }
 
 data class PageContent(

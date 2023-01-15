@@ -45,7 +45,7 @@ data class Label(
 data class PageProperty(
     val id: String,
     val key: String,
-    val value: String,
+    val value: Any?,
     val version: PropertyVersion
 )
 

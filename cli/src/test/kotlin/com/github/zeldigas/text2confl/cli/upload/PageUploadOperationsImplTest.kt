@@ -31,7 +31,7 @@ internal class PageUploadOperationsImplTest(
     internal fun `Creation of new page`() {
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = listOf(
+                "TEST", "Page title", expansions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
@@ -68,6 +68,7 @@ internal class PageUploadOperationsImplTest(
                     every { body } returns "body"
                     every { hash } returns "body-hash"
                 }
+                every { properties } returns emptyMap()
             }, "TEST", "parentId")
         }
 
@@ -92,10 +93,11 @@ internal class PageUploadOperationsImplTest(
     internal fun `Update of existing page`() {
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = listOf(
+                "TEST", "Page title", expansions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
+                    "metadata.properties.extra",
                     "version",
                     "children.attachment",
                     "ancestors"
@@ -108,6 +110,7 @@ internal class PageUploadOperationsImplTest(
             every { metadata?.labels?.results } returns listOf(serverLabel("one"))
             every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
             every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
+            every { pageProperty("extra") } returns null
             every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
         }
 
@@ -121,6 +124,7 @@ internal class PageUploadOperationsImplTest(
                     every { body } returns "body"
                     every { hash } returns "body-hash"
                 }
+                every { properties } returns mapOf( "extra" to "value" )
             }, "TEST", "parentId")
         }
 
@@ -142,6 +146,9 @@ internal class PageUploadOperationsImplTest(
         coVerify {
             client.setPageProperty(PAGE_ID, "contenthash", PagePropertyInput("body-hash", PropertyVersion(4)))
         }
+        coVerify {
+            client.setPageProperty(PAGE_ID, "extra", PagePropertyInput.newProperty("value"))
+        }
         coVerify(exactly = 0) {
             client.setPageProperty(PAGE_ID, "editor", any())
         }
@@ -149,13 +156,14 @@ internal class PageUploadOperationsImplTest(
 
     @EnumSource(ChangeDetector::class)
     @ParameterizedTest
-    internal fun `No update if content is not changed`(changeDetector: ChangeDetector) {
+    internal fun `Only properties update if content is not changed`(changeDetector: ChangeDetector) {
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = listOf(
+                "TEST", "Page title", expansions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
+                    "metadata.properties.extra",
                     "version",
                     "children.attachment",
                     "ancestors"
@@ -167,21 +175,27 @@ internal class PageUploadOperationsImplTest(
             every { metadata?.labels?.results } returns emptyList()
             every { children?.attachment?.results } returns emptyList()
             every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
+            every { pageProperty(EDITOR_PROPERTY) } returns PageProperty("123", EDITOR_PROPERTY, "v2", PropertyVersion(1))
+            every { pageProperty("extra") } returns PageProperty(
+                "124",
+                "extra",
+                "value",
+                PropertyVersion(3)
+            )
+            every { pageProperty("contenthash") } returns PageProperty(
+                "124",
+                "contenthash",
+                "hash",
+                PropertyVersion(3)
+            )
             when (changeDetector) {
                 ChangeDetector.CONTENT -> {
                     every { body?.storage?.value } returns "body"
                 }
-
-                ChangeDetector.HASH -> {
-                    every { pageProperty("contenthash") } returns PageProperty(
-                        "124",
-                        "contenthash",
-                        "hash",
-                        PropertyVersion(3)
-                    )
-                }
+                else -> {}
             }
         }
+        coEvery { client.setPageProperty(PAGE_ID, "extra", any()) } just Runs
 
         val result = runBlocking {
             uploadOperations(changeDetector = changeDetector).createOrUpdatePageContent(mockk {
@@ -190,11 +204,13 @@ internal class PageUploadOperationsImplTest(
                     every { body } returns "body"
                     every { hash } returns "hash"
                 }
+                every { properties } returns mapOf( "extra" to "updatedValue")
             }, "TEST", "parentId")
         }
 
         assertThat(result.id).isEqualTo(PAGE_ID)
         coVerify(exactly = 0) { client.updatePage(any(), any(), any()) }
+        coVerify { client.setPageProperty(PAGE_ID, "extra", PagePropertyInput("updatedValue", PropertyVersion(4))) }
     }
 
     @Test
@@ -450,7 +466,7 @@ internal class PageUploadOperationsImplTest(
     @Test
     internal fun missingVirtualPageThrowsError() {
         coEvery {
-            client.getPageOrNull(any(), any(), expansions = listOf("ancestors", "version"))
+            client.getPageOrNull(any(), any(), expansions = setOf("ancestors", "version"))
         } returns null
 
         assertThat {
