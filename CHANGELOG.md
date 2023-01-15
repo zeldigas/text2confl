@@ -12,10 +12,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 * \[Markdown] Support for diagrams as code blocks when corresponding tool is present
     * PlantUML diagrams (`puml` or `plantuml`) when `planuml` command is present
     * Mermaid diagrams (`mermaid`) when `mmdc` command is present
+    * [Kroki](https://kroki.io) diagrams
 ### Changed
 * Dockerfile bundles `plantuml` jar file so, plantuml diagrams can be generated out of the box when docker image is used
 * Using `eclipse-temurin` as base docker image, as `openjdk` is deprecated
 * Updated various kotlin and generic dependencies
+* Http client now has dedicated user agent - `text2confl`
+* Split single-page doc about Markdown into separate pages
 
 
 ## 0.7.0 - 2022-11-27
