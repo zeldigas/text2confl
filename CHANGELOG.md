@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.8.0 - 2023-01-15
+
 ### Added
 
 * \[Markdown] Support for diagrams as code blocks when corresponding tool is present

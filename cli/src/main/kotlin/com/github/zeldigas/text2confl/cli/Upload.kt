@@ -3,7 +3,6 @@ package com.github.zeldigas.text2confl.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.requireObject
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -20,7 +19,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence"), WithConversionOptions {
+class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence"),
+    WithConversionOptions {
 
     private val confluenceUrl: Url? by option(
         "--confluence-url", envvar = "CONFLUENCE_URL",
@@ -133,7 +133,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
 
     private fun passwordAuth(username: String, password: String?): PasswordAuth {
         val effectivePassword = password
-            ?: TermUi.prompt("Enter password: ", hideInput = true, requireConfirmation = true)
+            ?: prompt("Enter password: ", hideInput = true, requireConfirmation = true)
             ?: throw PrintMessage("Password can't be null")
         return PasswordAuth(username, effectivePassword)
     }
