@@ -19,7 +19,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 * Updated various kotlin and generic dependencies
 * Http client now has dedicated user agent - `text2confl`
 * Split single-page doc about Markdown into separate pages
-
+### Fixed
+* Errors in converted files like unbalanced tags produce non-zero error code
 
 ## 0.7.0 - 2022-11-27
 

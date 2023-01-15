@@ -30,7 +30,7 @@ fun tryHandleException(ex: Exception) : Nothing {
         }
         is ContentValidationFailedException -> {
             val issues = ex.errors.mapIndexed { index, error -> "${index + 1}. $error"}.joinToString(separator = "\n")
-            throw PrintMessage("Some pages content is invalid:\n${issues}")
+            throw PrintMessage("Some pages content is invalid:\n${issues}", error = true)
         }
         else -> throw ex
     }
