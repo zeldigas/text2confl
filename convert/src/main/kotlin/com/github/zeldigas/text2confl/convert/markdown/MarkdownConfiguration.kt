@@ -1,7 +1,9 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
+import com.github.zeldigas.text2confl.convert.markdown.diagram.KrokiDiagramsGenerator
 import com.github.zeldigas.text2confl.convert.markdown.diagram.MermaidDiagramsGenerator
 import com.github.zeldigas.text2confl.convert.markdown.diagram.PlantUmlDiagramsGenerator
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 
@@ -15,18 +17,18 @@ data class MarkdownConfiguration(
 data class DiagramsConfiguration(
     val diagramsBaseDir: Path,
     val mermaid: MermaidDiagramsConfiguration = MermaidDiagramsConfiguration(),
-    val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration()
+    val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration(),
+    val kroki: KrokiDiagramsConfiguration = KrokiDiagramsConfiguration()
 )
 
 interface DiagramsProviderConfiguration {
     val enabled: Boolean
-    val executable: String?
 }
 
 data class MermaidDiagramsConfiguration(
     override val enabled: Boolean = true,
     val defaultFormat: String = MermaidDiagramsGenerator.DEFAULT_FORMAT,
-    override val executable: String? = null,
+    val executable: String? = null,
     val configFile: String? = null,
     val cssFile: String? = null,
     val puppeeterConfig: String? = null,
@@ -34,6 +36,12 @@ data class MermaidDiagramsConfiguration(
 
 data class PlantUmlDiagramsConfiguration(
     override val enabled: Boolean = true,
-    override val executable: String? = null,
+    val executable: String? = null,
     val defaultFormat: String = PlantUmlDiagramsGenerator.DEFAULT_FORMAT
 ) : DiagramsProviderConfiguration
+
+data class KrokiDiagramsConfiguration(
+    override val enabled: Boolean = true,
+    val server: URI = KrokiDiagramsGenerator.DEFAULT_SERVER,
+    val defaultFormat: String = KrokiDiagramsGenerator.DEFAULT_FORMAT
+): DiagramsProviderConfiguration

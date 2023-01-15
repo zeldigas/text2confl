@@ -6,7 +6,7 @@ import java.nio.file.Path
 
 class MermaidDiagramsGenerator(
     private val enabled: Boolean = true,
-    private val defaultFormat: String = DEFAULT_FORMAT,
+    override val defaultFileFormat: String = DEFAULT_FORMAT,
     private val command: String = DEFAULT_COMMAND,
     private val commandExecutor: CommandExecutor = OsCommandExecutor(),
     private val configFile: String? = null,
@@ -28,10 +28,13 @@ class MermaidDiagramsGenerator(
         config.defaultFormat,
         config.executable ?: DEFAULT_COMMAND,
         configFile = config.configFile,
-        cssFile =  config.cssFile,
+        cssFile = config.cssFile,
         puppeterConfig = config.puppeeterConfig,
         commandExecutor = commandExecutor
     )
+
+    override val supportedFileFormats: Set<String>
+        get() = SUPPORTED_FORMATS
 
     override fun supports(lang: String): Boolean = SUPPORTED_LANGUAGES.contains(lang)
 
@@ -41,7 +44,7 @@ class MermaidDiagramsGenerator(
             opt("--outputFormat", resolveFormat(attributes))
             configFile?.let { opt("--configFile", it) }
             cssFile?.let { opt("--cssFile", it) }
-            effectivePuppeeterConfig()?.let { opt("--puppeteerConfigFile", it)}
+            effectivePuppeeterConfig()?.let { opt("--puppeteerConfigFile", it) }
             flag("--quiet")
 
             stdin(source)
@@ -56,20 +59,6 @@ class MermaidDiagramsGenerator(
     }
 
     private fun effectivePuppeeterConfig(): String? = puppeterConfig ?: System.getenv(PUPPETER_CONFIG_ENV)
-
-    override fun name(baseName: String, attributes: Map<String, String>): String {
-        return "$baseName.${resolveFormat(attributes)}"
-    }
-
-    private fun resolveFormat(attributes: Map<String, String>): String {
-        val resultingFormat = attributes["format"] ?: defaultFormat
-
-        if (resultingFormat !in SUPPORTED_FORMATS) {
-            throw IllegalStateException("Requested format for diagram - $resultingFormat, but only following formats are supported: $SUPPORTED_FORMATS")
-        }
-
-        return resultingFormat
-    }
 
     override fun available(): Boolean {
         if (!enabled) return false;

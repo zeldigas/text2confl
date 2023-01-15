@@ -7,7 +7,7 @@ import java.nio.file.Path
 class PlantUmlDiagramsGenerator(
     val enabled: Boolean = true,
     val command: String = DEFAULT_COMMAND,
-    val defaultFormat:String = DEFAULT_FORMAT,
+    override val defaultFileFormat:String = DEFAULT_FORMAT,
     val commandExecutor: CommandExecutor
 ) : DiagramGenerator {
 
@@ -22,9 +22,12 @@ class PlantUmlDiagramsGenerator(
     constructor(config: PlantUmlDiagramsConfiguration, commandExecutor: CommandExecutor = OsCommandExecutor(),): this(
         enabled = config.enabled,
         command = config.executable ?: DEFAULT_COMMAND,
-        defaultFormat = config.defaultFormat,
+        defaultFileFormat = config.defaultFormat,
         commandExecutor = commandExecutor
     )
+
+    override val supportedFileFormats: Set<String>
+        get() = SUPPORTED_FORMATS
 
     override fun generate(source: String, target: Path, attributes: Map<String, String>): ImageInfo {
         val executable = cmd(command) {
@@ -43,20 +46,6 @@ class PlantUmlDiagramsGenerator(
             throw DiagramGenerationFailedException("$command execution returned non-zero exit code: ${result.status}.\n${result.error}")
         }
         return ImageInfo()
-    }
-
-    override fun name(baseName: String, attributes: Map<String, String>): String {
-        return "$baseName.${resolveFormat(attributes)}"
-    }
-
-    private fun resolveFormat(attributes: Map<String, String>): String {
-        val resultingFormat = attributes["format"] ?: defaultFormat
-
-        if (resultingFormat !in SUPPORTED_FORMATS) {
-            throw IllegalStateException("Requested format for diagram - $resultingFormat, but only following formats are supported: ${SUPPORTED_FORMATS}")
-        }
-
-        return resultingFormat
     }
 
     override fun supports(lang: String): Boolean {

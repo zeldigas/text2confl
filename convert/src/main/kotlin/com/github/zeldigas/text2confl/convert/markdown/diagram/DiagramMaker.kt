@@ -32,7 +32,7 @@ class DiagramMaker(
     internal val generator: DiagramGenerator,
 ) {
     fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): Pair<Attachment, ImageInfo> {
-        val name = generator.name(baseName(script, attributes), attributes + mapOf("lang" to lang))
+        val name = generator.name(baseName(script, attributes), attributes + mapOf(DIAGRAM_FORMAT_ATTRIBUTE to lang))
 
         val generatedFileLocation = if (pathPrefix == null) baseDir / name else baseDir / pathPrefix / name
 

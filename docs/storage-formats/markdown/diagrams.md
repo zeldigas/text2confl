@@ -8,8 +8,7 @@ labels: supported-format,markdown
 
 * [PlantUML](https://plantuml.com/en/)
 * [Mermaid](https://mermaid.js.org/)
-
-[//]: # (* [Kroki]&#40;https://kroki.io/&#41;)
+* [Kroki](https://kroki.io/)
 
 By default, **text2confl** provides zero-configuration support lookup for every type of supported diagram is detected in
 runtime during startup. If detection failed to verify that external tool is present then support is turned off and code
@@ -29,7 +28,7 @@ As every diagram translated to separate page attachment, there are 2 options to 
 
 ## Location where diagrams are generated
 
-By default, generated diagrams are saved in `.diagrams` directory under documents root. 
+By default, generated diagrams are saved in `.diagrams` directory under documents root.
 
 This is configurable with the following parameters in `.text2confl.yml` file
 
@@ -43,7 +42,6 @@ markdown:
 |------------|---------------------------------------------------------------------------------------------------|---------------|
 | `base-dir` | Base directory to store diagrams. Relative path is resolved from directory with `.text2confl.yml` | `.diagrams`   |
 | `temp-dir` | Use random temporary directory instead of `base-dir`                                              | `false`       |
-
 
 ## Formats
 
@@ -130,3 +128,79 @@ markdown:
 | `css-file`         | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `.text2confl.yml`                      |                                              |
 | `puppeeter-config` | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `.text2confl.yml`                      | Value of `T2C_PUPPEETER_CONFIG` env variable |
 
+### Kroki
+
+Kroki provides supports for multiple diagrams as a web service. **text2confl** by default enables support for Kroki and
+uses public service for generation - <https://kroki.io>.
+
+Example [Erd](https://github.com/BurntSushi/erd) diagram:
+
+```erd {target=kroki-erd}
+[Person]
+*name
+height
+weight
++birth_location_id
+
+[Location]
+*id
+city
+state
+country
+
+Person *--1 Location
+```
+
+Supported code-block attributes:
+
+* `target` - base name for generated image _without extension_
+* `format` - what format to use for this diagram. Allowed values - `png`, `svg`
+* `option_<option_name>` - extra option that will be passed to kroki generation. All options can be found
+  in [official docs](https://docs.kroki.io/kroki/setup/diagram-options/). For example `option_size=1000x1000` will pass
+  option `size` with value `1000x1000`
+
+#### Generator configuration
+
+Kroki parameters can be specified in `.text2confl.yml` file:
+
+```yaml {title=.text2confl.yml}
+markdown:
+  diagrams:
+    kroki:
+#      parameters here
+```
+
+| name             | description                                                                                           | default value      |
+|------------------|-------------------------------------------------------------------------------------------------------|--------------------|
+| `enabled`        | Enable Kroki diagrams support                                                                         | `true`             |
+| `server`         | Kroki server                                                                                          | `https://kroki.io` |
+| `default-format` | Format to use for generated images. Available options: `svg`, `png`. Some diagrams support only `svg` | `png`              |
+
+#### Supported formats
+
+Kroki supports [more than 20 diagram formats](https://kroki.io/#support), including `plantuml` and `mermaid`. Native PlantUML and Mermaid generator takes higher precedence, but if you disable them, these formats will be still supported by Kroki.
+
+Supported diagrams:
+
+| Language codes                                                        | Formats      | Diagram format origin                                        |
+|-----------------------------------------------------------------------|--------------|--------------------------------------------------------------|
+| `puml`, `plantuml`, `c4plantuml`                                      | `png`, `svg` | [PlantUML](https://plantuml.com/en/)                         | 
+| `mermaid`                                                             | `png`, `svg` | [Mermaid](https://mermaid.js.org/)                           | 
+| `blockdiag`, `seqdiag`, `actdiag`, `nwdiag`, `packetdiag`, `rackdiag` | `png`, `svg` | [Blockdiag](https://github.com/blockdiag)                    | 
+| `umlet`                                                               | `png`, `svg` | [UMlet](https://github.com/umlet/umlet)                      |
+| `graphviz`, `dot`                                                     | `png`, `svg` | [GraphViz](https://www.graphviz.org/)                        |
+| `erd`                                                                 | `png`, `svg` | [Erd](https://github.com/BurntSushi/erd)                     |
+| `svgbob`                                                              | `svg`        | [Svgbob](https://github.com/ivanceras/svgbob)                |
+| `nomnoml`                                                             | `svg`        | [nomnoml](https://github.com/skanaar/nomnoml)                |
+| `vega`, `vegalite`                                                    | `png`, `svg` | [Vega](https://github.com/vega/vega)                         |
+| `wavedrom`                                                            | `svg`        | [Wavedrom](https://github.com/wavedrom/wavedrom)             |
+| `bpmn`                                                                | `svg`        | [BPMN](https://github.com/bpmn-io/bpmn-js)                   |
+| `bytefield`                                                           | `svg`        | [Bytefield](https://github.com/Deep-Symmetry/bytefield-svg/) | 
+| `excalidraw`                                                          | `svg`        | [Excalidraw](https://github.com/excalidraw/excalidraw)       |
+| `pikchr`                                                              | `svg`        | [Pikchr](https://github.com/drhsqlite/pikchr)                |
+| `structurizr`                                                         | `png`, `svg` | [Structurizr](https://github.com/structurizr/dsl)            |
+| `diagramsnet`                                                         | `png`, `svg` | [Diagrams.net](https://www.diagrams.net/)                    |
+| `ditaa`                                                               | `png`, `svg` | [Ditaa](https://ditaa.sourceforge.net/)                      |
+| `d2`                                                                  | `svg`        | [D2](https://d2lang.com/)                                    |
+
+        
