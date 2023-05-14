@@ -8,7 +8,7 @@ RUN find /opt/app -exec touch -t 200001010101 {} \;
 
 FROM eclipse-temurin:17.0.7_7-jre-alpine
 
-ARG PLANTUML="1.2022.14"
+ARG PLANTUML="1.2023.7"
 
 ADD https://github.com/plantuml/plantuml/releases/download/v$PLANTUML/plantuml.jar /usr/local/bin/plantuml.jar
 ADD scripts/plantuml /usr/local/bin/plantuml
