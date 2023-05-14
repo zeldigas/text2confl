@@ -55,7 +55,7 @@ class ConfluenceUserNode(
 
 private class UserTagParser : InlineParserExtension {
     companion object {
-        val PATTERN = """^(@)([a-z\d_]([.a-z\d_-]+[a-z\d_])?)""".toRegex(RegexOption.IGNORE_CASE).toPattern()
+        val PATTERN = """^(@)(("[^"]+")|([a-z\d_]([.a-z\d_-]+[a-z\d_])?))""".toRegex(RegexOption.IGNORE_CASE).toPattern()
     }
 
     override fun finalizeDocument(inlineParser: InlineParser) {
@@ -74,12 +74,19 @@ private class UserTagParser : InlineParserExtension {
             }
         }
         if (isPossible) {
-            val matches = inlineParser.matchWithGroups(PATTERN)
-            if (matches != null && validUsername(matches[2]!!)) {
+            val matches = inlineParser.matchWithGroups(PATTERN) ?: return false;
+            val openMarker = matches[1]!!
+            val rawUsername = matches[2]!!
+            val username = if (rawUsername.startsWith('"') && rawUsername.endsWith('"')) {
+                rawUsername.trim('"')
+            } else if (validUsername(rawUsername)) {
+                rawUsername
+            }else {
+                null
+            }
+            if (username != null) {
                 inlineParser.flushTextNode()
-                val openMarker = matches[1]!!
-                val text = matches[2]!!
-                val gitHubIssue = ConfluenceUserNode(openMarker, text)
+                val gitHubIssue = ConfluenceUserNode(openMarker, BasedSequence.of(username))
                 inlineParser.block.appendChild(gitHubIssue)
                 return true
             }

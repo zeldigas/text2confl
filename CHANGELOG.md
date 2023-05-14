@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+* \[Markdown] Support for quoted usernames - `@"username@example.org"` 
+
 ## 0.8.0 - 2023-01-15
 
 ### Added

@@ -51,6 +51,27 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
     }
 
     @Test
+    internal fun `Confluence user macro in quotes`() {
+        val result = toHtml(
+            """
+            Hello @"user@example.org".    
+                    
+            Hello @"v.uS_er@example.org"-.
+                        
+            Hello @".".            
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <p>Hello <ac:link><ri:user ri:username="user@example.org" /></ac:link>.</p>
+            <p>Hello <ac:link><ri:user ri:username="v.uS_er@example.org" /></ac:link>-.</p>
+            <p>Hello <ac:link><ri:user ri:username="." /></ac:link>.</p>
+        """.trimIndent()
+        )
+    }
+
+    @Test
     internal fun `Confluence user macro is ignored in code block`() {
         val result = toHtml(
             """
