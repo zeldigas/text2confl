@@ -10,10 +10,7 @@ import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.confclient.confluenceClient
-import com.github.zeldigas.text2confl.cli.config.Cleanup
-import com.github.zeldigas.text2confl.cli.config.ConverterConfig
-import com.github.zeldigas.text2confl.cli.config.EditorVersion
-import com.github.zeldigas.text2confl.cli.config.UploadConfig
+import com.github.zeldigas.text2confl.cli.config.*
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import com.github.zeldigas.text2confl.cli.upload.ContentUploader
 import com.github.zeldigas.text2confl.cli.upload.DryRunClient
@@ -45,6 +42,7 @@ internal class ServiceProviderImplTest {
             ConverterConfig(
                 "pre", "post", EditorVersion.V2, null,
                 "root/", null,
+                CodeBlockParams(),
                 MarkdownConfiguration()
             )
         )
@@ -89,9 +87,13 @@ internal class ServiceProviderImplTest {
         mockkStatic(::universalConverter) {
             every { universalConverter("TEST", any()) } returns converter
 
-            val result = provider.createConverter("TEST", ConverterConfig("pre", "post", EditorVersion.V1,
-            null, "http://example.org/", "custom text",
-            MarkdownConfiguration()))
+            val result = provider.createConverter(
+                "TEST", ConverterConfig(
+                    "pre", "post", EditorVersion.V1,
+                    null, "http://example.org/", "custom text",
+                    CodeBlockParams(), MarkdownConfiguration()
+                )
+            )
 
             assertThat(result).isEqualTo(converter)
 

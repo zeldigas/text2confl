@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.nio.file.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 
@@ -28,6 +29,6 @@ fun readDirectoryConfig(dirOfFile: Path): DirectoryConfig {
         .filter { it.exists() }
         .map { mapper.readValue<DirectoryConfig>(it.toFile()) }
         .firstOrNull() ?: DirectoryConfig()
-    directoryConfig.docsDir = if (dirOfFile.isRegularFile()) dirOfFile.parent else dirOfFile
+    directoryConfig.docsDir = if (dirOfFile.isRegularFile()) dirOfFile.absolute().parent else dirOfFile
     return directoryConfig
 }

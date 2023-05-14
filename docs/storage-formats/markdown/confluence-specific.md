@@ -126,7 +126,7 @@ down the road. Values can be unquoted if they don't contain spaces, or you can p
     and unique per jira server integration.
 
 By default, any `MACRONAME` is supported, but if you want to limit usage, you can explicitly set what macros are enabled
-with this notation. More details on this in [configuration reference](../configuration-reference.md)
+with this notation. More details on this in [configuration reference](../../configuration-reference.md)
 
 Some examples:
 

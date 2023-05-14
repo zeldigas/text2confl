@@ -11,7 +11,10 @@ data class MarkdownConfiguration(
     val parseAnyMacro: Boolean = true,
     val supportedMacros: List<String> = emptyList(),
     val emoji: Boolean = true,
-    val diagrams: DiagramsConfiguration = DiagramsConfiguration(createTempDirectory())
+    val diagrams: DiagramsConfiguration = DiagramsConfiguration(createTempDirectory()),
+    val tables: TablesConfiguration = TablesConfiguration(),
+    val autoLinks: Boolean = true,
+    val typography: TypographyConfiguration = TypographyConfiguration()
 )
 
 data class DiagramsConfiguration(
@@ -45,3 +48,18 @@ data class KrokiDiagramsConfiguration(
     val server: URI = KrokiDiagramsGenerator.DEFAULT_SERVER,
     val defaultFormat: String = KrokiDiagramsGenerator.DEFAULT_FORMAT
 ): DiagramsProviderConfiguration
+
+data class TablesConfiguration(
+    val columnSpans: Boolean = true,
+    val discardExtraColumns: Boolean = true,
+    val appendMissingColumns: Boolean = true,
+    val headerSeparatorColumnMatch: Boolean = true
+)
+
+data class TypographyConfiguration(
+    val quotes: Boolean = false,
+    val smarts: Boolean = true
+) {
+    val enabled: Boolean
+        get() = quotes || smarts
+}

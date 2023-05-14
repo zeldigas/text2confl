@@ -7,13 +7,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.9.0 - 2023-05-14
+
 ### Added
 
 * \[Markdown] Support for quoted usernames - `@"username@example.org"`
+* \[Markdown] Support for auto-links in file (enabled by default)
+* \[Markdown] Support for typography (enabled by default for dots and dashes)
+* \[Markdown] Support for tables parsing customizations
+* Support to customize language mapping for code blocks
 
 ### Changed
 
-* PlantUML updated to 1.2023.7 
+* \[Markdown] column spans are enabled by default for tables. Can be disabled via configuration
+* PlantUML updated to 1.2023.7
 
 ## 0.8.0 - 2023-01-15
 

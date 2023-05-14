@@ -120,6 +120,7 @@ sealed class Validation {
 fun traverseDocument(body: String) = sequence<XMLEvent> {
     val inputFactory = XMLInputFactory.newInstance()
     inputFactory.setProperty("javax.xml.stream.isNamespaceAware", false);
+    inputFactory.setProperty("javax.xml.stream.isReplacingEntityReferences", false);
     val eventReader: XMLEventReader =
         inputFactory.createXMLEventReader(
             ByteArrayInputStream("<r>\n${body}\n</r>".toByteArray()),

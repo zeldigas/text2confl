@@ -9,22 +9,26 @@ import org.junit.jupiter.api.Test
 
 internal class LanguageMapperImplTest {
 
+    companion object {
+        private val CUSTOMIZATION = mapOf("_test_" to "js")
+    }
+
     @Test
     internal fun `Server mapper`() {
-        val mapper = LanguageMapper.forServer("test")
+        val mapper = LanguageMapper.forServer("test", CUSTOMIZATION)
         assertThat(mapper).isInstanceOf(LanguageMapperImpl::class).all {
             transform { it.defaultLanguage }.isEqualTo("test")
-            prop(LanguageMapperImpl::mapping).isEqualTo(SERVER_REMAPPING)
+            prop(LanguageMapperImpl::mapping).isEqualTo(SERVER_REMAPPING + CUSTOMIZATION)
             prop(LanguageMapperImpl::supportedLanguages).isEqualTo(CONFLUENCE_SERVER_LANGUAGES)
         }
     }
 
     @Test
     internal fun `Cloud mapper`() {
-        val mapper = LanguageMapper.forCloud("test1")
+        val mapper = LanguageMapper.forCloud("test1", CUSTOMIZATION)
         assertThat(mapper).isInstanceOf(LanguageMapperImpl::class).all {
             transform { it.defaultLanguage }.isEqualTo("test1")
-            prop(LanguageMapperImpl::mapping).isEqualTo(CLOUD_REMAPPING)
+            prop(LanguageMapperImpl::mapping).isEqualTo(CLOUD_REMAPPING + CUSTOMIZATION)
             prop(LanguageMapperImpl::supportedLanguages).isEqualTo(CONFLUENCE_CLOUD_LANGUAGES)
         }
     }

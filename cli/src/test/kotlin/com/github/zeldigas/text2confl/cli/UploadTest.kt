@@ -61,7 +61,7 @@ internal class UploadTest(
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result)} just Runs
+        every { contentValidator.validate(result) } just Runs
 
         command.parse(
             listOf(
@@ -88,7 +88,7 @@ internal class UploadTest(
         }
         val expectedConverterConfig = ConverterConfig(
             "", "", EditorVersion.V2, null, null, null,
-            MarkdownConfiguration(diagrams = DiagramsConfiguration(tempDir / ".diagrams"))
+            CodeBlockParams(), MarkdownConfiguration(diagrams = DiagramsConfiguration(tempDir / ".diagrams"))
         )
         verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
         verify {
@@ -110,7 +110,7 @@ internal class UploadTest(
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result)} just Runs
+        every { contentValidator.validate(result) } just Runs
 
         command.parse(
             listOf(
@@ -136,13 +136,18 @@ internal class UploadTest(
             directoryConfig.titlePrefix, directoryConfig.titlePostfix,
             directoryConfig.editorVersion!!, null,
             "http://example.com/", null,
+            directoryConfig.codeBlocks,
             directoryConfig.markdown.toConfig(directoryConfig.docsDir)
         )
         verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(
-                    directoryConfig.space!!, directoryConfig.removeOrphans, "custom upload message", directoryConfig.notifyWatchers, directoryConfig.modificationCheck
+                    directoryConfig.space!!,
+                    directoryConfig.removeOrphans,
+                    "custom upload message",
+                    directoryConfig.notifyWatchers,
+                    directoryConfig.modificationCheck
                 ),
                 converterConfig
             )
@@ -151,14 +156,15 @@ internal class UploadTest(
 
     @Test
     internal fun `Any credential type must be specified`(@TempDir tempDir: Path) {
-        assertThat { command.parse(
-            listOf(
-                "--space", "TR",
-                "--confluence-url", "https://wiki.example.org",
-                "--docs", tempDir.toString()
-            ),
-            parentContext
-        )
+        assertThat {
+            command.parse(
+                listOf(
+                    "--space", "TR",
+                    "--confluence-url", "https://wiki.example.org",
+                    "--docs", tempDir.toString()
+                ),
+                parentContext
+            )
         }.isFailure().isInstanceOf(PrintMessage::class).all {
             transform { it.error }.isTrue()
             hasMessage("Either access token or username/password should be specified")
@@ -167,12 +173,13 @@ internal class UploadTest(
 
     @Test
     internal fun `Space is required`(@TempDir tempDir: Path) {
-        assertThat { command.parse(
-            listOf(
-                "--docs", tempDir.toString()
-            ),
-            parentContext
-        )
+        assertThat {
+            command.parse(
+                listOf(
+                    "--docs", tempDir.toString()
+                ),
+                parentContext
+            )
         }.isFailure().isInstanceOf(PrintMessage::class).all {
             transform { it.error }.isTrue()
             hasMessage("Space is not specified. Use `--space` option or `space` in config file")
@@ -181,13 +188,14 @@ internal class UploadTest(
 
     @Test
     internal fun `Confluence url is required`(@TempDir tempDir: Path) {
-        assertThat { command.parse(
-            listOf(
-                "--space", "TR",
-                "--docs", tempDir.toString()
-            ),
-            parentContext
-        )
+        assertThat {
+            command.parse(
+                listOf(
+                    "--space", "TR",
+                    "--docs", tempDir.toString()
+                ),
+                parentContext
+            )
         }.isFailure().isInstanceOf(PrintMessage::class).all {
             transform { it.error }.isTrue()
             hasMessage("Confluence url is not specified. Use `--confluence-url` option or `server` in config file")
@@ -200,7 +208,7 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.getPage("TR", "Test page").id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result)} just Runs
+        every { contentValidator.validate(result) } just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
@@ -223,7 +231,7 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.describeSpace("TR", listOf("homepage")).homepage?.id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result)} just Runs
+        every { contentValidator.validate(result) } just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
@@ -259,7 +267,11 @@ internal class UploadTest(
 
     @Test
     internal fun `Handling of conversion failed exception`(@TempDir tempDir: Path) {
-        every { converter.convertDir(tempDir) } throws ConversionFailedException(tempDir, "Conversion error message", RuntimeException("cause"))
+        every { converter.convertDir(tempDir) } throws ConversionFailedException(
+            tempDir,
+            "Conversion error message",
+            RuntimeException("cause")
+        )
 
         assertThat {
             command.parse(
@@ -271,14 +283,20 @@ internal class UploadTest(
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class).hasMessage("Failed to convert $tempDir: Conversion error message (cause: java.lang.RuntimeException: cause)")
+        }.isFailure().isInstanceOf(PrintMessage::class)
+            .hasMessage("Failed to convert $tempDir: Conversion error message (cause: java.lang.RuntimeException: cause)")
     }
 
     @Test
     internal fun `Handling of content validation exception`(@TempDir tempDir: Path) {
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
-        every { contentValidator.validate(result)} throws ContentValidationFailedException(listOf("error message1", "error message2"))
+        every { contentValidator.validate(result) } throws ContentValidationFailedException(
+            listOf(
+                "error message1",
+                "error message2"
+            )
+        )
 
         assertThat {
             command.parse(
@@ -290,7 +308,8 @@ internal class UploadTest(
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class).hasMessage("Some pages content is invalid:\n1. error message1\n2. error message2")
+        }.isFailure().isInstanceOf(PrintMessage::class)
+            .hasMessage("Some pages content is invalid:\n1. error message1\n2. error message2")
     }
 
     private fun sampleConfig(): DirectoryConfig {

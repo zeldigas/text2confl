@@ -12,14 +12,14 @@ interface LanguageMapper {
             override val supportedLanguages: Set<String>
                 get() = emptySet()
         }
-        fun forServer(defaultLanguage: String? = null): LanguageMapper = LanguageMapperImpl(
+        fun forServer(defaultLanguage: String? = null, extraMapping: Map<String, String> = emptyMap()): LanguageMapper = LanguageMapperImpl(
             CONFLUENCE_SERVER_LANGUAGES,
-            mapping = SERVER_REMAPPING,
+            mapping = SERVER_REMAPPING + extraMapping,
             defaultLanguage = defaultLanguage
         )
-        fun forCloud(defaultLanguage:String? = null): LanguageMapper = LanguageMapperImpl(
+        fun forCloud(defaultLanguage:String? = null, extraMapping: Map<String, String> = emptyMap()): LanguageMapper = LanguageMapperImpl(
             CONFLUENCE_CLOUD_LANGUAGES,
-            mapping = CLOUD_REMAPPING,
+            mapping = CLOUD_REMAPPING + extraMapping,
             defaultLanguage = defaultLanguage
         )
     }
@@ -41,12 +41,14 @@ val LANG_REMAPPING = mapOf(
     "shell" to "bash",
     "zsh" to "bash",
     "sh" to "bash",
+    "dockerfile" to "bash",
     "javascript" to "js"
 )
 
 val SERVER_REMAPPING = LANG_REMAPPING + mapOf(
     "yaml" to "yml",
     "html" to "xml",
+    "json" to "js",
 )
 
 val CLOUD_REMAPPING = LANG_REMAPPING + mapOf(

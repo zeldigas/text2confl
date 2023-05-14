@@ -9,6 +9,7 @@ import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAdmonitionExten
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAttributesExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleMacroExtension
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
+import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.emoji.EmojiExtension
 import com.vladsch.flexmark.ext.emoji.EmojiImageType
 import com.vladsch.flexmark.ext.emoji.EmojiShortcutType
@@ -17,6 +18,7 @@ import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.toc.TocExtension
+import com.vladsch.flexmark.ext.typographic.TypographicExtension
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
@@ -52,11 +54,6 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
         .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
         .set(HtmlRenderer.SOFT_BREAK, " ")
         .set(AttributesExtension.FENCED_CODE_INFO_ATTRIBUTES, true)
-        // for full GFM table compatibility add the following table extension options:
-        .set(TablesExtension.COLUMN_SPANS, false)
-        .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
-        .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
-        .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
         .set(DiagramsExtension.DIAGRAM_MAKERS, diagramMakers)
         .set(PARSE_OPTIONS, config).let { parserConfig ->
             parserConfig.set(Parser.EXTENSIONS, listOf(
@@ -79,11 +76,27 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
                 parserConfig.set(EmojiExtension.USE_SHORTCUT_TYPE, EmojiShortcutType.ANY_EMOJI_CHEAT_SHEET_PREFERRED)
                 parserConfig.set(EmojiExtension.USE_IMAGE_TYPE, EmojiImageType.UNICODE_ONLY)
             }
+            val tables = config.tables
+            parserConfig.apply {
+                set(TablesExtension.COLUMN_SPANS, tables.columnSpans)
+                set(TablesExtension.APPEND_MISSING_COLUMNS, tables.appendMissingColumns)
+                set(TablesExtension.DISCARD_EXTRA_COLUMNS, tables.discardExtraColumns)
+                set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, tables.headerSeparatorColumnMatch)
+            }
+            if (config.autoLinks) {
+                add(AutolinkExtension.create())
+            }
+            if (config.typography.enabled) {
+                add(TypographicExtension.create())
+                parserConfig.apply {
+                    set(TypographicExtension.ENABLE_QUOTES, config.typography.quotes)
+                    set(TypographicExtension.ENABLE_SMARTS, config.typography.smarts)
+                }
+            }
         }
     }
 
     private val headerParser = Parser.builder(headerParserOptions).build()
-    private val parser = Parser.builder(parserOptions).build()
 
     fun parseReader(reader: Reader,
                     context: ConvertingContext,
