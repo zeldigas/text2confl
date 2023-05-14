@@ -12,7 +12,7 @@
     <artifactId>convert</artifactId>
 
     <properties>
-        <flexmark.version>0.64.0</flexmark.version>
+        <flexmark.version>0.64.4</flexmark.version>
     </properties>
 
     <dependencies>
