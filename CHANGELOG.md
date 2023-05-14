@@ -9,7 +9,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-* \[Markdown] Support for quoted usernames - `@"username@example.org"` 
+* \[Markdown] Support for quoted usernames - `@"username@example.org"`
+
+### Changed
+
+* PlantUML updated to 1.2023.7 
 
 ## 0.8.0 - 2023-01-15
 
@@ -20,14 +24,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     * Mermaid diagrams (`mermaid`) when `mmdc` command is present
     * [Kroki](https://kroki.io) diagrams
 * Ability to set extra properties for pages (more in [docs](./docs/user-guide/page-attributes.md#page-properties)):
-  * any page attribute with name `property_<property_name>`
+    * any page attribute with name `property_<property_name>`
+
 ### Changed
+
 * Dockerfile bundles `plantuml` jar file so, plantuml diagrams can be generated out of the box when docker image is used
 * Using `eclipse-temurin` as base docker image, as `openjdk` is deprecated
 * Updated various kotlin and generic dependencies
 * Http client now has dedicated user agent - `text2confl`
 * Split single-page doc about Markdown into separate pages
+
 ### Fixed
+
 * Errors in converted files like unbalanced tags produce non-zero error code
 
 ## 0.7.0 - 2022-11-27
