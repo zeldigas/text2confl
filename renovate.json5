@@ -8,7 +8,9 @@
       // we don't monitor own packages
       "matchPackagePrefixes": ["com.github.zeldigas.confluence:"],
       "enabled": false
-    },
+    }
+  ],
+  "regexManagers": [
     {
       "fileMatch": ["^Dockerfile$"],
       "matchStrings": ["ARG PLANTUML=\"(?<currentValue>.*?)\""],
