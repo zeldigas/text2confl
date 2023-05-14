@@ -32,7 +32,7 @@ jobs:
       - name: Build with Maven
         run: mvn --batch-mode verify -DversionSuffix=$RELEASE_VERSION_SUFFIX
       - run: mkdir dist && cp cli/target/*.tar.gz dist
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: env.RELEASE_VERSION == ''
         with:
           name: cli.tar.gz

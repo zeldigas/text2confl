@@ -20,7 +20,7 @@ jobs:
       - name: Build with Maven
         run: mvn --batch-mode verify
       - run: mkdir dist && cp cli/target/*.tar.gz dist
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: cli.tar.gz
           path: dist
