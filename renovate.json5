@@ -12,7 +12,7 @@
   ],
   "regexManagers": [
     {
-      "fileMatch": ["^Dockerfile$"],
+      "fileMatch": ["(^|/)Dockerfile$"],
       "matchStrings": ["ARG PLANTUML=\"(?<currentValue>.*?)\""],
       "depNameTemplate": "homebrew/plantuml",
       "datasourceTemplate": "repology"
