@@ -1,5 +1,6 @@
 package com.github.zeldigas.text2confl.convert.markdown.diagram
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.*
 import io.mockk.every
@@ -129,9 +130,8 @@ class PlantUmlDiagramsGeneratorTest(
             )
         } returns ExecutionResult(1, "", "error text")
 
-        assertThat {
+        assertFailure {
             generator.generate("test", Path("test.png"))
-        }.isFailure()
-            .hasMessage("plantuml execution returned non-zero exit code: 1.\nerror text")
+        }.hasMessage("plantuml execution returned non-zero exit code: 1.\nerror text")
     }
 }

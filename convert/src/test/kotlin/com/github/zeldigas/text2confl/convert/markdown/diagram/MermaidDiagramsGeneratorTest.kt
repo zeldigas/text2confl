@@ -1,5 +1,6 @@
 package com.github.zeldigas.text2confl.convert.markdown.diagram
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.*
 import io.mockk.every
@@ -134,9 +135,8 @@ class MermaidDiagramsGeneratorTest(
             )
         } returns ExecutionResult(1, "some error", "")
 
-        assertThat {
+        assertFailure {
             generator.generate("test", Path("test.png"))
-        }.isFailure()
-            .hasMessage("mmdc execution returned non-zero exit code: 1.\nsome error")
+        }.hasMessage("mmdc execution returned non-zero exit code: 1.\nsome error")
     }
 }

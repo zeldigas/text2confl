@@ -1,14 +1,13 @@
 package com.github.zeldigas.text2confl.cli
 
-import assertk.assertThat
+import assertk.assertFailure
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isSuccess
 import com.github.zeldigas.text2confl.convert.Validation
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import java.nio.file.Path
 
 internal class ContentValidatorImplTest {
@@ -17,7 +16,7 @@ internal class ContentValidatorImplTest {
 
     @Test
     internal fun `No issues in content`() {
-        assertThat {
+        assertDoesNotThrow {
             validator.validate(listOf(mockk {
                 every { content.validate() } returns Validation.Ok
                 every { children } returns listOf(mockk {
@@ -25,12 +24,12 @@ internal class ContentValidatorImplTest {
                     every { children } returns emptyList()
                 })
             }))
-        }.isSuccess()
+        }
     }
 
     @Test
     internal fun `Issues in content produce exception`() {
-        assertThat {
+        assertFailure {
             validator.validate(
                 listOf(
                     mockk {
@@ -49,7 +48,7 @@ internal class ContentValidatorImplTest {
 
                     )
             )
-        }.isFailure().isInstanceOf(ContentValidationFailedException::class)
+        }.isInstanceOf(ContentValidationFailedException::class)
             .transform { it.errors }.isEqualTo(listOf("a/b.txt: err1", "c.txt: err2"))
     }
 }

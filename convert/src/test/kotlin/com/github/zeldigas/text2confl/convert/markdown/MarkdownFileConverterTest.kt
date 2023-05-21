@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
 import assertk.all
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.*
 import com.github.zeldigas.text2confl.convert.*
@@ -219,11 +220,11 @@ internal class MarkdownFileConverterTest {
             every { parseReader(any(), any(), any(), any()) } throws cause
         }
 
-        assertThat {
+        assertFailure {
             MarkdownFileConverter(parser).convert(file, mockk() {
                 every { titleTransformer } returns mockk()
             })
-        }.isFailure().isInstanceOf(ConversionFailedException::class).all {
+        }.isInstanceOf(ConversionFailedException::class).all {
             hasCause(cause)
             hasMessage("Document parsing failed")
         }

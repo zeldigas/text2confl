@@ -17,7 +17,8 @@ internal class PageUploadOperationsImpl(
     val uploadMessage: String,
     val notifyWatchers: Boolean,
     val pageContentChangeDetector: ChangeDetector,
-    val editorVersion: EditorVersion
+    val editorVersion: EditorVersion,
+    val tenant: String? = null
 ) : PageUploadOperations {
 
     companion object {
@@ -40,13 +41,14 @@ internal class PageUploadOperationsImpl(
         space = space, title = page.title, expansions =
         setOf(
             "metadata.labels",
-            "metadata.properties.${HASH_PROPERTY}",
-            "metadata.properties.${EDITOR_PROPERTY}",
+            propertyExpansion(HASH_PROPERTY),
+            propertyExpansion(EDITOR_PROPERTY),
+            propertyExpansion(TENANT_PROPERTY),
             "version",
             "children.attachment",
             "ancestors"
         )
-                + page.properties.keys.map { "metadata.properties.$it" }
+                + page.properties.keys.map { propertyExpansion(it) }
                 + pageContentChangeDetector.extraData
     )
 
@@ -55,6 +57,7 @@ internal class PageUploadOperationsImpl(
         page: Page,
         parentPageId: String
     ): ServerPage {
+        checkTenantBeforeUpdate(serverPage)
         if (pageContentChangeDetector.strategy(serverPage, page.content)) {
             logger.info { "Page content requires update: ${serverPage.id}, ${serverPage.title}" }
             client.updatePage(
@@ -76,14 +79,26 @@ internal class PageUploadOperationsImpl(
         return createServerPage(serverPage, parentPageId)
     }
 
+    private fun checkTenantBeforeUpdate(serverPage: ConfluencePage) {
+        val pageTenant = serverPage.pageProperty(TENANT_PROPERTY)?.value ?: return
+
+        if (pageTenant !is String) throw IllegalStateException("$TENANT_PROPERTY property is not a string")
+
+        if (pageTenant != tenant) {
+            throw InvalidTenantException(serverPage.title, tenant, pageTenant)
+        }
+    }
+
     override suspend fun checkPageAndUpdateParentIfRequired(
         title: String,
         space: String,
         parentId: String
     ): ServerPage {
-        val serverPage = client.getPageOrNull(space, title, expansions = setOf("ancestors", "version"))
-            ?: throw IllegalStateException("Page not found in $space: $title")
+        val serverPage = client.getPageOrNull(space, title, expansions = setOf(
+            "ancestors", "version", propertyExpansion(TENANT_PROPERTY))
+        ) ?: throw IllegalStateException("Page not found in $space: $title")
         if (serverPage.parent?.id != parentId) {
+            checkTenantBeforeUpdate(serverPage)
             changeParent(serverPage, parentId)
         }
         return createServerPage(serverPage, parentId)
@@ -141,13 +156,14 @@ internal class PageUploadOperationsImpl(
     ) {
         val allProperties = mapOf(
             HASH_PROPERTY to page.content.hash,
-            EDITOR_PROPERTY to editorVersion.propertyValue
-        ) + page.properties.filterKeys { it != HASH_PROPERTY }
-
+            EDITOR_PROPERTY to editorVersion.propertyValue,
+        ) + tenantProperty() + page.properties.filterKeys { it != HASH_PROPERTY }
         allProperties.forEach { (name, value) ->
             setOrUpdateProperty(serverPage.id, propertyName = name, value = value, existingProperty = serverPage.pageProperty(name))
         }
     }
+
+    private fun tenantProperty(): Map<String, Any> = tenant?.let { mapOf(TENANT_PROPERTY to it) } ?: emptyMap()
 
     private suspend fun setOrUpdateProperty(
         pageId: String,
@@ -217,7 +233,7 @@ internal class PageUploadOperationsImpl(
     }
 
     override suspend fun findChildPages(pageId: String): List<ConfluencePage> {
-        return client.findChildPages(pageId, listOf("metadata.properties.${HASH_PROPERTY}"));
+        return client.findChildPages(pageId, listOf(propertyExpansion(HASH_PROPERTY), propertyExpansion(TENANT_PROPERTY)));
     }
 
     override suspend fun deletePageWithChildren(pageId: String) {
@@ -234,10 +250,9 @@ internal class PageUploadOperationsImpl(
     private data class ServerAttachment(
         val id: String, val hash: String?
     )
-}
 
-private val ConfluencePage.parent: ConfluencePage?
-    get() = ancestors?.lastOrNull()
+    private fun propertyExpansion(property: String) = "metadata.properties.$property"
+}
 
 private val EditorVersion.propertyValue: String
     get() = name.lowercase()
