@@ -1,9 +1,9 @@
 package com.github.zeldigas.text2confl.cli.upload
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.*
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.io.path.Path
 
 private const val PAGE_ID = "id"
@@ -27,14 +28,16 @@ internal class PageUploadOperationsImplTest(
     @MockK private val client: ConfluenceClient
 ) {
 
-    @Test
-    internal fun `Creation of new page`() {
+    @ValueSource(strings = ["", "value"])
+    @ParameterizedTest
+    internal fun `Creation of new page`(tenant: String) {
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", expansions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
+                    "metadata.properties.t2ctenant",
                     "version",
                     "children.attachment",
                     "ancestors"
@@ -62,7 +65,7 @@ internal class PageUploadOperationsImplTest(
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
 
         val result = runBlocking {
-            uploadOperations("create-page", false).createOrUpdatePageContent(mockk {
+            uploadOperations("create-page", false, tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
                 every { title } returns "Page title"
                 every { content } returns mockk {
                     every { body } returns "body"
@@ -87,16 +90,25 @@ internal class PageUploadOperationsImplTest(
         coVerify {
             client.setPageProperty("new_id", "editor", PagePropertyInput.newProperty("v2"))
         }
+        if (tenant.isEmpty()) {
+            coVerify(exactly = 0) {
+                client.setPageProperty("new_id", "t2ctenant", any())
+            }
+        } else {
+            coVerify { client.setPageProperty("new_id", "t2ctenant", PagePropertyInput.newProperty(tenant)) }
+        }
     }
 
-    @Test
-    internal fun `Update of existing page`() {
+    @ValueSource(strings = ["", "value"])
+    @ParameterizedTest
+    internal fun `Update of existing page`(tenant: String) {
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", expansions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
+                    "metadata.properties.t2ctenant",
                     "metadata.properties.extra",
                     "version",
                     "children.attachment",
@@ -110,6 +122,7 @@ internal class PageUploadOperationsImplTest(
             every { metadata?.labels?.results } returns listOf(serverLabel("one"))
             every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
             every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
+            every { pageProperty("t2ctenant") } returns (if (tenant.isEmpty()) null else PageProperty("124", "contenthash", tenant, PropertyVersion(3)))
             every { pageProperty("extra") } returns null
             every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
         }
@@ -118,7 +131,7 @@ internal class PageUploadOperationsImplTest(
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
 
         val result = runBlocking {
-            uploadOperations("update-page", editorVersion = EditorVersion.V1).createOrUpdatePageContent(mockk {
+            uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
                 every { title } returns "Page title"
                 every { content } returns mockk {
                     every { body } returns "body"
@@ -163,6 +176,7 @@ internal class PageUploadOperationsImplTest(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
+                    "metadata.properties.t2ctenant",
                     "metadata.properties.extra",
                     "version",
                     "children.attachment",
@@ -176,6 +190,7 @@ internal class PageUploadOperationsImplTest(
             every { children?.attachment?.results } returns emptyList()
             every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
             every { pageProperty(EDITOR_PROPERTY) } returns PageProperty("123", EDITOR_PROPERTY, "v2", PropertyVersion(1))
+            every { pageProperty(TENANT_PROPERTY) } returns null
             every { pageProperty("extra") } returns PageProperty(
                 "124",
                 "extra",
@@ -211,6 +226,101 @@ internal class PageUploadOperationsImplTest(
         assertThat(result.id).isEqualTo(PAGE_ID)
         coVerify(exactly = 0) { client.updatePage(any(), any(), any()) }
         coVerify { client.setPageProperty(PAGE_ID, "extra", PagePropertyInput("updatedValue", PropertyVersion(4))) }
+    }
+
+    @Test
+    internal fun `Update of existing page with setting explicit tenant`() {
+        coEvery {
+            client.getPageOrNull(
+                "TEST", "Page title", expansions = setOf(
+                    "metadata.labels",
+                    "metadata.properties.contenthash",
+                    "metadata.properties.editor",
+                    "metadata.properties.t2ctenant",
+                    "metadata.properties.extra",
+                    "version",
+                    "children.attachment",
+                    "ancestors"
+                )
+            )
+        } returns mockk {
+            every { id } returns PAGE_ID
+            every { title } returns "Page title"
+            every { version?.number } returns 42
+            every { metadata?.labels?.results } returns listOf(serverLabel("one"))
+            every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
+            every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
+            every { pageProperty("t2ctenant") } returns null
+            every { pageProperty("extra") } returns null
+            every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
+        }
+
+        coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
+        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+
+        val result = runBlocking {
+            uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = "value").createOrUpdatePageContent(mockk {
+                every { title } returns "Page title"
+                every { content } returns mockk {
+                    every { body } returns "body"
+                    every { hash } returns "body-hash"
+                }
+                every { properties } returns mapOf( "extra" to "value" )
+            }, "TEST", "parentId")
+        }
+
+        assertThat(result).isEqualTo(
+            ServerPage(
+                PAGE_ID, "Page title", "parentId",
+                listOf(serverLabel("one")),
+                listOf(serverAttachment("one", "HASH:123"))
+            )
+        )
+
+        coVerify {
+            client.setPageProperty(PAGE_ID, TENANT_PROPERTY, PagePropertyInput.newProperty("value"))
+        }
+    }
+
+    @ValueSource(strings = ["", "value"])
+    @ParameterizedTest
+    internal fun `Update of existing page with different tenant not allowed`(tenant: String) {
+        coEvery {
+            client.getPageOrNull(
+                "TEST", "Page title", expansions = setOf(
+                    "metadata.labels",
+                    "metadata.properties.contenthash",
+                    "metadata.properties.editor",
+                    "metadata.properties.t2ctenant",
+                    "metadata.properties.extra",
+                    "version",
+                    "children.attachment",
+                    "ancestors"
+                )
+            )
+        } returns mockk {
+            every { id } returns PAGE_ID
+            every { title } returns "Page title"
+            every { version?.number } returns 42
+            every { metadata?.labels?.results } returns listOf(serverLabel("one"))
+            every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
+            every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
+            every { pageProperty("t2ctenant") } returns PageProperty("124", "t2ctenant", "other", PropertyVersion(1))
+            every { pageProperty("extra") } returns null
+            every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
+        }
+
+        assertFailure {  runBlocking {
+            uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
+                every { title } returns "Page title"
+                every { content } returns mockk {
+                    every { body } returns "body"
+                    every { hash } returns "body-hash"
+                }
+                every { properties } returns mapOf( "extra" to "value" )
+            }, "TEST", "parentId")
+        } }.isInstanceOf<InvalidTenantException>()
+            .hasMessage("Page Page title must be in tenant ${tenant.ifEmpty { "(no tenant)" }} but actual is other")
     }
 
     @Test
@@ -375,16 +485,17 @@ internal class PageUploadOperationsImplTest(
         changeMessage: String = "message",
         notifyWatchers: Boolean = true,
         editorVersion: EditorVersion = EditorVersion.V2,
-        changeDetector: ChangeDetector = ChangeDetector.HASH
+        changeDetector: ChangeDetector = ChangeDetector.HASH,
+        tenant: String? = null
     ): PageUploadOperationsImpl {
-        return PageUploadOperationsImpl(client, changeMessage, notifyWatchers, changeDetector, editorVersion)
+        return PageUploadOperationsImpl(client, changeMessage, notifyWatchers, changeDetector, editorVersion, tenant)
     }
 
     @Test
     internal fun `Search child pages`() {
         val expectedResult = listOf<ConfluencePage>(mockk())
 
-        coEvery { client.findChildPages("123", listOf("metadata.properties.$HASH_PROPERTY")) } returns expectedResult
+        coEvery { client.findChildPages("123", listOf("metadata.properties.$HASH_PROPERTY", "metadata.properties.$TENANT_PROPERTY")) } returns expectedResult
 
         val result = runBlocking {
             uploadOperations().findChildPages("123")
@@ -428,6 +539,7 @@ internal class PageUploadOperationsImplTest(
             }
             every { children } returns null
             every { metadata } returns null
+            every { pageProperty(TENANT_PROPERTY) } returns null
         }
 
         coEvery { client.changeParent("page_id", "Title", 2, "id", any())
@@ -442,6 +554,35 @@ internal class PageUploadOperationsImplTest(
         coVerify { client.changeParent("page_id", "Title", 2, "id", any()) }
 
         assertThat(result).isEqualTo(ServerPage("page_id", "Title", "id", emptyList(), emptyList()))
+    }
+
+    @ValueSource(strings = ["", "tenant"])
+    @ParameterizedTest
+    internal fun `Virtual page with wrong parent cannot be changed if it has different tenant`(tenant: String) {
+        coEvery {
+            client.getPageOrNull(any(), any(), expansions = any())
+        } returns mockk {
+            every { id } returns "page_id"
+            every { title } returns "Title"
+            every { ancestors } returns listOf( mockk{ every { id } returns "wrong_id"})
+            every { version } returns mockk {
+                every { number } returns 1
+            }
+            every { children } returns null
+            every { metadata } returns null
+            every { pageProperty(TENANT_PROPERTY) } returns mockk { every { value } returns "another" }
+        }
+
+        coEvery { client.changeParent("page_id", "Title", 2, "id", any())
+        } returns mockk {
+
+        }
+
+        assertFailure {
+            runBlocking {
+                uploadOperations(tenant = tenant.ifEmpty { null }).checkPageAndUpdateParentIfRequired("Title", "TEST", "id")
+            }
+        }.isInstanceOf<InvalidTenantException>()
     }
 
     @Test
@@ -466,12 +607,12 @@ internal class PageUploadOperationsImplTest(
     @Test
     internal fun missingVirtualPageThrowsError() {
         coEvery {
-            client.getPageOrNull(any(), any(), expansions = setOf("ancestors", "version"))
+            client.getPageOrNull(any(), any(), expansions = setOf("ancestors", "version", "metadata.properties.${TENANT_PROPERTY}"))
         } returns null
 
-        assertThat {
+        assertFailure {
             runBlocking { uploadOperations().checkPageAndUpdateParentIfRequired("page title", "TEST", "parentId") }
-        }.isFailure().isInstanceOf(IllegalStateException::class)
+        }.isInstanceOf(IllegalStateException::class)
             .hasMessage("Page not found in TEST: page title")
     }
 }

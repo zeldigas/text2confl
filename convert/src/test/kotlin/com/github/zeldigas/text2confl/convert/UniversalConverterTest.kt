@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.convert
 
 import assertk.all
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.*
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
@@ -65,7 +66,7 @@ internal class UniversalConverterTest(
     internal fun `No file conversion for unsupported format`(@TempDir dir: Path) {
         val src = dir.resolve("test.unsupported")
 
-        assertThat { converter.convertFile(src) }.isFailure()
+        assertFailure { converter.convertFile(src) }
             .isInstanceOf(IllegalArgumentException::class).hasMessage("Unsupported extension: unsupported")
     }
 
@@ -73,7 +74,7 @@ internal class UniversalConverterTest(
     internal fun `File must exist`(@TempDir dir: Path) {
         val src = dir.resolve("anotherTest.t")
 
-        assertThat { converter.convertFile(src) }.isFailure()
+        assertFailure { converter.convertFile(src) }
             .isInstanceOf(FileDoesNotExistException::class).hasMessage("File does not exist: $src")
     }
 

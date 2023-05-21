@@ -38,7 +38,7 @@ internal class ServiceProviderImplTest {
     ) {
         val result = provider.createUploader(
             client,
-            UploadConfig("TEST", Cleanup.Managed, "test", true, ChangeDetector.CONTENT),
+            UploadConfig("TEST", Cleanup.Managed, "test", true, ChangeDetector.CONTENT, "test"),
             ConverterConfig(
                 "pre", "post", EditorVersion.V2, null,
                 "root/", null,
@@ -48,12 +48,14 @@ internal class ServiceProviderImplTest {
         )
 
         assertThat(result).all {
+            prop(ContentUploader::tenant).isEqualTo("test")
             prop(ContentUploader::pageUploadOperations).isInstanceOf(PageUploadOperationsImpl::class).all {
                 prop(PageUploadOperationsImpl::client).isEqualTo(client)
                 prop(PageUploadOperationsImpl::editorVersion).isEqualTo(EditorVersion.V2)
                 prop(PageUploadOperationsImpl::notifyWatchers).isTrue()
                 prop(PageUploadOperationsImpl::pageContentChangeDetector).isEqualTo(ChangeDetector.CONTENT)
                 prop(PageUploadOperationsImpl::uploadMessage).isEqualTo("test")
+                prop(PageUploadOperationsImpl::tenant).isEqualTo("test")
             }
         }
     }

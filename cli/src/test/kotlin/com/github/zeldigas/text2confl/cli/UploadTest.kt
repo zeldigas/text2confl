@@ -1,9 +1,8 @@
 package com.github.zeldigas.text2confl.cli
 
 import assertk.all
-import assertk.assertThat
+import assertk.assertFailure
 import assertk.assertions.hasMessage
-import assertk.assertions.isFailure
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -71,6 +70,7 @@ internal class UploadTest(
                 "--password", "test",
                 "--parent-id", "1234",
                 "--remove-orphans", "all",
+                "--tenant", "test",
                 "--docs", tempDir.toString()
             ),
             parentContext
@@ -94,7 +94,7 @@ internal class UploadTest(
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(
-                    "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH
+                    "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH, "test"
                 ),
                 expectedConverterConfig
             )
@@ -103,7 +103,7 @@ internal class UploadTest(
 
     @Test
     internal fun `Data from yaml config file`(@TempDir tempDir: Path) {
-        val directoryConfig = sampleConfig()
+        val directoryConfig = sampleConfig().copy(tenant = "test1")
         directoryConfig.docsDir = tempDir
         writeToFile(tempDir.resolve(".text2confl.yml"), directoryConfig)
 
@@ -147,7 +147,8 @@ internal class UploadTest(
                     directoryConfig.removeOrphans,
                     "custom upload message",
                     directoryConfig.notifyWatchers,
-                    directoryConfig.modificationCheck
+                    directoryConfig.modificationCheck,
+                    "test1"
                 ),
                 converterConfig
             )
@@ -156,7 +157,7 @@ internal class UploadTest(
 
     @Test
     internal fun `Any credential type must be specified`(@TempDir tempDir: Path) {
-        assertThat {
+        assertFailure {
             command.parse(
                 listOf(
                     "--space", "TR",
@@ -165,7 +166,7 @@ internal class UploadTest(
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class).all {
+        }.isInstanceOf(PrintMessage::class).all {
             transform { it.error }.isTrue()
             hasMessage("Either access token or username/password should be specified")
         }
@@ -173,14 +174,14 @@ internal class UploadTest(
 
     @Test
     internal fun `Space is required`(@TempDir tempDir: Path) {
-        assertThat {
+        assertFailure {
             command.parse(
                 listOf(
                     "--docs", tempDir.toString()
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class).all {
+        }.isInstanceOf(PrintMessage::class).all {
             transform { it.error }.isTrue()
             hasMessage("Space is not specified. Use `--space` option or `space` in config file")
         }
@@ -188,7 +189,7 @@ internal class UploadTest(
 
     @Test
     internal fun `Confluence url is required`(@TempDir tempDir: Path) {
-        assertThat {
+        assertFailure {
             command.parse(
                 listOf(
                     "--space", "TR",
@@ -196,7 +197,7 @@ internal class UploadTest(
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class).all {
+        }.isInstanceOf(PrintMessage::class).all {
             transform { it.error }.isTrue()
             hasMessage("Confluence url is not specified. Use `--confluence-url` option or `server` in config file")
         }
@@ -252,7 +253,7 @@ internal class UploadTest(
     internal fun `Handling of file does not exist exception`(@TempDir tempDir: Path) {
         every { converter.convertDir(tempDir) } throws FileDoesNotExistException(tempDir)
 
-        assertThat {
+        assertFailure {
             command.parse(
                 listOf(
                     "--confluence-url", "https://test.atlassian.net/wiki",
@@ -262,7 +263,7 @@ internal class UploadTest(
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class).hasMessage("File does not exist: $tempDir")
+        }.isInstanceOf(PrintMessage::class).hasMessage("File does not exist: $tempDir")
     }
 
     @Test
@@ -273,7 +274,7 @@ internal class UploadTest(
             RuntimeException("cause")
         )
 
-        assertThat {
+        assertFailure {
             command.parse(
                 listOf(
                     "--confluence-url", "https://test.atlassian.net/wiki",
@@ -283,7 +284,7 @@ internal class UploadTest(
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class)
+        }.isInstanceOf(PrintMessage::class)
             .hasMessage("Failed to convert $tempDir: Conversion error message (cause: java.lang.RuntimeException: cause)")
     }
 
@@ -298,7 +299,7 @@ internal class UploadTest(
             )
         )
 
-        assertThat {
+        assertFailure {
             command.parse(
                 listOf(
                     "--confluence-url", "https://test.atlassian.net/wiki",
@@ -308,7 +309,7 @@ internal class UploadTest(
                 ),
                 parentContext
             )
-        }.isFailure().isInstanceOf(PrintMessage::class)
+        }.isInstanceOf(PrintMessage::class)
             .hasMessage("Some pages content is invalid:\n1. error message1\n2. error message2")
     }
 

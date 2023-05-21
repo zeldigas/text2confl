@@ -7,6 +7,7 @@ import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 
 const val HASH_PROPERTY = "contenthash"
+const val TENANT_PROPERTY = "t2ctenant"
 const val EDITOR_PROPERTY = "editor"
 
 interface PageUploadOperations {
@@ -38,3 +39,7 @@ enum class ChangeDetector(
 data class ServerPage(
     val id: String, val title: String, val parent: String, val labels: List<Label>, val attachments: List<Attachment>
 )
+
+class InvalidTenantException(page: String, expected: String?, actual: String?) : RuntimeException("Page $page must be in tenant \"${tenant(expected)}\" but actual is \"${tenant(actual)}\"")
+
+private fun tenant(value: String?): String = value ?: "(no tenant)"

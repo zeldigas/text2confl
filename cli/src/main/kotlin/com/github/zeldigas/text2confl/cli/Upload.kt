@@ -52,6 +52,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         "--check-modification",
         help = "Strategy to check changes for existing pages: `hash` - by content hash stored as page property, `content` - by comparing content in storage format"
     ).enum<ChangeDetector> { it.name.lowercase() }
+    private val tenant: String? by option("--tenant",
+        help = "Tenant id for uploaded pages")
     private val removeOrphans: Cleanup? by option(
         "--remove-orphans",
         help = """What to do with child pages that are not managed by: 
@@ -111,7 +113,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
             removeOrphans = orphanRemoval,
             uploadMessage = changeMessage ?: "Automated upload by text2confl",
             notifyWatchers = notifyWatchers ?: configuration.notifyWatchers,
-            modificationCheck = modificationCheck ?: configuration.modificationCheck
+            modificationCheck = modificationCheck ?: configuration.modificationCheck,
+            tenant = tenant ?: configuration.tenant
         )
     }
 

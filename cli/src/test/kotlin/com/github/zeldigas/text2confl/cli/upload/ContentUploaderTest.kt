@@ -1,10 +1,9 @@
 package com.github.zeldigas.text2confl.cli.upload
 
-import assertk.assertThat
+import assertk.assertFailure
 import assertk.assertions.hasMessage
-import assertk.assertions.isFailure
-import assertk.assertions.isSuccess
 import com.github.zeldigas.confclient.ConfluenceClient
+import com.github.zeldigas.confclient.model.PageProperty
 import com.github.zeldigas.text2confl.cli.config.Cleanup
 import com.github.zeldigas.text2confl.convert.Page
 import io.mockk.*
@@ -72,10 +71,11 @@ internal class ContentUploaderTest(
         }
     }
 
-    private fun contentUploader(cleanup: Cleanup = Cleanup.None) = ContentUploader(
+    private fun contentUploader(cleanup: Cleanup = Cleanup.None, tenant: String? = null) = ContentUploader(
         uploadOperations,
         confluenceClient,
-        cleanup
+        cleanup,
+        tenant
     )
 
     @Test
@@ -101,9 +101,9 @@ internal class ContentUploaderTest(
             slowServerPage
         }
 
-        assertThat {
+        assertFailure {
             runBlocking { contentUploader.uploadPages(listOf(slowPage, failedPage, fastPage), "TEST", "id") }
-        }.isFailure().hasMessage("Upload failed")
+        }.hasMessage("Upload failed")
 
         coVerify(exactly = 1) { uploadOperations.updatePageLabels(fastServerPage, any()) }
         coVerify(exactly = 0) { uploadOperations.updatePageLabels(slowServerPage, any()) }
@@ -145,15 +145,14 @@ internal class ContentUploaderTest(
 
         coEvery { confluenceClient.getPage("TEST", "Custom") } returns mockk { every { id } returns "345" }
 
-        assertThat {
-            runBlocking {
-                contentUploader.uploadPages(
-                    listOf(defaultPage, pageWithParentId, pageWithParentTitle),
-                    "TEST",
-                    "id"
-                )
-            }
-        }.isSuccess()
+
+        runBlocking {
+            contentUploader.uploadPages(
+                listOf(defaultPage, pageWithParentId, pageWithParentTitle),
+                "TEST",
+                "id"
+            )
+        }
 
         coVerify { uploadOperations.createOrUpdatePageContent(defaultPage, "TEST", "id") }
         coVerify { uploadOperations.createOrUpdatePageContent(pageWithParentId, "TEST", "123") }
@@ -170,7 +169,7 @@ internal class ContentUploaderTest(
 
         runBlocking { contentUploader.uploadPages(pages, "TEST", "root_id") }
 
-        listOf("c", "d", "a3", "a4", "a5", "b3", "b4", "a11", "a12", "b21").forEach {
+        listOf("c", "d", "e", "a3", "a4", "a5", "a6", "b3", "b4", "a11", "a12", "b21").forEach {
             coVerify { uploadOperations.deletePageWithChildren("id_$it") }
         }
         listOf("root_id", "a_root", "b_root", "a", "b", "a1", "a2", "b1", "b2").forEach {
@@ -192,7 +191,7 @@ internal class ContentUploaderTest(
         listOf("d", "a3", "a5", "b4", "a11", "b21").forEach {
             coVerify { uploadOperations.deletePageWithChildren("id_$it") }
         }
-        listOf("root_id", "a_root", "b_root", "a", "b", "a1", "a2", "a4", "b1", "b2", "b3", "a12").forEach {
+        listOf("root_id", "a_root", "b_root", "a", "b", "e", "a1", "a2", "a4", "a6", "b1", "b2", "b3", "a12").forEach {
             coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("id_$it") }
         }
     }
@@ -267,6 +266,7 @@ internal class ContentUploaderTest(
                             ServerPageNode("a3", managed = true),
                             ServerPageNode("a4", managed = false),
                             ServerPageNode("a5", managed = true),
+                            ServerPageNode("a6", managed = true, tenant = "other"), /*other tenant*/
                             ServerPageNode("b1", managed = false),
                         )
                     ),
@@ -280,7 +280,8 @@ internal class ContentUploaderTest(
                         "d", managed = true, children = listOf(
                             ServerPageNode("d1")
                         )
-                    )
+                    ),
+                    ServerPageNode("e", managed = true, tenant = "one more"), /*other tenant*/
                 )
             ),
             ServerPageNode(
@@ -338,7 +339,8 @@ internal class ContentUploaderTest(
     private data class ServerPageNode(
         val title: String,
         val managed: Boolean = true,
-        val children: List<ServerPageNode> = emptyList()
+        val children: List<ServerPageNode> = emptyList(),
+        val tenant: String? = null
     ) {
         val id: String
             get() = "id_$title"
@@ -359,7 +361,8 @@ internal class ContentUploaderTest(
             mockk {
                 every { id } returns it.id
                 every { title } returns it.title
-                every { pageProperty(HASH_PROPERTY) } returns (if (it.managed) mockk() else null)
+                every { pageProperty(HASH_PROPERTY) } returns (if (it.managed) mockk { every { value } returns "abc" } else null)
+                every { pageProperty(TENANT_PROPERTY) } returns (if (it.tenant != null) PageProperty("", TENANT_PROPERTY, it.tenant, mockk()) else null)
             }
         }
         for (page in pages) {

@@ -7,7 +7,8 @@ data class UploadConfig(
     val removeOrphans: Cleanup,
     val uploadMessage: String,
     val notifyWatchers: Boolean,
-    val modificationCheck: ChangeDetector
+    val modificationCheck: ChangeDetector,
+    val tenant: String?
 )
 
 enum class Cleanup {

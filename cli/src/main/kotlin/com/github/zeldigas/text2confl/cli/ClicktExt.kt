@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.FlagOption
 import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.switch
+import com.github.zeldigas.text2confl.cli.upload.InvalidTenantException
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
 
@@ -18,6 +19,7 @@ fun RawOption.optionalFlag(vararg secondaryNames: String): FlagOption<Boolean?> 
 
 fun tryHandleException(ex: Exception) : Nothing {
     when (ex) {
+        is InvalidTenantException -> throw PrintMessage(ex.message!!, error = true)
         is FileDoesNotExistException -> throw PrintMessage(ex.message!!, error = true)
         is ConversionFailedException -> {
             val reason = buildString {

@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.cli.upload
 
 import com.github.zeldigas.confclient.ConfluenceClient
+import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.cli.config.Cleanup
 import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
@@ -15,7 +16,8 @@ import mu.KotlinLogging
 class ContentUploader(
     val pageUploadOperations: PageUploadOperations,
     val client: ConfluenceClient,
-    val cleanup: Cleanup
+    val cleanup: Cleanup,
+    val tenant: String?
 ) {
 
     constructor(
@@ -24,11 +26,20 @@ class ContentUploader(
         notifyWatchers: Boolean,
         pageContentChangeDetector: ChangeDetector,
         editorVersion: EditorVersion,
-        cleanup: Cleanup
+        cleanup: Cleanup,
+        tenant: String?
     ) : this(
-        PageUploadOperationsImpl(client, uploadMessage, notifyWatchers, pageContentChangeDetector, editorVersion),
+        PageUploadOperationsImpl(
+            client,
+            uploadMessage,
+            notifyWatchers,
+            pageContentChangeDetector,
+            editorVersion,
+            tenant
+        ),
         client,
-        cleanup
+        cleanup,
+        tenant
     )
 
     companion object {
@@ -41,54 +52,39 @@ class ContentUploader(
         deleteOrphans(uploadedPagesByParent)
     }
 
-    private suspend fun deleteOrphans(uploadedPagesByParent: Map<String, List<ServerPage>>) {
-        logger.debug { "Running cleanup operation using strategy: $cleanup" }
-        coroutineScope {
-            for ((parent, children) in uploadedPagesByParent) {
-                launch { deleteOrphanedChildren(parent, children) }
-            }
-        }
-    }
-
-    private fun buildOrphanedRemovalRegistry(
-        uploadedPages: List<Pair<String, ServerPage>>
-    ): Map<String, List<ServerPage>> {
-        val nonLeafPages =
-            uploadedPages.groupBy { it.first }.mapValues { (_, v) -> v.map { (_, serverPage) -> serverPage } }
-        val leafPages = uploadedPages.asSequence().map { (_, serverPage) -> serverPage.id }
-            .filter { it !in nonLeafPages }.map { it to emptyList<ServerPage>() }.toMap()
-        return nonLeafPages + leafPages
-    }
-
-    private suspend fun uploadPagesRecursive(pages: List<Page>, space: String, parentPageId: String): List<Pair<String, ServerPage>> {
+    private suspend fun uploadPagesRecursive(
+        pages: List<Page>,
+        space: String,
+        parentPageId: String
+    ): List<PageUploadResult> {
         return coroutineScope {
             pages.map { page ->
                 async {
-                    val (realParent, serverPage) = uploadPage(page, space, parentPageId)
-                    logger.debug { "Page uploaded: title=${page.title}, id=${serverPage.id}" }
-                    listOf(realParent to serverPage) + if (page.children.isNotEmpty()) {
-                        uploadPagesRecursive(page.children, space, serverPage.id)
-                    } else {
-                        emptyList()
+                    val result = uploadPage(page, space, parentPageId)
+                    buildList {
+                        add(result)
+                        if (page.children.isNotEmpty()) {
+                            addAll(uploadPagesRecursive(page.children, space, result.page.id))
+                        }
                     }
                 }
             }.awaitAll().flatten()
         }
     }
 
-    private suspend fun uploadPage(page: Page, space: String, defaultParentPage: String): Pair<String, ServerPage> {
+    private suspend fun uploadPage(page: Page, space: String, defaultParentPage: String): PageUploadResult {
         val parentId = customPageParent(page, space) ?: defaultParentPage
-        val resolvedPage: ServerPage = if (!page.virtual) {
+        return if (!page.virtual) {
             logger.info { "Uploading page: title=${page.title}" }
             val serverPage = pageUploadOperations.createOrUpdatePageContent(page, space, parentId)
             pageUploadOperations.updatePageLabels(serverPage, page.content)
             pageUploadOperations.updatePageAttachments(serverPage, page.content)
-            serverPage
+            PageUploadResult(parentId, serverPage, virtual = false)
         } else {
             logger.info { "Checking that virtual page exists and properly located: ${page.title}" }
-            pageUploadOperations.checkPageAndUpdateParentIfRequired(page.title, space, parentId)
+            val virtualPage = pageUploadOperations.checkPageAndUpdateParentIfRequired(page.title, space, parentId)
+            PageUploadResult(parentId, virtualPage, true)
         }
-        return parentId to resolvedPage
     }
 
     private suspend fun customPageParent(page: Page, space: String): String? {
@@ -100,15 +96,35 @@ class ContentUploader(
         return null
     }
 
+    private fun buildOrphanedRemovalRegistry(
+        uploadedPages: List<PageUploadResult>
+    ): Map<String, List<ServerPage>> {
+        val nonLeafPages =
+            uploadedPages.groupBy { it.parentId }.mapValues { (_, v) -> v.map { (_, serverPage) -> serverPage } }
+        val leafPages = uploadedPages.asSequence().map { (_, serverPage) -> serverPage.id }
+            .filter { it !in nonLeafPages }.map { it to emptyList<ServerPage>() }.toMap()
+        return nonLeafPages + leafPages
+    }
+
+    private suspend fun deleteOrphans(uploadedPagesByParent: Map<String, List<ServerPage>>) {
+        logger.debug { "Running cleanup operation using strategy: $cleanup" }
+        coroutineScope {
+            for ((parent, children) in uploadedPagesByParent) {
+                launch { deleteOrphanedChildren(parent, children) }
+            }
+        }
+    }
+
     private suspend fun deleteOrphanedChildren(pageId: String, children: List<ServerPage>) {
         if (cleanup == Cleanup.None) return
 
         val managedTitles = children.map { it.title }.toSet()
 
+        val pagesForDeletion = pageUploadOperations.findChildPages(pageId)
+            .filter { it.title !in managedTitles }
+            .filter { cleanup == Cleanup.All || it.managedPage && sameTenant(it) }
+
         coroutineScope {
-            val pagesForDeletion = pageUploadOperations.findChildPages(pageId)
-                .filter { it.title !in managedTitles }
-                .filter { cleanup == Cleanup.All || it.pageProperty(HASH_PROPERTY) != null }
             for (page in pagesForDeletion) {
                 launch {
                     logger.info { "Deleting orphaned page: title=${page.title}, id=${page.id}" }
@@ -117,6 +133,11 @@ class ContentUploader(
             }
         }
     }
+
+    private fun sameTenant(it: ConfluencePage) =
+        it.pageProperty(TENANT_PROPERTY)?.value == tenant
+
+    private data class PageUploadResult(val parentId: String, val page: ServerPage, val virtual: Boolean)
 
 }
 
