@@ -320,7 +320,7 @@ internal class PageUploadOperationsImplTest(
                 every { properties } returns mapOf( "extra" to "value" )
             }, "TEST", "parentId")
         } }.isInstanceOf<InvalidTenantException>()
-            .hasMessage("Page Page title must be in tenant ${tenant.ifEmpty { "(no tenant)" }} but actual is other")
+            .hasMessage("Page Page title must be in tenant \"${tenant.ifEmpty { "(no tenant)" }}\" but actual is \"other\"")
     }
 
     @Test
