@@ -3,14 +3,12 @@ package com.github.zeldigas.text2confl.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.requireObject
-import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
-import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.text2confl.cli.config.*
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import io.ktor.http.*
@@ -20,27 +18,13 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence"),
-    WithConversionOptions {
+    WithConversionOptions, WithConfluenceServerOptions {
 
-    private val confluenceUrl: Url? by option(
-        "--confluence-url", envvar = "CONFLUENCE_URL",
-        help = "Address of confluence server. For Confluence cloud it is usually https://<site>.atlassian.net/wiki"
-    ).convert { Url(it) }
-    val confluenceUser: String? by option("--user", envvar = "CONFLUENCE_USER")
-    val confluencePassword: String? by option(
-        "--password",
-        envvar = "CONFLUENCE_PASSWORD",
-        help = "User password or personal API token provided instead of password (e.g. in Confluence Cloud)"
-    )
-    private val accessToken: String? by option(
-        "--access-token", envvar = "CONFLUENCE_ACCESS_TOKEN",
-        help = "Confluence api token. Used for token only authorization in api (NO username)"
-    )
-    private val skipSsl: Boolean? by option(
-        "--skip-ssl-verification",
-        help = "If ssl checks should be skipped when connecting to server"
-    )
-        .optionalFlag("--no-skip-ssl-verification")
+    override val confluenceUrl by confluenceUrl()
+    override val confluenceUser: String? by confluenceUser()
+    override val confluencePassword: String? by confluencePassword()
+    override val accessToken: String? by accessToken()
+    override val skipSsl: Boolean? by skipSsl()
 
     override val spaceKey: String? by confluenceSpace()
     private val parentId: String? by option("--parent-id", help = "Id of parent page where root pages should be added")
@@ -52,8 +36,10 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         "--check-modification",
         help = "Strategy to check changes for existing pages: `hash` - by content hash stored as page property, `content` - by comparing content in storage format"
     ).enum<ChangeDetector> { it.name.lowercase() }
-    private val tenant: String? by option("--tenant",
-        help = "Tenant id for uploaded pages")
+    private val tenant: String? by option(
+        "--tenant",
+        help = "Tenant id for uploaded pages"
+    )
     private val removeOrphans: Cleanup? by option(
         "--remove-orphans",
         help = """What to do with child pages that are not managed by: 
@@ -121,16 +107,11 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     private fun createClientConfig(configuration: DirectoryConfig): ConfluenceClientConfig {
         val server = confluenceUrl ?: configuration.server?.let { Url(it) }
         ?: parameterMissing("Confluence url", "--confluence-url", "server")
-        val auth = when {
-            accessToken != null && confluenceUser != null -> throw PrintMessage("Both access token and username/password specified, but only one of them allowed")
-            accessToken != null -> TokenAuth(accessToken!!)
-            confluenceUser != null -> passwordAuth(confluenceUser!!, confluencePassword)
-            else -> throw PrintMessage("Either access token or username/password should be specified", error = true)
-        }
+
         return ConfluenceClientConfig(
             server = server,
             skipSsl = skipSsl ?: configuration.skipSsl,
-            auth = auth
+            auth = confluenceAuth
         )
     }
 
@@ -140,6 +121,9 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
             ?: throw PrintMessage("Password can't be null")
         return PasswordAuth(username, effectivePassword)
     }
+
+    override fun askForSecret(prompt: String, requireConfirmation: Boolean): String? =
+        prompt(prompt, hideInput = true, requireConfirmation = requireConfirmation)
 
     private suspend fun resolveParent(
         confluenceClient: ConfluenceClient,

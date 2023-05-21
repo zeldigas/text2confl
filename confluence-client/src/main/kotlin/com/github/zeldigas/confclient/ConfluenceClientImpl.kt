@@ -49,6 +49,15 @@ class ConfluenceClientImpl(
         return extractSinglePage(results)
     }
 
+    override suspend fun getPageById(
+        id: String,
+        expansions: Set<String>
+    ): ConfluencePage {
+        return httpClient.get("$apiBase/content/$id") {
+            addExpansions(expansions)
+        }.body()
+    }
+
     override suspend fun getPageOrNull(
         space: String,
         title: String,

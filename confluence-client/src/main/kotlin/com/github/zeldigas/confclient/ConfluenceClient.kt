@@ -9,6 +9,8 @@ interface ConfluenceClient {
 
     suspend fun describeSpace(key:String, expansions: List<String>): Space
 
+    suspend fun getPageById(id: String, expansions: Set<String>): ConfluencePage
+
     suspend fun getPage(space: String, title: String,
                         status:List<String>? = null,
                         expansions: Set<String> = emptySet()

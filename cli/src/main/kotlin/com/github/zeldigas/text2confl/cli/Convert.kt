@@ -83,6 +83,7 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
             page.content.attachments.forEach{it.resourceLocation.copyTo(attachmentDir / it.attachmentName, overwrite = true)}
         }
     }
-
-    private fun sanitizeTitle(page: Page) = page.content.header.title.replace("""[^a-zA-Z0-9._ -]+""".toRegex(), "_")
 }
+
+fun sanitizeTitle(page: Page) = sanitizeTitle(page.content.header.title)
+fun sanitizeTitle(title: String) = title.replace("""[^a-zA-Z0-9._ -]+""".toRegex(), "_")

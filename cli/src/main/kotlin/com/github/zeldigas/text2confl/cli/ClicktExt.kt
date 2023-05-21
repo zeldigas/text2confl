@@ -12,6 +12,11 @@ fun parameterMissing(what: String, cliOption: String, fileOption: String): Nothi
     throw PrintMessage("$what is not specified. Use `$cliOption` option or `$fileOption` in config file", error = true)
 }
 
+fun parameterMissing(what: String, cliOption: String): Nothing {
+    throw PrintMessage("$what is not specified. Use `$cliOption` option", error = true)
+}
+
+
 fun RawOption.optionalFlag(vararg secondaryNames: String): FlagOption<Boolean?> {
     val allOptions = names.map { it to true } + secondaryNames.map { it to false }
     return switch(allOptions.toMap())

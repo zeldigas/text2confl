@@ -37,7 +37,7 @@ that you might need to put in table
 <td data-highlight-colour="#eeffbb">Simple text cell</td>
 </tr>
 </tbody>
-</table>data-highlight-colour="#ffbdad"
+</table>
 
 ### Cell background
 

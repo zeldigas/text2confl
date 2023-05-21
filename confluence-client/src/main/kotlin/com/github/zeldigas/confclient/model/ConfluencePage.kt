@@ -13,7 +13,9 @@ data class ConfluencePage(
     val body: PageBody?,
     val version: PageVersionInfo?,
     val children: PageChildren?,
-    val ancestors: List<ConfluencePage>?
+    val ancestors: List<ConfluencePage>?,
+    @JsonProperty("_links")
+    val links: Map<String, String> = emptyMap()
 ) {
     fun pageProperty(name: String): PageProperty? {
         return metadata?.properties?.get(name)

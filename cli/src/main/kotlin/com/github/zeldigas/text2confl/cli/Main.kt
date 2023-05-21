@@ -32,5 +32,6 @@ fun main(args: Array<String>) {
     ConfluencePublisher()
         .subcommands(Convert())
         .subcommands(Upload())
+        .subcommands(DumpToMarkdown())
         .main(args)
 }
