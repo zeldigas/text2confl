@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.10.0 - 2023-05-28
+
 ### Added
 
 * Support for multi-tenant content in one space
@@ -20,6 +22,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 * \[Markdown] Attachment naming for link and image references - attachment will be named after reference name.
 
   Example: `[my attachment]: some/location/with/my.txt` will be uploaded as `my attachment`.
+* PlantUML updated to 1.2023.8
 
 ## 0.9.0 - 2023-05-14
 
