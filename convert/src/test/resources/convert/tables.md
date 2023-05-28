@@ -47,3 +47,27 @@ Supported color codes in Server 7.x:
 | `bf2600`   | Dark red 100%    |
 | `ff8b00`   | Dark orange 100% |
 
+<table>
+<tbody>
+<tr>
+<th>Docs</th>
+<td>
+
+[reference](https://docs.spring.io/spring-kafka/reference/html)
+</td>
+</tr>
+<tr>
+<th>Samples</th>
+<td>
+
+[sample](http://example.org/sample)
+</td>
+</tr>
+</tbody>
+</table>
+
+| First | Second |
+|-------|--------|
+| a     | a      |
+| b     | b      |
+

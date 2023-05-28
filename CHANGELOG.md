@@ -7,6 +7,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.10.1 - 2023-05-28
+
+### Added
+
+- docker label pointing to GitHub repo. This will let `renovatebot` to fetch changelog
+
+### Fixed
+
+- removed wiremock from final distribution
+- \[export-to-md] now properly handles page link without special link name
+- \[export-to-md] adjusted simple table detection to handle simple tables with header row in `tbody`
+
 ## 0.10.0 - 2023-05-28
 
 ### Added

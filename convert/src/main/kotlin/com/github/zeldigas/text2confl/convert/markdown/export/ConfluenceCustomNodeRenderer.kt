@@ -13,10 +13,12 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
     private val myHtmlConverterOptions = HtmlConverterOptions(options)
     private val linkResolver = HtmlToMarkdownConverter.LINK_RESOLVER.get(options)
 
-    private val basicRenderer = HtmlConverterCoreNodeRenderer(options).htmlNodeRendererHandlers.map { it.tagName to it }.toMap()
+    private val basicRenderer =
+        HtmlConverterCoreNodeRenderer(options).htmlNodeRendererHandlers.map { it.tagName to it }.toMap()
 
     companion object {
-        private val SIMPLE_CELL_TAGS = setOf("code", "b", "strong", "a", "br", "strike", "em", "i", "ins", "sub", "sup",)
+        private val SIMPLE_CELL_TAGS =
+            setOf("code", "b", "strong", "a", "br", "strike", "em", "i", "ins", "sub", "sup", "pre")
     }
 
     override fun getHtmlNodeRendererHandlers(): Set<HtmlNodeRendererHandler<*>> {
@@ -106,7 +108,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         out.tailBlankLine()
     }
 
-    fun generateAdmonition(element: Element, context: HtmlNodeConverterContext, out: HtmlMarkdownWriter){
+    fun generateAdmonition(element: Element, context: HtmlNodeConverterContext, out: HtmlMarkdownWriter) {
         if (element.previousElementSibling() != null) {
             out.blankLine()
         }
@@ -120,7 +122,9 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         out.blankLine()
         out.pushPrefix()
         out.addPrefix("    ")
-        context.renderChildren(element.childNodes().filterIsInstance<Element>().first { it.tagName()  == "ac:rich-text-body" }, true, null)
+        context.renderChildren(
+            element.childNodes().filterIsInstance<Element>().first { it.tagName() == "ac:rich-text-body" }, true, null
+        )
         out.popPrefix()
     }
 
@@ -187,9 +191,10 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
     }
 
     private fun processLinkToPage(element: Element, context: HtmlNodeConverterContext, writer: HtmlMarkdownWriter) {
-        generateLinkName(element, context, writer)
         val pageNode = element.getElementsByTag("ri:page").first()!!
-        val linkToPage = linkResolver.resolve(pageNode.attr("ri:space-key").ifEmpty { null }, pageNode.attr("ri:content-title"))
+        val title = pageNode.attr("ri:content-title")
+        generateLinkName(element, context, writer) { title }
+        val linkToPage = linkResolver.resolve(pageNode.attr("ri:space-key").ifEmpty { null }, title)
         writer.append("(").append(linkToPage)
         if (element.hasAttr("ac:anchor")) {
             writer.append("#").append(element.attr("ac:anchor"))
@@ -215,14 +220,24 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         writer.append("(#").append(element.attr("ac:anchor")).append(")")
     }
 
-    private fun generateLinkName(element: Element, context: HtmlNodeConverterContext, writer: HtmlMarkdownWriter) {
+    private fun generateLinkName(
+        element: Element,
+        context: HtmlNodeConverterContext,
+        writer: HtmlMarkdownWriter,
+        fallback: () -> String? = { null }
+    ) {
         writer.append("[")
         val plainText = element.getElementsByTag("ac:plain-text-link-body").firstOrNull()
         if (plainText != null) {
             writer.append(plainText.ownText())
-        } else {
-            val first = element.getElementsByTag("ac:link-body").first() ?: throw IllegalStateException("Failed to find link body")
+        } else if (element.getElementsByTag("ac:link-body").first() != null) {
+            val first = element.getElementsByTag("ac:link-body").first()!!
             context.renderChildren(first, true, null)
+        } else {
+            writer.append(
+                fallback()
+                    ?: throw IllegalStateException("$element does not have link body and fallback also did not provide link name")
+            )
         }
         writer.append("]")
     }
@@ -245,7 +260,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
             writer.append(")")
         }
         val otherAttributes = attributes - listOf("alt", "title")
-        if (otherAttributes.isNotEmpty()){
+        if (otherAttributes.isNotEmpty()) {
             writer.append("{")
             generateAttributes(writer, otherAttributes)
             writer.append("}")
@@ -262,7 +277,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         }
     }
 
-    private fun isSimpleTable(table: Element):Boolean {
+    private fun isSimpleTable(table: Element): Boolean {
         return headerIsSimple(table.getElementsByTag("thead").first())
                 && bodyIsSimple(table.getElementsByTag("tbody").first())
     }
@@ -270,8 +285,18 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
     private fun bodyIsSimple(bodyOrNull: Element?): Boolean {
         val body = bodyOrNull ?: return true
 
-        return body.getElementsByTag("th").isEmpty()
-                && body.getElementsByTag("td").none { isComplexCell(it) }
+        if (body.getElementsByTag("td").any { isComplexCell(it) }) return false
+
+        val headerCells = body.getElementsByTag("th")
+        if (headerCells.isEmpty()) return true
+        if (headerCells.any { isComplexCell(it) }) return false
+
+        for (row in body.getElementsByTag("tr")){
+            val tags = row.children().map { it.tagName() }.toSet()
+            if ("th" in tags && "td" in tags) return false
+        }
+
+        return true
     }
 
     private fun headerIsSimple(headOrNull: Element?): Boolean {
@@ -292,7 +317,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         writer.blankLine().append("<table>").line()
         for (node in element.childNodes()) {
             if (node is Element) {
-                when(node.tagName()) {
+                when (node.tagName()) {
                     "thead" -> renderTableHead(node, context, writer)
                     "tbody" -> renderTableBody(node, context, writer)
                     else -> context.render(node)
@@ -321,7 +346,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         writer.append("<$tag>").line()
         for (node in node.childNodes()) {
             if (node is Element) {
-                when(node.tagName()) {
+                when (node.tagName()) {
                     "tr" -> renderTableRow(node, context, writer)
                     else -> context.render(node)
                 }
@@ -337,7 +362,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         writer.line()
         for (node in node.childNodes()) {
             if (node is Element) {
-                when(node.tagName()) {
+                when (node.tagName()) {
                     "th" -> renderCell("th", node, context, writer)
                     "td" -> renderCell("td", node, context, writer)
                     else -> context.render(node)
