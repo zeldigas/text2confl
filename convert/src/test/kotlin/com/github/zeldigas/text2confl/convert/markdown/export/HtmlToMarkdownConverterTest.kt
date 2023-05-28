@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class HtmlToMarkdownConverterTest {
 
-    private val converter = HtmlToMarkdownConverter(ConfluenceLinksResolver.NOP)
+    private val converter = HtmlToMarkdownConverter(ConfluenceLinksResolver.NOP, "_assets")
 
     @ValueSource(strings = [
         "basic",

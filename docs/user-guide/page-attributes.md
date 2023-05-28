@@ -68,7 +68,7 @@ Resulting title - `my-page`
 Confluence page labels can be set by `labels` attribute. Attribute can be specified as comma-separated string or a list
 of strings (if file format supports this).
 
-Example - markdown document that will have 3 labels (`one`, `two`, `three`):
+Example - Markdown document that will have 3 labels (`one`, `two`, `three`):
 
 ```markdown
 ---
@@ -86,7 +86,7 @@ location of subtree (root page and all its children).
 Attribute `parentId` should contain id of parent page and attribute `parent` should contain parent page title. When
 specified both, `parentId` is used and `parent` will be ignored.
 
-Example - markdown document with custom parent `Custom Parent Page`. Such document will be uploaded under this page if
+Example - Markdown document with custom parent `Custom Parent Page`. Such document will be uploaded under this page if
 it exists. When custom parent does not exist, upload procedure fails.
 
 ```markdown

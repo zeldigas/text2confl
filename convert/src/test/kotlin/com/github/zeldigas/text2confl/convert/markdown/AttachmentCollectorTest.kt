@@ -28,6 +28,7 @@ internal class AttachmentCollectorTest {
     internal fun `Attachment collection for links`(@TempDir dir: Path, @MockK referenceProvider: ReferenceProvider) {
         Files.createFile(dir.resolve("existing"))
         Files.createFile(dir.resolve("existing1"))
+        Files.createFile(dir.resolve("additional"))
 
         val ast = parser.parse(
             """
@@ -43,6 +44,8 @@ internal class AttachmentCollectorTest {
             [test]: existing1 "title"
             [ref2]: non-existing "title"
             
+            [additional-attachment]: additional
+            
         """.trimIndent()
         )
 
@@ -56,7 +59,8 @@ internal class AttachmentCollectorTest {
 
         assertThat(registry.collectedAttachments).isEqualTo(mapOf(
             "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
-            "existing1" to Attachment.fromLink("existing1", dir.resolve("existing1"))
+            "test" to Attachment.fromLink("test", dir.resolve("existing1")),
+            "additional-attachment" to Attachment.fromLink("additional-attachment", dir.resolve("additional")),
         ))
     }
 
@@ -108,7 +112,7 @@ internal class AttachmentCollectorTest {
 
         assertThat(registry.collectedAttachments).isEqualTo(mapOf(
             "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
-            "existing1" to Attachment.fromLink("existing1", dir.resolve("existing1"))
+            "test" to Attachment.fromLink("test", dir.resolve("existing1"))
         ))
     }
 

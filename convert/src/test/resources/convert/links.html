@@ -6,4 +6,11 @@
 <p><ac:image ac:alt="Octocat"><ri:url ri:value="https://myoctocat.com/assets/images/base-octocat.svg" /></ac:image></p>
 <p>Attached:</p>
 <p><ac:image ac:width="200" ac:alt="markdown logo" ac:title="img title"><ri:attachment ri:filename="markdown.png" /></ac:image></p>
+<h2>Page attachments<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="18de49c1-c14a-42b5-b00c-a94218ddd5df"><ac:parameter ac:name="">page-attachments</ac:parameter></ac:structured-macro></h2>
+<p>Besides images, you can attach to page any other file, like <ac:link><ri:attachment ri:filename="_assets_sample_file.txt" ri:version-at-save="1" /><ac:plain-text-link-body><![CDATA[simple text file]]></ac:plain-text-link-body></ac:link>.</p>
+<p><strong>text2confl</strong> collects all references pointing to local files, no matter if there is a link on page to reference or not.</p>
+<p>If for some reason you need to attach a file, but without link in text, use link reference that is not used on page:</p>
+<ac:structured-macro ac:name="code" ac:schema-version="1" ac:macro-id="a5885c41-0008-4355-bb41-ee87a66104c8"><ac:plain-text-body><![CDATA[[another_file]: _assets/attached_not_referenced.txt]]></ac:plain-text-body></ac:structured-macro>
+<p>This will create attachment <code>another_file</code> without putting link in page content.</p>
+<p>Reference definitions also let you control the name of attachment. For inline links it is calculated automatically.</p>
 

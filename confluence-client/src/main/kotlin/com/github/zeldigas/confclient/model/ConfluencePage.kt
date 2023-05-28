@@ -14,6 +14,7 @@ data class ConfluencePage(
     val version: PageVersionInfo?,
     val children: PageChildren?,
     val ancestors: List<ConfluencePage>?,
+    val space: Space? = null,
     @JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
 ) {
@@ -81,6 +82,8 @@ data class PageAttachments(
 data class Attachment(
     val id: String,
     val title: String,
-    val metadata: Map<String, Any?>
+    val metadata: Map<String, Any?>,
+    @JsonProperty("_links")
+    val links:Map<String, String> = emptyMap()
 )
 

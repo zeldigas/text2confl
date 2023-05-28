@@ -7,13 +7,11 @@ import com.vladsch.flexmark.util.sequence.LineAppendable
 import com.vladsch.flexmark.util.sequence.RepeatedSequence
 import io.ktor.util.*
 import org.jsoup.nodes.Element
-import kotlin.io.path.div
 
 class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
 
     private val myHtmlConverterOptions = HtmlConverterOptions(options)
     private val linkResolver = HtmlToMarkdownConverter.LINK_RESOLVER.get(options)
-    private val assetsLocation = HtmlToMarkdownConverter.ASSETS_DIR.get(options)
 
     private val basicRenderer = HtmlConverterCoreNodeRenderer(options).htmlNodeRendererHandlers.map { it.tagName to it }.toMap()
 
@@ -205,10 +203,10 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         writer: HtmlMarkdownWriter
     ) {
         generateLinkName(element, context, writer)
-        writer.append("(")
+        writer.append("[")
         val attachmentName = element.getElementsByTag("ri:attachment").first()!!.attr("ri:filename")
-        writer.append((assetsLocation / attachmentName).toString())
-        writer.append(")")
+        writer.append(attachmentName.toString())
+        writer.append("]")
     }
 
 
@@ -233,12 +231,19 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         val attributes = element.attributes().map { it.key.removePrefix("ac:") to it.value }.toMap()
         writer.append("![")
         attributes["alt"]?.let { writer.append(it) }
-        writer.append("](")
-        writer.append(linkToImage(element))
-        if ("title" in attributes) {
-            writer.append(" \"").append(context.prepareText(attributes.getValue("title"))).append("\"")
+        writer.append("]")
+        if (isAttachment(element)) {
+            writer.append("[")
+            writer.append(element.getElementsByTag("ri:attachment").first()!!.attr("ri:filename"))
+            writer.append("]")
+        } else {
+            writer.append("(")
+            writer.append(element.getElementsByTag("ri:url").first()!!.attr("ri:value"))
+            if ("title" in attributes) {
+                writer.append(" \"").append(context.prepareText(attributes.getValue("title"))).append("\"")
+            }
+            writer.append(")")
         }
-        writer.append(")")
         val otherAttributes = attributes - listOf("alt", "title")
         if (otherAttributes.isNotEmpty()){
             writer.append("{")
@@ -247,15 +252,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         }
     }
 
-    private fun linkToImage(element: Element): String {
-        val urlElement = element.getElementsByTag("ri:url").first()
-        return if (urlElement != null) {
-           urlElement.attr("ri:value")
-        } else {
-            val attachmentName = element.getElementsByTag("ri:attachment").first()!!.attr("ri:filename")
-            (assetsLocation / attachmentName).toString()
-        }
-    }
+    private fun isAttachment(element: Element): Boolean = element.getElementsByTag("ri:url").first() == null
 
     private fun processTable(element: Element, context: HtmlNodeConverterContext, writer: HtmlMarkdownWriter) {
         if (isSimpleTable(element)) {

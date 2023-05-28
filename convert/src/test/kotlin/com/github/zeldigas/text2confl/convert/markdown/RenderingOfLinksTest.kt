@@ -98,6 +98,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             [missing]: assets/missing.mp4
         """.trimIndent(),
             attachments = mapOf(
+                "attached" to Attachment("attached", "attached", Path("assets/test.txt")),
                 "assets/test.txt" to Attachment("an_attachment", "assets/test.txt", Path("assets/test.txt"))
             )
         )
@@ -107,7 +108,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:plain-text-link-body><![CDATA[attached file]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:link-body>attached <code>code</code> <strong>formatting</strong></ac:link-body></ac:link></p>
             <p><a href="assets/missing.mp4" title="Ignored">non-existing file</a></p>
-            <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:plain-text-link-body><![CDATA[Alt]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link><ri:attachment ri:filename="attached" /><ac:plain-text-link-body><![CDATA[Alt]]></ac:plain-text-link-body></ac:link></p>
             <p><a href="assets/missing.mp4">Alt</a></p>
             <p>[Alt][broken]</p>
         """.trimIndent(),

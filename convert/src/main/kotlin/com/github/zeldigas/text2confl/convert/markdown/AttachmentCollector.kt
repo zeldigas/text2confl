@@ -3,10 +3,7 @@ package com.github.zeldigas.text2confl.convert.markdown
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
-import com.vladsch.flexmark.ast.Image
-import com.vladsch.flexmark.ast.ImageRef
-import com.vladsch.flexmark.ast.Link
-import com.vladsch.flexmark.ast.LinkRef
+import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.util.ast.Document
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.ast.NodeVisitor
@@ -35,7 +32,8 @@ class AttachmentCollector(
             VisitHandler(Link::class.java) { tryCollect(it) },
             VisitHandler(LinkRef::class.java) { tryCollect(it, ast as Document) },
             VisitHandler(Image::class.java) { tryCollect(it) },
-            VisitHandler(ImageRef::class.java) { tryCollect(it, ast as Document) }
+            VisitHandler(ImageRef::class.java) { tryCollect(it, ast as Document) },
+            VisitHandler(Reference::class.java) { tryCollect(it, ast as Document) }
         )).visit(ast)
     }
 
@@ -49,7 +47,7 @@ class AttachmentCollector(
             logger.debug { "Skipping link reference with no resolved url: $node" }
             return
         }
-        addFileIfExists(referenceNode.url.unescape())
+        addFileIfExists(referenceNode.url.unescape(), referenceNode.reference.toString())
     }
 
     private fun tryCollect(node: Image) {
@@ -62,25 +60,32 @@ class AttachmentCollector(
             logger.debug { "Skipping image reference with no resolved url: $node" }
             return
         }
-        addFileIfExists(referenceNode.url.unescape())
+        addFileIfExists(referenceNode.url.unescape(), referenceNode.reference.toString())
     }
 
-    private fun addFileIfExists(pathToFile: String) {
+    private fun tryCollect(reference: Reference, ast: Document) {
+        addFileIfExists(reference.url.unescape(), reference.reference.toString())
+    }
+
+    private fun addFileIfExists(pathToFile: String, referenceName: String? = null) {
         if (!isLocal(pathToFile)) return
-        if (attachmentsRegistry.hasRef(pathToFile)) return;
+
+        val effectiveName = referenceName ?: pathToFile
+
+        if (attachmentsRegistry.hasRef(effectiveName)) return;
         if (referencesProvider.resolveReference(source, pathToFile) != null) return
 
         val file = parentDir.resolve(pathToFile).normalize()
-        if (file.exists() && !attachmentsRegistry.hasRef(pathToFile)) {
-            logger.debug { "File exists, adding as attachment: $file" }
-            attachmentsRegistry.register(pathToFile, Attachment.fromLink(pathToFile, file))
+        if (file.exists()) {
+            logger.debug { "File exists, adding as attachment: $file with ref $effectiveName" }
+            attachmentsRegistry.register(effectiveName, Attachment.fromLink(effectiveName, file))
         } else {
-            logger.warn { "File does not exist: $file" }
+            logger.warn { "Unresolved local ref in [${source}], ref=${referenceName ?: "(inline)"}. File does not exist: $file" }
         }
     }
 
     private fun isLocal(pathToFile: String): Boolean {
-        if (pathToFile.isEmpty()) return false
+        if (pathToFile.isEmpty() || pathToFile.startsWith("#")) return false
 
         return try {
             val uri = URI.create(pathToFile)

@@ -5,6 +5,7 @@ import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.text2confl.cli.config.ConverterConfig
 import com.github.zeldigas.text2confl.cli.config.UploadConfig
+import com.github.zeldigas.text2confl.cli.export.PageExporter
 import com.github.zeldigas.text2confl.cli.upload.ContentUploader
 import com.github.zeldigas.text2confl.cli.upload.DryRunClient
 import com.github.zeldigas.text2confl.convert.ConversionParameters
@@ -21,6 +22,7 @@ interface ServiceProvider {
         converterConfig: ConverterConfig
     ): ContentUploader
     fun createContentValidator(): ContentValidator
+    fun createPageExporter(client: ConfluenceClient, saveContentSource: Boolean): PageExporter
 }
 
 class ServiceProviderImpl : ServiceProvider {
@@ -58,5 +60,9 @@ class ServiceProviderImpl : ServiceProvider {
 
     override fun createContentValidator(): ContentValidator {
         return ContentValidatorImpl()
+    }
+
+    override fun createPageExporter(client: ConfluenceClient, saveContentSource: Boolean): PageExporter {
+        return PageExporter(client, saveContentSource)
     }
 }

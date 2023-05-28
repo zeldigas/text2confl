@@ -18,12 +18,16 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
+import java.nio.file.Path
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
 import kotlin.io.path.fileSize
 
 class ConfluenceClientImpl(
+    override val confluenceBaseUrl: Url,
     private val apiBase: String,
     private val httpClient: HttpClient
 ) : ConfluenceClient {
@@ -31,6 +35,9 @@ class ConfluenceClientImpl(
     companion object {
         private const val PAGE_SIZE = 100
     }
+
+    override val confluenceApiBaseUrl: Url
+        get() = Url(apiBase)
 
     override suspend fun describeSpace(key: String, expansions: List<String>): Space {
         return httpClient.get("$apiBase/space/$key") {
@@ -261,6 +268,14 @@ class ConfluenceClientImpl(
         httpClient.delete("$apiBase/content/$attachmentId").body<String>()
     }
 
+    override suspend fun downloadAttachment(attachment: Attachment, destination: Path) {
+        val downloadLink = attachment.links["download"] ?: throw IllegalArgumentException("No download link found: ${attachment.links}")
+
+        val response = httpClient.get(makeLink(confluenceBaseUrl, downloadLink))
+
+        response.bodyAsChannel().copyAndClose(destination.toFile().writeChannel())
+    }
+
     private fun FormBuilder.addAttachmentToForm(attachment: PageAttachmentInput) {
         append("comment", attachment.comment ?: "")
         append(
@@ -312,5 +327,5 @@ fun confluenceClient(
         }
     }
 
-    return ConfluenceClientImpl("${config.server}/rest/api", client)
+    return ConfluenceClientImpl(config.server, "${config.server}/rest/api", client)
 }

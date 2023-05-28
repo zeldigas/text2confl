@@ -2,10 +2,7 @@ package com.github.zeldigas.text2confl.cli
 
 import assertk.all
 import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isInstanceOf
-import assertk.assertions.isTrue
-import assertk.assertions.prop
+import assertk.assertions.*
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.TokenAuth
@@ -108,5 +105,15 @@ internal class ServiceProviderImplTest {
                 prop(ConversionParameters::docRootLocation).isEqualTo("http://example.org/")
             }
         }
+    }
+
+    @Test
+    fun `Page exporter creation`() {
+        val client = mockk<ConfluenceClient>()
+
+        val result = provider.createPageExporter(client, true)
+
+        assertThat(result.client).isSameAs(client)
+        assertThat(result.saveContentSource).isTrue()
     }
 }

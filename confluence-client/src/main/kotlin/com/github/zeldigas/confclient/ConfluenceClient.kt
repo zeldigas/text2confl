@@ -4,8 +4,13 @@ import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageAttachments
 import com.github.zeldigas.confclient.model.Space
+import io.ktor.http.*
+import java.nio.file.Path
 
 interface ConfluenceClient {
+
+    val confluenceBaseUrl: Url
+    val confluenceApiBaseUrl: Url
 
     suspend fun describeSpace(key:String, expansions: List<String>): Space
 
@@ -47,6 +52,8 @@ interface ConfluenceClient {
     suspend fun updateAttachment(pageId: String, attachmentId: String, pageAttachmentInput: PageAttachmentInput): Attachment
 
     suspend fun deleteAttachment(attachmentId: String)
+
+    suspend fun downloadAttachment(attachment: Attachment, destination: Path)
 
 }
 

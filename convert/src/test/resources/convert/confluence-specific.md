@@ -1,7 +1,3 @@
-!!! note
-
-    sdfdf 
-
 [TOC]
 
 ## Admonitions

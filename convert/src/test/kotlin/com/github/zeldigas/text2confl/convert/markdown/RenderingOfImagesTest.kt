@@ -52,9 +52,9 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             [attached]: assets/image.jpg "Attached image"
         """.trimIndent(),
             attachments = mapOf(
-                "assets/image.jpg" to Attachment(
-                    "an_attachment",
-                    "assets/image.jpg",
+                "attached" to Attachment(
+                    "attached",
+                    "attached",
                     Path("assets/image.jpg")
                 )
             )
@@ -63,8 +63,8 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
         assertThat(result).isEqualToConfluenceFormat(
             """
             <p><ac:image ac:alt="Alt text" ac:title="External image"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
-            <p><ac:image ac:title="Attached image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
-            <p><ac:image ac:alt="Alt" ac:title="Attached image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
+            <p><ac:image ac:title="Attached image"><ri:attachment ri:filename="attached" /></ac:image></p>
+            <p><ac:image ac:alt="Alt" ac:title="Attached image"><ri:attachment ri:filename="attached" /></ac:image></p>
         """.trimIndent(),
         )
     }
@@ -128,6 +128,11 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
                     "an_attachment",
                     "assets/image.jpg",
                     Path("assets/image.jpg")
+                ),
+                "attached" to Attachment(
+                    "attached",
+                    "attached",
+                    Path("assets/image.jpg")
                 )
             )
         )
@@ -136,7 +141,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             """
             <p><ac:image ac:align="left" ac:border="true" ac:class="custom" ac:title="A Title" ac:style="font-weight=bold;" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
             <p><ac:image ac:thumbnail="true" ac:alt="Alt" ac:height="250" ac:width="100" ac:vspace="10" ac:hspace="5" ac:queryparams="effects=border-simple,blur-border,tape" ac:title="Asset"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
-            <p><ac:image ac:border="true" ac:alt="Alt" ac:title="Attached image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
+            <p><ac:image ac:border="true" ac:alt="Alt" ac:title="Attached image"><ri:attachment ri:filename="attached" /></ac:image></p>
         """.trimIndent(),
         )
     }

@@ -12,4 +12,20 @@ External:
 
 Attached:
 
-![markdown logo](_assets/markdown.png "img title"){width=200}
+![markdown logo][markdown.png]{width=200}
+
+## Page attachments
+
+Besides images, you can attach to page any other file, like [simple text file][_assets_sample_file.txt].
+
+**text2confl** collects all references pointing to local files, no matter if there is a link on page to reference or not.
+
+If for some reason you need to attach a file, but without link in text, use link reference that is not used on page:
+
+```
+[another_file]: _assets/attached_not_referenced.txt
+```
+
+This will create attachment `another_file` without putting link in page content.
+
+Reference definitions also let you control the name of attachment. For inline links it is calculated automatically.
