@@ -218,16 +218,15 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             html.text(node.chars.unescape())
         } else {
             val reference = node.getReferenceNode(referenceRepository)
-            val resolvedLink = context.resolveLink(LinkType.IMAGE, reference.url.unescape(), null)
             val attributes = node.attributesMap + mapOf(
                 "alt" to imageAltText(node),
                 "title" to imageTitle(reference)
             )
             renderImage(
                 html,
-                resolvedLink.url,
+                reference.reference.toString(),
                 attributes
-            ) { resolvedLink.url }
+            ) { context.resolveLink(LinkType.IMAGE, reference.url.unescape(), null).url }
         }
 
     }
@@ -239,7 +238,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
 
     private fun renderImage(
         html: HtmlWriter,
-        url: String,
+        attachmentReference: String,
         attributes: Map<String, String?>,
         externalUrlProvider: () -> String
     ) {
@@ -249,8 +248,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             .toMap()
 
         html.openTag("ac:image", imageAttributes)
-        if (url in attachments) {
-            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(url).attachmentName))
+        if (attachmentReference in attachments) {
+            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(attachmentReference).attachmentName))
         } else {
             html.voidTag("ri:url", mapOf("ri:value" to externalUrlProvider()))
         }
@@ -259,13 +258,14 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
 
     private fun render(node: Link, context: NodeRendererContext, html: HtmlWriter) {
         val url = node.url.unescape()
-        renderLink(url, html, node, context) {
+        renderLink(url, url, html, node, context) {
             if (node.text != null) node.text.normalizeEOL().trimEnd() else null
         }
     }
 
     private fun <T : Node> renderLink(
         url: String,
+        attachmentReference: String,
         html: HtmlWriter,
         node: T,
         context: NodeRendererContext,
@@ -289,9 +289,9 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
                     html.closeTag("ac:link")
                 }
             }
-        } else if (url in attachments) {
+        } else if (attachmentReference in attachments) {
             html.openTag("ac:link")
-            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(url).attachmentName))
+            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(attachmentReference).attachmentName))
             appendLinkBody(node, html, context, textExtractor)
             html.closeTag("ac:link")
         } else {
@@ -328,7 +328,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         } else {
             val reference = node.getReferenceNode(referenceRepository)!!
             val resolvedLink = context.resolveLink(LinkType.LINK, reference.url.unescape(), null)
-            renderLink(resolvedLink.url, html, node, context) {
+            renderLink(resolvedLink.url, reference.reference.toString(), html, node, context) {
                 if (node.text != null) node.text.normalizeEOL().trimEnd() else null
             }
         }

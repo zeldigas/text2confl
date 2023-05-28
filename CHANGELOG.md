@@ -10,6 +10,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 * Support for multi-tenant content in one space
+* \[Markdown] Support for attachments that are not referenced on page by link. This can help to use macros that expect
+  attachment as parameter.
+* `export-to-md` command, that exports requested confluence page to Markdown and downloads all attachments. Handy when
+  you migrate handwritten pages to repository stored file.
+
+### Changed
+
+* \[Markdown] Attachment naming for link and image references - attachment will be named after reference name.
+
+  Example: `[my attachment]: some/location/with/my.txt` will be uploaded as `my attachment`.
 
 ## 0.9.0 - 2023-05-14
 

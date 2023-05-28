@@ -1,0 +1,112 @@
+<p><ac:structured-macro ac:name="toc" ac:schema-version="1" ac:macro-id="9da269b9-ca63-464f-8bf3-e5d624992164" /></p>
+<h2>Admonitions<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="d1a2a198-241a-485d-b31f-c818717c85cd"><ac:parameter ac:name="">admonitions</ac:parameter></ac:structured-macro></h2>
+<p>Admonitions are supported via <a href="https://github.com/vsch/flexmark-java/wiki/Admonition-Extension">custom extension</a> format and rendered as information panels as they called in Confluence Cloud or <em>note</em>, <em>warning</em>, <em>info</em>, <em>tip</em> blocks in Server edition. Note that expand functionality (block that starts with <code>???</code>) is not supported because Confluence can't configure expand for these macros (and wrapping them into separate expand section seems too much).</p>
+<ac:structured-macro ac:name="note" ac:schema-version="1" ac:macro-id="d181a7a4-b2a7-45f2-bc3b-f6e169e82509"><ac:rich-text-body>
+<p>A note to yourself</p>
+</ac:rich-text-body></ac:structured-macro><ac:structured-macro ac:name="tip" ac:schema-version="1" ac:macro-id="7c301168-1d9c-44fb-9030-21930b13083b"><ac:rich-text-body>
+<p>Some tips and tricks with <code>rich</code> <sub>formatting</sub></p>
+</ac:rich-text-body></ac:structured-macro><ac:structured-macro ac:name="warning" ac:schema-version="1" ac:macro-id="8981c475-6f12-4fbb-ab13-ca5335dbac8d"><ac:rich-text-body>
+<p>Description of pitfalls that your user</p>
+<p>Should know about</p>
+</ac:rich-text-body></ac:structured-macro><ac:structured-macro ac:name="info" ac:schema-version="1" ac:macro-id="36c773b7-2f6a-4ca9-b80b-12fd0e560f17"><ac:rich-text-body>
+<p>Information message</p>
+</ac:rich-text-body></ac:structured-macro>
+<h2>Table of contents<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="51ad8b0a-cb38-407b-8ed9-d469dbb7ddba"><ac:parameter ac:name="">table-of-contents</ac:parameter></ac:structured-macro></h2>
+<p>Table of contents is supported via <a href="https://github.com/vsch/flexmark-java/wiki/Table-of-Contents-Extension">custom extension</a> that can be put in any document location by special <code>[TOC]</code> reference put on separate line. You can control representation of table of contents with <a href="https://confluence.atlassian.com/doc/table-of-contents-macro-182682099.html">supported options</a>:</p>
+<table>
+  <thead>
+    <tr><th>parameter</th><th>description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>type</td><td>Style of TOC: <code>list</code> (default) or <code>flat</code></td></tr>
+    <tr><td>maxLevel</td><td>maximum heading level to include in toc. E.g. if specified as <code>3</code> headings 4, 5 and so on will not be included</td></tr>
+    <tr><td>outline</td><td>Adds numbering to TOC elements (1.1, 1.2, 1.2.3 and so on). By default is disabled, to enable set to <code>true</code></td></tr>
+    <tr><td>minLevel</td><td>minimum heading level to include in toc. E.g. if specified as <code>2</code> headings 1 will not be included</td></tr>
+    <tr><td>style</td><td>style of toc items in list: <code>circle</code>, <code>disc</code>, <code>square</code> as well as other valid css style of elements</td></tr>
+    <tr><td>separator</td><td>Separator between items for <strong>flat</strong> toc style: <code>brackets</code>, <code>braces</code>, <code>pipe</code></td></tr>
+    <tr><td>indent</td><td>Indent for a <strong>list</strong> toc style. Valid css size, e.g. <code>10px</code></td></tr>
+    <tr><td>include</td><td>Filter headings to include according to specified regex</td></tr>
+    <tr><td>exclude</td><td>Filter headings to exclude according to specified regex</td></tr>
+    <tr><td>class</td><td>Css class to add to wrapping div where toc is put</td></tr>
+  </tbody>
+</table>
+<p>Example of table of contents that is put after foreword block:</p>
+<ac:structured-macro ac:name="code" ac:schema-version="1" ac:macro-id="ceba886f-fd71-4193-ac89-0b96a84ee12e"><ac:plain-text-body><![CDATA[This page will tell you about important widget `FOO` usage in our project
+
+[TOC maxLevel=2]
+
+## Setting up
+
+....
+
+## Using in project
+
+....
+
+## Tips and tricks]]></ac:plain-text-body></ac:structured-macro>
+<h2>Status<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="7878d18e-a8c5-4b15-ba0f-9cb1d0c77c59"><ac:parameter ac:name="">status</ac:parameter></ac:structured-macro></h2>
+
+<p>Status is a specific element that can serve as eye candy element for various reporting: <ac:structured-macro ac:name="status" ac:schema-version="1" ac:macro-id="6d00fddc-5eec-4a2c-8fb9-3de016f78356"><ac:parameter ac:name="colour">Green</ac:parameter><ac:parameter ac:name="title">on track</ac:parameter></ac:structured-macro>, <ac:structured-macro ac:name="status" ac:schema-version="1" ac:macro-id="0a4d4013-6ecf-4186-a434-c6cc1ac039e4"><ac:parameter ac:name="colour">Grey</ac:parameter><ac:parameter ac:name="title">on hold</ac:parameter></ac:structured-macro>, <ac:structured-macro ac:name="status" ac:schema-version="1" ac:macro-id="a541e8d2-e679-46f0-af3e-36cfb9ab6202"><ac:parameter ac:name="colour">Red</ac:parameter><ac:parameter ac:name="title">off track</ac:parameter></ac:structured-macro></p>
+
+<p>For this you need to put custom tag: <code>&lt;status color=&quot;$color&quot;&gt;$text_of_status&lt;/status&gt;</code>, where <code>$color</code> is valid color and <code>$text_of_status</code> is simple text that will be put in block.</p>
+
+<p>Note that only limited colors are supported, and you need to properly specify one of the following allowed values: <code>grey</code>, <code>red</code>, <code>green</code>, <code>purple</code>, <code>blue</code>.</p>
+
+<h2>Mentioning user (Confluence Server only)<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="f53219e5-6109-490f-ad9c-5c16740775e8"><ac:parameter ac:name="">mentioning-user-confluence-server-only</ac:parameter></ac:structured-macro></h2>
+
+<p>You can mention user using <code>@username</code> format just like you can do on GitHub or in WYSIWYG Confluence editor. Unfortunately due to absence of human-readable usernames in Cloud edition this will work only on Server/Datacenter where human-readable usernames are still supported. If you still need to mention user in Cloud, consider using <ac:link ac:anchor="adding-raw-confluence-formatting"><ac:plain-text-link-body><![CDATA[raw confluence markdown]]></ac:plain-text-link-body></ac:link></p>
+
+<h2>Putting date<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="4fb05ee2-30f6-467e-ba54-cee9ac275151"><ac:parameter ac:name="">putting-date</ac:parameter></ac:structured-macro></h2>
+
+<p>To put a date that is rendered in fancy way in Confluence, standard html tag is used - <code>&lt;time datetime=&quot;YYYY-MM-DD&quot; /&gt;</code>, e.g. <time datetime="2022-02-15"></time>. If you need this date to be rendered not just on Confluence page, consider using more standard format of this tag by putting text inside time block: <time datetime="2022-02-15">Feb 15th</time></p>
+
+<h2>Expand blocks<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="53e81c17-0a6a-49ed-a7c2-096f108e6788"><ac:parameter ac:name="">expand-blocks</ac:parameter></ac:structured-macro></h2>
+
+<p>You can use admonition-like syntax to add Confluence expand block:</p>
+<ac:structured-macro ac:name="expand" ac:schema-version="1" ac:macro-id="64c023b9-5033-45f0-912a-b4bdff0fada0"><ac:rich-text-body>
+<p>I'm text that is put inside expand block</p>
+</ac:rich-text-body></ac:structured-macro>
+<h2>Confluence macros with simple options<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="dd77f95b-f7b0-4075-8c42-6f97b3aeff58"><ac:parameter ac:name="">confluence-macros-with-simple-options</ac:parameter></ac:structured-macro></h2>
+
+<p>Confluence has a lot of <a href="https://confluence.atlassian.com/doc/macros-139387.html"><em>macros</em></a> - special gadgets that can add extra features to your confluence page. While some of them has comprehensive configuration or can embed text content (like expand block), a lot of macros are as simple as macro keyword and a number of options that helps you configure behavior.</p>
+
+<p><strong>text2confl</strong> introduce custom format that helps you to insert any macro that does not require complex parameters with <code>[MACRONAME key1=value1 key2=value2]</code> format. In markdown such format is used for link references, but just as with <ac:link ac:anchor="table-of-contents"><ac:plain-text-link-body><![CDATA[table of contents]]></ac:plain-text-link-body></ac:link> it is treated in special way if you don't define link reference somewhere down the road. Values can be unquoted if they don't contain spaces, or you can put value in quotes if you have spaces - <code>[MYMACRo width=100 searchQuery=&quot;project in (A,B,C)&quot;]</code>.</p>
+<ac:structured-macro ac:name="info" ac:schema-version="1" ac:macro-id="be5d8db6-cd84-4285-a99d-61751d1afe7a"><ac:parameter ac:name="title">Parameters for macros - how to find them?</ac:parameter><ac:rich-text-body>
+<p>Parameters are <em><strong>not validated</strong></em>, so make sure that you use expected params for your macro. This can be done by adding the macro you need on sample page in WYSIWYG editor and then opening page in &quot;storage format&quot;. Macro name will be in <code>&lt;ac-structured-macro ac:name=&quot;MACRONAME&quot;&gt;</code> block and all <code>&lt;ac-parameter ac:name=&quot;columns&quot;&gt;</code> elements are macro parameters.</p>
+
+<p>This is especially helpful for special hidden parameters like <code>serverId</code> in jira chart macro, that is GUID string and unique per jira server integration.</p>
+</ac:rich-text-body></ac:structured-macro>
+<p>By default, any <code>MACRONAME</code> is supported, but if you want to limit usage, you can explicitly set what macros are enabled with this notation. More details on this in <ac:link><ri:page ri:space-key="DOCS" ri:content-title="[text2confl] Configuration reference" ri:version-at-save="6" /><ac:plain-text-link-body><![CDATA[configuration reference]]></ac:plain-text-link-body></ac:link></p>
+
+<p>Some examples:</p>
+
+<table>
+
+<thead>
+<tr><th>Type of macros</th><th>Markdown text</th><th>Result</th></tr>
+</thead>
+
+<tbody>
+<tr><td><a href="https://confluence.atlassian.com/doc/jira-issues-macro-139380.html#JiraIssuesMacro-Displayingasingleissue,orselectedissues">Reference to single jira ticket</a></td><td><code>[JIRA key=SI-1]</code></td><td><ac:structured-macro ac:name="jira" ac:schema-version="1" ac:macro-id="a5954e9d-f6b9-40b4-8eb9-554a0b341932"><ac:parameter ac:name="key">SI-1</ac:parameter></ac:structured-macro></td></tr>
+
+<tr><td><a href="https://confluence.atlassian.com/doc/jira-issues-macro-139380.html#JiraIssuesMacro-DisplayingissuesviaaJiraQueryLanguage(JQL)search">Jira report table</a></td><td><code>[JIRA jqlQuery=&quot;project = SI&quot; columns=key,summary,assignee,reporter,status maximumIssues=20]</code></td><td><ac:structured-macro ac:name="jira" ac:schema-version="1" ac:macro-id="5c86e314-042b-4b5d-9a12-9536d733bbc0"><ac:parameter ac:name="columns">key,summary,assignee,reporter,status</ac:parameter><ac:parameter ac:name="maximumIssues">5</ac:parameter><ac:parameter ac:name="jqlQuery">project = SI</ac:parameter></ac:structured-macro></td></tr>
+
+<tr><td><a href="https://confluence.atlassian.com/doc/jira-chart-macro-427623467.html">Jira charts</a></td><td><code>[JIRACHART jql=&quot;project = SI&quot; chartType=pie statType=components serverId=&lt;JIRA_SERVER_ID&gt;]</code></td><td><ac:structured-macro ac:name="jirachart" ac:schema-version="1" ac:macro-id="aebc49ea-7cdd-43e8-b303-4b6d3eb65289"><ac:parameter ac:name="jql">project = SI</ac:parameter><ac:parameter ac:name="statType">components</ac:parameter><ac:parameter ac:name="chartType">pie</ac:parameter><ac:parameter ac:name="serverId">&lt;JIRA_SERVER_ID&gt;</ac:parameter></ac:structured-macro></td></tr>
+</tbody>
+
+
+</table>
+
+
+<h2>Adding raw confluence formatting<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="8dd19d7c-1598-42b4-96ce-9c70ce232408"><ac:parameter ac:name="">adding-raw-confluence-formatting</ac:parameter></ac:structured-macro></h2>
+
+<p>Flexmark library that is used to parse markdown follows common mark spec that prohibits html tags with colons, but this is the heart of custom Confluence markup because they use <code>ac:</code> and <code>ri:</code> as their namespace prefixes for all macro tags. To overcome this limitation, <strong>text2confl</strong> supports alternative format confluence tags with dashes.</p>
+
+<p>So this tags</p>
+
+<ac:structured-macro ac:name="code" ac:schema-version="1" ac:macro-id="85b1588e-ee71-45ca-8c54-9cfcd47d864b"><ac:parameter ac:name="language">xml</ac:parameter><ac:plain-text-body><![CDATA[
+<ac-structured-macro ac:name="jira">
+    <ac-parameter ac:name="columns">key,summary,assignee,reporter,status</ac-parameter>
+    <ac-parameter ac:name="maximumIssues">20</ac-parameter>
+    <ac-parameter ac:name="jqlQuery">project = SI</ac-parameter>
+</ac-structured-macro>]]></ac:plain-text-body></ac:structured-macro>

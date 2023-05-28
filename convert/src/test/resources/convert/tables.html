@@ -1,0 +1,58 @@
+<h2>Simple tables<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="2069809f-1a60-4053-b85d-6cfdb00e658e"><ac:parameter ac:name="">simple-tables</ac:parameter></ac:structured-macro></h2>
+<p>You can use tables based on <a href="https://github.github.com/gfm/#tables-extension-">GitHub Flavored Format</a>:</p>
+<table>
+  <thead>
+    <tr><th>foo</th><th>bar</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>baz</td><td>bim</td></tr>
+  </tbody>
+</table>
+<h2>Complex tables<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="2c3b0eba-d87d-4831-8ade-2c41f23be454"><ac:parameter ac:name="">complex-tables</ac:parameter></ac:structured-macro></h2>
+<p>For complex cases (e.g. when you need multiline cells or complex content) you can just regular tables (<code>&lt;table&gt;...&lt;/table&gt;</code>):</p>
+<table>
+<thead>
+<tr>
+<th>First column</th>
+<th>Second column</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="highlight-#ffbdad" data-highlight-colour="#ffbdad">
+<ac:structured-macro ac:name="code" ac:schema-version="1" ac:macro-id="524a95e4-eb18-4a5c-8ecb-afa596626061"><ac:plain-text-body><![CDATA[code block
+that you might need to put in table]]></ac:plain-text-body></ac:structured-macro>
+
+</td>
+<td data-highlight-colour="#eeffbb">Simple text cell</td>
+</tr>
+</tbody>
+</table>
+
+
+
+<h3>Cell background<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="196c867b-0266-4b7a-a7cc-1fb04ec19c7d"><ac:parameter ac:name="">cell-background</ac:parameter></ac:structured-macro></h3>
+
+<p>It is possible to set background for cell</p>
+
+<p><strong>Confluence Cloud</strong> allows to specify any color by adding attribute <code>data-highlight-colour=&quot;#ffbbcc&quot;</code> to cell, where <code>ffbbcc</code> is desired color.</p>
+
+<p><strong>Confluence Server</strong> only support preselected list of cell backgrounds and in addition to <code>data-highlight-colour</code> attribute you need to put <code>class=&quot;highlight-#c0b6f2&quot;</code>, where <code>c0b6f2</code> is one of predefined colors.</p>
+
+<p>Supported color codes in Server 7.x:</p>
+
+<table>
+
+<thead>
+<tr><th>color code</th><th>description</th></tr>
+</thead>
+
+<tbody>
+<tr><td><code>bf2600</code></td><td>Dark red 100%</td></tr>
+
+<tr><td><code>ff8b00</code></td><td>Dark orange 100%</td></tr>
+
+</tbody>
+
+
+</table>

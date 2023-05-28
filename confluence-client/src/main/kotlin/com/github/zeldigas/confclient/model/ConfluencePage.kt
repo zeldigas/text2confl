@@ -13,7 +13,10 @@ data class ConfluencePage(
     val body: PageBody?,
     val version: PageVersionInfo?,
     val children: PageChildren?,
-    val ancestors: List<ConfluencePage>?
+    val ancestors: List<ConfluencePage>?,
+    val space: Space? = null,
+    @JsonProperty("_links")
+    val links: Map<String, String> = emptyMap()
 ) {
     fun pageProperty(name: String): PageProperty? {
         return metadata?.properties?.get(name)
@@ -79,6 +82,8 @@ data class PageAttachments(
 data class Attachment(
     val id: String,
     val title: String,
-    val metadata: Map<String, Any?>
+    val metadata: Map<String, Any?>,
+    @JsonProperty("_links")
+    val links:Map<String, String> = emptyMap()
 )
 

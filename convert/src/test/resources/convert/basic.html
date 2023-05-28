@@ -1,0 +1,38 @@
+<p><ac:structured-macro ac:name="toc" ac:schema-version="1" ac:macro-id="39c8a165-954b-4e83-91c8-7332bf87fa70" /></p>
+<h2>Text styling<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="7bb51654-fd70-4250-9f30-ed35346538b7"><ac:parameter ac:name="">text-styling</ac:parameter></ac:structured-macro></h2>
+<p>All basic styling features are supported &mdash; text can be <strong>bold</strong>, <em>italic</em>, <del>strikethrough</del> or mixed one like <strong>bold with <em>emphasis</em> part</strong>, all  <em><strong>bold and italic</strong></em>. For those who need <sub>subscript</sub> or <sup>superscript</sup> text - it is supported as well.</p>
+<p>You can also use quotation blocks:</p>
+<blockquote>
+    <p>This is a quote</p>
+    <p>Spanning multiple paragraphs <strong>styled</strong> and <code>monoscript</code></p>
+</blockquote>
+<h2>Lists<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="d16fd277-e416-4719-b3fa-f917b9791745"><ac:parameter ac:name="">lists</ac:parameter></ac:structured-macro></h2>
+<p>Both numbered and bullet lists are supported:</p>
+<ol>
+    <li>one</li>
+    <li>two</li>
+    <li>three
+        <ul>
+            <li>unordered</li>
+            <li>list</li>
+            <li>as nested
+                <ol>
+                    <li>And ordered</li>
+                    <li>again</li>
+                </ol>
+            </li>
+        </ul>
+    </li>
+</ol>
+<p>Simple task lists are supported too, but due to limitations of Confluence no mixed items are supported.</p>
+<p>This will work:</p>
+<ac:task-list>
+    <ac:task><ac:task-status>incomplete</ac:task-status><ac:task-body>not done</ac:task-body></ac:task>
+    <ac:task><ac:task-status>complete</ac:task-status><ac:task-body>done</ac:task-body></ac:task>
+</ac:task-list>
+<p>But this will not work:</p>
+<ul>
+    <li>[ ] not done</li>
+    <li>[x] done</li>
+    <li>simple item</li>
+</ul>
