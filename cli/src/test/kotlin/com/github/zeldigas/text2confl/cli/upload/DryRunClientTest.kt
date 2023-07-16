@@ -118,7 +118,7 @@ internal class DryRunClientTest(
                 )
             )
         }
-        assertThat(addResult).isEqualTo(PageAttachments(listOf(Attachment("(known after apply)", "test", emptyMap()))))
+        assertThat(addResult).isEqualTo(PageAttachments(results = listOf(Attachment("(known after apply)", "test", emptyMap()))))
         coVerify(exactly = 0) { confluenceClient.addAttachments(any(), any()) }
     }
 

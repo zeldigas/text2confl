@@ -85,6 +85,13 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-coroutines-bom</artifactId>
+                <version>1.7.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>io.ktor</groupId>
                 <artifactId>ktor-bom</artifactId>
                 <version>2.3.2</version>
@@ -117,6 +124,12 @@
                 <groupId>io.mockk</groupId>
                 <artifactId>mockk-jvm</artifactId>
                 <version>1.13.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8-standalone</artifactId>
+                <version>2.35.0</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

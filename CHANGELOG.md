@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Support for large amount of attachments on page. In this case they returned paginated
+
 ## 0.10.1 - 2023-05-28
 
 ### Added

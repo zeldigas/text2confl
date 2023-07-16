@@ -118,7 +118,7 @@ internal class PageUploadOperationsImpl(
         )
     }
 
-    private fun createServerPage(
+    private suspend fun createServerPage(
         serverPage: ConfluencePage,
         parentPageId: String
     ) = ServerPage(
@@ -126,7 +126,7 @@ internal class PageUploadOperationsImpl(
         serverPage.title,
         parentPageId,
         serverPage.metadata?.labels?.results ?: emptyList(),
-        serverPage.children?.attachment?.results ?: emptyList()
+        serverPage.children?.attachment?.let { client.fetchAllAttachments(it) } ?: emptyList()
     )
 
     private suspend fun createNewPage(

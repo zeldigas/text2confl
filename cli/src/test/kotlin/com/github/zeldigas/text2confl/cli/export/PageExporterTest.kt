@@ -33,13 +33,16 @@ class PageExporterTest(
                 Label("", "l1", "1"),
                 Label("", "l2", "1")
             )
-            every { children?.attachment?.results } returns listOf(mockk {
+            every { children?.attachment } returns mockk()
+        }
+        coEvery { client.fetchAllAttachments(any()) } returns listOf(
+            mockk {
                 every { title } returns "attach"
             },
-                mockk {
-                    every { title } returns "attach1"
-                })
-        }
+            mockk {
+                every { title } returns "attach1"
+            })
+
         coEvery { client.downloadAttachment(any(), dir / "_assets" / "attach") } just Runs
         coEvery { client.downloadAttachment(any(), dir / "_assets" / "attach1") } just Runs
 
