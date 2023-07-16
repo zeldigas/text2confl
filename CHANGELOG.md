@@ -7,9 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.11.0 - 2023-07-16
+
 ### Added
 
-- Support for large amount of attachments on page. In this case they returned paginated
+- Support for large amount of attachments on page. In this case they returned paginated.
+
+### Changed
+
+- PlantUML updated to 1.2023.10
+- Kotlin updated to 1.9.0
+- Ktor updated to 2.3.2
 
 ## 0.10.1 - 2023-05-28
 
