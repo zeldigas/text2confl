@@ -117,13 +117,13 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
 
     private fun passwordAuth(username: String, password: String?): PasswordAuth {
         val effectivePassword = password
-            ?: prompt("Enter password: ", hideInput = true, requireConfirmation = true)
+            ?: promptForSecret("Enter password: ", requireConfirmation = true)
             ?: throw PrintMessage("Password can't be null")
         return PasswordAuth(username, effectivePassword)
     }
 
     override fun askForSecret(prompt: String, requireConfirmation: Boolean): String? =
-        prompt(prompt, hideInput = true, requireConfirmation = requireConfirmation)
+        promptForSecret(prompt, requireConfirmation = requireConfirmation)
 
     private suspend fun resolveParent(
         confluenceClient: ConfluenceClient,

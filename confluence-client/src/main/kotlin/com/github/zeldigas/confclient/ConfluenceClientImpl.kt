@@ -209,7 +209,7 @@ class ConfluenceClientImpl(
         val result = mutableListOf<ConfluencePage>()
         var start = 0
         var limit = PAGE_SIZE
-        var completed = false
+        var completed: Boolean
         do {
             val page = httpClient.get("$apiBase/content/$pageId/child/page") {
                 addExpansions(expansions ?: emptyList())

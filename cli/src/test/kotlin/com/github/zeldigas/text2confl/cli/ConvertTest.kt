@@ -3,7 +3,7 @@ package com.github.zeldigas.text2confl.cli
 import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.isFalse
-import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.context
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.Page
@@ -23,14 +23,13 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 
 @ExtendWith(MockKExtension::class)
-class ConvertTest (
+class ConvertTest(
     @MockK private val serviceProvider: ServiceProvider,
     @MockK private val converter: Converter,
     @MockK private val contentValidator: ContentValidator
 ) {
 
     private val command = Convert()
-    private val parentContext = Context.build(command) {}
 
     @BeforeEach
     internal fun setUp() {
@@ -38,7 +37,9 @@ class ConvertTest (
         every { serviceProvider.createContentValidator() } returns contentValidator
         every { contentValidator.validate(any()) } just Runs
 
-        parentContext.obj = serviceProvider
+        command.context {
+            obj = serviceProvider
+        }
     }
 
     @Test
@@ -51,8 +52,7 @@ class ConvertTest (
             listOf(
                 "--docs", tempDir.toString(),
                 "--out", outDir.toString()
-            ),
-            parentContext
+            )
         )
 
         assertThat(outDir / "a.html").exists()
@@ -71,8 +71,7 @@ class ConvertTest (
                 "--copy-attachments",
                 "--docs", tempDir.toString(),
                 "--out", outDir.toString()
-            ),
-            parentContext
+            )
         )
 
         assertThat(outDir / "a.html").exists()
@@ -92,8 +91,7 @@ class ConvertTest (
                 "--use-title",
                 "--docs", tempDir.toString(),
                 "--out", outDir.toString()
-            ),
-            parentContext
+            )
         )
 
         assertThat(outDir / "Special_name_ with _.html").exists()
