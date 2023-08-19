@@ -47,6 +47,8 @@ interface ConfluenceClient {
 
     suspend fun addLabels(pageId: String, labels: List<String>)
 
+    suspend fun fetchAllAttachments(pageAttachments: PageAttachments): List<Attachment>
+
     suspend fun addAttachments(pageId: String, pageAttachmentInput: List<PageAttachmentInput>): PageAttachments
 
     suspend fun updateAttachment(pageId: String, attachmentId: String, pageAttachmentInput: PageAttachmentInput): Attachment

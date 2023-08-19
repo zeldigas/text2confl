@@ -39,8 +39,8 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
         val space = page.space?.key!!
         val converter = HtmlToMarkdownConverter(ConfluenceLinkResolverImpl(client, space), assetsLocation ?: "")
 
-        exportPageContent(converter, page, destinationDir, Path.of(assetsLocation ?: ""))
-        val attachments = page.children?.attachment?.results ?: return
+        val attachments = page.children?.attachment?.let { client.fetchAllAttachments(it) } ?: emptyList()
+        exportPageContent(converter, page, attachments, destinationDir, Path.of(assetsLocation ?: ""))
         if (attachments.isNotEmpty()) {
             attachmentDir.createDirectories()
             attachments.forEach { downloadTo(it, attachmentDir) }
@@ -54,6 +54,7 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
     private fun exportPageContent(
         converter: HtmlToMarkdownConverter,
         page: ConfluencePage,
+        attachments: List<Attachment>,
         dest: Path,
         attachmentDir: Path
     ) {
@@ -67,7 +68,6 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
 
             writer.write(pageContent)
 
-            val attachments = page.children?.attachment?.results ?: emptyList()
             if (attachments.isNotEmpty()) {
                 attachments.forEach { attachment ->
                     writer.appendLine().appendLine()

@@ -124,11 +124,12 @@ internal class PageUploadOperationsImplTest(
             every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
             every { pageProperty("t2ctenant") } returns (if (tenant.isEmpty()) null else PageProperty("124", "contenthash", tenant, PropertyVersion(3)))
             every { pageProperty("extra") } returns null
-            every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
+            every { children?.attachment } returns mockk()
         }
 
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.fetchAllAttachments(any())} returns listOf(serverAttachment("one", "HASH:123"))
 
         val result = runBlocking {
             uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
@@ -187,7 +188,7 @@ internal class PageUploadOperationsImplTest(
             every { id } returns PAGE_ID
             every { title } returns "Page title"
             every { metadata?.labels?.results } returns emptyList()
-            every { children?.attachment?.results } returns emptyList()
+            every { children?.attachment } returns mockk()
             every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
             every { pageProperty(EDITOR_PROPERTY) } returns PageProperty("123", EDITOR_PROPERTY, "v2", PropertyVersion(1))
             every { pageProperty(TENANT_PROPERTY) } returns null
@@ -210,6 +211,7 @@ internal class PageUploadOperationsImplTest(
                 else -> {}
             }
         }
+        coEvery { client.fetchAllAttachments(any()) } returns emptyList()
         coEvery { client.setPageProperty(PAGE_ID, "extra", any()) } just Runs
 
         val result = runBlocking {
@@ -252,11 +254,12 @@ internal class PageUploadOperationsImplTest(
             every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
             every { pageProperty("t2ctenant") } returns null
             every { pageProperty("extra") } returns null
-            every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
+            every { children?.attachment } returns mockk()
         }
 
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
         val result = runBlocking {
             uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = "value").createOrUpdatePageContent(mockk {

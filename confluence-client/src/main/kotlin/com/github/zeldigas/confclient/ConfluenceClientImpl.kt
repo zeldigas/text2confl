@@ -21,6 +21,7 @@ import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
+import mu.KotlinLogging
 import java.nio.file.Path
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
@@ -34,6 +35,7 @@ class ConfluenceClientImpl(
 
     companion object {
         private const val PAGE_SIZE = 100
+        private val logger = KotlinLogging.logger {}
     }
 
     override val confluenceApiBaseUrl: Url
@@ -143,12 +145,14 @@ class ConfluenceClientImpl(
         newParentId: String,
         updateParameters: PageUpdateOptions
     ): ConfluencePage =
-        performPageUpdate(pageId, mapOf(
-            "type" to "page",
-            "title" to title,
-            "ancestors" to listOf(mapOf("id" to newParentId)),
-            "version" to versionNode(version, updateParameters)
-        ))
+        performPageUpdate(
+            pageId, mapOf(
+                "type" to "page",
+                "title" to title,
+                "ancestors" to listOf(mapOf("id" to newParentId)),
+                "version" to versionNode(version, updateParameters)
+            )
+        )
 
     private suspend fun performPageUpdate(pageId: String, body: Map<String, Any?>): ConfluencePage {
         val response = httpClient.put("$apiBase/content/$pageId") {
@@ -235,6 +239,23 @@ class ConfluenceClientImpl(
         }
     }
 
+    override suspend fun fetchAllAttachments(pageAttachments: PageAttachments): List<Attachment> {
+        return buildList {
+            addAll(pageAttachments.results)
+            var current = pageAttachments
+            while ("next" in current.links) {
+                val nextPage = makeLink(confluenceBaseUrl, current.links.getValue("next"))
+                logger.debug { "Loading next attachments page: $nextPage" }
+                current = httpClient.get(nextPage).body()
+                if (current.results.isEmpty()) {
+                    break
+                } else {
+                    addAll(current.results)
+                }
+            }
+        }
+    }
+
     override suspend fun addAttachments(
         pageId: String,
         pageAttachmentInput: List<PageAttachmentInput>
@@ -269,7 +290,8 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun downloadAttachment(attachment: Attachment, destination: Path) {
-        val downloadLink = attachment.links["download"] ?: throw IllegalArgumentException("No download link found: ${attachment.links}")
+        val downloadLink = attachment.links["download"]
+            ?: throw IllegalArgumentException("No download link found: ${attachment.links}")
 
         val response = httpClient.get(makeLink(confluenceBaseUrl, downloadLink))
 

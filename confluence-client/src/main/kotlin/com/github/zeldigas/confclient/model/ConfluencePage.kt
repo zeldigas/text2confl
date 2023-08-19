@@ -76,13 +76,18 @@ data class PageChildren(
 )
 
 data class PageAttachments(
-    val results: List<Attachment>
+    val start: Int? = null,
+    val limit: Int? = null,
+    val size: Int? = null,
+    val results: List<Attachment> = emptyList(),
+    @JsonProperty("_links")
+    val links:Map<String, String> = emptyMap()
 )
 
 data class Attachment(
     val id: String,
     val title: String,
-    val metadata: Map<String, Any?>,
+    val metadata: Map<String, Any?> = emptyMap(),
     @JsonProperty("_links")
     val links:Map<String, String> = emptyMap()
 )

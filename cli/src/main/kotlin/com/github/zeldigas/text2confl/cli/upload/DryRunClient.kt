@@ -72,7 +72,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         pageAttachmentInput.forEach {
             log.info { "(dryrun) Creating attachment on page $pageId: ${contentDetails(it)}" }
         }
-        return PageAttachments(pageAttachmentInput.map { toServerAttachment(UNDEFINED_ID, it) })
+        return PageAttachments(results = pageAttachmentInput.map { toServerAttachment(UNDEFINED_ID, it) })
     }
 
     override suspend fun updateAttachment(
