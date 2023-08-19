@@ -1,9 +1,13 @@
 package com.github.zeldigas.text2confl.cli
 
+import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.NullableOption
 import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.nullableFlag
+import com.github.ajalt.mordant.terminal.ConfirmationPrompt
+import com.github.ajalt.mordant.terminal.StringPrompt
 import com.github.zeldigas.text2confl.cli.upload.InvalidTenantException
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
@@ -39,5 +43,15 @@ fun tryHandleException(ex: Exception) : Nothing {
             throw PrintMessage("Some pages content is invalid:\n${issues}", printError = true)
         }
         else -> throw ex
+    }
+}
+
+fun CliktCommand.promptForSecret(prompt:String, requireConfirmation: Boolean): String? {
+    return if(requireConfirmation) {
+        ConfirmationPrompt.create(prompt, "Repeat for confirmation: ") {
+            StringPrompt(it, terminal, hideInput = true)
+        }.ask()
+    }else{
+        return terminal.prompt(prompt, hideInput = true)
     }
 }

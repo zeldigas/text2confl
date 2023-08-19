@@ -33,7 +33,7 @@ class AttachmentCollector(
             VisitHandler(LinkRef::class.java) { tryCollect(it, ast as Document) },
             VisitHandler(Image::class.java) { tryCollect(it) },
             VisitHandler(ImageRef::class.java) { tryCollect(it, ast as Document) },
-            VisitHandler(Reference::class.java) { tryCollect(it, ast as Document) }
+            VisitHandler(Reference::class.java) { tryCollect(it) }
         )).visit(ast)
     }
 
@@ -63,7 +63,7 @@ class AttachmentCollector(
         addFileIfExists(referenceNode.url.unescape(), referenceNode.reference.toString())
     }
 
-    private fun tryCollect(reference: Reference, ast: Document) {
+    private fun tryCollect(reference: Reference) {
         addFileIfExists(reference.url.unescape(), reference.reference.toString())
     }
 

@@ -8,8 +8,8 @@ import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.context
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
@@ -44,7 +44,6 @@ internal class UploadTest(
     @MockK private val converter: Converter
 ) {
     private val command = Upload()
-    private val parentContext = Context.build(command) {}
 
     @BeforeEach
     internal fun setUp() {
@@ -52,7 +51,10 @@ internal class UploadTest(
         every { serviceProvider.createConfluenceClient(any(), any()) } returns confluenceClient
         every { serviceProvider.createUploader(confluenceClient, any(), any()) } returns contentUploader
         every { serviceProvider.createContentValidator() } returns contentValidator
-        parentContext.obj = serviceProvider
+
+        command.context {
+            obj = serviceProvider
+        }
     }
 
     @Test
@@ -72,8 +74,7 @@ internal class UploadTest(
                 "--remove-orphans", "all",
                 "--tenant", "test",
                 "--docs", tempDir.toString()
-            ),
-            parentContext
+            )
         )
 
         verify {
@@ -118,8 +119,7 @@ internal class UploadTest(
                 "--message", "custom upload message",
                 "--docs", tempDir.toString(),
                 "--dry"
-            ),
-            parentContext
+            )
         )
 
         verify {
@@ -163,11 +163,10 @@ internal class UploadTest(
                     "--space", "TR",
                     "--confluence-url", "https://wiki.example.org",
                     "--docs", tempDir.toString()
-                ),
-                parentContext
+                )
             )
         }.isInstanceOf(PrintMessage::class).all {
-            transform { it.error }.isTrue()
+            transform { it.printError }.isTrue()
             hasMessage("Either access token or username/password should be specified")
         }
     }
@@ -178,11 +177,10 @@ internal class UploadTest(
             command.parse(
                 listOf(
                     "--docs", tempDir.toString()
-                ),
-                parentContext
+                )
             )
         }.isInstanceOf(PrintMessage::class).all {
-            transform { it.error }.isTrue()
+            transform { it.printError }.isTrue()
             hasMessage("Space is not specified. Use `--space` option or `space` in config file")
         }
     }
@@ -194,11 +192,10 @@ internal class UploadTest(
                 listOf(
                     "--space", "TR",
                     "--docs", tempDir.toString()
-                ),
-                parentContext
+                )
             )
         }.isInstanceOf(PrintMessage::class).all {
-            transform { it.error }.isTrue()
+            transform { it.printError }.isTrue()
             hasMessage("Confluence url is not specified. Use `--confluence-url` option or `server` in config file")
         }
     }
@@ -217,8 +214,7 @@ internal class UploadTest(
                 "--access-token", "test",
                 "--parent", "Test page",
                 "--docs", tempDir.toString()
-            ),
-            parentContext
+            )
         )
 
         coVerify {
@@ -239,8 +235,7 @@ internal class UploadTest(
                 "--space", "TR",
                 "--access-token", "test",
                 "--docs", tempDir.toString()
-            ),
-            parentContext
+            )
         )
 
         coVerify {
@@ -260,8 +255,7 @@ internal class UploadTest(
                     "--space", "TR",
                     "--access-token", "test",
                     "--docs", tempDir.toString()
-                ),
-                parentContext
+                )
             )
         }.isInstanceOf(PrintMessage::class).hasMessage("File does not exist: $tempDir")
     }
@@ -281,8 +275,7 @@ internal class UploadTest(
                     "--space", "TR",
                     "--access-token", "test",
                     "--docs", tempDir.toString()
-                ),
-                parentContext
+                )
             )
         }.isInstanceOf(PrintMessage::class)
             .hasMessage("Failed to convert $tempDir: Conversion error message (cause: java.lang.RuntimeException: cause)")
@@ -306,8 +299,7 @@ internal class UploadTest(
                     "--space", "TR",
                     "--access-token", "test",
                     "--docs", tempDir.toString()
-                ),
-                parentContext
+                )
             )
         }.isInstanceOf(PrintMessage::class)
             .hasMessage("Some pages content is invalid:\n1. error message1\n2. error message2")

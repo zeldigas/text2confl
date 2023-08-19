@@ -63,5 +63,5 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md", help = "Exports confl
     }
 
     override fun askForSecret(prompt: String, requireConfirmation: Boolean): String? =
-        prompt(prompt, hideInput = true, requireConfirmation = true)
+        promptForSecret(prompt, requireConfirmation)
 }
