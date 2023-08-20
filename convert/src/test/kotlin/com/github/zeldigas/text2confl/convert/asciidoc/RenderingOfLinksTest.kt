@@ -27,11 +27,16 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             
             xref:test/another.md#first-header[Link [.line-through]#with# **anchor** to `another type`]                       
         """.trimIndent(),
-            referenceProvider = ReferenceProvider.fromDocuments(Path("."), mapOf(
-                Path("src.adoc") to PageHeader("Test", emptyMap()),
-                Path("another.adoc") to PageHeader("Another adoc", emptyMap()),
-                Path("test/another.md") to PageHeader("Markdown", emptyMap())
-            ))
+            referenceProvider = AsciidocReferenceProvider(
+                Path("./test.adoc"),
+                ReferenceProvider.fromDocuments(
+                    Path("."), mapOf(
+                        Path("src.adoc") to PageHeader("Test", emptyMap()),
+                        Path("another.adoc") to PageHeader("Another adoc", emptyMap()),
+                        Path("test/another.md") to PageHeader("Markdown", emptyMap())
+                    )
+                )
+            )
         )
 
         assertThat(result).isEqualToConfluenceFormat(
@@ -68,9 +73,14 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             [#another-anchor]
             Another paragraph
         """.trimIndent(),
-            referenceProvider = ReferenceProvider.fromDocuments(Path("."), mapOf(
-                Path("src.md") to PageHeader("Test", emptyMap())
-            ))
+            referenceProvider = AsciidocReferenceProvider(
+                Path("./test.adoc"),
+                ReferenceProvider.fromDocuments(
+                    Path("."), mapOf(
+                        Path("src.md") to PageHeader("Test", emptyMap())
+                    )
+                )
+            )
 
         )
 

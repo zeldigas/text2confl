@@ -21,6 +21,7 @@ import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
 import com.github.zeldigas.text2confl.convert.Page
+import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import io.ktor.http.*
@@ -89,7 +90,8 @@ internal class UploadTest(
         }
         val expectedConverterConfig = ConverterConfig(
             "", "", EditorVersion.V2, null, null, null,
-            CodeBlockParams(), MarkdownConfiguration(diagrams = DiagramsConfiguration(tempDir / ".diagrams"))
+            CodeBlockParams(), MarkdownConfiguration(diagrams = DiagramsConfiguration(tempDir / ".diagrams")),
+            AsciidoctorConfiguration(libsToLoad = listOf("asciidoctor-diagram"), workdir = tempDir / ".asciidoc")
         )
         verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
         verify {
@@ -137,7 +139,8 @@ internal class UploadTest(
             directoryConfig.editorVersion!!, null,
             "http://example.com/", null,
             directoryConfig.codeBlocks,
-            directoryConfig.markdown.toConfig(directoryConfig.docsDir)
+            directoryConfig.markdown.toConfig(directoryConfig.docsDir),
+            directoryConfig.asciidoc.toConfig(directoryConfig.docsDir)
         )
         verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
         verify {

@@ -14,6 +14,7 @@ import com.github.zeldigas.text2confl.cli.upload.DryRunClient
 import com.github.zeldigas.text2confl.cli.upload.PageUploadOperationsImpl
 import com.github.zeldigas.text2confl.convert.ConversionParameters
 import com.github.zeldigas.text2confl.convert.Converter
+import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.universalConverter
 import io.ktor.http.*
@@ -40,7 +41,8 @@ internal class ServiceProviderImplTest {
                 "pre", "post", EditorVersion.V2, null,
                 "root/", null,
                 CodeBlockParams(),
-                MarkdownConfiguration()
+                MarkdownConfiguration(),
+                AsciidoctorConfiguration()
             )
         )
 
@@ -90,7 +92,7 @@ internal class ServiceProviderImplTest {
                 "TEST", ConverterConfig(
                     "pre", "post", EditorVersion.V1,
                     null, "http://example.org/", "custom text",
-                    CodeBlockParams(), MarkdownConfiguration()
+                    CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
                 )
             )
 

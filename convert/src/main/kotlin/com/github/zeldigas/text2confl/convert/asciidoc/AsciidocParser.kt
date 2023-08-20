@@ -4,9 +4,9 @@ import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.vladsch.flexmark.util.sequence.Escaping.unescapeHtml
 import org.asciidoctor.*
 import org.asciidoctor.ast.Document
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.div
 
 
 class AsciidocParser(
@@ -29,9 +29,9 @@ class AsciidocParser(
         if (templateResources.scheme == "file") {
             Path(templateResources.path)
         } else {
-            val dest = Files.createTempDirectory("asciidoc_templates").toAbsolutePath()
+            val dest = config.workdir / "templates"
 
-            extractTemplatesTo(dest, templateResources)
+            extractTemplatesTo(dest, templateResources, TEMPLATES_LOCATION)
 
             dest
         }

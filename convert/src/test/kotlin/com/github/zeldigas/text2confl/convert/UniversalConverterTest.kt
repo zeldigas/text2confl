@@ -4,6 +4,7 @@ import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.*
+import com.github.zeldigas.text2confl.convert.asciidoc.AsciidocFileConverter
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
@@ -152,8 +153,9 @@ internal class UniversalConverterTest(
                 prop(UniversalConverter::conversionParameters).isSameAs(conversionParameters)
                 prop(UniversalConverter::space).isEqualTo("TEST")
                 prop(UniversalConverter::converters).all {
-                    hasSize(1)
+                    hasSize(2)
                     transform { it["md"] }.isNotNull().isInstanceOf(MarkdownFileConverter::class)
+                    transform { it["adoc"] }.isNotNull().isInstanceOf(AsciidocFileConverter::class)
                 }
             }
         }

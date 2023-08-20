@@ -15,7 +15,7 @@ internal open class RenderingTestBase {
     companion object {
         val DEFAULT_PARSER = AsciidocParser(
             AsciidoctorConfiguration(
-                libsToLoad = listOf("asciidoctor-diagram"), loadBundledMacros = true, attributes = attributes
+                libsToLoad = listOf("asciidoctor-diagram"), loadBundledMacros = true
             )
         )
     }
@@ -29,23 +29,36 @@ internal open class RenderingTestBase {
     fun toHtml(
         src: String,
         attachments: Map<String, Attachment> = emptyMap(),
-        referenceProvider: ReferenceProvider = ReferenceProvider.singleFile(),
         languageMapper: LanguageMapper? = null,
         addAutogenHeader: Boolean = false,
         autogenText: String = "Generated for __doc-root____file__",
         parser: AsciidocParser = DEFAULT_PARSER,
-        attachmentsRegistry: AttachmentsRegistry = AttachmentsRegistry()
+        attachmentsCollector: AsciidocAttachmentCollector? = null,
+        referenceProvider: AsciidocReferenceProvider? = null,
     ): String {
-        attachments.forEach { name, attachment -> attachmentsRegistry.register(name, attachment) }
-        val source = Path("./test.adoc")
+        val defaultSource = Path("./test.adoc")
+        val effectiveReferenceProvider =
+            referenceProvider ?: AsciidocReferenceProvider(defaultSource, ReferenceProvider.singleFile())
+        val effectiveCollector = attachmentsCollector
+            ?: AsciidocAttachmentCollector(
+                defaultSource,
+                AttachmentCollector(effectiveReferenceProvider.referenceProvider, AttachmentsRegistry()),
+                Path(".")
+            )
+        attachments.forEach { (name, attachment) ->
+            effectiveCollector.attachmentCollector.attachmentsRegistry.register(
+                name,
+                attachment
+            )
+        }
         val ast = parser.parseDocument(
             src, AsciidocRenderingParameters(
                 languageMapper ?: this.languageMapper,
-                AsciidocReferenceProvider(source, referenceProvider),
+                effectiveReferenceProvider,
                 autogenText,
                 addAutogenHeader,
                 "TEST",
-                AsciidocAttachmentCollector(source, AttachmentCollector(referenceProvider, attachmentsRegistry))
+                effectiveCollector
             )
         )
 

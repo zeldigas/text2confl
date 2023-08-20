@@ -3,14 +3,31 @@ package com.github.zeldigas.text2confl.convert.asciidoc
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.AttachmentCollector
 import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
+import com.github.zeldigas.text2confl.convert.PageHeader
+import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 
 internal class RenderingOfDiagramsTest : RenderingTestBase() {
 
     @Test
-    fun `Code block is replaced with image for registered diagram generator`() {
+    fun `Code block is replaced with image for registered diagram generator`(@TempDir tempDir: Path) {
+        val parser = AsciidocParser(
+            AsciidoctorConfiguration(
+                workdir = tempDir.resolve("out").also { it.createDirectories() },
+                libsToLoad = listOf("asciidoctor-diagram"),
+                loadBundledMacros = false,
+                attributes = mapOf(
+                    "outdir" to (tempDir / "out").toString(),
+                    "imagesoutdir" to (tempDir / "out").toString()
+                )
+            )
+        )
         val registry = AttachmentsRegistry()
         val result = toHtml(
             """
@@ -23,18 +40,29 @@ internal class RenderingOfDiagramsTest : RenderingTestBase() {
             Alice <-- Bob: another authentication Response
             ....
             """.trimIndent(),
-            attachmentsRegistry = registry
+            attachmentsCollector = AsciidocAttachmentCollector(
+                tempDir / "test.adoc", AttachmentCollector(
+                    ReferenceProvider.fromDocuments(
+                        tempDir, mapOf(
+                            tempDir / "test.adoc" to PageHeader("Test", emptyMap())
+                        )
+                    ),
+                    registry
+                ),
+                tempDir / "out"
+            ),
+            parser = parser
         )
 
-        assertThat(result).isEqualToConfluenceFormat(
-            """
-            <p><ac:image ac:title="Diagram title" ac:height="500" ac:width="600"><ri:attachment ri:filename="auth-protocol.png" /></ac:image></p>
-            """.trimIndent()
-        )
         assertThat(registry.collectedAttachments).isEqualTo(
             mapOf(
-                "auth-protocol.png" to Attachment.fromLink("auth-protocol.png", Path.of("auth-protocol.png"))
+                "auth-protocol.png" to Attachment.fromLink("auth-protocol.png", tempDir / "out" / "auth-protocol.png")
             )
+        )
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <p><ac:image ac:height="207" ac:width="290" ac:alt="auth protocol"><ri:attachment ri:filename="auth-protocol.png" /></ac:image></p>
+            """.trimIndent()
         )
     }
 }

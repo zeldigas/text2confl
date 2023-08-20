@@ -65,7 +65,7 @@ class MarkdownAttachmentCollector(
     }
 
     private fun addFileIfExists(pathToFile: String, referenceName: String? = null) {
-        attachmentsCollector.collect(source, pathToFile, referenceName)
+        attachmentsCollector.collectRelativeToSourceFile(source, pathToFile, referenceName)
     }
 
 }

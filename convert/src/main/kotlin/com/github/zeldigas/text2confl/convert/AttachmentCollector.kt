@@ -9,7 +9,7 @@ import kotlin.io.path.exists
 
 class AttachmentCollector(
     private val referencesProvider: ReferenceProvider,
-    private val attachmentsRegistry: AttachmentsRegistry
+    val attachmentsRegistry: AttachmentsRegistry
 ) {
 
     companion object {
@@ -17,7 +17,7 @@ class AttachmentCollector(
     }
 
 
-    fun collect(source: Path, pathToFile: String, referenceName: String? = null): Attachment? {
+    fun collectRelativeToSourceFile(source: Path, pathToFile: String, referenceName: String? = null): Attachment? {
         if (!isLocal(pathToFile)) return null
 
         val effectiveName = referenceName ?: pathToFile
@@ -27,14 +27,35 @@ class AttachmentCollector(
 
         val parentDir = source.parent ?: Paths.get(".")
 
-        val file = parentDir.resolve(pathToFile).normalize()
+        return lookupInDirAndAdd(parentDir, pathToFile, effectiveName).also { attachment ->
+            if (attachment == null) {
+                logger.warn { "Unresolved local ref in [${source}], ref=${referenceName ?: "(inline)"}. File does not exist: ${parentDir.resolve(pathToFile)}" }
+            }
+        }
+    }
+
+    fun collectRelativeToDir(dir: Path, pathToFile: String, referenceName: String? = null): Attachment? {
+        if (!isLocal(pathToFile)) return null
+
+        val effectiveName = referenceName ?: pathToFile
+
+        if (attachmentsRegistry.hasRef(effectiveName)) return attachmentsRegistry.ref(effectiveName);
+
+        return lookupInDirAndAdd(dir, pathToFile, effectiveName).also { attachment ->
+            if (attachment == null) {
+                logger.warn { "Unresolved local ref in [dir ${dir}], ref=${referenceName ?: "(inline)"}. File does not exist: ${dir.resolve(pathToFile)}" }
+            }
+        }
+    }
+
+    private fun lookupInDirAndAdd(dir: Path, pathToFile: String, effectiveName: String):Attachment? {
+        val file = dir.resolve(pathToFile).normalize()
         return if (file.exists()) {
             logger.debug { "File exists, adding as attachment: $file with ref $effectiveName" }
             val attachment = Attachment.fromLink(effectiveName, file)
             attachmentsRegistry.register(effectiveName, attachment)
             attachment
         } else {
-            logger.warn { "Unresolved local ref in [${source}], ref=${referenceName ?: "(inline)"}. File does not exist: $file" }
             null
         }
     }
@@ -50,6 +71,4 @@ class AttachmentCollector(
             false
         }
     }
-
-
 }

@@ -8,7 +8,7 @@ import java.nio.file.Path
 
 class AsciidocReferenceProvider(
     private val source: Path,
-    private val referenceProvider: ReferenceProvider
+    internal val referenceProvider: ReferenceProvider
 ) {
 
     fun resolveXref(target: String): AsciidocRef? {
