@@ -29,6 +29,13 @@ data class ConvertingContext(
 
     val titleTransformer: (Path, String) -> String
         get() = conversionParameters.titleConverter
+    
+    fun autotextFor(file: Path): String {
+        val pathFromRoot = referenceProvider.pathFromDocsRoot(file)
+        return conversionParameters.noteText
+            .replace("__doc-root__", conversionParameters.docRootLocation)
+            .replace("__file__", pathFromRoot.toString())
+    }
 }
 
 
@@ -40,6 +47,8 @@ class AttachmentsRegistry {
     }
 
     fun hasRef(ref: String) = ref in attachments
+
+    fun ref(ref: String): Attachment = attachments.getValue(ref)
 
     val collectedAttachments: Map<String, Attachment>
         get() = attachments

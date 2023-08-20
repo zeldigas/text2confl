@@ -60,6 +60,6 @@ page.
 Here are the state of support of formats:
 
 1. ✅ Markdown - supported
-2. 📅️ Asciidoc - [*planned️*](https://github.com/zeldigas/text2confl/issues/14)
+2. ✅ Asciidoc - supported
 
 

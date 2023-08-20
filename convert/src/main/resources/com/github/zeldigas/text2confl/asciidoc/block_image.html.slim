@@ -1,0 +1,14 @@
+p
+  = html_a_tag_if (attr? :link)
+    ac:image ac:height=(attr :height) ac:width=(attr :width) ac:title=(title if title?) ac:alt=(attr :alt if attr :alt) ac:thumbnail=(attr :thumbnail) ac:align=(attr :align) ac:border=(attr :border) ac:class=(attr :class) ac:style=(attr :imgstyle) ac:vspace=(attr :vspace) ac:hspace=(attr :hspace) ac:queryparams=(attr :queryparams)
+      - if uriish? attr :target
+        ri:url ri:value=(attr :target) /
+      - else
+        - attachment = page_attachment(attr :target)
+        - if attachment.nil?
+          ri:url ri:value=(attr :target) /
+        -  else
+          ri:attachment ri:filename=(attachment) /
+    - if title?
+      div class="t2c-image-title"
+        em =captioned_title

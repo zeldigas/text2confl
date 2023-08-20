@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.cli.config
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.confluence.CONFLUENCE_CLOUD_LANGUAGES
 import com.github.zeldigas.text2confl.convert.confluence.CONFLUENCE_SERVER_LANGUAGES
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
@@ -15,7 +16,7 @@ internal class ConverterConfigTest {
         assertThat(
             ConverterConfig(
                 "Pre ", " - Post", EditorVersion.V1, null, null, null,
-                CodeBlockParams(), MarkdownConfiguration()
+                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
             ).titleConverter(Path(""), "test")
         )
             .isEqualTo("Pre test - Post")
@@ -26,7 +27,7 @@ internal class ConverterConfigTest {
         assertThat(
             ConverterConfig(
                 "", "", EditorVersion.V1, null, null, null,
-                CodeBlockParams(), MarkdownConfiguration()
+                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
             ).languageMapper.supportedLanguages
         )
             .isEqualTo(CONFLUENCE_SERVER_LANGUAGES)
@@ -37,7 +38,7 @@ internal class ConverterConfigTest {
         assertThat(
             ConverterConfig(
                 "", "", EditorVersion.V2, null, null, null,
-                CodeBlockParams(), MarkdownConfiguration()
+                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
             ).languageMapper.supportedLanguages
         )
             .isEqualTo(CONFLUENCE_CLOUD_LANGUAGES)

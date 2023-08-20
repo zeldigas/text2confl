@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.cli.config
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
+import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.*
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -31,6 +32,7 @@ data class DirectoryConfig(
     val tenant: String? = null,
     val codeBlocks: CodeBlockParams = CodeBlockParams(),
     val markdown: MarkdownParams = MarkdownParams(),
+    val asciidoc: AsciidocParams = AsciidocParams()
 ) {
     lateinit var docsDir: Path
 }
@@ -67,7 +69,6 @@ data class MarkdownDiagramParameters(
     val mermaid: MermaidDiagramsConfiguration = MermaidDiagramsConfiguration(),
     val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration()
 ) {
-
     fun toConfig(docsDir: Path): DiagramsConfiguration {
         val baseDir = if (tempDir) createTempDirectory() else docsDir / baseDir
         return DiagramsConfiguration(diagramsBaseDir = baseDir,
@@ -82,4 +83,33 @@ data class MarkdownDiagramParameters(
 
     private fun String.relativeTo(base: Path) : String = base.resolve(Path(this)).toString()
 
+}
+
+
+data class AsciidocParams(
+    val gems: List<String> = emptyList(),
+    val diagrams: AsciidocDiagrams = AsciidocDiagrams.Diagrams,
+    val bundledMacros: Boolean = true,
+    val attributes: Map<String, Any?> = emptyMap(),
+    val tempDir: Boolean = false,
+    val baseDir: String = ".asciidoc",
+) {
+    fun toConfig(docsDir: Path): AsciidoctorConfiguration {
+        val baseDir = if (tempDir) createTempDirectory() else docsDir / baseDir
+        return AsciidoctorConfiguration(
+            libsToLoad = gems + diagrams.let {
+                when(it) {
+                    AsciidocDiagrams.None -> emptyList()
+                    AsciidocDiagrams.Diagrams -> listOf("asciidoctor-diagram")
+                }
+            },
+            loadBundledMacros = bundledMacros,
+            attributes = attributes,
+            workdir = baseDir
+        )
+    }
+}
+
+enum class AsciidocDiagrams {
+    None, Diagrams
 }

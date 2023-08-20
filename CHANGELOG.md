@@ -7,6 +7,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Files in Asciidoc format. Features:
+  - All basic rendering features of asciidoc
+  - 3 bundled Confluence-specific macros: status, userlink and generic macro `confl_macro` that allows to render any simple macro 
+  - Support for registering additional ruby libs
+  - Support for `asciidoctor-diagram`
+
+### Changed
+
+- Dependency updates:
+    - Clikt 4.2.0
+
 ## 0.11.0 - 2023-07-16
 
 ### Added
