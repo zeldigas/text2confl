@@ -9,13 +9,16 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
     internal fun `Confluence status macro`() {
         val result = toHtml(
             """
-            Text with <status color="red">text of status</status>.            
+            Text with status:red[text of status].
+                        
+            No text status:green[]
         """.trimIndent()
         )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p>Text with <ac:structured-macro ac:name="status"><ac:parameter ac:name="title">text of status</ac:parameter><ac:parameter ac:name="colour">Red</ac:parameter></ac:structured-macro>.</p>
+            <p>Text with <ac:structured-macro ac:name="status"><ac:parameter ac:name="colour">Red</ac:parameter><ac:parameter ac:name="title">text of status</ac:parameter></ac:structured-macro>.</p>
+            <p>No text <ac:structured-macro ac:name="status"><ac:parameter ac:name="colour">Green</ac:parameter></ac:structured-macro></p>
         """.trimIndent()
         )
     }
@@ -24,15 +27,15 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
     internal fun `Confluence user macro`() {
         val result = toHtml(
             """
-            Hello @useRname.    
+            Hello user:useRname[].    
                     
-            Hello @v.uS_er.
+            Hello user:v.uS_er[].
                         
-            Hello @__user__.
+            Hello user:+++__user__+++[].
             
-            Hello @user-name.
+            Hello user:user-name[].
             
-            Hello @user-name-.
+            Hello user:user-name[]-.
                         
             Hello @..            
         """.trimIndent()
@@ -51,16 +54,31 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Confluence user macro is ignored in code block`() {
+    internal fun `Confluence user macro is ignored in code literal block`() {
         val result = toHtml(
             """
-            Hello `code block with @useRname @user-name and @__user__.`
+            Hello `+code block with user:useRname[] user:user-name[] and user:__user__[].+`
         """.trimIndent()
         )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p>Hello <code>code block with @useRname @user-name and @__user__.</code></p>
+            <p>Hello <code>code block with user:useRname[] user:user-name[] and user:__user__[].</code></p>
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Simple inline macro generates any structured macro`() {
+        val result = toHtml(
+            """
+            Test confl_macro:jira[key=ABC-123].
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <p>Test <ac:structured-macro ac:name="jira"><ac:parameter ac:name="key">ABC-123</ac:parameter></ac:structured-macro>.</p>
         """.trimIndent()
         )
     }

@@ -1,7 +1,6 @@
 package com.github.zeldigas.text2confl.convert.asciidoc
 
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
-import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.vladsch.flexmark.util.sequence.Escaping.unescapeHtml
 import org.asciidoctor.*
 import org.asciidoctor.ast.Document
@@ -10,12 +9,18 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 
-class AsciidocParser {
+class AsciidocParser(
+    private val config: AsciidoctorConfiguration
+) {
 
     companion object {
         private val TEMPLATES_LOCATION = "/com/github/zeldigas/text2confl/asciidoc"
-        private val ADOC: Asciidoctor = Asciidoctor.Factory.create().also {
-            it.requireLibrary("asciidoctor-diagram")
+    }
+
+    private val ADOC: Asciidoctor = Asciidoctor.Factory.create().also {asciidoc ->
+        config.libsToLoad.forEach { asciidoc.requireLibrary(it)}
+        if (config.loadBundledMacros) {
+            DefaultMacros().register(asciidoc)
         }
     }
 
@@ -51,10 +56,12 @@ class AsciidocParser {
         "t2c-ref-provider" to parameters.referenceProvider,
         "t2c-auto-text" to parameters.autoText,
         "t2c-add-auto-text" to parameters.includeAutoText,
+        "t2c-attachments-collector" to parameters.attachmentsCollector,
+        "t2c-space" to parameters.space,
+        "t2c-decoder" to Converter,
         "idseparator" to "-",
-        "idprefix" to "",
-        "t2c-decoder" to Converter
-    ) + parameters.extraAttrs
+        "idprefix" to ""
+    ) + config.attributes + parameters.extraAttrs
 
     private fun htmlConversionOptions(attrs: Map<String, Any?>) = parserOptions {
         attributes(
@@ -75,13 +82,14 @@ class AsciidocParser {
 
 data class AsciidocRenderingParameters(
     val languageMapper: LanguageMapper,
-    val referenceProvider: ReferenceProvider,
+    val referenceProvider: AsciidocReferenceProvider,
     val autoText: String,
     val includeAutoText: Boolean,
     val space: String,
+    val attachmentsCollector: AsciidocAttachmentCollector,
     val extraAttrs: Map<String, Any?> = emptyMap()
 )
 
 object Converter {
-    fun convert(string: String) = unescapeHtml(string)
+    fun convert(string: String): String = unescapeHtml(string)
 }

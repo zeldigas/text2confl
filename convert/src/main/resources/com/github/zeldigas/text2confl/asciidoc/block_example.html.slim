@@ -3,7 +3,9 @@
     - if title?
       ac:parameter ac:name="title" #{title}
     ac:rich-text-body
+      = line_break
       = content
+      = line_break
 - else
     ac:structured-macro ac:name="tip"
       - if title?

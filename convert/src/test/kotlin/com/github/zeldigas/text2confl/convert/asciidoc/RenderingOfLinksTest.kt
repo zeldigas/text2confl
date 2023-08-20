@@ -13,36 +13,36 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
     internal fun `Cross references rendering`() {
         val result = toHtml(
             """
-            [Link](another.md)
+            xref:another.adoc[]
+            
+            xref:another.adoc[Link]
 
-            [Link with anchor](another.md#test)
+            xref:another.adoc#test[Link with anchor]
             
-            [Link with anchor to another type](test/another.adoc#first-header)
+            link:another.adoc[]
             
-            [Link ~~with~~ **anchor** to `another type`](test/another.adoc#first-header)
+            xref:test/another.md#first-header[Link with anchor to another type]
             
-            [Link with anchor][ref1]
+            link:test/another.md#first-header[Link with anchor to another type via link macro]
             
-            [Link ~~with~~ **anchor** to `another type`][ref2]
-            
-            [ref1]: another.md#test
-            [ref2]: test/another.adoc#first-header
+            xref:test/another.md#first-header[Link [.line-through]#with# **anchor** to `another type`]                       
         """.trimIndent(),
             referenceProvider = ReferenceProvider.fromDocuments(Path("."), mapOf(
-                Path("src.md") to PageHeader("Test", emptyMap()),
-                Path("another.md") to PageHeader("Another md", emptyMap()),
-                Path("test/another.adoc") to PageHeader("Asciidoc", emptyMap())
+                Path("src.adoc") to PageHeader("Test", emptyMap()),
+                Path("another.adoc") to PageHeader("Another adoc", emptyMap()),
+                Path("test/another.md") to PageHeader("Markdown", emptyMap())
             ))
         )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:link><ri:page ri:content-title="Another md" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link]]></ac:plain-text-link-body></ac:link></p>
-            <p><ac:link ac:anchor="test"><ri:page ri:content-title="Another md" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor]]></ac:plain-text-link-body></ac:link></p>
-            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Asciidoc" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor to another type]]></ac:plain-text-link-body></ac:link></p>
-            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Asciidoc" ri:space-key="TEST" /><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
-            <p><ac:link ac:anchor="test"><ri:page ri:content-title="Another md" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor]]></ac:plain-text-link-body></ac:link></p>
-            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Asciidoc" ri:space-key="TEST" /><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
+            <p><ac:link><ri:page ri:content-title="Another adoc" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Another adoc]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link><ri:page ri:content-title="Another adoc" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link ac:anchor="test"><ri:page ri:content-title="Another adoc" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link><ri:page ri:content-title="Another adoc" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Another adoc]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor to another type]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor to another type via link macro]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
         """.trimIndent(),
         )
     }
@@ -51,16 +51,22 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
     internal fun `Anchors references rendering`() {
         val result = toHtml(
             """
-            [Link](#test)
+            <<test,Link>>
             
-            [Link ~~with~~ **anchor** to `another type`](#another-anchor)
+            <<another-anchor,Link [.line-through]#with# **anchor** to `another type`>>
             
-            [Link][anch1]
+            <<missing-anchor,Missing anchor>>
             
-            [Link ~~with~~ **anchor** to `another type`][anch2]
+            <<test2>>
             
-            [anch1]: #test
-            [anch2]: #another-anchor
+            [#test]
+            Paragraph with test anchor
+            
+            [#test2,reftext=Custom name]
+            Paragraph with customized anchor
+            
+            [#another-anchor]
+            Another paragraph
         """.trimIndent(),
             referenceProvider = ReferenceProvider.fromDocuments(Path("."), mapOf(
                 Path("src.md") to PageHeader("Test", emptyMap())
@@ -72,8 +78,11 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             """
             <p><ac:link ac:anchor="test"><ac:plain-text-link-body><![CDATA[Link]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link ac:anchor="another-anchor"><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
-            <p><ac:link ac:anchor="test"><ac:plain-text-link-body><![CDATA[Link]]></ac:plain-text-link-body></ac:link></p>
-            <p><ac:link ac:anchor="another-anchor"><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
+            <p><ac:link ac:anchor="missing-anchor"><ac:plain-text-link-body><![CDATA[Missing anchor]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link ac:anchor="test2"><ac:plain-text-link-body><![CDATA[Custom name]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">test</ac:parameter></ac:structured-macro>Paragraph with test anchor</p>
+            <p><ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">test2</ac:parameter></ac:structured-macro>Paragraph with customized anchor</p>
+            <p><ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">another-anchor</ac:parameter></ac:structured-macro>Another paragraph</p>
         """.trimIndent(),
         )
     }
@@ -82,20 +91,11 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
     internal fun `Attachments rendering`() {
         val result = toHtml(
             """
-            [attached file](assets/test.txt "Ignored")
+            link:assets/test.txt[attached file]
             
-            [attached `code` **formatting**](assets/test.txt "Ignored")
+            link:assets/test.txt[attached `code` **formatting**]
             
-            [non-existing file](assets/missing.mp4 "Ignored")
-            
-            [Alt][attached]
-            
-            [Alt][missing]
-            
-            [Alt][broken]
-                                   
-            [attached]: assets/test.txt "Attached file"
-            [missing]: assets/missing.mp4
+            link:assets/missing.mp4[non-existing file,title="Not ignored"]         
         """.trimIndent(),
             attachments = mapOf(
                 "assets/test.txt" to Attachment("an_attachment", "assets/test.txt", Path("assets/test.txt"))
@@ -106,10 +106,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             """
             <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:plain-text-link-body><![CDATA[attached file]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:link-body>attached <code>code</code> <strong>formatting</strong></ac:link-body></ac:link></p>
-            <p><a href="assets/missing.mp4" title="Ignored">non-existing file</a></p>
-            <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:plain-text-link-body><![CDATA[Alt]]></ac:plain-text-link-body></ac:link></p>
-            <p><a href="assets/missing.mp4">Alt</a></p>
-            <p>[Alt][broken]</p>
+            <p><a href="assets/missing.mp4" title="Not ignored">non-existing file</a></p>
         """.trimIndent(),
         )
     }
@@ -117,25 +114,26 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
     @Test
     internal fun `Simple links rendering`() {
         val result = toHtml(
-            """            
-            Strong **[Strong](https://example.org)**. 
-            *[Markdown Guide](https://example.org/italics)*.
-            Mixed content [`code` and **strong** and *italic*](https://example.org/mixed)
+            """
+            :ext: https://example.org/external
+            Strong **link:https://example.org[Strong]**. 
+            _link:https://example.org/italics[Markdown Guide]_.
+            Mixed content link:https://example.org/mixed[`code` and **strong** and _italic_]
                                    
-            Link [~~strikethrough~~][ext]
-            
-            [broken][broken-link]
-            
-            [ext]: https://example.org/external
+            Link {ext}[+++<del>strikethrough</del>+++]
+                       
+            Link {ext}[[.line-through]#abc#]           
         """.trimIndent(),
             attachments = emptyMap()
         )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p>Strong <strong><a href="https://example.org">Strong</a></strong>. <em><a href="https://example.org/italics">Markdown Guide</a></em>. Mixed content <a href="https://example.org/mixed"><code>code</code> and <strong>strong</strong> and <em>italic</em></a></p>
+            <p>Strong <strong><a href="https://example.org">Strong</a></strong>.
+            <em><a href="https://example.org/italics">Markdown Guide</a></em>.
+            Mixed content <a href="https://example.org/mixed"><code>code</code> and <strong>strong</strong> and <em>italic</em></a></p>
             <p>Link <a href="https://example.org/external"><del>strikethrough</del></a></p>
-            <p>[broken][broken-link]</p>
+            <p>Link <a href="https://example.org/external"><del>abc</del></a></p>
         """.trimIndent(),
         )
     }

@@ -114,39 +114,12 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
             )
         }
 
-        val attributes = """{}"""
         val result = toHtml(
             """
-            [,kotlin,                
-            ```kotlin $attributes
+            [,kotlin,collapse,linenums,start=3,collapse=true,theme=Eclipse,title="hello.kt & world"]                
+            ----
             println("Hello")
-            ```
-            """.trimIndent()
-        )
-        assertThat(result).codeBlockWithAttributes()
-    }
-
-    @Test
-    internal fun `Source code block with confluence native attributes supported`() {
-        fun Assert<String>.codeBlockWithAttributes() {
-            isEqualToConfluenceFormat(
-                """<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">kotlin</ac:parameter>"""
-                        +"""<ac:parameter ac:name="title">hello.kt &amp; world</ac:parameter>"""
-                        +"""<ac:parameter ac:name="collapse">true</ac:parameter>"""
-                        +"""<ac:parameter ac:name="linenumbers">true</ac:parameter>"""
-                        +"""<ac:parameter ac:name="firstline">3</ac:parameter>"""
-                        +"""<ac:parameter ac:name="theme">Eclipse</ac:parameter>"""
-                        +"""<ac:plain-text-body><![CDATA[println("Hello")]]></ac:plain-text-body></ac:structured-macro>"""
-            )
-        }
-
-        val attributes = """{}"""
-        val result = toHtml(
-            """
-            [,kotlin,                
-            ```kotlin $attributes
-            println("Hello")
-            ```
+            ----
             """.trimIndent()
         )
         assertThat(result).codeBlockWithAttributes()
@@ -201,8 +174,8 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <ac:structured-macro ac:name="noformat"><ac:plain-text-body><![CDATA[Text that will be rendered as <pre>
-            and no code]]></ac:plain-text-body></ac:structured-macro>
+            <ac:structured-macro ac:name="noformat"><ac:plain-text-body><![CDATA[error: 1954 Forbidden search
+            absolutely fatal: operation lost in the dodecahedron of doom]]></ac:plain-text-body></ac:structured-macro>
         """.trimIndent()
         )
     }
@@ -219,8 +192,9 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <ac:structured-macro ac:name="noformat"><ac:plain-text-body><![CDATA[Text that will be rendered as <pre>
-            and no code]]></ac:plain-text-body></ac:structured-macro>
+            <ac:structured-macro ac:name="noformat"><ac:plain-text-body><![CDATA[Kismet: Where is the *defensive operations manual*?
+
+            Computer: Calculating ...]]></ac:plain-text-body></ac:structured-macro>
         """.trimIndent()
         )
     }

@@ -19,7 +19,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 @ExtendWith(MockKExtension::class)
-internal class AttachmentCollectorTest {
+internal class MarkdownAttachmentCollectorTest {
 
     private val parser = Parser.builder().build()
     private val registry = AttachmentsRegistry()
@@ -55,7 +55,7 @@ internal class AttachmentCollectorTest {
         every { referenceProvider.resolveReference(doc, "existing.md") } returns Xref("test", null)
         every { referenceProvider.resolveReference(doc, "anchor") } returns Anchor("anchor")
 
-        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
+        MarkdownAttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
         assertThat(registry.collectedAttachments).isEqualTo(mapOf(
             "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
@@ -79,7 +79,7 @@ internal class AttachmentCollectorTest {
 
         val doc = dir.resolve("doc.md")
 
-        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
+        MarkdownAttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
         assertThat(registry.collectedAttachments).isEmpty()
     }
@@ -108,7 +108,7 @@ internal class AttachmentCollectorTest {
 
         every { referenceProvider.resolveReference(doc, any()) } returns null
 
-        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
+        MarkdownAttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
         assertThat(registry.collectedAttachments).isEqualTo(mapOf(
             "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
@@ -131,7 +131,7 @@ internal class AttachmentCollectorTest {
 
         val doc = dir.resolve("doc.md")
 
-        AttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
+        MarkdownAttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
         assertThat(registry.collectedAttachments).isEmpty()
     }

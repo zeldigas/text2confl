@@ -55,7 +55,7 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
         attachmentsRegistry: AttachmentsRegistry
     ) {
         try {
-            return AttachmentCollector(file, context.referenceProvider, attachmentsRegistry).collectAttachments(ast)
+            return MarkdownAttachmentCollector(file, context.referenceProvider, attachmentsRegistry).collectAttachments(ast)
         } catch (ex: Exception) {
             throw ConversionFailedException(file, "Failed to extract attachments", ex)
         }

@@ -48,6 +48,8 @@ class AttachmentsRegistry {
 
     fun hasRef(ref: String) = ref in attachments
 
+    fun ref(ref: String): Attachment = attachments.getValue(ref)
+
     val collectedAttachments: Map<String, Attachment>
         get() = attachments
 }

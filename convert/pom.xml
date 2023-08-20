@@ -13,8 +13,8 @@
 
     <properties>
         <flexmark.version>0.64.4</flexmark.version>
-        <asciidoctorj.version>2.5.3</asciidoctorj.version>
-        <asciidoctorj-diagram.version>2.2.1</asciidoctorj-diagram.version>
+        <asciidoctorj.version>2.5.10</asciidoctorj.version>
+        <asciidoctorj-diagram.version>2.2.11</asciidoctorj-diagram.version>
     </properties>
 
     <dependencies>

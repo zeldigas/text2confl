@@ -8,16 +8,18 @@ import kotlin.io.path.Path
 internal class RenderingOfImagesTest : RenderingTestBase() {
 
     @Test
-    internal fun `Existing images rendering`() {
+    internal fun `Existing images block rendering`() {
         val result = toHtml(
             """
-            ![Alt text](https://example.org/test.jpg "A Title")
+            .A Title    
+            image::https://example.org/test.jpg[Alt text]
             
-            ![](https://example.org/test.jpg)
+            image::https://example.org/test.jpg[]
             
-            ![](assets/image.jpg)
+            image::assets/image.jpg[]
             
-            ![Alt](assets/image.jpg "Asset")                       
+            .Asset
+            image::assets/image.jpg[Alt]                       
         """.trimIndent(),
             attachments = mapOf(
                 "assets/image.jpg" to Attachment(
@@ -30,26 +32,21 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:image ac:alt="Alt text" ac:title="A Title"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
-            <p><ac:image><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
-            <p><ac:image><ri:attachment ri:filename="an_attachment" /></ac:image></p>
-            <p><ac:image ac:alt="Alt" ac:title="Asset"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
+            <p><ac:image ac:title="A Title" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image><div class="t2c-image-title"><em>Figure 1. A Title</em></div></p>
+            <p><ac:image ac:alt="test"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
+            <p><ac:image ac:alt="image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
+            <p><ac:image ac:title="Asset" ac:alt="Alt"><ri:attachment ri:filename="an_attachment" /></ac:image><div class="t2c-image-title"><em>Figure 2. Asset</em></div></p>
         """.trimIndent(),
         )
     }
 
     @Test
-    internal fun `Existing images references rendering`() {
+    internal fun `Existing images inline rendering`() {
         val result = toHtml(
             """
-            ![Alt text][external]           
+            External image inside paragraph - image:https://example.org/test.jpg[Alt text,title="A Title"]
             
-            ![][attached]
-            
-            ![Alt][attached]
-                                   
-            [external]: https://example.org/test.jpg "External image"
-            [attached]: assets/image.jpg "Attached image"
+            Attachment image inside paragraph - image:assets/image.jpg[Alt,title="Asset"]
         """.trimIndent(),
             attachments = mapOf(
                 "assets/image.jpg" to Attachment(
@@ -62,51 +59,47 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:image ac:alt="Alt text" ac:title="External image"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
-            <p><ac:image ac:title="Attached image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
-            <p><ac:image ac:alt="Alt" ac:title="Attached image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
+            <p>External image inside paragraph - <ac:image ac:title="A Title" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
+            <p>Attachment image inside paragraph - <ac:image ac:title="Asset" ac:alt="Alt"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
         """.trimIndent(),
         )
     }
 
     @Test
-    internal fun `Missing images rendering`() {
+    internal fun `Missing images block rendering`() {
         val result = toHtml(
             """            
-            ![](assets/image.jpg)
+            image::assets/image.jpg[]
             
-            ![Alt](assets/image.jpg "Asset")                       
+            .Asset
+            image::assets/image.jpg[Alt]               
         """.trimIndent(),
             attachments = emptyMap()
         )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:image><ri:url ri:value="assets/image.jpg" /></ac:image></p>
-            <p><ac:image ac:alt="Alt" ac:title="Asset"><ri:url ri:value="assets/image.jpg" /></ac:image></p>
+            <p><ac:image ac:alt="image"><ri:url ri:value="assets/image.jpg" /></ac:image></p>
+            <p><ac:image ac:title="Asset" ac:alt="Alt"><ri:url ri:value="assets/image.jpg" /></ac:image><div class="t2c-image-title"><em>Figure 1. Asset</em></div></p>
         """.trimIndent(),
         )
     }
 
     @Test
-    internal fun `Missing and invalid images references rendering`() {
+    internal fun `Missing images inline rendering`() {
         val result = toHtml(
-            """
-            ![Alt text][external]           
+            """            
+            Image 1 - image:assets/image.jpg[]
             
-            ![][attached]      
-                  
-            ![Alt][attached]
-                                   
-            [attached]: assets/image.jpg "Attached image"
-        """.trimIndent()
+            Image 2 - image:assets/image.jpg[Alt, title="Asset"]               
+        """.trimIndent(),
+            attachments = emptyMap()
         )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p>![Alt text][external]</p>
-            <p><ac:image ac:title="Attached image"><ri:url ri:value="assets/image.jpg" /></ac:image></p>
-            <p><ac:image ac:alt="Alt" ac:title="Attached image"><ri:url ri:value="assets/image.jpg" /></ac:image></p>
+            <p>Image 1 - <ac:image ac:alt="image"><ri:url ri:value="assets/image.jpg" /></ac:image></p>
+            <p>Image 2 - <ac:image ac:title="Asset" ac:alt="Alt"><ri:url ri:value="assets/image.jpg" /></ac:image></p>
         """.trimIndent(),
         )
     }
@@ -115,13 +108,9 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
     internal fun `Image rendering with extra attributes`() {
         val result = toHtml(
             """
-            ![Alt text](https://example.org/test.jpg "A Title"){align=left border=true class="custom" title=ignored style="font-weight=bold;" }
+            image::https://example.org/test.jpg[Alt text,title="A title",align=left,border=true,imgstyle="font-weight=bold;",class="custom"]
             
-            ![Alt](assets/image.jpg "Asset"){ thumbnail=true alt=ignored height=250 width=100 vspace=10 hspace=5 unsupported=hello queryparams="effects=border-simple,blur-border,tape"}
-            
-            ![Alt][attached]{border=true}
-            
-            [attached]: assets/image.jpg "Attached image"
+            Local image - image:assets/image.jpg[Alt,100,250,title="Asset",thumbnail=true,vspace=10,hspace=5,unsupported=hello,queryparams="effects=border-simple,blur-border,tape"]
         """.trimIndent(),
             attachments = mapOf(
                 "assets/image.jpg" to Attachment(
@@ -134,9 +123,8 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:image ac:align="left" ac:border="true" ac:class="custom" ac:title="A Title" ac:style="font-weight=bold;" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
-            <p><ac:image ac:thumbnail="true" ac:alt="Alt" ac:height="250" ac:width="100" ac:vspace="10" ac:hspace="5" ac:queryparams="effects=border-simple,blur-border,tape" ac:title="Asset"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
-            <p><ac:image ac:border="true" ac:alt="Alt" ac:title="Attached image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
+            <p><ac:image ac:title="A title" ac:alt="Alt text" ac:align="left" ac:border="true" ac:class="custom" ac:style="font-weight=bold;"><ri:url ri:value="https://example.org/test.jpg" /></ac:image><div class="t2c-image-title"><em>Figure 1. A title</em></div></p>
+            <p>Local image - <ac:image ac:height="250" ac:width="100" ac:title="Asset" ac:alt="Alt" ac:thumbnail="true" ac:vspace="10" ac:hspace="5" ac:queryparams="effects=border-simple,blur-border,tape"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
         """.trimIndent(),
         )
     }

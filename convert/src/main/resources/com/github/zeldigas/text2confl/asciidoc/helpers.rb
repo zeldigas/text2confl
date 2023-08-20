@@ -13,7 +13,7 @@ end
 # templates. Within the template you can invoke them as top-level functions
 # just like in Haml.
 module Slim::Helpers
-
+  QUOTE_TAGS = Asciidoctor::Converter::Html5Converter::QUOTE_TAGS
   # Defaults
   DEFAULT_SECTNUMLEVELS = 3
 
@@ -151,17 +151,33 @@ module Slim::Helpers
   end
 
   def unescaped(content)
-    document.attr['t2c-decoder'].convert(content)
+    decoder = document.attr 't2c-decoder'
+    decoder.convert(content)
+  end
+
+  def page_attachment(target)
+    attachment_collector = document.attr 't2c-attachments-collector'
+    attachment_collector.collect(target)
+  end
+
+  def resolve_xref(target)
+    ref_provider = document.attr 't2c-ref-provider'
+    ref_provider.resolve_xref target
+  end
+
+  def resolve_link(target)
+    ref_provider = document.attr 't2c-ref-provider'
+    ref_provider.resolve_link target
   end
 
   #--------------------------------------------------------
   # inline_anchor
-  #
+  # @param empty_fallback [String] optional fallback to use when reftext is empty
   # @return [String, nil] text of the xref anchor, or +nil+ if not found.
-  def xref_text
+  def xref_text empty_fallback
     if attributes[:refid] == text
       ref = document.catalog[:refs][attributes['refid'] || target]
-      str = (ref ? ref.xreftext : text)
+      str = (ref ? ref.xreftext : empty_fallback || text)
     else
       str = text
     end
@@ -180,15 +196,10 @@ module Slim::Helpers
     (str.include? ':') && str =~ UriSniffRx
   end
 
-  # checks if xref is referring to adoc (internal cross references not yet supported)
-  def cross_page_xref? str
-    str.end_with? ".html"
-  end
-
   # removes leading hash from anchor targets
   def anchor_name str
-    if str.start_with? "#"
-      str[1..str.length]
+    if str.include? "#"
+      str[(str.index('#')+1)..str.length]
     else
       str
     end
@@ -229,5 +240,38 @@ module Slim::Helpers
   def surround(front, back = front)
     [front, yield.chomp, back].join
   end
+
+  ## customization for inline quoted conversion to render <del> tag instead of line-through class for span
+  def confluence_inline_quoted node
+    open, close, tag = QUOTE_TAGS[node.type]
+    if node.id
+      class_attr = node.role ? %( class="#{node.role}") : ''
+      if tag
+        %(#{open.chop} id="#{node.id}"#{class_attr}>#{node.text}#{close})
+      else
+        %(<span id="#{node.id}"#{class_attr}>#{open}#{node.text}#{close}</span>)
+      end
+    elsif node.role
+      if tag
+        %(#{open.chop} class="#{node.role}">#{node.text}#{close})
+      elsif node.role == 'line-through'
+        %(<del>#{node.text}</del>)
+      else
+        %(<span class="#{node.role}">#{open}#{node.text}#{close}</span>)
+      end
+    else
+      %(#{open}#{node.text}#{close})
+    end
+  end
+
+  # @param text [String]
+  def link_content text
+    if text.include? '<'
+      %(<ac:link-body>#{text}</ac:link-body>)
+    else
+      %(<ac:plain-text-link-body><![CDATA[#{text}]]></ac:plain-text-link-body>)
+    end
+  end
+
 
 end

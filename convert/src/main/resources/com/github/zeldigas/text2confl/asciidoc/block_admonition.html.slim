@@ -6,7 +6,7 @@
 - when 'caution'
     - confluence_admonition = 'note'
 - when 'warning'
-    - confluence_admonition = 'note'
+    - confluence_admonition = 'warning'
 - when 'important'
     - confluence_admonition = 'warning'
 
@@ -15,5 +15,7 @@ ac:structured-macro ac:name=confluence_admonition
     ac:parameter ac:name="title"
       =title
   ac:rich-text-body
+    =line_break
     =content
+    =line_break
 

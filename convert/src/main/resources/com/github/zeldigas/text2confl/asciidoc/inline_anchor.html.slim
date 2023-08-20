@@ -1,25 +1,36 @@
 - case type
 - when :xref
-  - if cross_page_xref? target
-    ac:link
-      ri:page ri:content-title=target
-      ac:plain-text-link-body
-        <![CDATA[#{(xref_text || %([#{attr :refid}]))}]]>
-  - else
-    ac:link ac:anchor=(anchor_name target || id)
-      ac:plain-text-link-body
-        <![CDATA[#{(xref_text || %([#{attr :refid}]))}]]>
-- when :ref
-  ac:structured-macro ac:name="anchor"
-    ac:parameter ac:name=""
-     =(anchor_name target || id)
-- when :link
-  - if uriish? target
+  - ref_link = resolve_xref target
+  - if ref_link.nil?
+    - ref_link_text = xref_text('') || %([#{attr :refid}])
     a href=target
-      =text
+      = ref_link_text
   - else
-    ac:link
-      ri:attachment ri:filename=target /
-      - if target != text
-        ac:plain-text-link-body
-          <![CDATA[#{text}]]>
+    - ref_link_text = xref_text(ref_link.page) || %([#{attr :refid}])
+    ac:link ac:anchor=(ref_link.anchor)
+      - if not ref_link.page.nil?
+        ri:page ri:content-title=(ref_link.page) ri:space-key=(document.attr 't2c-space') /
+      = link_content ref_link_text
+- when :ref, :bibref
+  = anchor(anchor_name target || id)
+  ="[#{anchor_name target || id}]" if type == :bibref
+- when :link
+  - ref_link = resolve_link target
+  - if not ref_link.nil?
+    ac:link ac:anchor=(ref_link.anchor)
+      - if not ref_link.page.nil?
+        ri:page ri:content-title=(ref_link.page) ri:space-key=(document.attr 't2c-space') /
+      = link_content((text.nil? || text == target) ? ref_link.page : text)
+  - else
+    - if uriish? target
+      a href=target
+        =text
+    - else
+      - attachment = page_attachment(target)
+      - if attachment.nil?
+        a href=target title=(attr :title)
+          = text
+      - else
+        ac:link
+          ri:attachment ri:filename=attachment /
+          = link_content text
