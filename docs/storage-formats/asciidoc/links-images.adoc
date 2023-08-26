@@ -1,0 +1,56 @@
+= AsciiDoc - links, images and other attachments
+:labels: supported-format,asciidoc
+:toc:
+
+== Links
+
+Links of different types supported
+
+[cols=",a,a"]
+|===
+| Link type | AsciiDoc | Result
+
+|External | `+https://example.org[external]+` | https://example.org[external]
+|Cross-link to another page | `+xref:../../storage-formats.md[storage formats]+` | xref:../../storage-formats.md[storage formats]
+|Cross-link to anchor on another page | `+xref:../../storage-formats.md#markdown[anchors inside page]+` | xref:../../storage-formats.md#markdown[anchors inside page]
+|Link to file with supported format works same as `xref`
+| `+link:../../storage-formats.md#markdown[same as previous table row]+`
+| link:../../storage-formats.md#markdown[same as previous table row]
+|===
+
+== Images
+
+You can embed images - both external and attached to page.
+Images support attributes that you can use to customize their alignment and width/height.
+
+[cols=",a,a"]
+|===
+
+|External
+|`+image:https://myoctocat.com/assets/images/base-octocat.svg[Octocat,100]+`
+|image:https://myoctocat.com/assets/images/base-octocat.svg[Octocat,100]
+
+|Attached
+|`+image:./_assets/asciidoctor-logo.svg[asciidoc logo,200]+`
+|image:./_assets/asciidoctor-logo.svg[asciidoc logo,200]
+|===
+
+You can find details about supported attributes on link:../../user-guide/image-attributes.md[page "Controlling images representation"].
+
+AsciiDoc link:https://docs.asciidoctor.org/asciidoc/latest/macros/image-ref/[native attributes] that are supported: `alt`, `width`, `height`, `link`, `align`
+
+== Page attachments
+
+Besides images, you can attach to page any other file:
+
+[cols=","]
+|===
+
+| `+link:../markdown/_assets/sample_file.txt[simple text file]+`
+| link:../markdown/_assets/sample_file.txt[simple text file]
+
+2+|Link title is optional, in this case it will be equal to name of file
+
+| `+link:../markdown/_assets/sample_file.txt[]+`
+| link:../markdown/_assets/sample_file.txt[]
+|===

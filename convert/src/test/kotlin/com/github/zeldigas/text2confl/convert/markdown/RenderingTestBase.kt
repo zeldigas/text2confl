@@ -2,10 +2,7 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import assertk.Assert
 import assertk.assertions.isEqualTo
-import com.github.zeldigas.text2confl.convert.Attachment
-import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
-import com.github.zeldigas.text2confl.convert.ConversionParameters
-import com.github.zeldigas.text2confl.convert.ConvertingContext
+import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapperImpl
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
@@ -39,7 +36,8 @@ internal open class RenderingTestBase {
                 addAutogenHeader,
                 noteText = autogenText,
                 docRootLocation = "http://example.com/",
-                markdownConfiguration = config
+                markdownConfiguration = config,
+                editorVersion = EditorVersion.V1
             ),
             "TEST",
         )

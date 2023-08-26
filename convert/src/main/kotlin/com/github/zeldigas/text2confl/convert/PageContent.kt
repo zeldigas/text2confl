@@ -35,7 +35,8 @@ data class Page(
 }
 
 data class PageHeader(
-    val title: String, val attributes: Map<String, Any?>
+    val title: String, val attributes: Map<String, Any?>,
+    private val labelsKeys: List<String> = listOf("labels")
 ) {
     val pageProperties: Map<String, Any> = buildMap {
         val propertyMap = attributes["properties"]
@@ -47,6 +48,16 @@ data class PageHeader(
             .map { (k, v) -> k.substringAfter("property_") to v!! }
         )
     }
+
+    val pageLabels: List<String>
+        get() {
+            val labels = labelsKeys.map { attributes[it] }.filterNotNull().firstOrNull()
+            return when (labels) {
+                is List<*> -> labels.map { it.toString() }
+                is String -> labels.split(",").map { it.trim() }
+                else -> emptyList()
+            }
+        }
 }
 
 data class Attachment(

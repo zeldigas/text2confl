@@ -1,5 +1,5 @@
 table
-  - if title?
+  - if title? && editor_version == 'v1'
     caption.title =captioned_title
   - unless (attr :rowcount).zero?
     - [:head, :foot, :body].reject { |tblsec| rows[tblsec].empty? }.each do |tblsec|

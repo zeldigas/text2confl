@@ -1,0 +1,127 @@
+= AsciiDoc - code blocks
+:keywords: supported-format,asciidoc
+:toc:
+
+== Inline code
+
+Use backticks (`+``+`) to put code in paragraph: `+`printf("Hello world!")`+` will insert `printf("Hello world!")`.
+
+== Source Code blocks
+
+Code blocks are also supported including callouts
+
+[cols="a,a"]
+|===
+
+|
+[listing,subs="none"]
+....
+include::_assets/example.adoc[tag=code-block-simple]
+....
+| include::_assets/example.adoc[tag=code-block-simple]
+
+|===
+
+Callouts in xml and similar markup supported too:
+
+[cols="a,a"]
+|===
+
+|
+[listing,subs="none"]
+....
+[source,xml]
+----
+&lt;hello>world&lt;/hello>&lt;!--1-->
+----
+<1> xml style of hello world
+....
+|
+[source,xml]
+----
+<hello>world</hello><!--1-->
+----
+<1> xml style of hello world
+
+|===
+
+=== Code block attributes
+
+With attributes, you can customize code block element.
+
+You can find details about supported languages and other code block attributes on separate page: xref:../../user-guide/code-blocks.md[Code highlight]
+
+Supported AsciiDoc link:[native attributes]:
+
+- `languge` is to controll highlight
+- `%linenums` to enable linenumbers
+- `start` to set start line for numbering
+
+Other attributes are Confluence specific.
+
+[cols="a,a"]
+|===
+
+|
+[listing,subs="none"]
+....
+include::_assets/example.adoc[tag=code-block-customized]
+....
+| include::_assets/example.adoc[tag=code-block-customized]
+
+|===
+
+== Literal Block and Line
+
+Literal blocks are converted as pre-formatted text.
+
+[cols="a,a"]
+|===
+|
+----
+....
+this is a literal block
+....
+----
+|
+....
+this is a literal block
+....
+
+|===
+
+Same is applied to literal line (one prepended with space)
+
+[cols="a,a"]
+|===
+
+|
+----
+ A line with space
+----
+|
+ A line with space
+|===
+
+== Listing Block
+
+Listing blocks are converted using the `noformat` macro.
+
+[cols="a,a"]
+|===
+
+|
+[listing]
+....
+.Title of the listing block
+----
+this is a listing block
+----
+....
+
+|
+.Title of the listing block
+----
+this is a listing block
+----
+|===

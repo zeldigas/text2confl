@@ -3,7 +3,7 @@ package com.github.zeldigas.text2confl.cli.upload
 import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageProperty
-import com.github.zeldigas.text2confl.cli.config.EditorVersion
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 import kotlinx.coroutines.coroutineScope
@@ -94,8 +94,10 @@ internal class PageUploadOperationsImpl(
         space: String,
         parentId: String
     ): ServerPage {
-        val serverPage = client.getPageOrNull(space, title, expansions = setOf(
-            "ancestors", "version", propertyExpansion(TENANT_PROPERTY))
+        val serverPage = client.getPageOrNull(
+            space, title, expansions = setOf(
+                "ancestors", "version", propertyExpansion(TENANT_PROPERTY)
+            )
         ) ?: throw IllegalStateException("Page not found in $space: $title")
         if (serverPage.parent?.id != parentId) {
             checkTenantBeforeUpdate(serverPage)
@@ -159,7 +161,12 @@ internal class PageUploadOperationsImpl(
             EDITOR_PROPERTY to editorVersion.propertyValue,
         ) + tenantProperty() + page.properties.filterKeys { it != HASH_PROPERTY }
         allProperties.forEach { (name, value) ->
-            setOrUpdateProperty(serverPage.id, propertyName = name, value = value, existingProperty = serverPage.pageProperty(name))
+            setOrUpdateProperty(
+                serverPage.id,
+                propertyName = name,
+                value = value,
+                existingProperty = serverPage.pageProperty(name)
+            )
         }
     }
 
@@ -233,7 +240,10 @@ internal class PageUploadOperationsImpl(
     }
 
     override suspend fun findChildPages(pageId: String): List<ConfluencePage> {
-        return client.findChildPages(pageId, listOf(propertyExpansion(HASH_PROPERTY), propertyExpansion(TENANT_PROPERTY)));
+        return client.findChildPages(
+            pageId,
+            listOf(propertyExpansion(HASH_PROPERTY), propertyExpansion(TENANT_PROPERTY))
+        );
     }
 
     override suspend fun deletePageWithChildren(pageId: String) {
@@ -258,11 +268,7 @@ private val EditorVersion.propertyValue: String
     get() = name.lowercase()
 
 private val PageContent.labels: List<String>
-    get() = when (val result = header.attributes["labels"]) {
-        is List<*> -> result.map { it.toString() }
-        is String -> result.split(",").map { it.trim() }
-        else -> emptyList()
-    }
+    get() = header.pageLabels
 
 private val Map<String, Any?>.attachmentHash: String?
     get() {

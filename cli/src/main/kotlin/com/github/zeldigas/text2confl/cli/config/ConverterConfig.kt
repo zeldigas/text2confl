@@ -1,14 +1,11 @@
 package com.github.zeldigas.text2confl.cli.config
 
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import io.ktor.http.*
 import java.nio.file.Path
-
-enum class EditorVersion {
-    V1, V2
-}
 
 data class ConverterConfig(
     val titlePrefix: String,

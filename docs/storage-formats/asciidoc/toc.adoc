@@ -1,0 +1,65 @@
+= Table of Contents
+:keywords: supported-format,asciidoc
+:toc: macro
+
+AsciiDoc link:https://docs.asciidoctor.org/asciidoc/latest/toc/[table of contents (TOC)] are converted to the table of contents macro of Confluence.
+
+toc::[style=square]
+
+== Table of Contents with page attribute
+
+With `:toc:` attribute you can enable table of contents.
+
+Supported values:
+
+. nothing - will put table of contents to start of the page
+. `auto` - equal to not specifying value
+. `preamble` - put before first section
+
+Example
+[listing]
+....
+= Page Title
+:toc: preamble
+
+Intro paragraph
+
+== Section
+....
+
+Will insert TOC between `Intro paragraph` and `Section`
+
+== Table of Contents with macro
+
+As link:https://docs.asciidoctor.org/asciidoc/latest/toc/position/#at-macro[described in official guide] with macro you can put TOC in any place of page.
+
+To do it:
+
+. set `:toc:` to `macro`
+. use `toc::[]` macro in place you want to put TOC
+
+[listing]
+....
+= Page Title
+:toc: macro
+
+Intro paragraph
+
+== Section
+
+toc::[]
+....
+
+== Customizing table of contents
+
+With macro, you can specify xref:../../user-guide/toc-attributes.md[all supported attributes], but note that almost all of them are not standard.
+
+Example: `+toc::[style=square]+` will generate styled TOC in Confluence
+
+With attributes, you can control only depth of generated TOC.
+
+WARNING: AsciiDoc by default generates TOC with only first 2 levels of sections. Use `:toclevels: N` attribute to control this.
+If you want to customize it for all pages do in xref:../../configuration-reference.md[`.text2conf.yml` file]
+
+=== AsciiDoc features that are not supported
+Specifying a title for the table of contents using the `toc-title` attribute is currently not supported.

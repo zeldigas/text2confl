@@ -3,7 +3,7 @@ package com.github.zeldigas.text2confl.cli.upload
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.cli.config.Cleanup
-import com.github.zeldigas.text2confl.cli.config.EditorVersion
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageHeader
 import kotlinx.coroutines.async

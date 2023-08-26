@@ -1,0 +1,59 @@
+:labels: supported-format,asciidoc
+:toc:
+
+:link-attrs: https://docs.asciidoctor.org/asciidoc/latest/attributes/document-attributes-ref/
+
+= AsciiDoc
+
+== Document structure
+
+Every AsciiDoc document corresponds to separate Confluence page.
+
+link:{link-attrs}[AsciiDoc page attributes] can be used to set various Confluence page metadata like custom title for page, page labels and properties.
+You can read about supported attributes on link:../user-guide/page-attributes.md[dedicated page].
+
+If attribute value is enclosed in `{}` or in `[]`, then value is treated as JSON and parsed.
+This approach allows to set complex properties on page.
+
+Example document with 4 _attributes_: `title`, `labels` and 2 properties - `simple` and `nl_avisi_nh`
+
+[source,asciidoc,title"Page with front matter"]
+----
+:title: hello
+:labels: docs,intro
+:property_simple: custom_value
+:property_nl_avisi_nh: \{ "isEnabled": true }
+
+Document content
+----
+
+=== Supported attributes
+
+You can read more about attributes that are special for text2confl on xref:../user-guide/page-attributes.md[on dedicated page].
+
+In addition to them, the following attributes native for AsciiDoc are supported:
+
+. `keywords` can be used as an alias for `labels`
+
+
+== Supported features
+
+Great source of Asciidoc features is link:https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/[AsciiDoc Syntax Quick Reference] and link:https://docs.asciidoctor.org/asciidoc/latest/[AsciiDoc language documentation]. You can find a lot of information there.
+
+On subpages, you will find details about various formatting aspects with focus on Confluence though:
+
+. xref:./asciidoc/basic.adoc[] - about text styling, working with lists
+. xref:./asciidoc/tables.adoc[] - details of working with tables
+. xref:./asciidoc/links-images.adoc[] - using links (cross-links and external), attaching images and other files
+. xref:./asciidoc/code.adoc[] - formatting code blocks
+. xref:./asciidoc/admonitions.adoc[] - admonitions and their mapping to Confluence macros
+. xref:./asciidoc/toc.adoc[] - about table of contents
+. xref:./asciidoc/diagrams.adoc[] - support for diagrams defined as text
+. xref:./asciidoc/includes.adoc[] - about including pages
+. xref:./asciidoc/confluence-specific.adoc[] - details about Confluence specific goodies, such as macros support (table of contents, status text, others)
+
+How to read subpages:
+
+. Page is organized in sections with 2 column mode: on the left you see an asciidoc raw text and on the right - formatted result.
+  This approach helps you to immediately see result and how to achieve it.
+. You can also open the source file of page itself and compare it with rendered published version

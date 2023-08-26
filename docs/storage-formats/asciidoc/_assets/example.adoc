@@ -1,0 +1,148 @@
+:toc:
+
+//tag::style-complex[]
+Or mixed like *bold with _emphasis_ part* , all *_bold and italic_*. It is suppored as well
+//end::style-complex[]
+//tag::style-quotation[]
+____
+This is a quote
+
+Spanning multiple paragraphs *styled* and `monoscript`
+____
+//end::style-quotation[]
+//tag::style-list[]
+. one
+. two
+. three
+** unordered
+** list
+** as nested
+... And ordered
+... again
+//end::style-list[]
+
+//tag::style-tasklist-ok[]
+* [ ] not done
+* [x] done
+//end::style-tasklist-ok[]
+
+//tag::style-tasklist-bad[]
+* [ ] not done
+* [x] done
+* simple item
+//end::style-tasklist-bad[]
+
+//tag::simple-table[]
+|===
+|foo |bar
+
+|baz |bim
+|===
+//end::simple-table[]
+
+//tag::complex-table[]
+.Table title
+[cols="1h,2a"]
+|===
+| First header as header | Second header
+
+2+| Column spanning 2 columns
+
+| A
+.2+| Cell spanned 2 rows
+
+| B
+
+
+| Header column
+| Column with complex content
+
+[caption=]
+[cols="2,1"]
+!===
+! Col1 ! Col2
+
+! C11
+! C12
+
+!===
+
+|===
+//end::complex-table[]
+
+//tag::code-block-simple[]
+[source,java]
+----
+public class MyCode { //<1>
+    public static void main(String[] args){
+        System.out.println("Hello world!"); //<2>
+    }
+} <3>
+----
+<1> standard definition of java class
+<2> good old hello world
+<3> this callout is an example of non-guarded. Code will be invalid if you copy it and paste in IDE
+//end::code-block-simple[]
+
+//tag::code-block-simple-xml[]
+[source,xml]
+----
+<hello>world</hello><!--1-->
+----
+<1> xml style of hello world
+//end::code-block-simple-xml[]
+
+//tag::code-block-customized[]
+[%linenums,source,kotlin,start=3,collapse=true]
+----
+println("Hello world!")
+----
+//end::code-block-customized[]
+
+//tag::adm-note[]
+[NOTE]
+.Title of info message
+====
+Informational message
+====
+//end::adm-note[]
+
+//tag::adm-tip[]
+[TIP]
+====
+Some tips and tricks with `rich` ^formatting^
+====
+//end::adm-tip[]
+
+//tag::adm-caution[]
+[CAUTION]
+====
+Caution, act carefully!
+====
+//end::adm-caution[]
+
+//tag::adm-warning[]
+[WARNING]
+====
+Description of pitfalls that your user
+
+Should know about
+====
+//end::adm-warning[]
+
+//tag::adm-important[]
+[IMPORTANT]
+====
+Also mapped to warning in confluence
+====
+//end::adm-important[]
+
+//tag::diagram[]
+[plantuml,target=inlined-diagram,format=png]
+....
+@startuml
+client -> server
+@enduml
+....
+//end::diagram[]
+

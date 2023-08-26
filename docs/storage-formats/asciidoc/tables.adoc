@@ -1,0 +1,55 @@
+= AsciiDoc - tables
+:labels: supported-format,asciidoc
+:adocs: https://docs.asciidoctor.org/asciidoc/latest
+:property_editor: v1
+
+AsciiDoc tables converted to Confluence tables.
+
+== Simple tables
+
+Simple tables are the one that contains just one line of text in every cell:
+
+This text:
+
+----
+include::_assets/example.adoc[tag=simple-table]
+----
+
+Will produce:
+
+include::_assets/example.adoc[tag=simple-table]
+
+== Complex tables
+
+More complex tables supported too.
+
+Features supported:
+
+. link:{adocs}/tables/add-title/[Table title] (only for Confluence Server of first version of editor in Confluence Cloud)
+. link:{adocs}/tables/format-column-content/[Content formatting by column]
+. link:{adocs}/tables/format-cell-content/[Cell content formatting]
+. link:{adocs}/tables/add-header-row/[Header rows] and  link:{adocs}/tables/add-header-row/[Footer rows]
+. link:{adocs}/tables/[Rich content] including link:{adocs}/tables/[Nested tables]
+
+Here is example with most of this features
+
+----
+include::_assets/example.adoc[tag=complex-table]
+----
+
+Will produce:
+
+include::_assets/example.adoc[tag=complex-table]
+
+=== Cell background
+
+Trick with cell background is currently not supported.
+Create a feature request if you need it:
+
+.This will not work
+----
+|a
+{set:cellbgcolor:#ff0000}
+|b
+{set:cellbgcolor!}
+----

@@ -1,0 +1,54 @@
+= AsciiDoc - diagrams
+:keywords: supported-format,markdown
+:toc: preamble
+
+For AsciiDoc *text2confl* relies on native diagrams support provided by link:https://docs.asciidoctor.org/diagram-extension/latest/[`asciidoctor-diagram` extension].
+
+That means that you have access to dozens of diagram formats as long as tools that can generate them is available on machine where *text2confl* works.
+
+NOTE: *text2confl* Docker image by default contains only `plantuml`.
+If you need any other diagram type, you can create derivative image with it.
+
+Generated diagrams are attached to page like a regular files.
+
+== Adding diagrams to page
+
+As link:https://docs.asciidoctor.org/diagram-extension/latest/blocks/[official AsciiDoc documentations] says, diagrams can be either put inline similar to code block or included from file using per diagram type macro.
+
+With block or macro attributes, you can control name of generated file, file format and diagram-specific features.
+
+Some attributes such as diagram file format can be convenient to configure not on page, but in `.text2confl.yml` file.
+
+=== Inlined
+
+[cols="a,a"]
+|===
+|
+----
+include::_assets/example.adoc[tag=diagram]
+----
+| include::_assets/example.adoc[tag=diagram]
+|===
+
+=== Imported from file
+
+[cols="a,a"]
+|===
+|`+plantuml::_assets/test.puml[format=png]+`
+| plantuml::_assets/test.puml[format=png]
+|===
+
+== Location where diagrams are generated
+
+By default, generated diagrams are saved in `.asciidoc` directory under documents root.
+
+This is configurable with the following parameters in `.text2confl.yml` file
+
+[source,yaml]
+----
+asciidoc:
+  attributes:
+    plantuml-format: png
+----
+
+You can find details about available options in xref:../../configuration-reference.md#asciidoc-configuration-options[configuration reference]

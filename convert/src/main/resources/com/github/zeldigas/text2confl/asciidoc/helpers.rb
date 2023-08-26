@@ -273,5 +273,13 @@ module Slim::Helpers
     end
   end
 
+  def editor_version
+    if document.attr? 'property_editor'
+      document.attr 'property_editor'
+    else
+      document.attr 't2c-editor-version'
+    end
+  end
+
 
 end

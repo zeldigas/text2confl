@@ -11,7 +11,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.zeldigas.confclient.ConfluenceAuth
 import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.confclient.TokenAuth
-import com.github.zeldigas.text2confl.cli.config.EditorVersion
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import io.ktor.http.*
 
 fun ParameterHolder.confluenceUrl() = option(

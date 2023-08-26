@@ -54,8 +54,6 @@ class AsciidocParser(
     private fun createAttributes(parameters: AsciidocRenderingParameters) = mapOf(
         "t2c-language-mapper" to parameters.languageMapper,
         "t2c-ref-provider" to parameters.referenceProvider,
-        "t2c-auto-text" to parameters.autoText,
-        "t2c-add-auto-text" to parameters.includeAutoText,
         "t2c-attachments-collector" to parameters.attachmentsCollector,
         "t2c-space" to parameters.space,
         "t2c-decoder" to Converter,

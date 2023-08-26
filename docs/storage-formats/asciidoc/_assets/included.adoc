@@ -1,0 +1,7 @@
+ifndef::included_path[]
+:included_path:
+endif::[]
+
+I'm included page.
+
+image::{included_path}asciidoctor-logo.svg[,100]

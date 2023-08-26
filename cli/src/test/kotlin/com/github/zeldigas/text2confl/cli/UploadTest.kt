@@ -17,10 +17,7 @@ import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.text2confl.cli.config.*
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import com.github.zeldigas.text2confl.cli.upload.ContentUploader
-import com.github.zeldigas.text2confl.convert.ConversionFailedException
-import com.github.zeldigas.text2confl.convert.Converter
-import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
-import com.github.zeldigas.text2confl.convert.Page
+import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration

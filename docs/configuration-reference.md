@@ -70,6 +70,27 @@ markdown:
 
 [md_diagrams]: ./storage-formats/markdown/diagrams.md
 
+### AsciiDoc configuration options
+
+AsciiDoc can be configured in `.text2confl.yaml` file, in `asciidoc` section.
+
+Table contains available parameters. Dot (`.`) means that this is next level, e.g.
+
+```yaml
+asciidoc:
+  attributes:
+    plantuml-format: png
+```
+
+| Parameter      | Default value | Description                                                                                                                                  |
+|----------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| diagrams       | `Diagrams`    | How to generate diagrams. The only option now is `Diagrams` that activates `asciidoctor-diagrams`                                            |
+| bundled-macros | `true`        | Enables [asciidoctor macros for confluence](./storage-formats/asciidoc/confluence-specific.adoc)                                             |
+| attributes     | emtpy map     | Section where you can specify key-value pairs. All provided pairs will be passed to Asciidoc as attributes.                                  | 
+| gems           | empty list    | Additional ruby gems to _require_. Mentioned gems must be on classpath, packaged as jar files (like `asciidoctor-diagram`)                   | 
+| tempDir        | false         | If temporary directory should be used to store all generated content                                                                         | 
+| baseDir        | `.asciidoc`   | Working directory where all generated content is stored if `temp-dir` option is not enabled. Directory is resolved relative to document root | 
+
 ### Modifications check strategies
 
 Text2confl tries to avoid unnecessary uploads of pages if there are no changes for them. Right now there are 2

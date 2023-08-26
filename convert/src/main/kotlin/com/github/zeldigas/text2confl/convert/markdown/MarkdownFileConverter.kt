@@ -1,7 +1,5 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.markdown.diagram.createDiagramMakers
 import com.vladsch.flexmark.ast.Heading
@@ -87,23 +85,7 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
         AbstractYamlFrontMatterVisitor().let {
             it.visit(ast)
             it.data.mapValues { (_, v) -> if (v.size == 1) v.first() else v }
-        }.mapValues { (_, v) ->
-            if (v is String) {
-                if (v.enclosedIn('{', '}')) {
-                    JSON_PARSER.readValue<Map<String, *>>(v)
-                } else if (v.enclosedIn('[', ']')) {
-                    JSON_PARSER.readValue<List<String>>(v)
-                } else {
-                    v
-                }
-            } else {
-                v
-            }
-        }
-
-    private fun String.enclosedIn(start: Char, end: Char): Boolean {
-        return this.startsWith(start) && this.endsWith(end)
-    }
+        }.mapValues { (_, v) -> parseAttribute(v) }
 
     private fun documentTitle(document: Document): String? {
         val firstChild = document.children.firstOrNull { it !is YamlFrontMatterBlock }
@@ -116,6 +98,6 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
     }
 
     companion object {
-        private val JSON_PARSER = ObjectMapper()
+
     }
 }

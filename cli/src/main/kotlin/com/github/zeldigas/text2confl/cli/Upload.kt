@@ -11,6 +11,7 @@ import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.text2confl.cli.config.*
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking

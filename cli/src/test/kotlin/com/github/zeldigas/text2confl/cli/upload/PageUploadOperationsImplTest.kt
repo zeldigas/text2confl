@@ -7,7 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.*
-import com.github.zeldigas.text2confl.cli.config.EditorVersion
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.PageContent
 import com.github.zeldigas.text2confl.convert.PageHeader
 import io.mockk.*

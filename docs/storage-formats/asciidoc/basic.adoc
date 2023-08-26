@@ -1,0 +1,71 @@
+:keywords: supported-format, asciidoc
+:toc:
+
+= AsciiDoc - basics
+
+== Text styling
+
+All basic styling features are supported &mdash; text can be:
+
+[cols="a,a"]
+|===
+
+| `+*bold*+` | *bold*
+| `+_italic_+` | _italic_
+| `+[line-through]#strikethrough#+` | [line-through]#strikethrough#
+| `+With ^super^ and ~under~+` | With ^super^ and ~under~
+
+|
+----
+include::_assets/example.adoc[tag=style-complex]
+----
+|include::_assets/example.adoc[tag=style-complex]
+|===
+
+You can also use quotation blocks:
+
+[cols="a,a"]
+|===
+|
+----
+include::_assets/example.adoc[tag=style-quotation]
+----
+|include::_assets/example.adoc[tag=style-quotation]
+|===
+
+== Lists
+
+Both numbered and bullet lists are supported:
+
+[cols="a,a"]
+|===
+|
+----
+include::_assets/example.adoc[tag=style-list]
+----
+|include::_assets/example.adoc[tag=style-list]
+|===
+
+Simple task lists are supported too, but due to limitations of Confluence no mixed items are supported.
+
+This will work:
+
+[cols="a,a"]
+|===
+|
+----
+include::_assets/example.adoc[tag=style-tasklist-ok]
+----
+|include::_assets/example.adoc[tag=style-tasklist-ok]
+|===
+
+But this will not work:
+
+[cols="a,a"]
+|===
+|
+----
+include::_assets/example.adoc[tag=style-tasklist-bad]
+----
+|include::_assets/example.adoc[tag=style-tasklist-bad]
+|===

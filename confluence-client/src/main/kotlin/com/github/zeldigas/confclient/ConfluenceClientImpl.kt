@@ -17,6 +17,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.*
 import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
@@ -121,13 +122,18 @@ class ConfluenceClientImpl(
         if (value.space.isNullOrEmpty()) {
             throw IllegalArgumentException("Space is required when creating pages")
         }
-        return httpClient.post("$apiBase/content") {
+        val response = httpClient.post("$apiBase/content") {
             if (expansions != null) {
                 addExpansions(expansions)
             }
             contentType(ContentType.Application.Json)
             setBody(toPageData(value, updateParameters))
-        }.body()
+        }
+        return try {
+            response.body()
+        }catch (e: ContentConvertException) {
+            throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
+        }
     }
 
     override suspend fun updatePage(

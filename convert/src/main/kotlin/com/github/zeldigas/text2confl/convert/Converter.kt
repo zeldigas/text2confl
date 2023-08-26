@@ -27,6 +27,9 @@ class FileDoesNotExistException(val file: Path) : RuntimeException("File does no
 const val DEFAULT_AUTOGEN_BANNER = "Edit <a href=\"__doc-root____file__\">source file</a> instead of changing page in Confluence. " +
         "<span style=\"color: rgb(122,134,154); font-size: small;\">Page was generated from source with <a href=\"https://github.com/zeldigas/text2confl\">text2confl</a>.</span>"
 
+enum class EditorVersion {
+    V1, V2
+}
 
 data class ConversionParameters(
     val languageMapper: LanguageMapper,
@@ -35,7 +38,8 @@ data class ConversionParameters(
     val docRootLocation:String = "",
     val noteText:String = DEFAULT_AUTOGEN_BANNER,
     val markdownConfiguration: MarkdownConfiguration = MarkdownConfiguration(),
-    val asciidoctorConfiguration: AsciidoctorConfiguration = AsciidoctorConfiguration()
+    val asciidoctorConfiguration: AsciidoctorConfiguration = AsciidoctorConfiguration(),
+    val editorVersion: EditorVersion
 )
 
 fun universalConverter(

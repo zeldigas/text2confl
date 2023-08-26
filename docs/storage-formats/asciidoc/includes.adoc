@@ -1,0 +1,37 @@
+= Includes
+:keywords: supported-format,asciidoc
+:adocs:https://docs.asciidoctor.org/asciidoc/latest/directives/include/
+:included_path: _assets/
+
+link:{adocs}[Include functionality] of AsciiDoc is supported as expected - included page is not published separately (unless it is discoverable) and just inlined in main page.
+
+[TIP]
+====
+If you don't want to publish included page on its own, prefix it with `+_+` symbol, e.g. `+_included_page.adoc+`, because *text2confl* ignores files prefixed with `+_+`
+====
+
+=== Example
+
+If you have a file
+[source,asciidoc,subs="none"]
+._assets/included.adoc
+----
+include::_assets/included.adoc[]
+----
+
+You can include it with:
+
+----
+:included_path: _assets/
+
+\include::_assets/included.adoc[]
+----
+
+And here it goes:
+
+include::_assets/included.adoc[]
+
+[NOTE]
+====
+`included_path` attribute helps properly resolve assets. Read more about path resolutions in link:{adocs}[official docs].
+====

@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.cli.config
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.*
 import java.nio.file.Path

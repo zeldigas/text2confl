@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.cli.config
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.confluence.CONFLUENCE_CLOUD_LANGUAGES
 import com.github.zeldigas.text2confl.convert.confluence.CONFLUENCE_SERVER_LANGUAGES

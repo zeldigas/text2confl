@@ -7,10 +7,10 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.zeldigas.text2confl.cli.config.EditorVersion
 import com.github.zeldigas.text2confl.cli.config.createConversionConfig
 import com.github.zeldigas.text2confl.cli.config.readDirectoryConfig
 import com.github.zeldigas.text2confl.convert.Converter
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import io.ktor.http.*
 import java.io.File

@@ -1,0 +1,64 @@
+= AsciiDoc - admonitions
+:keywords: supported-format,asciidoc
+
+AsciiDoc's admonitions converted to note, tip, warning and info blocks.
+
+== Block admonitions
+
+Mapping:
+
+[cols="a,a"]
+|===
+| AsciiDoc
+| Confluence
+
+|
+....
+include::_assets/example.adoc[tag=adm-note]
+....
+| include::_assets/example.adoc[tag=adm-note]
+
+|
+....
+include::_assets/example.adoc[tag=adm-tip]
+....
+| include::_assets/example.adoc[tag=adm-tip]
+
+
+|
+....
+include::_assets/example.adoc[tag=adm-caution]
+....
+| include::_assets/example.adoc[tag=adm-caution]
+
+|
+....
+include::_assets/example.adoc[tag=adm-warning]
+....
+| include::_assets/example.adoc[tag=adm-warning]
+
+|
+....
+include::_assets/example.adoc[tag=adm-important]
+....
+| include::_assets/example.adoc[tag=adm-important]
+|===
+
+NOTE: Title that you set to admonition is translated to title of the Confluence macro block.
+This works for all of them.
+
+== Single paragraph admonitions
+
+Short syntax for admonitions works too:
+
+[cols="a,a"]
+|===
+| AsciiDoc
+| Confluence
+
+|
+....
+WARNING: Important message to keep in mind
+....
+| WARNING: Important message to keep in mind
+|===
