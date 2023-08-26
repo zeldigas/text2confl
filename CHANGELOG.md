@@ -7,9 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.12.0 - 2023-08-26
+
 ### Added
 
-- Files in Asciidoc format. Features:
+- Files in Asciidoc format. Features (see details [in docs](https://github.com/zeldigas/text2confl/tree/master/docs/storage-formats/asciidoc.adoc)):
   - All basic rendering features of asciidoc
   - 3 bundled Confluence-specific macros: status, userlink and generic macro `confl_macro` that allows to render any simple macro 
   - Support for registering additional ruby libs
@@ -19,6 +21,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Dependency updates:
     - Clikt 4.2.0
+    - Kotlin 1.9.10
 
 ## 0.11.0 - 2023-07-16
 
@@ -100,7 +103,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 * Errors in converted files like unbalanced tags produce non-zero error code
 
 ## 0.7.0 - 2022-11-27
-
+0.11.0 - 2023-07-16
 ### Added
 
 * Executable for Windows in distro
