@@ -139,9 +139,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p>Strong <strong><a href="https://example.org">Strong</a></strong>.
-            <em><a href="https://example.org/italics">Markdown Guide</a></em>.
-            Mixed content <a href="https://example.org/mixed"><code>code</code> and <strong>strong</strong> and <em>italic</em></a></p>
+            <p>Strong <strong><a href="https://example.org">Strong</a></strong>. <em><a href="https://example.org/italics">Markdown Guide</a></em>. Mixed content <a href="https://example.org/mixed"><code>code</code> and <strong>strong</strong> and <em>italic</em></a></p>
             <p>Link <a href="https://example.org/external"><del>strikethrough</del></a></p>
             <p>Link <a href="https://example.org/external"><del>abc</del></a></p>
         """.trimIndent(),

@@ -15,6 +15,8 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
             [$type]
             ====
             Test block **with** formatting
+            and line breaks
+            in paragraph
             
             1. and
             2. lists
@@ -25,7 +27,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
         assertThat(result).isEqualToConfluenceFormat(
             """
             <ac:structured-macro ac:name="$confluenceType"><ac:rich-text-body>
-            <p>Test block <strong>with</strong> formatting</p>
+            <p>Test block <strong>with</strong> formatting and line breaks in paragraph</p>
             <ol><li>and</li><li>lists</li></ol>
             </ac:rich-text-body></ac:structured-macro>
         """.trimIndent()

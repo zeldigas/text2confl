@@ -17,10 +17,12 @@ class AsciidocParser(
         private val TEMPLATES_LOCATION = "/com/github/zeldigas/text2confl/asciidoc"
     }
 
-    private val ADOC: Asciidoctor = Asciidoctor.Factory.create().also {asciidoc ->
-        config.libsToLoad.forEach { asciidoc.requireLibrary(it)}
-        if (config.loadBundledMacros) {
-            DefaultMacros().register(asciidoc)
+    private val ADOC: Asciidoctor by lazy {
+        Asciidoctor.Factory.create().also { asciidoc ->
+            config.libsToLoad.forEach { asciidoc.requireLibrary(it) }
+            if (config.loadBundledMacros) {
+                DefaultMacros().register(asciidoc)
+            }
         }
     }
 
