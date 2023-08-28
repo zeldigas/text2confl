@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.8_7-jre-alpine as build
+FROM eclipse-temurin:17.0.8_7-jre as build
 
 ARG VERSION=""
 
