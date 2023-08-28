@@ -256,6 +256,8 @@ module Slim::Helpers
         %(#{open.chop} class="#{node.role}">#{node.text}#{close})
       elsif node.role == 'line-through'
         %(<del>#{node.text}</del>)
+      elsif node.role == 'underline'
+        %(<u>#{node.text}</u>)
       else
         %(<span class="#{node.role}">#{open}#{node.text}#{close}</span>)
       end
@@ -279,6 +281,10 @@ module Slim::Helpers
     else
       document.attr 't2c-editor-version'
     end
+  end
+
+  def adjusted_paragraph_content
+    content.gsub(Asciidoctor::LF, ' ')
   end
 
 
