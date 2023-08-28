@@ -6,7 +6,7 @@ ADD target/text2confl${VERSION}-dist/text2confl /opt/app
 
 RUN find /opt/app -exec touch -t 200001010101 {} \;
 
-FROM eclipse-temurin:17.0.8_7-jre-alpine
+FROM eclipse-temurin:17.0.8_7-jre
 
 LABEL org.opencontainers.image.source="https://github.com/zeldigas/text2confl"
 
