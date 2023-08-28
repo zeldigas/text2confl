@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.13.0 - 2023-08-28
+
 ### Added
 
 - docker image is now built for arm64 in addition to amd64. To support this, image was switched from alpine to regular
