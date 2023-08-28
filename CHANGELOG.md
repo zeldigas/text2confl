@@ -7,6 +7,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- \[AsciiDoc] Support for underlined text (#74)
+
+### Fixed
+
+- \[AsciiDoc] No line breaks inside paragraph (#73)
+
 ## 0.12.0 - 2023-08-26
 
 ### Added
