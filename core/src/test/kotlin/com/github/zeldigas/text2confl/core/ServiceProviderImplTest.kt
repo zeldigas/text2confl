@@ -20,6 +20,7 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.universalConverter
+import com.github.zeldigas.text2confl.core.upload.ContentUploader
 import io.ktor.http.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
