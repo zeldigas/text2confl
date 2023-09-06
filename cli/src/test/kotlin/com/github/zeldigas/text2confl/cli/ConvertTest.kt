@@ -7,6 +7,8 @@ import com.github.ajalt.clikt.core.context
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.Page
+import com.github.zeldigas.text2confl.core.ContentValidator
+import com.github.zeldigas.text2confl.core.ServiceProvider
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -24,9 +26,9 @@ import kotlin.io.path.exists
 
 @ExtendWith(MockKExtension::class)
 class ConvertTest(
-    @MockK private val serviceProvider: ServiceProvider,
-    @MockK private val converter: Converter,
-    @MockK private val contentValidator: ContentValidator
+        @MockK private val serviceProvider: ServiceProvider,
+        @MockK private val converter: Converter,
+        @MockK private val contentValidator: ContentValidator
 ) {
 
     private val command = Convert()

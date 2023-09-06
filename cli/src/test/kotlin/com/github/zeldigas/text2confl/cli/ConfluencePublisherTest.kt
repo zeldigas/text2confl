@@ -7,6 +7,8 @@ import assertk.assertions.isTrue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
+import com.github.zeldigas.text2confl.core.ServiceProvider
+import com.github.zeldigas.text2confl.core.ServiceProviderImpl
 import org.junit.jupiter.api.Test
 
 internal class ConfluencePublisherTest {

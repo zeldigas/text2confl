@@ -8,9 +8,10 @@ import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.nullableFlag
 import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import com.github.ajalt.mordant.terminal.StringPrompt
-import com.github.zeldigas.text2confl.cli.upload.InvalidTenantException
+import com.github.zeldigas.text2confl.core.upload.InvalidTenantException
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
+import com.github.zeldigas.text2confl.core.ContentValidationFailedException
 
 fun parameterMissing(what: String, cliOption: String, fileOption: String): Nothing {
     throw PrintMessage("$what is not specified. Use `$cliOption` option or `$fileOption` in config file", printError = true)

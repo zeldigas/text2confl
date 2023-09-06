@@ -197,7 +197,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         val resolvedLink = context.resolveLink(LinkType.IMAGE, node.url.unescape(), null, null)
         var linkUrl: String = resolvedLink.url
 
-        if (!node.urlContent.isEmpty) {
+        if (!node.urlContent.isEmpty()) {
             // reverse URL encoding of =, &
             val content = Escaping.percentEncodeUrl(node.urlContent).replace("+", "%2B").replace("%3D", "=")
                 .replace("%26", "&amp;")

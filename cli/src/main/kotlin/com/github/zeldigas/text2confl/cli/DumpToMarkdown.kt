@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.zeldigas.confclient.ConfluenceClientConfig
+import com.github.zeldigas.text2confl.core.ServiceProvider
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
