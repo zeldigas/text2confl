@@ -53,7 +53,6 @@
                     <jvmTarget>11</jvmTarget>
                     <sourceDirs>
                         <source>src/main/kotlin</source>
-                        <source>src/main/java</source>
                     </sourceDirs>
                 </configuration>
                 <executions>
