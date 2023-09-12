@@ -43,17 +43,67 @@
     </modules>
 
     <build>
-        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <includePom>true</includePom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+           <plugin>
+            <!--
+            Generates :
+            [WARNING] Duplicate source root: C:\Users\EDGA6280\github\dgautier\text2confl\cli\src\main\kotlin
+            But is required by maven-source-plugin to generate -sources jar
+              -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>3.4.0</version>
+            <executions>
+                <execution>
+                    <id>add-kotlin-sources</id>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>add-source</goal>
+                    </goals>
+                    <configuration>
+                        <sources>
+                            <source>src/main/kotlin</source>
+                        </sources>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>add-kotlin-test-sources</id>
+                    <phase>generate-test-sources</phase>
+                    <goals>
+                        <goal>add-test-source</goal>
+                    </goals>
+                    <configuration>
+                    <sources>
+                        <source>src/test/kotlin</source>
+                    </sources>
+                </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
                 <configuration>
                     <jvmTarget>11</jvmTarget>
-                    <sourceDirs>
-                        <source>src/main/kotlin</source>
-                    </sourceDirs>
                 </configuration>
                 <executions>
                     <execution>
@@ -61,12 +111,22 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <source>src/main/kotlin</source>
+                            </sourceDirs>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>test-compile</id>
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <source>src/test/kotlin</source>
+                            </sourceDirs>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
