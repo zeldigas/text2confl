@@ -21,11 +21,6 @@
         <!--markdown libraries-->
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark</artifactId>
-            <version>${flexmark.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-ext-tables</artifactId>
             <version>${flexmark.version}</version>
         </dependency>
