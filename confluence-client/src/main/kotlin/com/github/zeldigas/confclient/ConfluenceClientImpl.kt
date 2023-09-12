@@ -22,7 +22,7 @@ import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager

@@ -1,7 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown.diagram
 
 import com.github.zeldigas.text2confl.convert.markdown.MermaidDiagramsConfiguration
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 
 class MermaidDiagramsGenerator(
@@ -20,7 +20,7 @@ class MermaidDiagramsGenerator(
         private val SUPPORTED_FORMATS = setOf("png", "svg")
         private val PUPPETER_CONFIG_ENV = "T2C_PUPPEETER_CONFIG"
 
-        private val log = KotlinLogging.logger {}
+        private val logger = KotlinLogging.logger {}
     }
 
     constructor(config: MermaidDiagramsConfiguration, commandExecutor: CommandExecutor = OsCommandExecutor()) : this(
@@ -67,11 +67,11 @@ class MermaidDiagramsGenerator(
         val result = try {
             commandExecutor.execute(cmd(command) { flag("-V") })
         } catch (ex: Exception) {
-            log.debug(ex) { "Failed to execute command" }
+            logger.debug(ex) { "Failed to execute command" }
             return false
         }
         return if (result.status == 0) {
-            log.info { "Mermaid version: ${result.output}" }
+            logger.info { "Mermaid version: ${result.output}" }
             true
         } else {
             false
