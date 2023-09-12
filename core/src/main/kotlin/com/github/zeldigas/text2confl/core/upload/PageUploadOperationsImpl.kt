@@ -8,7 +8,7 @@ import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 import kotlin.io.path.extension
 
