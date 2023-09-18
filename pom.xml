@@ -36,7 +36,6 @@
     </properties>
 
     <modules>
-        <module>cli</module>
         <module>convert</module>
         <module>confluence-client</module>
         <module>core</module>
