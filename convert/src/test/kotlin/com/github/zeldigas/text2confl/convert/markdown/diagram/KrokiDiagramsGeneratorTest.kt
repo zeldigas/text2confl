@@ -63,7 +63,8 @@ class KrokiDiagramsGeneratorTest {
 
     @Test
     fun `Kroki generator basic props`() {
-        val generator = KrokiDiagramsGenerator(enabled = true, defaultFileFormat = "png", KrokiDiagramsGenerator.DEFAULT_SERVER)
+        val generator =
+            KrokiDiagramsGenerator(enabled = true, defaultFileFormat = "png", KrokiDiagramsGenerator.DEFAULT_SERVER)
 
         assertThat(generator.available()).isTrue()
         SUPPORTED_DIAGRAMS.forEach { assertThat(generator.supports(it)).isTrue() }

@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.zeldigas.confclient.ConfluenceClientConfig
+import com.github.zeldigas.text2confl.core.ServiceProvider
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -28,8 +29,10 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md", help = "Exports confl
     private val dest: File by option("--dest")
         .file(canBeFile = false, canBeDir = true)
         .default(File("."))
-    private val assetsDir by option("--assets-dir",
-        help = "Directory relative to destination folder where attachments will be stored")
+    private val assetsDir by option(
+        "--assets-dir",
+        help = "Directory relative to destination folder where attachments will be stored"
+    )
     private val saveContentSource by option("--dump-also-storage-format")
         .flag("--no-dump-also-storage-format", default = false)
 

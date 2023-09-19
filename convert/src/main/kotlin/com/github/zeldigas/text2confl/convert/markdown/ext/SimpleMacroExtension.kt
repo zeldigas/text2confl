@@ -51,7 +51,8 @@ class SimpleMacroNodePostProcessor(document: Document) : NodePostProcessor() {
         private val KEY = """\w+"""
         private val SIMPLE_VALUE = """[^\s"]+"""
         private val QUOTED_VALUE = """[^"]+?"""
-        private val OPTION_REGEX = """(?<key>$KEY)=((?<value>$SIMPLE_VALUE)|"(?<quotedvalue>$QUOTED_VALUE)")""".toRegex()
+        private val OPTION_REGEX =
+            """(?<key>$KEY)=((?<value>$SIMPLE_VALUE)|"(?<quotedvalue>$QUOTED_VALUE)")""".toRegex()
         private val OPTION_UNNAMED_PATTERN = """$KEY=(($SIMPLE_VALUE)|"($QUOTED_VALUE)")"""
         private val OPTIONS_BLOCK = """$OPTION_UNNAMED_PATTERN(\s+$OPTION_UNNAMED_PATTERN)*""".toRegex()
     }
@@ -95,7 +96,11 @@ class SimpleMacroRenderer : NodeRenderer {
         )
     }
 
-    private fun render(node: ConfluenceSimpleMacroNode, @Suppress("UNUSED_PARAMETER") context: NodeRendererContext, html: HtmlWriter) {
+    private fun render(
+        node: ConfluenceSimpleMacroNode,
+        @Suppress("UNUSED_PARAMETER") context: NodeRendererContext,
+        html: HtmlWriter
+    ) {
         val params = node.parameters.entries.sortedBy { it.key }
         html.macro(node.name) {
             params.forEach { (name, value) -> addParameter(name, value) }

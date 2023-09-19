@@ -36,7 +36,7 @@ class DiagramMaker(
 
         val generatedFileLocation = if (pathPrefix == null) baseDir / name else baseDir / pathPrefix / name
 
-        if (!generatedFileLocation.parent.exists()){
+        if (!generatedFileLocation.parent.exists()) {
             Files.createDirectories(generatedFileLocation.parent)
         }
 

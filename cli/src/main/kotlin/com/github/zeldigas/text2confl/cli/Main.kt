@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.sources.ChainedValueSource
 import com.github.ajalt.clikt.sources.PropertiesValueSource
+import com.github.zeldigas.text2confl.core.ServiceProviderImpl
 
 class ConfluencePublisher : CliktCommand() {
 

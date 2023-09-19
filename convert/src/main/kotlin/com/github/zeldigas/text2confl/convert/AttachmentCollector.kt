@@ -22,14 +22,20 @@ class AttachmentCollector(
 
         val effectiveName = referenceName ?: pathToFile
 
-        if (attachmentsRegistry.hasRef(effectiveName)) return attachmentsRegistry.ref(effectiveName);
+        if (attachmentsRegistry.hasRef(effectiveName)) return attachmentsRegistry.ref(effectiveName)
         if (referencesProvider.resolveReference(source, pathToFile) != null) return null
 
         val parentDir = source.parent ?: Paths.get(".")
 
         return lookupInDirAndAdd(parentDir, pathToFile, effectiveName).also { attachment ->
             if (attachment == null) {
-                logger.warn { "Unresolved local ref in [${source}], ref=${referenceName ?: "(inline)"}. File does not exist: ${parentDir.resolve(pathToFile)}" }
+                logger.warn {
+                    "Unresolved local ref in [${source}], ref=${referenceName ?: "(inline)"}. File does not exist: ${
+                        parentDir.resolve(
+                            pathToFile
+                        )
+                    }"
+                }
             }
         }
     }
@@ -39,16 +45,22 @@ class AttachmentCollector(
 
         val effectiveName = referenceName ?: pathToFile
 
-        if (attachmentsRegistry.hasRef(effectiveName)) return attachmentsRegistry.ref(effectiveName);
+        if (attachmentsRegistry.hasRef(effectiveName)) return attachmentsRegistry.ref(effectiveName)
 
         return lookupInDirAndAdd(dir, pathToFile, effectiveName).also { attachment ->
             if (attachment == null) {
-                logger.warn { "Unresolved local ref in [dir ${dir}], ref=${referenceName ?: "(inline)"}. File does not exist: ${dir.resolve(pathToFile)}" }
+                logger.warn {
+                    "Unresolved local ref in [dir ${dir}], ref=${referenceName ?: "(inline)"}. File does not exist: ${
+                        dir.resolve(
+                            pathToFile
+                        )
+                    }"
+                }
             }
         }
     }
 
-    private fun lookupInDirAndAdd(dir: Path, pathToFile: String, effectiveName: String):Attachment? {
+    private fun lookupInDirAndAdd(dir: Path, pathToFile: String, effectiveName: String): Attachment? {
         val file = dir.resolve(pathToFile).normalize()
         return if (file.exists()) {
             logger.debug { "File exists, adding as attachment: $file with ref $effectiveName" }

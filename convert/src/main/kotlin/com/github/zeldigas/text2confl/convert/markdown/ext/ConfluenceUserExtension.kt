@@ -14,7 +14,7 @@ class ConfluenceUserExtension : ParserExtension {
     }
 
     override fun extend(parserBuilder: Parser.Builder) {
-        parserBuilder.customInlineParserExtensionFactory(UserParserFactory());
+        parserBuilder.customInlineParserExtensionFactory(UserParserFactory())
     }
 }
 
@@ -55,7 +55,8 @@ class ConfluenceUserNode(
 
 private class UserTagParser : InlineParserExtension {
     companion object {
-        val PATTERN = """^(@)(("[^"]+")|([a-z\d_]([.a-z\d_-]+[a-z\d_])?))""".toRegex(RegexOption.IGNORE_CASE).toPattern()
+        val PATTERN =
+            """^(@)(("[^"]+")|([a-z\d_]([.a-z\d_-]+[a-z\d_])?))""".toRegex(RegexOption.IGNORE_CASE).toPattern()
     }
 
     override fun finalizeDocument(inlineParser: InlineParser) {
@@ -74,14 +75,14 @@ private class UserTagParser : InlineParserExtension {
             }
         }
         if (isPossible) {
-            val matches = inlineParser.matchWithGroups(PATTERN) ?: return false;
+            val matches = inlineParser.matchWithGroups(PATTERN) ?: return false
             val openMarker = matches[1]!!
             val rawUsername = matches[2]!!
             val username = if (rawUsername.startsWith('"') && rawUsername.endsWith('"')) {
                 rawUsername.trim('"')
             } else if (validUsername(rawUsername)) {
                 rawUsername
-            }else {
+            } else {
                 null
             }
             if (username != null) {

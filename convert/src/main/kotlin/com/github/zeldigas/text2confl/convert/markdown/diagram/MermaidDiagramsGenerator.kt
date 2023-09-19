@@ -61,7 +61,7 @@ class MermaidDiagramsGenerator(
     private fun effectivePuppeeterConfig(): String? = puppeterConfig ?: System.getenv(PUPPETER_CONFIG_ENV)
 
     override fun available(): Boolean {
-        if (!enabled) return false;
+        if (!enabled) return false
         if (!commandExecutor.commandAvailable(command)) return false
 
         val result = try {

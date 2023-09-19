@@ -249,7 +249,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
 
         html.openTag("ac:image", imageAttributes)
         if (attachmentReference in attachments) {
-            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(attachmentReference).attachmentName))
+            html.voidTag(
+                "ri:attachment",
+                mapOf("ri:filename" to attachments.getValue(attachmentReference).attachmentName)
+            )
         } else {
             html.voidTag("ri:url", mapOf("ri:value" to externalUrlProvider()))
         }
@@ -283,6 +286,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
                     appendLinkBody(node, html, context, textExtractor)
                     html.closeTag("ac:link")
                 }
+
                 is Anchor -> {
                     html.openTag("ac:link", mapOf("ac:anchor" to xref.target))
                     appendLinkBody(node, html, context, textExtractor)
@@ -291,7 +295,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             }
         } else if (attachmentReference in attachments) {
             html.openTag("ac:link")
-            html.voidTag("ri:attachment", mapOf("ri:filename" to attachments.getValue(attachmentReference).attachmentName))
+            html.voidTag(
+                "ri:attachment",
+                mapOf("ri:filename" to attachments.getValue(attachmentReference).attachmentName)
+            )
             appendLinkBody(node, html, context, textExtractor)
             html.closeTag("ac:link")
         } else {
@@ -352,7 +359,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         if (node.taskList) {
             renderTaskList(node, context, html)
         } else {
-            val start: Int = node.getStartNumber()
+            val start: Int = node.startNumber
             if (listOptions.isOrderedListManualStart && start != 1) html.attr("start", start.toString())
             html.withAttr().tagIndent("ol") { context.renderChildren(node) }
         }
@@ -421,7 +428,11 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         html.closeTag("ac:structured-macro")
     }
 
-    private fun render(node: ConfluenceStatusNode, @Suppress("UNUSED_PARAMETER") context: NodeRendererContext, html: HtmlWriter) {
+    private fun render(
+        node: ConfluenceStatusNode,
+        @Suppress("UNUSED_PARAMETER") context: NodeRendererContext,
+        html: HtmlWriter
+    ) {
         html.macro("status") {
             addParameter("title", node.text)
             addParameter("colour",
@@ -429,7 +440,11 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         }
     }
 
-    private fun render(node: ConfluenceUserNode, @Suppress("UNUSED_PARAMETER") context: NodeRendererContext, html: HtmlWriter) {
+    private fun render(
+        node: ConfluenceUserNode,
+        @Suppress("UNUSED_PARAMETER") context: NodeRendererContext,
+        html: HtmlWriter
+    ) {
         html.tag("ac:link") {
             html.voidTag("ri:user", mapOf("ri:username" to node.text))
         }

@@ -9,13 +9,15 @@ class HtmlToMarkdownConverterTest {
 
     private val converter = HtmlToMarkdownConverter(ConfluenceLinksResolver.NOP, "_assets")
 
-    @ValueSource(strings = [
-        "basic",
-        "code",
-        "links",
-        "tables",
-        "confluence-specific",
-    ])
+    @ValueSource(
+        strings = [
+            "basic",
+            "code",
+            "links",
+            "tables",
+            "confluence-specific",
+        ]
+    )
     @ParameterizedTest
     fun `Conversion of confluence page`(pageId: String) {
         val input = readResoource("/convert/$pageId.html")

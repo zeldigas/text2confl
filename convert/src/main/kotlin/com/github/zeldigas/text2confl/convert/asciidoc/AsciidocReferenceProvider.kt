@@ -18,7 +18,7 @@ class AsciidocReferenceProvider(
 
     fun resolveLink(target: String): AsciidocRef? {
         val ref = referenceProvider.resolveReference(source, target) ?: return null
-        return toAsciidocRef(ref);
+        return toAsciidocRef(ref)
     }
 
     private fun toAsciidocRef(ref: Reference): AsciidocRef {

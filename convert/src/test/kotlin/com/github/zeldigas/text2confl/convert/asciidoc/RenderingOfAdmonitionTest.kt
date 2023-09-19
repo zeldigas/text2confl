@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource
 
 internal class RenderingOfAdmonitionTest : RenderingTestBase() {
 
-    @CsvSource(value = ["TIP,tip", "NOTE,info", "CAUTION,note", "WARNING,warning","IMPORTANT,warning"])
+    @CsvSource(value = ["TIP,tip", "NOTE,info", "CAUTION,note", "WARNING,warning", "IMPORTANT,warning"])
     @ParameterizedTest
     internal fun `Confluence supported admonitions`(type: String, confluenceType: String) {
         val result = toHtml(

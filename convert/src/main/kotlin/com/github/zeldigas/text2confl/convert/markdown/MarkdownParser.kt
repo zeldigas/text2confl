@@ -41,9 +41,11 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
     }
 
     private val headerParserOptions = MutableDataSet()
-        .set(Parser.EXTENSIONS, listOf(
-            YamlFrontMatterExtension.create()
-        ))
+        .set(
+            Parser.EXTENSIONS, listOf(
+                YamlFrontMatterExtension.create()
+            )
+        )
         .toImmutable()
 
     private val parserOptions: DataHolder = MutableDataSet()
@@ -56,16 +58,18 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
         .set(AttributesExtension.FENCED_CODE_INFO_ATTRIBUTES, true)
         .set(DiagramsExtension.DIAGRAM_MAKERS, diagramMakers)
         .set(PARSE_OPTIONS, config).let { parserConfig ->
-            parserConfig.set(Parser.EXTENSIONS, listOf(
-                TablesExtension.create(), YamlFrontMatterExtension.create(),
-                TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
-                SimpleAttributesExtension(), TocExtension.create(),
-                SimpleAdmonitionExtension(), SuperscriptExtension.create(),
-                StatusExtension(), ConfluenceUserExtension(),
-                SimpleMacroExtension(),
-                DiagramsExtension(),
-                ConfluenceFormatExtension(),
-            ) + extraExtensions(parserConfig, config))
+            parserConfig.set(
+                Parser.EXTENSIONS, listOf(
+                    TablesExtension.create(), YamlFrontMatterExtension.create(),
+                    TaskListExtension.create(), StrikethroughSubscriptExtension.create(),
+                    SimpleAttributesExtension(), TocExtension.create(),
+                    SimpleAdmonitionExtension(), SuperscriptExtension.create(),
+                    StatusExtension(), ConfluenceUserExtension(),
+                    SimpleMacroExtension(),
+                    DiagramsExtension(),
+                    ConfluenceFormatExtension(),
+                ) + extraExtensions(parserConfig, config)
+            )
         }
         .toImmutable()
 
@@ -98,25 +102,34 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
 
     private val headerParser = Parser.builder(headerParserOptions).build()
 
-    fun parseReader(reader: Reader,
-                    context: ConvertingContext,
-                    attachmentsRegistry: AttachmentsRegistry,
-                    location: Path): Document {
+    fun parseReader(
+        reader: Reader,
+        context: ConvertingContext,
+        attachmentsRegistry: AttachmentsRegistry,
+        location: Path
+    ): Document {
         return createParser(context, attachmentsRegistry, location).parseReader(reader)
     }
 
-    private fun createParser(context: ConvertingContext, attachmentsRegistry: AttachmentsRegistry, location: Path): Parser {
-        return Parser.builder(parserOptions.toMutable()
-            .set(ATTACHMENTS_REGISTRY, attachmentsRegistry)
-            .set(CONTEXT, context)
-            .set(DOCUMENT_LOCATION, location)
+    private fun createParser(
+        context: ConvertingContext,
+        attachmentsRegistry: AttachmentsRegistry,
+        location: Path
+    ): Parser {
+        return Parser.builder(
+            parserOptions.toMutable()
+                .set(ATTACHMENTS_REGISTRY, attachmentsRegistry)
+                .set(CONTEXT, context)
+                .set(DOCUMENT_LOCATION, location)
         ).build()
     }
 
-    fun parseString(document: String,
-                    context: ConvertingContext,
-                    attachmentsRegistry: AttachmentsRegistry,
-                    location: Path): Document {
+    fun parseString(
+        document: String,
+        context: ConvertingContext,
+        attachmentsRegistry: AttachmentsRegistry,
+        location: Path
+    ): Document {
         return createParser(context, attachmentsRegistry, location).parse(document)
     }
 

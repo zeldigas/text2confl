@@ -66,9 +66,9 @@ data class StorageFormat(
 )
 
 data class PageVersionInfo(
-    val number:Int,
+    val number: Int,
     val minorEdit: Boolean,
-    @JsonProperty("when") val createdAt:ZonedDateTime?
+    @JsonProperty("when") val createdAt: ZonedDateTime?
 )
 
 data class PageChildren(
@@ -81,7 +81,7 @@ data class PageAttachments(
     val size: Int? = null,
     val results: List<Attachment> = emptyList(),
     @JsonProperty("_links")
-    val links:Map<String, String> = emptyMap()
+    val links: Map<String, String> = emptyMap()
 )
 
 data class Attachment(
@@ -89,6 +89,6 @@ data class Attachment(
     val title: String,
     val metadata: Map<String, Any?> = emptyMap(),
     @JsonProperty("_links")
-    val links:Map<String, String> = emptyMap()
+    val links: Map<String, String> = emptyMap()
 )
 

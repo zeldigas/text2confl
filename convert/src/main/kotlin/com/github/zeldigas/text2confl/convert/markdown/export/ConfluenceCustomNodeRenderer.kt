@@ -291,7 +291,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         if (headerCells.isEmpty()) return true
         if (headerCells.any { isComplexCell(it) }) return false
 
-        for (row in body.getElementsByTag("tr")){
+        for (row in body.getElementsByTag("tr")) {
             val tags = row.children().map { it.tagName() }.toSet()
             if ("th" in tags && "td" in tags) return false
         }

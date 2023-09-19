@@ -35,12 +35,14 @@ internal class RenderingOfTaskListsTest : RenderingTestBase() {
         )
     }
 
-    @CsvSource(value = [
-        "*,ul",
-        "1.,ol"
-    ])
+    @CsvSource(
+        value = [
+            "*,ul",
+            "1.,ol"
+        ]
+    )
     @ParameterizedTest
-    internal fun `Partial task list is rendered as simple unordered list`(marker:String, htmlTag:String) {
+    internal fun `Partial task list is rendered as simple unordered list`(marker: String, htmlTag: String) {
         val result = toHtml(
             """
             $marker [ ] open task

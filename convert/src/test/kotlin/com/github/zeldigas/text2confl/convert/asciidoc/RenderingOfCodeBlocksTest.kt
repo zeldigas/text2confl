@@ -105,12 +105,12 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
         fun Assert<String>.codeBlockWithAttributes() {
             isEqualToConfluenceFormat(
                 """<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">kotlin</ac:parameter>"""
-                        +"""<ac:parameter ac:name="title">hello.kt &amp; world</ac:parameter>"""
-                        +"""<ac:parameter ac:name="collapse">true</ac:parameter>"""
-                        +"""<ac:parameter ac:name="linenumbers">true</ac:parameter>"""
-                        +"""<ac:parameter ac:name="firstline">3</ac:parameter>"""
-                        +"""<ac:parameter ac:name="theme">Eclipse</ac:parameter>"""
-                        +"""<ac:plain-text-body><![CDATA[println("Hello")]]></ac:plain-text-body></ac:structured-macro>"""
+                        + """<ac:parameter ac:name="title">hello.kt &amp; world</ac:parameter>"""
+                        + """<ac:parameter ac:name="collapse">true</ac:parameter>"""
+                        + """<ac:parameter ac:name="linenumbers">true</ac:parameter>"""
+                        + """<ac:parameter ac:name="firstline">3</ac:parameter>"""
+                        + """<ac:parameter ac:name="theme">Eclipse</ac:parameter>"""
+                        + """<ac:plain-text-body><![CDATA[println("Hello")]]></ac:plain-text-body></ac:structured-macro>"""
             )
         }
 
@@ -127,13 +127,15 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
 
     @Test
     internal fun `Listing block is rendered as pretext`() {
-        val result = toHtml("""
+        val result = toHtml(
+            """
         [listing]
         This is an example of a paragraph assigned
         the `listing` style in an attribute list.
         Notice that the monospace marks are
         preserved in the output.
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
@@ -166,11 +168,13 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
 
     @Test
     internal fun `Literal paragraph`() {
-        val result = toHtml("""
+        val result = toHtml(
+            """
             [literal]
             error: 1954 Forbidden search
             absolutely fatal: operation lost in the dodecahedron of doom
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertThat(result).isEqualToConfluenceFormat(
             """
@@ -182,13 +186,15 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
 
     @Test
     internal fun `Delimited literal block`() {
-        val result = toHtml("""
+        val result = toHtml(
+            """
             ....
             Kismet: Where is the *defensive operations manual*?
 
             Computer: Calculating ...
             ....
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertThat(result).isEqualToConfluenceFormat(
             """

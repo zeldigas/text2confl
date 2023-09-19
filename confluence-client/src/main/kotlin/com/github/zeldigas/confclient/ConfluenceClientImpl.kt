@@ -131,7 +131,7 @@ class ConfluenceClientImpl(
         }
         return try {
             response.body()
-        }catch (e: ContentConvertException) {
+        } catch (e: ContentConvertException) {
             throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
         }
     }

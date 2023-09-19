@@ -10,7 +10,7 @@ class DefaultMacros : ExtensionRegistry {
     }
 
     override fun register(asciidoc: Asciidoctor) {
-        val rubyExtensions = asciidoc.rubyExtensionRegistry();
+        val rubyExtensions = asciidoc.rubyExtensionRegistry()
         listOf("StatusMacro", "UserMacro", "SimpleInlineMacro").forEach { macro ->
             this::class.java.getResourceAsStream("$DIR/$macro.rb").use { rubyExtensions.loadClass(it) }
             rubyExtensions.inlineMacro(macro)

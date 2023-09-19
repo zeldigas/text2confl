@@ -7,7 +7,7 @@ import java.nio.file.Path
 class PlantUmlDiagramsGenerator(
     val enabled: Boolean = true,
     val command: String = DEFAULT_COMMAND,
-    override val defaultFileFormat:String = DEFAULT_FORMAT,
+    override val defaultFileFormat: String = DEFAULT_FORMAT,
     val commandExecutor: CommandExecutor
 ) : DiagramGenerator {
 
@@ -16,10 +16,10 @@ class PlantUmlDiagramsGenerator(
         val SUPPORTED_LANGS = setOf("plantuml", "puml")
         val SUPPORTED_FORMATS = setOf("svg", "png", "eps")
         const val DEFAULT_FORMAT = "png"
-        private val log = KotlinLogging.logger {  }
+        private val log = KotlinLogging.logger { }
     }
 
-    constructor(config: PlantUmlDiagramsConfiguration, commandExecutor: CommandExecutor = OsCommandExecutor(),): this(
+    constructor(config: PlantUmlDiagramsConfiguration, commandExecutor: CommandExecutor = OsCommandExecutor()) : this(
         enabled = config.enabled,
         command = config.executable ?: DEFAULT_COMMAND,
         defaultFileFormat = config.defaultFormat,
@@ -53,7 +53,7 @@ class PlantUmlDiagramsGenerator(
     }
 
     override fun available(): Boolean {
-        if (!enabled) return false;
+        if (!enabled) return false
         if (!commandExecutor.commandAvailable(command)) return false
 
         val result = try {

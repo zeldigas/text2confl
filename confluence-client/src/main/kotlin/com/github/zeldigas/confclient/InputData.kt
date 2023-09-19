@@ -22,4 +22,9 @@ data class PageContentInput(
 
 data class PageUpdateOptions(val notifyWatchers: Boolean = true, val message: String?)
 
-data class PageAttachmentInput(val name:String, val content: Path, val comment:String?, val contentType: String? = null)
+data class PageAttachmentInput(
+    val name: String,
+    val content: Path,
+    val comment: String?,
+    val contentType: String? = null
+)

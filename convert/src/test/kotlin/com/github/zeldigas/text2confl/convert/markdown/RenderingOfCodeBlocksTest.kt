@@ -97,16 +97,17 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
         fun Assert<String>.codeBlockWithAttributes() {
             isEqualToConfluenceFormat(
                 """<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">kotlin</ac:parameter>"""
-                        +"""<ac:parameter ac:name="title">hello.kt &amp; world</ac:parameter>"""
-                        +"""<ac:parameter ac:name="collapse">true</ac:parameter>"""
-                        +"""<ac:parameter ac:name="linenumbers">true</ac:parameter>"""
-                        +"""<ac:parameter ac:name="firstline">3</ac:parameter>"""
-                        +"""<ac:parameter ac:name="theme">Eclipse</ac:parameter>"""
-                        +"""<ac:plain-text-body><![CDATA[println("Hello")]]></ac:plain-text-body></ac:structured-macro>"""
+                        + """<ac:parameter ac:name="title">hello.kt &amp; world</ac:parameter>"""
+                        + """<ac:parameter ac:name="collapse">true</ac:parameter>"""
+                        + """<ac:parameter ac:name="linenumbers">true</ac:parameter>"""
+                        + """<ac:parameter ac:name="firstline">3</ac:parameter>"""
+                        + """<ac:parameter ac:name="theme">Eclipse</ac:parameter>"""
+                        + """<ac:plain-text-body><![CDATA[println("Hello")]]></ac:plain-text-body></ac:structured-macro>"""
             )
         }
 
-        val attributes = """{title="hello.kt & world" collapse=true linenumbers=true firstline=3 theme=Eclipse unknown=yes}"""
+        val attributes =
+            """{title="hello.kt & world" collapse=true linenumbers=true firstline=3 theme=Eclipse unknown=yes}"""
         val result = toHtml(
             """
             ```kotlin $attributes

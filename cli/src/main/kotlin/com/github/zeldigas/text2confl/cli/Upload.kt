@@ -9,9 +9,10 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
-import com.github.zeldigas.text2confl.cli.config.*
-import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import com.github.zeldigas.text2confl.core.ServiceProvider
+import com.github.zeldigas.text2confl.core.config.*
+import com.github.zeldigas.text2confl.core.upload.ChangeDetector
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -69,7 +70,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     }
 
     private suspend fun tryUpload() {
-        val directoryStoredParams = readDirectoryConfig(docs.toPath());
+        val directoryStoredParams = readDirectoryConfig(docs.toPath())
         val uploadConfig = createUploadConfig(directoryStoredParams)
         val clientConfig = createClientConfig(directoryStoredParams)
         val conversionConfig = createConversionConfig(directoryStoredParams, editorVersion, clientConfig.server)

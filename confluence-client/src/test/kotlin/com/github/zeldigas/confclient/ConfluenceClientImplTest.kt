@@ -36,7 +36,7 @@ class ConfluenceClientImplTest(runtimeInfo: WireMockRuntimeInfo) {
     fun `Fetch attachments with multiple pages`() = runTest {
         val attachments = listOf(Attachment("first", "first"))
         val firstNext = "/rest/api/content/123/child/attachment?limit=1&start=1"
-        val secondNext = "/rest/api/content/123/child/attachment?limit=1&start=2";
+        val secondNext = "/rest/api/content/123/child/attachment?limit=1&start=2"
         stubFor(
             get(firstNext).willReturn(
                 ok().withJson(
