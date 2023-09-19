@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- `cli` model is split into 2: `core` and `cli`. Contributed by @dgautier.
+- dependency updates
+  - ascidoctor diagram to 2.2.13
+  - plantuml to 1.2023.11
+
 ## 0.13.0 - 2023-08-28
 
 ### Added
