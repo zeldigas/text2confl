@@ -234,7 +234,7 @@ internal class MarkdownFileConverterTest {
         }
 
         assertFailure {
-            MarkdownFileConverter(parser).convert(file, mockk() {
+            MarkdownFileConverter(parser).convert(file, mockk {
                 every { titleTransformer } returns mockk()
             })
         }.isInstanceOf(ConversionFailedException::class).all {

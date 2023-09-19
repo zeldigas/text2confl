@@ -58,11 +58,12 @@ class PageContentTest {
     @Test
     internal fun `Ok result for well-formed xml`() {
         assertThat(
-            PageContent(PageHeader("", emptyMap()),
-            """
+            PageContent(
+                PageHeader("", emptyMap()),
+                """
                 <p>hello world</p>                
             """.trimIndent(),
-            emptyList()
+                emptyList()
             ).validate()
         ).isEqualTo(Validation.Ok)
     }
@@ -77,11 +78,13 @@ class PageContentTest {
                 </table>""".trimIndent()
         print(sampleXml)
         assertThat(
-            PageContent(PageHeader("", emptyMap()),
+            PageContent(
+                PageHeader("", emptyMap()),
                 sampleXml,
                 emptyList()
             ).validate()
         ).isInstanceOf(Validation.Invalid::class)
-            .transform { it.issue }.contains("[5:3] The element type \"p\" must be terminated by the matching end-tag \"</p>\". Start tag location - [3:4]")
+            .transform { it.issue }
+            .contains("[5:3] The element type \"p\" must be terminated by the matching end-tag \"</p>\". Start tag location - [3:4]")
     }
 }

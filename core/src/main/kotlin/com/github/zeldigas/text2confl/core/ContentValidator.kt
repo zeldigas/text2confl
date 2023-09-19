@@ -3,7 +3,7 @@ package com.github.zeldigas.text2confl.core
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.Validation
 
-class ContentValidationFailedException(val errors:List<String>): RuntimeException()
+class ContentValidationFailedException(val errors: List<String>) : RuntimeException()
 
 interface ContentValidator {
     fun validate(content: List<Page>)
@@ -11,7 +11,7 @@ interface ContentValidator {
 
 class ContentValidatorImpl : ContentValidator {
     override fun validate(content: List<Page>) {
-        val foundIssues:MutableList<String> = arrayListOf()
+        val foundIssues: MutableList<String> = arrayListOf()
         collectErrors(content, foundIssues)
         if (foundIssues.isNotEmpty()) {
             throw ContentValidationFailedException(foundIssues)
@@ -19,7 +19,7 @@ class ContentValidatorImpl : ContentValidator {
     }
 
     private fun collectErrors(pages: List<Page>, foundIssues: MutableList<String>) {
-        for (page in pages){
+        for (page in pages) {
             val validationResult = page.content.validate()
             if (validationResult is Validation.Invalid) {
                 foundIssues.add("${page.source}: ${validationResult.issue}")

@@ -14,32 +14,32 @@ import mu.KotlinLogging
 
 
 class ContentUploader(
-        val pageUploadOperations: PageUploadOperations,
-        val client: ConfluenceClient,
-        val cleanup: Cleanup,
-        val tenant: String?
+    val pageUploadOperations: PageUploadOperations,
+    val client: ConfluenceClient,
+    val cleanup: Cleanup,
+    val tenant: String?
 ) {
 
     constructor(
-            client: ConfluenceClient,
-            uploadMessage: String,
-            notifyWatchers: Boolean,
-            pageContentChangeDetector: ChangeDetector,
-            editorVersion: EditorVersion,
-            cleanup: Cleanup,
-            tenant: String?
+        client: ConfluenceClient,
+        uploadMessage: String,
+        notifyWatchers: Boolean,
+        pageContentChangeDetector: ChangeDetector,
+        editorVersion: EditorVersion,
+        cleanup: Cleanup,
+        tenant: String?
     ) : this(
-            PageUploadOperationsImpl(
-                    client,
-                    uploadMessage,
-                    notifyWatchers,
-                    pageContentChangeDetector,
-                    editorVersion,
-                    tenant
-            ),
+        PageUploadOperationsImpl(
             client,
-            cleanup,
+            uploadMessage,
+            notifyWatchers,
+            pageContentChangeDetector,
+            editorVersion,
             tenant
+        ),
+        client,
+        cleanup,
+        tenant
     )
 
     companion object {
@@ -53,9 +53,9 @@ class ContentUploader(
     }
 
     private suspend fun uploadPagesRecursive(
-            pages: List<Page>,
-            space: String,
-            parentPageId: String
+        pages: List<Page>,
+        space: String,
+        parentPageId: String
     ): List<PageUploadResult> {
         return coroutineScope {
             pages.map { page ->
@@ -97,12 +97,12 @@ class ContentUploader(
     }
 
     private fun buildOrphanedRemovalRegistry(
-            uploadedPages: List<PageUploadResult>
+        uploadedPages: List<PageUploadResult>
     ): Map<String, List<ServerPage>> {
         val nonLeafPages =
-                uploadedPages.groupBy { it.parentId }.mapValues { (_, v) -> v.map { (_, serverPage) -> serverPage } }
+            uploadedPages.groupBy { it.parentId }.mapValues { (_, v) -> v.map { (_, serverPage) -> serverPage } }
         val leafPages = uploadedPages.asSequence().map { (_, serverPage) -> serverPage.id }
-                .filter { it !in nonLeafPages }.map { it to emptyList<ServerPage>() }.toMap()
+            .filter { it !in nonLeafPages }.map { it to emptyList<ServerPage>() }.toMap()
         return nonLeafPages + leafPages
     }
 
@@ -121,8 +121,8 @@ class ContentUploader(
         val managedTitles = children.map { it.title }.toSet()
 
         val pagesForDeletion = pageUploadOperations.findChildPages(pageId)
-                .filter { it.title !in managedTitles }
-                .filter { cleanup == Cleanup.All || it.managedPage && sameTenant(it) }
+            .filter { it.title !in managedTitles }
+            .filter { cleanup == Cleanup.All || it.managedPage && sameTenant(it) }
 
         coroutineScope {
             for (page in pagesForDeletion) {
@@ -135,7 +135,7 @@ class ContentUploader(
     }
 
     private fun sameTenant(it: ConfluencePage) =
-            it.pageProperty(TENANT_PROPERTY)?.value == tenant
+        it.pageProperty(TENANT_PROPERTY)?.value == tenant
 
     private data class PageUploadResult(val parentId: String, val page: ServerPage, val virtual: Boolean)
 

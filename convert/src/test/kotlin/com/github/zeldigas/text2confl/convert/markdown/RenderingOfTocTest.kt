@@ -7,26 +7,31 @@ internal class RenderingOfTocTest : RenderingTestBase() {
 
     @Test
     internal fun `Table of contents rendering`() {
-        val result = toHtml("""
+        val result = toHtml(
+            """
             Intro paragraph
             
             [TOC]
             
             ## Hello
             ## World
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        assertThat(result).isEqualToConfluenceFormat("""
+        assertThat(result).isEqualToConfluenceFormat(
+            """
             <p>Intro paragraph</p>
             <p><ac:structured-macro ac:name="toc" /></p>
             <h2>Hello<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">hello</ac:parameter></ac:structured-macro></h2>
             <h2>World<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">world</ac:parameter></ac:structured-macro></h2>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     @Test
     internal fun `Table of contents rendering with parameters`() {
-        val result = toHtml("""
+        val result = toHtml(
+            """
             Intro paragraph
             
             [TOC]
@@ -34,9 +39,11 @@ internal class RenderingOfTocTest : RenderingTestBase() {
             
             ## Hello
             ## World
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        assertThat(result).isEqualToConfluenceFormat("""
+        assertThat(result).isEqualToConfluenceFormat(
+            """
             <p>Intro paragraph</p>
             <p>
             <ac:structured-macro ac:name="toc">
@@ -51,21 +58,25 @@ internal class RenderingOfTocTest : RenderingTestBase() {
             </p>
             <h2>Hello<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">hello</ac:parameter></ac:structured-macro></h2>
             <h2>World<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">world</ac:parameter></ac:structured-macro></h2>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     @Test
     internal fun `Table of contents with attributes inside toc`() {
-        val result = toHtml("""
+        val result = toHtml(
+            """
             Intro paragraph
             
             [TOC maxLevel=5 minLevel=2 style=circle .test separator=pipe type=list include=".*" exclude="smth special"]
             
             ## Hello
             ## World
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        assertThat(result).isEqualToConfluenceFormat("""
+        assertThat(result).isEqualToConfluenceFormat(
+            """
             <p>Intro paragraph</p>
             <p>
             <ac:structured-macro ac:name="toc">
@@ -80,6 +91,7 @@ internal class RenderingOfTocTest : RenderingTestBase() {
             </p>
             <h2>Hello<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">hello</ac:parameter></ac:structured-macro></h2>
             <h2>World<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">world</ac:parameter></ac:structured-macro></h2>
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 }

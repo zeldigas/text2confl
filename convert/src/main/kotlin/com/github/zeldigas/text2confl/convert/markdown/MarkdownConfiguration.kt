@@ -47,7 +47,7 @@ data class KrokiDiagramsConfiguration(
     override val enabled: Boolean = true,
     val server: URI = KrokiDiagramsGenerator.DEFAULT_SERVER,
     val defaultFormat: String = KrokiDiagramsGenerator.DEFAULT_FORMAT
-): DiagramsProviderConfiguration
+) : DiagramsProviderConfiguration
 
 data class TablesConfiguration(
     val columnSpans: Boolean = true,

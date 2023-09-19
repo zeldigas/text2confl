@@ -42,17 +42,19 @@ class OsCommandExecutorTest {
     fun `Execute commnad`(@TempDir tempDir: Path) {
         val command = tempDir / "test.sh"
 
-        command.writeText("""
+        command.writeText(
+            """
             #/usr/bin/env sh
             
             echo "args: $@"
             >&2 echo -n "to stderr"
             cat -
             
-        """.trimIndent())
+        """.trimIndent()
+        )
         Files.setPosixFilePermissions(command, setOf(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE))
 
-        val result = executor.execute(cmd(command.toString()){
+        val result = executor.execute(cmd(command.toString()) {
             flag("--test")
             opt("hello", "world")
 
@@ -60,10 +62,12 @@ class OsCommandExecutorTest {
         })
 
         assertThat(result).isEqualTo(
-            ExecutionResult(0, """
+            ExecutionResult(
+                0, """
             args: --test hello world
             test input
-        """.trimIndent(), "to stderr")
+        """.trimIndent(), "to stderr"
+            )
         )
     }
 }

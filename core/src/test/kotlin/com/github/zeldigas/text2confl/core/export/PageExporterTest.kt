@@ -4,12 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.model.Label
-import com.github.zeldigas.text2confl.core.export.PageExporter
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir

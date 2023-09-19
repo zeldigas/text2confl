@@ -99,5 +99,5 @@ data class ExecutionResult(val status: Int, val output: String, val error: Strin
 fun cmd(command: String, block: Command.() -> Unit): Command {
     val instance = Command(command, mutableListOf())
     instance.block()
-    return instance;
+    return instance
 }

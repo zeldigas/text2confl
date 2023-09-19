@@ -38,11 +38,11 @@ import kotlin.io.path.div
 
 @ExtendWith(MockKExtension::class)
 internal class UploadTest(
-        @MockK private val serviceProvider: ServiceProvider,
-        @MockK private val contentUploader: ContentUploader,
-        @MockK private val confluenceClient: ConfluenceClient,
-        @MockK private val contentValidator: ContentValidator,
-        @MockK private val converter: Converter
+    @MockK private val serviceProvider: ServiceProvider,
+    @MockK private val contentUploader: ContentUploader,
+    @MockK private val confluenceClient: ConfluenceClient,
+    @MockK private val contentValidator: ContentValidator,
+    @MockK private val converter: Converter
 ) {
     private val command = Upload()
 

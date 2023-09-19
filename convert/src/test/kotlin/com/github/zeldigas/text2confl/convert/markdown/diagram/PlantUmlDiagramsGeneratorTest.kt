@@ -2,7 +2,10 @@ package com.github.zeldigas.text2confl.convert.markdown.diagram
 
 import assertk.assertFailure
 import assertk.assertThat
-import assertk.assertions.*
+import assertk.assertions.hasMessage
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -60,7 +63,11 @@ class PlantUmlDiagramsGeneratorTest(
     @Test
     fun `Generator available when version command is fine`() {
         every { commandExecutor.commandAvailable("plantuml") } returns true
-        every { commandExecutor.execute(Command("plantuml", mutableListOf("-version"))) } returns ExecutionResult(0, "1.2.3\nsome other info", "")
+        every { commandExecutor.execute(Command("plantuml", mutableListOf("-version"))) } returns ExecutionResult(
+            0,
+            "1.2.3\nsome other info",
+            ""
+        )
 
         val generator = PlantUmlDiagramsGenerator(commandExecutor = commandExecutor)
 

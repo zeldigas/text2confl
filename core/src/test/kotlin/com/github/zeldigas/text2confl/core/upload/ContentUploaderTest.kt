@@ -4,8 +4,8 @@ import assertk.assertFailure
 import assertk.assertions.hasMessage
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.model.PageProperty
-import com.github.zeldigas.text2confl.core.config.Cleanup
 import com.github.zeldigas.text2confl.convert.Page
+import com.github.zeldigas.text2confl.core.config.Cleanup
 import com.github.zeldigas.text2confl.core.upload.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -18,8 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class ContentUploaderTest(
-        @MockK private val uploadOperations: PageUploadOperations,
-        @MockK private val confluenceClient: ConfluenceClient
+    @MockK private val uploadOperations: PageUploadOperations,
+    @MockK private val confluenceClient: ConfluenceClient
 ) {
 
     @BeforeEach
@@ -56,7 +56,7 @@ internal class ContentUploaderTest(
         registry.forEach { (page, delayTime) ->
             coEvery { uploadOperations.createOrUpdatePageContent(page, "TEST", any()) } coAnswers {
                 delay(delayTime)
-                mockk() {
+                mockk {
                     every { id } returns "$delayTime"
                 }
             }
@@ -321,7 +321,7 @@ internal class ContentUploaderTest(
         }
 
         fun build(): Page {
-            val titleValue = title;
+            val titleValue = title
             val childValue = children
             val virtualValue = virtual
             return mockk {
@@ -338,10 +338,10 @@ internal class ContentUploaderTest(
     }
 
     private data class ServerPageNode(
-            val title: String,
-            val managed: Boolean = true,
-            val children: List<ServerPageNode> = emptyList(),
-            val tenant: String? = null
+        val title: String,
+        val managed: Boolean = true,
+        val children: List<ServerPageNode> = emptyList(),
+        val tenant: String? = null
     ) {
         val id: String
             get() = "id_$title"
@@ -363,7 +363,12 @@ internal class ContentUploaderTest(
                 every { id } returns it.id
                 every { title } returns it.title
                 every { pageProperty(HASH_PROPERTY) } returns (if (it.managed) mockk { every { value } returns "abc" } else null)
-                every { pageProperty(TENANT_PROPERTY) } returns (if (it.tenant != null) PageProperty("", TENANT_PROPERTY, it.tenant, mockk()) else null)
+                every { pageProperty(TENANT_PROPERTY) } returns (if (it.tenant != null) PageProperty(
+                    "",
+                    TENANT_PROPERTY,
+                    it.tenant,
+                    mockk()
+                ) else null)
             }
         }
         for (page in pages) {

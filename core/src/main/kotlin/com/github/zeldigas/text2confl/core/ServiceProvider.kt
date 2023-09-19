@@ -17,10 +17,11 @@ interface ServiceProvider {
     fun createConverter(space: String, config: ConverterConfig): Converter
     fun createConfluenceClient(clientConfig: ConfluenceClientConfig, dryRun: Boolean): ConfluenceClient
     fun createUploader(
-            client: ConfluenceClient,
-            uploadConfig: UploadConfig,
-            converterConfig: ConverterConfig
+        client: ConfluenceClient,
+        uploadConfig: UploadConfig,
+        converterConfig: ConverterConfig
     ): ContentUploader
+
     fun createContentValidator(): ContentValidator
     fun createPageExporter(client: ConfluenceClient, saveContentSource: Boolean): PageExporter
 }

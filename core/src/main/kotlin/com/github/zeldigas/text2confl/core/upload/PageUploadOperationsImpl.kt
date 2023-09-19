@@ -13,12 +13,12 @@ import java.nio.file.Path
 import kotlin.io.path.extension
 
 internal class PageUploadOperationsImpl(
-        val client: ConfluenceClient,
-        val uploadMessage: String,
-        val notifyWatchers: Boolean,
-        val pageContentChangeDetector: ChangeDetector,
-        val editorVersion: EditorVersion,
-        val tenant: String? = null
+    val client: ConfluenceClient,
+    val uploadMessage: String,
+    val notifyWatchers: Boolean,
+    val pageContentChangeDetector: ChangeDetector,
+    val editorVersion: EditorVersion,
+    val tenant: String? = null
 ) : PageUploadOperations {
 
     companion object {
@@ -243,7 +243,7 @@ internal class PageUploadOperationsImpl(
         return client.findChildPages(
             pageId,
             listOf(propertyExpansion(HASH_PROPERTY), propertyExpansion(TENANT_PROPERTY))
-        );
+        )
     }
 
     override suspend fun deletePageWithChildren(pageId: String) {

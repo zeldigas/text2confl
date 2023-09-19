@@ -7,19 +7,20 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.zeldigas.text2confl.core.config.createConversionConfig
-import com.github.zeldigas.text2confl.core.config.readDirectoryConfig
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.core.ServiceProvider
+import com.github.zeldigas.text2confl.core.config.createConversionConfig
+import com.github.zeldigas.text2confl.core.config.readDirectoryConfig
 import com.github.zeldigas.text2confl.core.export.sanitizeTitle
 import io.ktor.http.*
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
 
-class Convert : CliktCommand(name = "convert", help = "Converts source files to confluence markup"), WithConversionOptions {
+class Convert : CliktCommand(name = "convert", help = "Converts source files to confluence markup"),
+    WithConversionOptions {
 
     private val docs: File by docsLocation()
     override val spaceKey: String? by confluenceSpace()
@@ -38,7 +39,8 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
 
     override fun run() {
         val directoryConfig = readDirectoryConfig(docs.toPath())
-        val conversionConfig = createConversionConfig(directoryConfig, editorVersion, directoryConfig.server?.let { Url(it) })
+        val conversionConfig =
+            createConversionConfig(directoryConfig, editorVersion, directoryConfig.server?.let { Url(it) })
         val space = spaceKey ?: directoryConfig.space ?: "AAA"
         val converter = serviceProvider.createConverter(space, conversionConfig)
         try {
@@ -82,7 +84,12 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
         (outPath / "${resultName}.html").writeText(page.content.body)
         if (copyAttachments && page.content.attachments.isNotEmpty()) {
             val attachmentDir = (outPath / "${resultName}_attachments").createDirectories()
-            page.content.attachments.forEach{it.resourceLocation.copyTo(attachmentDir / it.attachmentName, overwrite = true)}
+            page.content.attachments.forEach {
+                it.resourceLocation.copyTo(
+                    attachmentDir / it.attachmentName,
+                    overwrite = true
+                )
+            }
         }
     }
 }

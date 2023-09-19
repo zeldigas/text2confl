@@ -28,11 +28,13 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             [ref1]: another.md#test
             [ref2]: test/another.adoc#first-header
         """.trimIndent(),
-            referenceProvider = ReferenceProvider.fromDocuments(Path("."), mapOf(
-                Path("src.md") to PageHeader("Test", emptyMap()),
-                Path("another.md") to PageHeader("Another md", emptyMap()),
-                Path("test/another.adoc") to PageHeader("Asciidoc", emptyMap())
-            ))
+            referenceProvider = ReferenceProvider.fromDocuments(
+                Path("."), mapOf(
+                    Path("src.md") to PageHeader("Test", emptyMap()),
+                    Path("another.md") to PageHeader("Another md", emptyMap()),
+                    Path("test/another.adoc") to PageHeader("Asciidoc", emptyMap())
+                )
+            )
         )
 
         assertThat(result).isEqualToConfluenceFormat(
@@ -62,9 +64,11 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             [anch1]: #test
             [anch2]: #another-anchor
         """.trimIndent(),
-            referenceProvider = ReferenceProvider.fromDocuments(Path("."), mapOf(
-                Path("src.md") to PageHeader("Test", emptyMap())
-            ))
+            referenceProvider = ReferenceProvider.fromDocuments(
+                Path("."), mapOf(
+                    Path("src.md") to PageHeader("Test", emptyMap())
+                )
+            )
 
         )
 

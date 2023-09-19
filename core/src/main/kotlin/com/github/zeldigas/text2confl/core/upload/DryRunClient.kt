@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient by realClient {
 
     companion object {
-        private val log = KotlinLogging.logger{}
+        private val log = KotlinLogging.logger {}
         private const val UNDEFINED_ID = "(known after apply)"
     }
 
@@ -18,7 +18,17 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         expansions: List<String>?
     ): ConfluencePage {
         log.info { "(dryrun) Creating page under parent ${value.parentPage} with title ${value.title}" }
-        return ConfluencePage(UNDEFINED_ID, ContentType.page, "created", value.title, null, null, PageVersionInfo(value.version, true, ZonedDateTime.now()), null, null)
+        return ConfluencePage(
+            UNDEFINED_ID,
+            ContentType.page,
+            "created",
+            value.title,
+            null,
+            null,
+            PageVersionInfo(value.version, true, ZonedDateTime.now()),
+            null,
+            null
+        )
     }
 
     override suspend fun updatePage(
@@ -27,7 +37,17 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
         log.info { "(dryrun) Updating page $pageId with title ${value.title}" }
-        return ConfluencePage(pageId, ContentType.page, "updated", value.title, null, null, PageVersionInfo(value.version, true, ZonedDateTime.now()), null, null)
+        return ConfluencePage(
+            pageId,
+            ContentType.page,
+            "updated",
+            value.title,
+            null,
+            null,
+            PageVersionInfo(value.version, true, ZonedDateTime.now()),
+            null,
+            null
+        )
     }
 
     override suspend fun changeParent(
@@ -38,7 +58,17 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
         log.info { "(dryrun) Changing parent of page $pageId with title ${title} to $newParentId" }
-        return ConfluencePage(pageId, ContentType.page, "updated", title, null, null, PageVersionInfo(version, true, ZonedDateTime.now()), null, null)
+        return ConfluencePage(
+            pageId,
+            ContentType.page,
+            "updated",
+            title,
+            null,
+            null,
+            PageVersionInfo(version, true, ZonedDateTime.now()),
+            null,
+            null
+        )
     }
 
     override suspend fun deletePage(pageId: String) {

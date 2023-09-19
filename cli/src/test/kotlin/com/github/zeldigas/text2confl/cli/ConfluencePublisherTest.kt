@@ -27,7 +27,7 @@ internal class ConfluencePublisherTest {
 
         val provider: ServiceProvider? by requireObject()
 
-        var executed:Boolean = false
+        var executed: Boolean = false
 
         override fun run() {
             assertThat(provider).isNotNull()

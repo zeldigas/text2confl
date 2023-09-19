@@ -12,7 +12,6 @@ import com.github.zeldigas.confclient.PageUpdateOptions
 import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageAttachments
-import com.github.zeldigas.text2confl.core.upload.DryRunClient
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -78,12 +77,12 @@ internal class DryRunClientTest(
 
         val resultOfExisting = runBlocking { dryRunClient.findChildPages("123", listOf("exp1")) }
 
-        coVerify(exactly = 1) {confluenceClient.findChildPages("123", listOf("exp1"))}
+        coVerify(exactly = 1) { confluenceClient.findChildPages("123", listOf("exp1")) }
         assertThat(resultOfExisting).isEqualTo(expectedChildPages)
 
         val resultOfNew = runBlocking { dryRunClient.findChildPages("(known after apply)", listOf("exp2")) }
         assertThat(resultOfNew).isEmpty()
-        coVerify(exactly = 0) {confluenceClient.findChildPages("(known after apply)", listOf("exp2"))}
+        coVerify(exactly = 0) { confluenceClient.findChildPages("(known after apply)", listOf("exp2")) }
 
     }
 
@@ -119,7 +118,17 @@ internal class DryRunClientTest(
                 )
             )
         }
-        assertThat(addResult).isEqualTo(PageAttachments(results = listOf(Attachment("(known after apply)", "test", emptyMap()))))
+        assertThat(addResult).isEqualTo(
+            PageAttachments(
+                results = listOf(
+                    Attachment(
+                        "(known after apply)",
+                        "test",
+                        emptyMap()
+                    )
+                )
+            )
+        )
         coVerify(exactly = 0) { confluenceClient.addAttachments(any(), any()) }
     }
 

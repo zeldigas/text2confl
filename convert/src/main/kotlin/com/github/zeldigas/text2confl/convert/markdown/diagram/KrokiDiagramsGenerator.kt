@@ -12,8 +12,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
-import io.ktor.utils.io.*
-import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.runBlocking
 import java.net.URI
 import java.nio.file.Path
@@ -25,7 +23,7 @@ class KrokiDiagramsGenerator(
     private val server: URI
 ) : DiagramGenerator {
 
-    constructor(config: KrokiDiagramsConfiguration): this(
+    constructor(config: KrokiDiagramsConfiguration) : this(
         config.enabled, config.defaultFormat, config.server
     )
 
@@ -61,7 +59,7 @@ class KrokiDiagramsGenerator(
         get() = SUPPORTED_FORMATS
 
     override fun generate(source: String, target: Path, attributes: Map<String, String>): ImageInfo {
-        val request = createRequest(source, attributes);
+        val request = createRequest(source, attributes)
         runBlocking {
             val result = client.post(server.toURL()) {
                 contentType(ContentType.Application.Json)

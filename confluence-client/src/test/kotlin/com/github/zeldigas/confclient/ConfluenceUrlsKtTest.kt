@@ -16,7 +16,10 @@ class ConfluenceUrlsKtTest {
 
     @Test
     fun `Link to download resource is generated`() {
-        val result = makeLink("http://example.org/wiki", "/download/attachments/19955792/mermaid-sample.png?version=1&modificationDate=1673204377836&cacheVersion=1&api=v2")
+        val result = makeLink(
+            "http://example.org/wiki",
+            "/download/attachments/19955792/mermaid-sample.png?version=1&modificationDate=1673204377836&cacheVersion=1&api=v2"
+        )
 
         assertThat(result).isEqualTo(Url("http://example.org/wiki/download/attachments/19955792/mermaid-sample.png?version=1&modificationDate=1673204377836&cacheVersion=1&api=v2"))
     }

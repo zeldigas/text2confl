@@ -1,7 +1,6 @@
 package com.github.zeldigas.confclient
 
 import io.ktor.http.*
-import java.net.URL
 
 /**
  * Parameters for whole upload procedure

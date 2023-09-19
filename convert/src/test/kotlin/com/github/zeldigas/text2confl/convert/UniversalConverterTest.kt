@@ -31,9 +31,11 @@ internal class UniversalConverterTest(
 ) {
 
     private val titleConverter: (Path, String) -> String = { _, t -> "Prefixed: $t" }
-    private val conversionParameters = ConversionParameters(languageMapper, titleConverter,
-        markdownConfiguration =  MarkdownConfiguration(true, emptyList()),
-        editorVersion = EditorVersion.V1)
+    private val conversionParameters = ConversionParameters(
+        languageMapper, titleConverter,
+        markdownConfiguration = MarkdownConfiguration(true, emptyList()),
+        editorVersion = EditorVersion.V1
+    )
     private val converter = UniversalConverter(
         "TEST", conversionParameters, mapOf(
             "t" to fileConverter
@@ -120,11 +122,13 @@ internal class UniversalConverterTest(
         verify {
             fileConverter.convert(
                 dir.resolve("three.t"), ConvertingContext(
-                    ReferenceProvider.fromDocuments(dir, mapOf(
-                        docAndHeader(dir.resolve("one.t")),
-                        docAndHeader(dir.resolve("three.t")),
-                        docAndHeader(dir.resolve("three/foo.t")),
-                    )),
+                    ReferenceProvider.fromDocuments(
+                        dir, mapOf(
+                            docAndHeader(dir.resolve("one.t")),
+                            docAndHeader(dir.resolve("three.t")),
+                            docAndHeader(dir.resolve("three/foo.t")),
+                        )
+                    ),
                     conversionParameters, "TEST"
                 )
             )

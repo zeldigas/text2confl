@@ -123,23 +123,31 @@ internal class PageUploadOperationsImplTest(
             every { metadata?.labels?.results } returns listOf(serverLabel("one"))
             every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
             every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
-            every { pageProperty("t2ctenant") } returns (if (tenant.isEmpty()) null else PageProperty("124", "contenthash", tenant, PropertyVersion(3)))
+            every { pageProperty("t2ctenant") } returns (if (tenant.isEmpty()) null else PageProperty(
+                "124",
+                "contenthash",
+                tenant,
+                PropertyVersion(3)
+            ))
             every { pageProperty("extra") } returns null
             every { children?.attachment } returns mockk()
         }
 
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
-        coEvery { client.fetchAllAttachments(any())} returns listOf(serverAttachment("one", "HASH:123"))
+        coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
         val result = runBlocking {
-            uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
+            uploadOperations(
+                "update-page",
+                editorVersion = EditorVersion.V1,
+                tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
                 every { title } returns "Page title"
                 every { content } returns mockk {
                     every { body } returns "body"
                     every { hash } returns "body-hash"
                 }
-                every { properties } returns mapOf( "extra" to "value" )
+                every { properties } returns mapOf("extra" to "value")
             }, "TEST", "parentId")
         }
 
@@ -191,7 +199,12 @@ internal class PageUploadOperationsImplTest(
             every { metadata?.labels?.results } returns emptyList()
             every { children?.attachment } returns mockk()
             every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
-            every { pageProperty(EDITOR_PROPERTY) } returns PageProperty("123", EDITOR_PROPERTY, "v2", PropertyVersion(1))
+            every { pageProperty(EDITOR_PROPERTY) } returns PageProperty(
+                "123",
+                EDITOR_PROPERTY,
+                "v2",
+                PropertyVersion(1)
+            )
             every { pageProperty(TENANT_PROPERTY) } returns null
             every { pageProperty("extra") } returns PageProperty(
                 "124",
@@ -209,6 +222,7 @@ internal class PageUploadOperationsImplTest(
                 ChangeDetector.CONTENT -> {
                     every { body?.storage?.value } returns "body"
                 }
+
                 else -> {}
             }
         }
@@ -222,7 +236,7 @@ internal class PageUploadOperationsImplTest(
                     every { body } returns "body"
                     every { hash } returns "hash"
                 }
-                every { properties } returns mapOf( "extra" to "updatedValue")
+                every { properties } returns mapOf("extra" to "updatedValue")
             }, "TEST", "parentId")
         }
 
@@ -263,13 +277,17 @@ internal class PageUploadOperationsImplTest(
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
         val result = runBlocking {
-            uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = "value").createOrUpdatePageContent(mockk {
+            uploadOperations(
+                "update-page",
+                editorVersion = EditorVersion.V1,
+                tenant = "value"
+            ).createOrUpdatePageContent(mockk {
                 every { title } returns "Page title"
                 every { content } returns mockk {
                     every { body } returns "body"
                     every { hash } returns "body-hash"
                 }
-                every { properties } returns mapOf( "extra" to "value" )
+                every { properties } returns mapOf("extra" to "value")
             }, "TEST", "parentId")
         }
 
@@ -314,16 +332,21 @@ internal class PageUploadOperationsImplTest(
             every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
         }
 
-        assertFailure {  runBlocking {
-            uploadOperations("update-page", editorVersion = EditorVersion.V1, tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
-                every { title } returns "Page title"
-                every { content } returns mockk {
-                    every { body } returns "body"
-                    every { hash } returns "body-hash"
-                }
-                every { properties } returns mapOf( "extra" to "value" )
-            }, "TEST", "parentId")
-        } }.isInstanceOf<InvalidTenantException>()
+        assertFailure {
+            runBlocking {
+                uploadOperations(
+                    "update-page",
+                    editorVersion = EditorVersion.V1,
+                    tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
+                    every { title } returns "Page title"
+                    every { content } returns mockk {
+                        every { body } returns "body"
+                        every { hash } returns "body-hash"
+                    }
+                    every { properties } returns mapOf("extra" to "value")
+                }, "TEST", "parentId")
+            }
+        }.isInstanceOf<InvalidTenantException>()
             .hasMessage("Page Page title must be in tenant \"${tenant.ifEmpty { "(no tenant)" }}\" but actual is \"other\"")
     }
 
@@ -486,11 +509,11 @@ internal class PageUploadOperationsImplTest(
     private fun serverLabel(label: String?, name: String) = Label("", name, name, label)
 
     private fun uploadOperations(
-            changeMessage: String = "message",
-            notifyWatchers: Boolean = true,
-            editorVersion: EditorVersion = EditorVersion.V2,
-            changeDetector: ChangeDetector = ChangeDetector.HASH,
-            tenant: String? = null
+        changeMessage: String = "message",
+        notifyWatchers: Boolean = true,
+        editorVersion: EditorVersion = EditorVersion.V2,
+        changeDetector: ChangeDetector = ChangeDetector.HASH,
+        tenant: String? = null
     ): PageUploadOperationsImpl {
         return PageUploadOperationsImpl(client, changeMessage, notifyWatchers, changeDetector, editorVersion, tenant)
     }
@@ -499,7 +522,12 @@ internal class PageUploadOperationsImplTest(
     internal fun `Search child pages`() {
         val expectedResult = listOf<ConfluencePage>(mockk())
 
-        coEvery { client.findChildPages("123", listOf("metadata.properties.$HASH_PROPERTY", "metadata.properties.$TENANT_PROPERTY")) } returns expectedResult
+        coEvery {
+            client.findChildPages(
+                "123",
+                listOf("metadata.properties.$HASH_PROPERTY", "metadata.properties.$TENANT_PROPERTY")
+            )
+        } returns expectedResult
 
         val result = runBlocking {
             uploadOperations().findChildPages("123")
@@ -537,7 +565,7 @@ internal class PageUploadOperationsImplTest(
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
-            every { ancestors } returns listOf( mockk{ every { id } returns "wrong_id"})
+            every { ancestors } returns listOf(mockk { every { id } returns "wrong_id" })
             every { version } returns mockk {
                 every { number } returns 1
             }
@@ -546,7 +574,8 @@ internal class PageUploadOperationsImplTest(
             every { pageProperty(TENANT_PROPERTY) } returns null
         }
 
-        coEvery { client.changeParent("page_id", "Title", 2, "id", any())
+        coEvery {
+            client.changeParent("page_id", "Title", 2, "id", any())
         } returns mockk {
 
         }
@@ -568,7 +597,7 @@ internal class PageUploadOperationsImplTest(
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
-            every { ancestors } returns listOf( mockk{ every { id } returns "wrong_id"})
+            every { ancestors } returns listOf(mockk { every { id } returns "wrong_id" })
             every { version } returns mockk {
                 every { number } returns 1
             }
@@ -577,14 +606,19 @@ internal class PageUploadOperationsImplTest(
             every { pageProperty(TENANT_PROPERTY) } returns mockk { every { value } returns "another" }
         }
 
-        coEvery { client.changeParent("page_id", "Title", 2, "id", any())
+        coEvery {
+            client.changeParent("page_id", "Title", 2, "id", any())
         } returns mockk {
 
         }
 
         assertFailure {
             runBlocking {
-                uploadOperations(tenant = tenant.ifEmpty { null }).checkPageAndUpdateParentIfRequired("Title", "TEST", "id")
+                uploadOperations(tenant = tenant.ifEmpty { null }).checkPageAndUpdateParentIfRequired(
+                    "Title",
+                    "TEST",
+                    "id"
+                )
             }
         }.isInstanceOf<InvalidTenantException>()
     }
@@ -596,7 +630,7 @@ internal class PageUploadOperationsImplTest(
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
-            every { ancestors } returns listOf( mockk{ every { id } returns "id"})
+            every { ancestors } returns listOf(mockk { every { id } returns "id" })
             every { metadata } returns null
             every { children } returns null
         }
@@ -611,7 +645,11 @@ internal class PageUploadOperationsImplTest(
     @Test
     internal fun missingVirtualPageThrowsError() {
         coEvery {
-            client.getPageOrNull(any(), any(), expansions = setOf("ancestors", "version", "metadata.properties.$TENANT_PROPERTY"))
+            client.getPageOrNull(
+                any(),
+                any(),
+                expansions = setOf("ancestors", "version", "metadata.properties.$TENANT_PROPERTY")
+            )
         } returns null
 
         assertFailure {

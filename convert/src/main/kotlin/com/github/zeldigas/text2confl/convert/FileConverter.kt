@@ -29,7 +29,7 @@ data class ConvertingContext(
 
     val titleTransformer: (Path, String) -> String
         get() = conversionParameters.titleConverter
-    
+
     fun autotextFor(file: Path): String {
         val pathFromRoot = referenceProvider.pathFromDocsRoot(file)
         return conversionParameters.noteText

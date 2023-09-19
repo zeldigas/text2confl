@@ -7,8 +7,6 @@ import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.confluence.CONFLUENCE_CLOUD_LANGUAGES
 import com.github.zeldigas.text2confl.convert.confluence.CONFLUENCE_SERVER_LANGUAGES
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
-import com.github.zeldigas.text2confl.core.config.CodeBlockParams
-import com.github.zeldigas.text2confl.core.config.ConverterConfig
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 

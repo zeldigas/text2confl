@@ -57,15 +57,20 @@ internal class MarkdownAttachmentCollectorTest {
 
         MarkdownAttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
-        assertThat(registry.collectedAttachments).isEqualTo(mapOf(
-            "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
-            "test" to Attachment.fromLink("test", dir.resolve("existing1")),
-            "additional-attachment" to Attachment.fromLink("additional-attachment", dir.resolve("additional")),
-        ))
+        assertThat(registry.collectedAttachments).isEqualTo(
+            mapOf(
+                "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
+                "test" to Attachment.fromLink("test", dir.resolve("existing1")),
+                "additional-attachment" to Attachment.fromLink("additional-attachment", dir.resolve("additional")),
+            )
+        )
     }
 
     @Test
-    internal fun `Attachment collection for empty links`(@TempDir dir: Path, @MockK referenceProvider: ReferenceProvider) {
+    internal fun `Attachment collection for empty links`(
+        @TempDir dir: Path,
+        @MockK referenceProvider: ReferenceProvider
+    ) {
         val ast = parser.parse(
             """
             Link to [empty link]()
@@ -110,14 +115,19 @@ internal class MarkdownAttachmentCollectorTest {
 
         MarkdownAttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
 
-        assertThat(registry.collectedAttachments).isEqualTo(mapOf(
-            "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
-            "test" to Attachment.fromLink("test", dir.resolve("existing1"))
-        ))
+        assertThat(registry.collectedAttachments).isEqualTo(
+            mapOf(
+                "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
+                "test" to Attachment.fromLink("test", dir.resolve("existing1"))
+            )
+        )
     }
 
     @Test
-    internal fun `Attachment collection for empty image links`(@TempDir dir: Path, @MockK referenceProvider: ReferenceProvider) {
+    internal fun `Attachment collection for empty image links`(
+        @TempDir dir: Path,
+        @MockK referenceProvider: ReferenceProvider
+    ) {
         val ast = parser.parse(
             """
             Link to ![empty link]()

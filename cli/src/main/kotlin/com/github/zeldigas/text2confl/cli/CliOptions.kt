@@ -63,7 +63,10 @@ internal interface WithConfluenceServerOptions {
             accessToken != null && confluenceUser != null -> throw PrintMessage("Both access token and username/password specified, but only one of them allowed")
             accessToken != null -> TokenAuth(accessToken!!)
             confluenceUser != null -> passwordAuth(confluenceUser!!, confluencePassword)
-            else -> throw PrintMessage("Either access token or username/password should be specified", printError = true)
+            else -> throw PrintMessage(
+                "Either access token or username/password should be specified",
+                printError = true
+            )
         }
 
     private fun passwordAuth(username: String, password: String?): PasswordAuth {

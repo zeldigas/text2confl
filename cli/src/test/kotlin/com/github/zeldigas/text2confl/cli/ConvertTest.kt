@@ -26,9 +26,9 @@ import kotlin.io.path.exists
 
 @ExtendWith(MockKExtension::class)
 class ConvertTest(
-        @MockK private val serviceProvider: ServiceProvider,
-        @MockK private val converter: Converter,
-        @MockK private val contentValidator: ContentValidator
+    @MockK private val serviceProvider: ServiceProvider,
+    @MockK private val converter: Converter,
+    @MockK private val contentValidator: ContentValidator
 ) {
 
     private val command = Convert()

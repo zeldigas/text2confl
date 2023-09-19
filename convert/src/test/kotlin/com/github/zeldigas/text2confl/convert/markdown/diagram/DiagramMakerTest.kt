@@ -7,7 +7,6 @@ import com.github.zeldigas.text2confl.convert.Attachment
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
@@ -24,7 +23,12 @@ class DiagramMakerTest(
         val attributes = mapOf("testAttr" to "value")
         val fullAttributes = attributes + mapOf("lang" to "test")
         val expectedTarget = tempDir / "some" / "prefix" / "testName.abc"
-        every { generator.name("19fbdde16ffae3f59a48c6b3b40d6796af35bc12da9bc81c2689283a51ae1a97", fullAttributes) } returns "testName.abc"
+        every {
+            generator.name(
+                "19fbdde16ffae3f59a48c6b3b40d6796af35bc12da9bc81c2689283a51ae1a97",
+                fullAttributes
+            )
+        } returns "testName.abc"
         every { generator.generate("test script", expectedTarget, fullAttributes) } returns ImageInfo(1, 1, "hello")
 
         val maker = DiagramMaker(tempDir, "test", generator)

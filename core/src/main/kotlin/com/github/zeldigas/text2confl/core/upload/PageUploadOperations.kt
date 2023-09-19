@@ -40,6 +40,7 @@ data class ServerPage(
     val id: String, val title: String, val parent: String, val labels: List<Label>, val attachments: List<Attachment>
 )
 
-class InvalidTenantException(page: String, expected: String?, actual: String?) : RuntimeException("Page $page must be in tenant \"${tenant(expected)}\" but actual is \"${tenant(actual)}\"")
+class InvalidTenantException(page: String, expected: String?, actual: String?) :
+    RuntimeException("Page $page must be in tenant \"${tenant(expected)}\" but actual is \"${tenant(actual)}\"")
 
 private fun tenant(value: String?): String = value ?: "(no tenant)"
