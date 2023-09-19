@@ -14,13 +14,16 @@ import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.confclient.TokenAuth
-import com.github.zeldigas.text2confl.cli.config.*
-import com.github.zeldigas.text2confl.cli.upload.ChangeDetector
-import com.github.zeldigas.text2confl.cli.upload.ContentUploader
 import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
+import com.github.zeldigas.text2confl.core.ContentValidationFailedException
+import com.github.zeldigas.text2confl.core.ContentValidator
+import com.github.zeldigas.text2confl.core.ServiceProvider
+import com.github.zeldigas.text2confl.core.config.*
+import com.github.zeldigas.text2confl.core.upload.ChangeDetector
+import com.github.zeldigas.text2confl.core.upload.ContentUploader
 import io.ktor.http.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -35,11 +38,11 @@ import kotlin.io.path.div
 
 @ExtendWith(MockKExtension::class)
 internal class UploadTest(
-    @MockK private val serviceProvider: ServiceProvider,
-    @MockK private val contentUploader: ContentUploader,
-    @MockK private val confluenceClient: ConfluenceClient,
-    @MockK private val contentValidator: ContentValidator,
-    @MockK private val converter: Converter
+        @MockK private val serviceProvider: ServiceProvider,
+        @MockK private val contentUploader: ContentUploader,
+        @MockK private val confluenceClient: ConfluenceClient,
+        @MockK private val contentValidator: ContentValidator,
+        @MockK private val converter: Converter
 ) {
     private val command = Upload()
 
