@@ -100,7 +100,9 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
         }
     }
 
-    private val headerParser = Parser.builder(headerParserOptions).build()
+    private val headerParser by lazy {
+        Parser.builder(headerParserOptions).build()
+    }
 
     fun parseReader(
         reader: Reader,
