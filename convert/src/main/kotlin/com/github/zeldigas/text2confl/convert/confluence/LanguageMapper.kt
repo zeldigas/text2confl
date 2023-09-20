@@ -52,7 +52,6 @@ val LANG_REMAPPING = mapOf(
 val SERVER_REMAPPING = LANG_REMAPPING + mapOf(
     "yaml" to "yml",
     "html" to "xml",
-    "json" to "js",
 )
 
 val CLOUD_REMAPPING = LANG_REMAPPING + mapOf(
@@ -64,7 +63,7 @@ val CONFLUENCE_SERVER_LANGUAGES = setOf(
     "c#", "cpp", "css",
     "coldfusion", "delphi", "diff",
     "erl", "groovy", "xml",
-    "java", "jfx", "js",
+    "java", "jfx", "js", "json",
     "php", "perl", "text",
     "powershell", "py", "ruby",
     "sql", "sass", "scala",

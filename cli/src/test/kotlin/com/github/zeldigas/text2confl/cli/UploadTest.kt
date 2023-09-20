@@ -6,6 +6,7 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.ajalt.clikt.core.PrintMessage
@@ -327,6 +328,7 @@ internal class UploadTest(
     private fun writeToFile(dest: Path, config: DirectoryConfig) {
         val mapper = ObjectMapper(YAMLFactory())
             .registerKotlinModule()
+            .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
         mapper.writeValue(dest.toFile(), config)
     }
 }

@@ -7,11 +7,22 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.14.0 - 2023-09-20
+
+### Added
+
+- `json` is added to supported languages on Confluence server
+
+### Fixed
+
+- `.text2confl.yml` config is now properly loaded with consistent property names (kebab case) and case insensitive enum
+  values
+
 ### Changed
 
 - `cli` model is split into 2: `core` and `cli`. Contributed by @dgautier.
 - dependency updates
-  - ascidoctor diagram to 2.2.13
+  - Asciidoctor diagram to 2.2.13
   - plantuml to 1.2023.11
 
 ## 0.13.0 - 2023-08-28

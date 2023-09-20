@@ -1,7 +1,5 @@
 package com.github.zeldigas.text2confl.core.config
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.*
@@ -14,7 +12,6 @@ import kotlin.io.path.div
 /**
  * Holder of data that can be put to `.text2confl.yml` configuration file that is located in root directory of directory structure
  */
-@JsonNaming(value = PropertyNamingStrategies.KebabCaseStrategy::class)
 data class DirectoryConfig(
     val server: String? = null,
     val skipSsl: Boolean = false,
@@ -69,7 +66,8 @@ data class MarkdownDiagramParameters(
     val tempDir: Boolean = false,
     val baseDir: String = ".diagrams",
     val mermaid: MermaidDiagramsConfiguration = MermaidDiagramsConfiguration(),
-    val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration()
+    val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration(),
+    val kroki: KrokiDiagramsConfiguration = KrokiDiagramsConfiguration()
 ) {
     fun toConfig(docsDir: Path): DiagramsConfiguration {
         val baseDir = if (tempDir) createTempDirectory() else docsDir / baseDir
@@ -80,7 +78,8 @@ data class MarkdownDiagramParameters(
                 cssFile = mermaid.cssFile?.relativeTo(docsDir),
                 puppeeterConfig = mermaid.puppeeterConfig?.relativeTo(docsDir)
             ),
-            plantuml = plantuml
+            plantuml = plantuml,
+            kroki = kroki
         )
     }
 
