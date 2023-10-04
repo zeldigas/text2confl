@@ -1,6 +1,8 @@
 package com.github.zeldigas.text2confl.core.upload
 
 import com.github.zeldigas.confclient.ConfluenceClient
+import com.github.zeldigas.confclient.PageNotCreatedException
+import com.github.zeldigas.confclient.PageNotUpdatedException
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
@@ -57,18 +59,26 @@ class ContentUploader(
         space: String,
         parentPageId: String
     ): List<PageUploadResult> {
-        return coroutineScope {
-            pages.map { page ->
-                async {
-                    val result = uploadPage(page, space, parentPageId)
-                    buildList {
-                        add(result)
-                        if (page.children.isNotEmpty()) {
-                            addAll(uploadPagesRecursive(page.children, space, result.page.id))
+        return try {
+            coroutineScope {
+                pages.map { page ->
+                    async {
+                        val result = uploadPage(page, space, parentPageId)
+                        buildList {
+                            add(result)
+                            if (page.children.isNotEmpty()) {
+                                addAll(uploadPagesRecursive(page.children, space, result.page.id))
+                            }
                         }
                     }
-                }
-            }.awaitAll().flatten()
+                }.awaitAll().flatten()
+            }
+        } catch (e: PageNotCreatedException){
+            logger.error { e.message }
+            return emptyList()
+        } catch (e: PageNotUpdatedException){
+            logger.error { e.message }
+            return emptyList()
         }
     }
 
