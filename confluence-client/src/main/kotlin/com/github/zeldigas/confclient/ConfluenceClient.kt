@@ -79,6 +79,9 @@ interface ConfluenceClient {
 class PageNotCreatedException(val title: String, val status: Int, val body: String?) :
     RuntimeException("Failed to create '$title' page: status=$status, body:\n$body")
 
+class PageNotUpdatedException(val id: String, val status: Int, val body: String?) :
+    RuntimeException("Failed to update '$id' page: status=$status, body:\n$body")
+
 class PageNotFoundException : RuntimeException()
 
 class TooManyPagesFound(val pages: List<ConfluencePage>) : RuntimeException()
