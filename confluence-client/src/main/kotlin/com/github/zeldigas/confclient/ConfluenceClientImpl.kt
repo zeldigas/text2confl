@@ -7,9 +7,11 @@ import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageAttachments
 import com.github.zeldigas.confclient.model.Space
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.network.sockets.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -22,7 +24,6 @@ import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
-import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
@@ -133,6 +134,10 @@ class ConfluenceClientImpl(
             response.body()
         } catch (e: ContentConvertException) {
             throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
+        } catch (e: ConnectTimeoutException) {
+            throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
+        } catch (e: HttpRequestTimeoutException) {
+            throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
         }
     }
 
@@ -161,14 +166,19 @@ class ConfluenceClientImpl(
         )
 
     private suspend fun performPageUpdate(pageId: String, body: Map<String, Any?>): ConfluencePage {
+
         val response = httpClient.put("$apiBase/content/$pageId") {
             contentType(ContentType.Application.Json)
             setBody(body)
         }
         if (response.status.isSuccess()) {
-            return response.body()
+            return try {
+                response.body()
+            } catch (e: ConnectTimeoutException) {
+                throw PageNotUpdatedException(pageId, response.status.value, response.bodyAsText())
+            }
         } else {
-            throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
+            throw PageNotUpdatedException(pageId, response.status.value, response.bodyAsText())
         }
     }
 
@@ -326,7 +336,14 @@ private data class PageSearchResult(
 fun confluenceClient(
     config: ConfluenceClientConfig
 ): ConfluenceClient {
-    val client = HttpClient(CIO) {
+    val client = httpClient(config)
+    return ConfluenceClientImpl(config.server, "${config.server}/rest/api", client)
+}
+
+private fun httpClient(
+    config: ConfluenceClientConfig
+): HttpClient{
+    return HttpClient(CIO) {
         if (config.skipSsl) {
             engine {
                 https {
@@ -354,6 +371,4 @@ fun confluenceClient(
             agent = "text2confl"
         }
     }
-
-    return ConfluenceClientImpl(config.server, "${config.server}/rest/api", client)
 }
