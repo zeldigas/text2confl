@@ -59,7 +59,7 @@ Example: `+toc::[style=square]+` will generate styled TOC in Confluence
 With attributes, you can control only depth of generated TOC.
 
 WARNING: AsciiDoc by default generates TOC with only first 2 levels of sections. Use `:toclevels: N` attribute to control this.
-If you want to customize it for all pages do in xref:../../configuration-reference.md[`.text2confl.yml` file]
+If you want to customize it for all pages do in xref:../../configuration-reference.md[`text2confl.yml` file]
 
 === AsciiDoc features that are not supported
 Specifying a title for the table of contents using the `toc-title` attribute is currently not supported.

@@ -10,7 +10,7 @@ import kotlin.io.path.createTempDirectory
 import kotlin.io.path.div
 
 /**
- * Holder of data that can be put to `.text2confl.yml` configuration file that is located in root directory of directory structure
+ * Holder of data that can be put to `text2confl.yml` configuration file that is located in root directory of directory structure
  */
 data class DirectoryConfig(
     val server: String? = null,

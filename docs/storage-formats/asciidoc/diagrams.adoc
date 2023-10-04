@@ -17,7 +17,7 @@ As link:https://docs.asciidoctor.org/diagram-extension/latest/blocks/[official A
 
 With block or macro attributes, you can control name of generated file, file format and diagram-specific features.
 
-Some attributes such as diagram file format can be convenient to configure not on page, but in `.text2confl.yml` file.
+Some attributes such as diagram file format can be convenient to configure not on page, but in `text2confl.yml` file.
 
 === Inlined
 
@@ -42,7 +42,7 @@ include::_assets/example.adoc[tag=diagram]
 
 By default, generated diagrams are saved in `.asciidoc` directory under documents root.
 
-This is configurable with the following parameters in `.text2confl.yml` file
+This is configurable with the following parameters in `text2confl.yml` file
 
 [source,yaml]
 ----
