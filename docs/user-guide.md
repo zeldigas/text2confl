@@ -30,8 +30,7 @@ it and will put *root* pages in it.
 
 #### Configuration file
 
-Configuration file is `.text2confl.yml` (or `.text2confl.yaml` if you prefer this extension more) - create it in
-documentation root dir.
+Configuration file is `text2confl.yml` create it in documentation root dir.
 
 For the start put the following contents:
 
@@ -85,7 +84,7 @@ because corresponding documents are present:
 │   ├── markdown.md
 │   └── markdown.png
 ├── storage-formats.md
-├── .text2confl.yml
+├── text2confl.yml
 └── user-guide.md
 ```
 
@@ -178,7 +177,7 @@ docker run --rm -it -v ~/.config/text2confl:/root/.config/text2confl:ro -v $PWD:
 
 ## Adhoc upload
 
-If you just need to upload one file, or you are fine with providing all the options via command line it is possible to skip creation of `.text2confl.yml` file:
+If you just need to upload one file, or you are fine with providing all the options via command line it is possible to skip creation of `text2confl.yml` file:
 
 ```shell
 text2confl upload --docs . \

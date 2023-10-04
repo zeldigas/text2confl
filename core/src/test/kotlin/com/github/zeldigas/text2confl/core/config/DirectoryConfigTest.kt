@@ -14,8 +14,8 @@ import kotlin.io.path.writeText
 class DirectoryConfigTest {
     @Test
     fun `Properly read from file`(@TempDir dir: Path) {
-        dir.resolve(".text2confl.yml").writeText(
-            DirectoryConfig::class.java.getResourceAsStream("/data/.text2confl.yml")!!.reader().readText()
+        dir.resolve("text2confl.yml").writeText(
+            DirectoryConfig::class.java.getResourceAsStream("/data/text2confl.yml")!!.reader().readText()
         )
         val config = readDirectoryConfig(dir)
 
