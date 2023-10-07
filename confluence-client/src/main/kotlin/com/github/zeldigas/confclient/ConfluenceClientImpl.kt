@@ -14,6 +14,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -327,8 +328,11 @@ fun confluenceClient(
     config: ConfluenceClientConfig
 ): ConfluenceClient {
     val client = HttpClient(CIO) {
-        if (config.skipSsl) {
-            engine {
+        engine {
+            if (config.requestTimeout != null) {
+                requestTimeout = config.requestTimeout
+            }
+            if (config.skipSsl) {
                 https {
                     trustManager = object : X509TrustManager {
                         override fun getAcceptedIssuers(): Array<X509Certificate>? = null
@@ -353,6 +357,14 @@ fun confluenceClient(
         install(UserAgent) {
             agent = "text2confl"
         }
+        if (config.httpLogLevel != LogLevel.NONE) {
+            install(Logging) {
+                logger = Logger.DEFAULT
+                level = config.httpLogLevel
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
+            }
+        }
+
     }
 
     return ConfluenceClientImpl(config.server, "${config.server}/rest/api", client)

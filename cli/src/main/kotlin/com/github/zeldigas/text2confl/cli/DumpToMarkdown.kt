@@ -7,8 +7,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.text2confl.core.ServiceProvider
+import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -20,6 +20,9 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md", help = "Exports confl
     override val confluencePassword: String? by confluencePassword()
     override val accessToken: String? by accessToken()
     override val skipSsl: Boolean? by skipSsl()
+    override val httpLogLevel: LogLevel by httpLoggingLevel()
+    override val httpRequestTimeout: Long? by httpRequestTimeout()
+
     val space: String? by confluenceSpace()
     private val pageId: String? by option("--page-id", help = "Id of page that you want to dump")
     private val pageTitle: String? by option(
@@ -47,11 +50,7 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md", help = "Exports confl
     }
 
     private suspend fun dumpPage() {
-        val clientConfig = ConfluenceClientConfig(
-            confluenceUrl,
-            skipSsl ?: true,
-            confluenceAuth
-        )
+        val clientConfig = httpClientConfig(confluenceUrl)
 
         val client = serviceProvider.createConfluenceClient(clientConfig, false)
         val pageExporter = serviceProvider.createPageExporter(client, saveContentSource)
