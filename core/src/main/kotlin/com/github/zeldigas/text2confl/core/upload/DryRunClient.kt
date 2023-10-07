@@ -2,7 +2,7 @@ package com.github.zeldigas.text2confl.core.upload
 
 import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.*
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.time.ZonedDateTime
 
 class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient by realClient {

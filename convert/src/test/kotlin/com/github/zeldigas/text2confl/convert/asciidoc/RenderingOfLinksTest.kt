@@ -146,6 +146,26 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
         )
     }
 
+    @Test
+    fun `Mailto link rendering`() {
+        val result = toHtml(
+            """
+            mailto:join@discuss.example.org[Subscribe,Subscribe me,I want to participate.]
+            
+            Send email to example@example.org
+            
+            link:mailto:example@example.org[Send email]
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <p><a href="mailto:join@discuss.example.org?subject=Subscribe+me&amp;body=I+want+to+participate.">Subscribe</a></p>
+            <p>Send email to <a href="mailto:example@example.org">example@example.org</a></p>
+            <p><a href="mailto:example@example.org">Send email</a></p>
+        """.trimIndent(),
+        )
+    }
 }
 
 

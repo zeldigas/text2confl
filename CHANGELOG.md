@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- dependency updates:
+  - migrated to `io.github.oshai:kotlin-logging-jvm`
+
 ## 0.14.0 - 2023-09-20
 
 ### Added

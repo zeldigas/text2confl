@@ -1,7 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown.diagram
 
 import com.github.zeldigas.text2confl.convert.markdown.MermaidDiagramsConfiguration
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 
 class MermaidDiagramsGenerator(

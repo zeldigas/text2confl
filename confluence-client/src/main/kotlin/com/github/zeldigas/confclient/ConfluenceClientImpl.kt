@@ -7,6 +7,7 @@ import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageAttachments
 import com.github.zeldigas.confclient.model.Space
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -22,7 +23,6 @@ import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
-import mu.KotlinLogging
 import java.nio.file.Path
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
