@@ -47,6 +47,10 @@
             <groupId>io.ktor</groupId>
             <artifactId>ktor-client-auth-jvm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-logging-jvm</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.github.oshai</groupId>

@@ -2,16 +2,16 @@ package com.github.zeldigas.text2confl.cli
 
 import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.ajalt.clikt.parameters.options.convert
-import com.github.ajalt.clikt.parameters.options.help
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.long
 import com.github.zeldigas.confclient.ConfluenceAuth
+import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 
 fun ParameterHolder.confluenceUrl() = option(
@@ -51,12 +51,24 @@ fun ParameterHolder.docsLocation() = option("--docs")
     .file(canBeFile = true, canBeDir = true).required()
     .help("File or directory with files to convert")
 
+fun ParameterHolder.httpLoggingLevel() = option(
+    "--http-request-logging",
+    help = "Logging level for http requests. Useful for debugging purposes. Turned off by default"
+).enum<LogLevel>().default(LogLevel.NONE)
+
+fun ParameterHolder.httpRequestTimeout() = option(
+    "--http-request-timeout",
+    help = "Http request timeout in milliseconds. Default "
+).long()
+
 internal interface WithConfluenceServerOptions {
     val confluenceUrl: Url?
     val confluenceUser: String?
     val confluencePassword: String?
     val accessToken: String?
     val skipSsl: Boolean?
+    val httpLogLevel: LogLevel
+    val httpRequestTimeout: Long?
 
     val confluenceAuth: ConfluenceAuth
         get() = when {
@@ -76,6 +88,13 @@ internal interface WithConfluenceServerOptions {
         return PasswordAuth(username, effectivePassword)
     }
 
+    fun httpClientConfig(server: Url, defaultSslSkip: Boolean = false) = ConfluenceClientConfig(
+        server = server,
+        skipSsl = skipSsl ?: defaultSslSkip,
+        auth = confluenceAuth,
+        httpLogLevel = httpLogLevel,
+        requestTimeout = httpRequestTimeout
+    )
     fun askForSecret(prompt: String, requireConfirmation: Boolean = true): String?
 }
 

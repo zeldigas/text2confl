@@ -13,6 +13,7 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.core.ServiceProvider
 import com.github.zeldigas.text2confl.core.config.*
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
+import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -27,6 +28,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     override val confluencePassword: String? by confluencePassword()
     override val accessToken: String? by accessToken()
     override val skipSsl: Boolean? by skipSsl()
+    override val httpLogLevel: LogLevel by httpLoggingLevel()
+    override val httpRequestTimeout: Long? by httpRequestTimeout()
 
     override val spaceKey: String? by confluenceSpace()
     private val parentId: String? by option("--parent-id", help = "Id of parent page where root pages should be added")
@@ -110,11 +113,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         val server = confluenceUrl ?: configuration.server?.let { Url(it) }
         ?: parameterMissing("Confluence url", "--confluence-url", "server")
 
-        return ConfluenceClientConfig(
-            server = server,
-            skipSsl = skipSsl ?: configuration.skipSsl,
-            auth = confluenceAuth
-        )
+        return httpClientConfig(server, configuration.skipSsl)
     }
 
     private fun passwordAuth(username: String, password: String?): PasswordAuth {

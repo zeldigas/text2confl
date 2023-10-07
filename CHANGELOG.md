@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- now in `upload` and `export-to-md` commands you can enable logging of http requests/responses and configure request
+  timeout
+
 ### Changed
 
 - dependency updates:
