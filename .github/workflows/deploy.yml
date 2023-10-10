@@ -10,21 +10,36 @@ jobs:
       contents: read
       packages: write
     steps:
+      - uses: actions/checkout@v4
       - name: Set up Java for publishing to GitHub Packages
         uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'temurin'
+          cache: maven
       - name: Publish to GitHub Packages
         run: mvn --batch-mode deploy -Pgithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/checkout@v4
+      - name: Compute changelog
+        run: ./.github/create_release_changes.sh
+        if: startsWith(github.ref, 'refs/tags/')
+      - name: Create Github Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          body_path: target/ci/CHANGELOG.md
+          token: ${{ secrets.RELEASE_TOKEN }}
+          files: |
+            dist/*.tar.gz
+        env:
+          GITHUB_REPOSITORY: dgautier/text2confl
       - name: Set up Java for publishing to Maven Central Repository
         uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'temurin'
+          cache: maven
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
