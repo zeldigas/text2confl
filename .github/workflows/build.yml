@@ -30,7 +30,7 @@ jobs:
 
 # Building application
       - name: Build with Maven
-        run: mvn --batch-mode verify -DversionSuffix=$RELEASE_VERSION_SUFFIX
+        run: mvn --batch-mode deploy -DversionSuffix=$RELEASE_VERSION_SUFFIX -Pgithub
       - run: mkdir dist && cp cli/target/*.tar.gz dist
       - uses: actions/upload-artifact@v3
         if: env.RELEASE_VERSION == ''
@@ -53,7 +53,7 @@ jobs:
           files: |
             dist/*.tar.gz
         env:
-          GITHUB_REPOSITORY: zeldigas/text2confl
+          GITHUB_REPOSITORY: dgautier/text2confl
 
       - name: Set up Java for publishing to Maven Central Repository
         uses: actions/setup-java@v3
