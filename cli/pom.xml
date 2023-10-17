@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.github.dgautier</groupId>
+        <groupId>io.github.text2confl</groupId>
         <artifactId>parent</artifactId>
         <version>0.0.15-SNAPSHOT</version>
     </parent>
@@ -17,8 +17,21 @@
     </properties>
 
     <build>
-        <finalName>text2confl${versionSuffix}</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib</classpathPrefix>
+                            <mainClass>com.github.zeldigas.text2confl.cli.MainKt</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -50,6 +63,8 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
+                    <finalName>text2confl${versionSuffix}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <descriptor>src/assembly/cli-package.xml</descriptor>
                     </descriptors>
@@ -83,7 +98,7 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.dgautier</groupId>
+            <groupId>io.github.text2confl</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
