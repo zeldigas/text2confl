@@ -35,6 +35,10 @@ jobs:
         run: mvn --batch-mode deploy -DversionSuffix=$RELEASE_VERSION_SUFFIX -Pgithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - run: mkdir dist && cp cli/target/*.tar.gz dist
       - uses: actions/upload-artifact@v3
         if: env.RELEASE_VERSION == ''
