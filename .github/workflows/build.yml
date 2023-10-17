@@ -16,7 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v4
@@ -57,12 +57,8 @@ jobs:
         with:
           name: ${{env.RELEASE_VERSION}}
           body_path: target/ci/CHANGELOG.md
-          token: ${{ secrets.RELEASE_TOKEN }}
           files: |
             dist/*.tar.gz
-        env:
-          GITHUB_REPOSITORY: dgautier/text2confl
-
       - name: Set up Java for publishing to Maven Central Repository
         uses: actions/setup-java@v3
         with:
