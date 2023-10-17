@@ -1,17 +1,8 @@
-name: Build and package
+name: Build and Deploy Snapshots
 on:
   push:
     branches:
       - master
-    tags:
-      - 'v*'
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to create release for if not empty'
-        required: false
-        default: ''
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,39 +17,14 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           cache: maven
-# To handle both tag and manual runs, run a script that will define all required vars
-      - name: Define version to build
-        run: ./.github/define_release_version.sh ${{ github.event.inputs.version }}
-
-# Building application
-      - name: Build with Maven
-        run: mvn --batch-mode deploy -DversionSuffix=$RELEASE_VERSION_SUFFIX -Pgithub
+      - name: Deploy to Github packages
+        run: mvn --batch-mode clean deploy -Pgithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - run: mkdir dist && cp cli/target/*.tar.gz dist
-      - uses: actions/upload-artifact@v3
-        if: env.RELEASE_VERSION == ''
-        with:
-          name: cli.tar.gz
-          path: dist
-          retention-days: 20
-
-      # If there is a tag trigger, creating release
-      - name: Compute changelog
-        run: ./.github/create_release_changes.sh
-        if: startsWith(github.ref, 'refs/tags/')
-      - name: Create github release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          name: ${{env.RELEASE_VERSION}}
-          body_path: target/ci/CHANGELOG.md
-          files: |
-            dist/*.tar.gz
       - name: Set up Java for publishing to Maven Central Repository
         uses: actions/setup-java@v3
         with:
@@ -71,7 +37,7 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Publish to the Maven Central Repository
-        run: mvn --batch-mode deploy -Possrh -DversionSuffix=$RELEASE_VERSION_SUFFIX
+        run: mvn --batch-mode clean deploy -Possrh
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
