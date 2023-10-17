@@ -23,20 +23,3 @@ jobs:
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - run: mkdir dist && cp cli/target/*.tar.gz dist
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./cli
-          platforms: linux/amd64,linux/arm64
-          push: false
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USER }}/text2confl:buildcache
-      - uses: actions/upload-artifact@v3
-        with:
-          name: cli.tar.gz
-          path: dist
-          retention-days: 7
