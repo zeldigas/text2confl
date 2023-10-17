@@ -19,6 +19,10 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn --batch-mode verify
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - run: mkdir dist && cp cli/target/*.tar.gz dist
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
