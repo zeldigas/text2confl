@@ -28,6 +28,16 @@
         <tag>HEAD</tag>
     </scm>
 
+    <developers>
+        <developer>
+            <id>zeldigas</id>
+            <name>Dmitry Pavlov</name>
+            <email>zeldigas@gmail.com</email>
+            <organization>text2confl</organization>
+            <organizationUrl>https://github.com/text2confl/text2confl</organizationUrl>
+        </developer>
+    </developers>
+
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
