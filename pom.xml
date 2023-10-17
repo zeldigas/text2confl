@@ -7,7 +7,7 @@
 
     <groupId>io.github.text2confl</groupId>
     <artifactId>parent</artifactId>
-    <version>0.0.15-SNAPSHOT</version>
+    <version>0.0.14-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Text2Confl</name>
