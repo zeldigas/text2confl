@@ -14,7 +14,7 @@
     <description>Publisher of pages in lightweight markup formats to Confluence.
         Forked from https://github.com/zeldigas/text2confl to publish to maven
     </description>
-    <url>https://github.com/dgautier/text2confl</url>
+    <url>https://github.com/text2confl/text2confl</url>
 
     <licenses>
         <license>
@@ -24,9 +24,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:dgautier/text2confl.git</connection>
-        <developerConnection>scm:git:git@github.com:dgautier/text2confl.git</developerConnection>
-        <url>https://github.com/dgautier/text2confl</url>
+        <connection>scm:git:git@github.com:text2confl/text2confl.git</connection>
+        <developerConnection>scm:git:git@github.com:text2confl/text2confl.git</developerConnection>
+        <url>https://github.com/text2confl/text2confl</url>
     </scm>
 
     <properties>
@@ -257,7 +257,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/dgautier/text2confl</url>
+                    <url>https://maven.pkg.github.com/text2confl/text2confl</url>
                 </repository>
             </distributionManagement>
         </profile>
