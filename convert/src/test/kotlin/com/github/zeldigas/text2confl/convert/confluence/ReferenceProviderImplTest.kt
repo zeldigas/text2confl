@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.convert.confluence
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import com.github.zeldigas.text2confl.convert.PageHeader
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -67,5 +68,27 @@ internal class ReferenceProviderImplTest {
         val result = providerImpl.resolveReference(Path("docs/one.md"), "sub/one.md#test")
 
         assertThat(result).isNotNull().isEqualTo(Xref("Sub Title One", "test"))
+    }
+
+
+    @Test
+    internal fun `Http resolution`() {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), "http://github.com")
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    internal fun `Https resolution`() {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), "https://github.com")
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    internal fun `Mailto resolution`() {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), "mailto:john.doe@github.com")
+
+        assertThat(result).isNull()
     }
 }

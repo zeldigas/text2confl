@@ -2,8 +2,11 @@ package com.github.zeldigas.text2confl.convert.confluence
 
 import com.github.zeldigas.text2confl.convert.PageHeader
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.net.URL
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import kotlin.io.path.relativeTo
 
 interface ReferenceProvider {
@@ -41,8 +44,14 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
     ReferenceProvider {
 
     companion object {
-        private val URI_DETECTOR = "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
+        private const val URI_DETECTOR = "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
+        private const val MAILTO_DETECTOR = "mailto:"
         private val logger = KotlinLogging.logger {}
+    }
+    fun isValid(url: String): Boolean {
+        val pattern = Pattern.compile(URI_DETECTOR, Pattern.CASE_INSENSITIVE);
+        val matcher = pattern.matcher(url.trim());
+        return matcher.matches();
     }
 
     private val normalizedDocs =
@@ -50,7 +59,8 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
 
     override fun resolveReference(source: Path, refTo: String): Reference? {
 
-        if (URI_DETECTOR.matches(refTo)) return null
+        if (refTo.startsWith(MAILTO_DETECTOR)) return null
+        if (isValid(refTo)) return null
         if (refTo.startsWith("#")) return Anchor(refTo.substring(1))
 
         val parts = refTo.split("#", limit = 2)
@@ -62,7 +72,7 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
             val targetPath = source.resolveSibling(ref).relativeTo(basePath).normalize()
             val document = normalizedDocs[targetPath]?.title ?: return null
             return Xref(document, anchor)
-        } catch (ex: InvalidPathException){
+        } catch (ex: InvalidPathException) {
             logger.error { "Failed to resolve : $refTo  from $source" }
             throw ex
         }
