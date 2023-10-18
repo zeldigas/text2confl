@@ -7,7 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>convert</artifactId>
+    <artifactId>text2confl-convert</artifactId>
 
     <properties>
         <flexmark.version>0.64.8</flexmark.version>

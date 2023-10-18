@@ -7,17 +7,17 @@
         <version>0.16.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>text2confl-core</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>io.github.text2confl</groupId>
-            <artifactId>convert</artifactId>
+            <artifactId>text2confl-convert</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.text2confl</groupId>
-            <artifactId>confluence-client</artifactId>
+            <artifactId>text2confl-confluence-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

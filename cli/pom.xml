@@ -7,7 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cli</artifactId>
+    <artifactId>text2confl-cli</artifactId>
 
     <build>
         <plugins>
@@ -56,7 +56,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <finalName>text2confl${versionSuffix}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <descriptor>src/assembly/cli-package.xml</descriptor>
@@ -92,7 +91,7 @@
         </dependency>
         <dependency>
             <groupId>io.github.text2confl</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>text2confl-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
