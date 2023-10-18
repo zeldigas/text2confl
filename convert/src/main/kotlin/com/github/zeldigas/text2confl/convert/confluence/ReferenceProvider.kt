@@ -1,6 +1,8 @@
 package com.github.zeldigas.text2confl.convert.confluence
 
 import com.github.zeldigas.text2confl.convert.PageHeader
+import io.github.oshai.kotlinlogging.KotlinLogging
+import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import kotlin.io.path.relativeTo
 
@@ -40,12 +42,14 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
 
     companion object {
         private val URI_DETECTOR = "^[a-zA-Z][a-zA-Z0-9.+-]+:/{0,2}".toRegex()
+        private val logger = KotlinLogging.logger {}
     }
 
     private val normalizedDocs =
         documents.map { (path, header) -> path.relativeTo(basePath).normalize() to header }.toMap()
 
     override fun resolveReference(source: Path, refTo: String): Reference? {
+
         if (URI_DETECTOR.matches(refTo)) return null
         if (refTo.startsWith("#")) return Anchor(refTo.substring(1))
 
@@ -53,10 +57,15 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
         val ref = parts[0]
         val anchor = parts.getOrNull(1)
 
-        val targetPath = source.resolveSibling(ref).relativeTo(basePath).normalize()
+        try {
 
-        val document = normalizedDocs[targetPath]?.title ?: return null
-        return Xref(document, anchor)
+            val targetPath = source.resolveSibling(ref).relativeTo(basePath).normalize()
+            val document = normalizedDocs[targetPath]?.title ?: return null
+            return Xref(document, anchor)
+        } catch (ex: InvalidPathException){
+            logger.error { "Failed to resolve : $source" }
+            throw ex
+        }
     }
 
     override fun pathFromDocsRoot(source: Path): Path {
