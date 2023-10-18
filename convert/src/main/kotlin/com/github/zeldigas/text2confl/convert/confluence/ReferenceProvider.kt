@@ -44,8 +44,10 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
     ReferenceProvider {
 
     companion object {
-        private const val URI_DETECTOR = "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
+        private const val URI_DETECTOR = "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;'()]*[-a-zA-Z0-9+&@#/%=~_|]"
         private const val MAILTO_DETECTOR = "mailto:"
+        private const val LOCALHOST_DETECTOR = "localhost:"
+
         private val logger = KotlinLogging.logger {}
     }
     fun isValid(url: String): Boolean {
@@ -60,6 +62,7 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
     override fun resolveReference(source: Path, refTo: String): Reference? {
 
         if (refTo.startsWith(MAILTO_DETECTOR)) return null
+        if (refTo.startsWith(LOCALHOST_DETECTOR)) return null
         if (isValid(refTo)) return null
         if (refTo.startsWith("#")) return Anchor(refTo.substring(1))
 
