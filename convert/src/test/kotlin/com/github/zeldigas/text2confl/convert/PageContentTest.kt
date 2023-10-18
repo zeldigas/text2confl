@@ -11,6 +11,7 @@ import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.writeBytes
 
@@ -70,6 +71,7 @@ class PageContentTest {
 
     @Test
     internal fun `Invalid result for unbalanced xml`() {
+        Locale.setDefault(Locale.ENGLISH);
         val sampleXml = """
                 <table>    
                 <p ac:parameter="hello">hello world</p>                                
