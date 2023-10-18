@@ -6,6 +6,7 @@ import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -60,6 +61,9 @@ internal class UniversalConverter(
     val conversionParameters: ConversionParameters,
     val converters: Map<String, FileConverter>
 ) : Converter {
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 
     override fun convertFile(file: Path): Page {
         val converter = converterFor(file)
@@ -76,6 +80,8 @@ internal class UniversalConverter(
 
     override fun convertDir(dir: Path): List<Page> {
         val documents = scanDocuments(dir)
+
+        logger.info { "Found " + documents.size + " documents in " + dir }
 
         return convertFilesInDirectory(
             dir,

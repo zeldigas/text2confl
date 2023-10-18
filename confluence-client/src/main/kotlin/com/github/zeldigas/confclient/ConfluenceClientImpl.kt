@@ -11,6 +11,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.network.sockets.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -134,6 +135,10 @@ class ConfluenceClientImpl(
             response.body()
         } catch (e: ContentConvertException) {
             throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
+        } catch (e: ConnectTimeoutException) {
+            throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
+        } catch (e: HttpRequestTimeoutException) {
+            throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
         }
     }
 
@@ -167,9 +172,13 @@ class ConfluenceClientImpl(
             setBody(body)
         }
         if (response.status.isSuccess()) {
-            return response.body()
+            return try {
+                response.body()
+            } catch (e: ConnectTimeoutException) {
+                throw PageNotUpdatedException(pageId, response.status.value, response.bodyAsText())
+            }
         } else {
-            throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
+            throw PageNotUpdatedException(pageId, response.status.value, response.bodyAsText())
         }
     }
 

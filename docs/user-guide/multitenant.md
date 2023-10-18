@@ -17,9 +17,9 @@ To solve this, you have 2 options:
 
 ## Configuring multi-tenancy
 
-In `text2confl.yaml` add `tenant` parameter:
+In `text2confl.yml` add `tenant` parameter:
 
-```yaml {title="text2confl.yaml}
+```yaml {title="text2confl.yml}
 tenant: team-a
 ```
 

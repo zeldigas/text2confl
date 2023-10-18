@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient by realClient {
 
     companion object {
-        private val log = KotlinLogging.logger {}
+        private val logger = KotlinLogging.logger{}
         private const val UNDEFINED_ID = "(known after apply)"
     }
 
@@ -17,7 +17,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         updateParameters: PageUpdateOptions,
         expansions: List<String>?
     ): ConfluencePage {
-        log.info { "(dryrun) Creating page under parent ${value.parentPage} with title ${value.title}" }
+        logger.info { "(dryrun) Creating page under parent ${value.parentPage} with title ${value.title}" }
         return ConfluencePage(
             UNDEFINED_ID,
             ContentType.page,
@@ -36,7 +36,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         value: PageContentInput,
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
-        log.info { "(dryrun) Updating page $pageId with title ${value.title}" }
+        logger.info { "(dryrun) Updating page $pageId with title ${value.title}" }
         return ConfluencePage(
             pageId,
             ContentType.page,
@@ -57,7 +57,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         newParentId: String,
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
-        log.info { "(dryrun) Changing parent of page $pageId with title ${title} to $newParentId" }
+        logger.info { "(dryrun) Changing parent of page $pageId with title ${title} to $newParentId" }
         return ConfluencePage(
             pageId,
             ContentType.page,
@@ -72,7 +72,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
     }
 
     override suspend fun deletePage(pageId: String) {
-        log.info { "(dryrun) Deleting page $pageId" }
+        logger.info { "(dryrun) Deleting page $pageId" }
     }
 
     override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
@@ -84,15 +84,15 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
     }
 
     override suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
-        log.info { "(dryrun) Setting property on page $pageId: $name=${value.value}, version=${value.version.number}" }
+        logger.info { "(dryrun) Setting property on page $pageId: $name=${value.value}, version=${value.version.number}" }
     }
 
     override suspend fun deleteLabel(pageId: String, label: String) {
-        log.info { "(dryrun) Deleting label on page $pageId: $label" }
+        logger.info { "(dryrun) Deleting label on page $pageId: $label" }
     }
 
     override suspend fun addLabels(pageId: String, labels: List<String>) {
-        log.info { "(dryrun) Adding labels on page $pageId: $labels" }
+        logger.info { "(dryrun) Adding labels on page $pageId: $labels" }
     }
 
     override suspend fun addAttachments(
@@ -100,7 +100,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         pageAttachmentInput: List<PageAttachmentInput>
     ): PageAttachments {
         pageAttachmentInput.forEach {
-            log.info { "(dryrun) Creating attachment on page $pageId: ${contentDetails(it)}" }
+            logger.info { "(dryrun) Creating attachment on page $pageId: ${contentDetails(it)}" }
         }
         return PageAttachments(results = pageAttachmentInput.map { toServerAttachment(UNDEFINED_ID, it) })
     }
@@ -110,7 +110,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         attachmentId: String,
         pageAttachmentInput: PageAttachmentInput
     ): Attachment {
-        log.info { "(dryrun) Updating attachment $attachmentId on page $pageId: ${contentDetails(pageAttachmentInput)}" }
+        logger.info { "(dryrun) Updating attachment $attachmentId on page $pageId: ${contentDetails(pageAttachmentInput)}" }
         return toServerAttachment(attachmentId, pageAttachmentInput)
     }
 
@@ -123,6 +123,6 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         "uploading ${pageAttachmentInput.content} with contentType=${pageAttachmentInput.contentType}, comment=${pageAttachmentInput.comment}"
 
     override suspend fun deleteAttachment(attachmentId: String) {
-        log.info { "(dryrun) Deleting attachment $attachmentId" }
+        logger.info { "(dryrun) Deleting attachment $attachmentId" }
     }
 }
