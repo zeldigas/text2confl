@@ -8,6 +8,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>convert</artifactId>
+    <name>Text2Confl Convertor</name>
+    <description>Conversion to Confluence Storage Format</description>
 
     <properties>
         <flexmark.version>0.64.8</flexmark.version>
