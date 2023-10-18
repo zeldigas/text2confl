@@ -41,7 +41,7 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
     ReferenceProvider {
 
     companion object {
-        private val URI_DETECTOR = "^[a-zA-Z][a-zA-Z0-9.+-]+:/{0,2}".toRegex()
+        private val URI_DETECTOR = "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
         private val logger = KotlinLogging.logger {}
     }
 
@@ -63,7 +63,7 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
             val document = normalizedDocs[targetPath]?.title ?: return null
             return Xref(document, anchor)
         } catch (ex: InvalidPathException){
-            logger.error { "Failed to resolve : $source" }
+            logger.error { "Failed to resolve : $refTo  from $source" }
             throw ex
         }
     }
@@ -92,4 +92,3 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
 
 
 }
-
