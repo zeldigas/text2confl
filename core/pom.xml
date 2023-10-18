@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>core</artifactId>
+    <name>Text2confl Core</name>
 
     <dependencies>
         <dependency>
