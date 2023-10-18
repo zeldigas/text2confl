@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.zeldigas.confluence</groupId>
+        <groupId>io.github.text2confl</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.16.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>text2confl-core</artifactId>
+    <name>Text2confl Core</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.zeldigas.confluence</groupId>
-            <artifactId>convert</artifactId>
+            <groupId>io.github.text2confl</groupId>
+            <artifactId>text2confl-convert</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.zeldigas.confluence</groupId>
-            <artifactId>confluence-client</artifactId>
+            <groupId>io.github.text2confl</groupId>
+            <artifactId>text2confl-confluence-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

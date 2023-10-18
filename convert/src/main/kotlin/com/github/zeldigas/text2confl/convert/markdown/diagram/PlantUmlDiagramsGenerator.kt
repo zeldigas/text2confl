@@ -16,7 +16,7 @@ class PlantUmlDiagramsGenerator(
         val SUPPORTED_LANGS = setOf("plantuml", "puml")
         val SUPPORTED_FORMATS = setOf("svg", "png", "eps")
         const val DEFAULT_FORMAT = "png"
-        private val log = KotlinLogging.logger { }
+        private val logger = KotlinLogging.logger {  }
     }
 
     constructor(config: PlantUmlDiagramsConfiguration, commandExecutor: CommandExecutor = OsCommandExecutor()) : this(
@@ -59,11 +59,11 @@ class PlantUmlDiagramsGenerator(
         val result = try {
             commandExecutor.execute(cmd(command) { flag("-version") })
         } catch (ex: Exception) {
-            log.debug(ex) { "Failed to execute command" }
+            logger.debug(ex) { "Failed to execute command" }
             return false
         }
         return if (result.status == 0) {
-            log.info { "PlantUml version: ${result.output.lines().firstOrNull()}" }
+            logger.info { "PlantUml version: ${result.output.lines().firstOrNull()}" }
             true
         } else {
             false

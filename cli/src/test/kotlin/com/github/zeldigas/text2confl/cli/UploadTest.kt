@@ -109,7 +109,7 @@ internal class UploadTest(
     internal fun `Data from yaml config file`(@TempDir tempDir: Path) {
         val directoryConfig = sampleConfig().copy(tenant = "test1")
         directoryConfig.docsDir = tempDir
-        writeToFile(tempDir.resolve(".text2confl.yml"), directoryConfig)
+        writeToFile(tempDir.resolve("text2confl.yml"), directoryConfig)
 
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
