@@ -8,6 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>confluence-client</artifactId>
+    <name>Text2Confl Confluence Client</name>
     <description>Implementation of http client for confluence</description>
 
     <dependencies>
