@@ -5,6 +5,7 @@ import com.vladsch.flexmark.util.sequence.Escaping.unescapeHtml
 import org.asciidoctor.*
 import org.asciidoctor.ast.Document
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.Path
 import kotlin.io.path.div
 
@@ -14,7 +15,7 @@ class AsciidocParser(
 ) {
 
     companion object {
-        private val TEMPLATES_LOCATION = "/com/github/zeldigas/text2confl/asciidoc"
+        private val TEMPLATES_LOCATION = "com/github/zeldigas/text2confl/asciidoc"
     }
 
     private val ADOC: Asciidoctor by lazy {
@@ -27,9 +28,10 @@ class AsciidocParser(
     }
 
     private val templatesLocation: Path by lazy {
-        val templateResources = AsciidocParser::class.java.getResource(TEMPLATES_LOCATION)!!.toURI()
+        val templateResources = AsciidocParser::class.java.classLoader.getResource(TEMPLATES_LOCATION)!!.toURI()
         if (templateResources.scheme == "file") {
-            Path(templateResources.path)
+            val mainPath: String = Paths.get(templateResources).toString()
+            Path(mainPath)
         } else {
             val dest = config.workdir / "templates"
 
