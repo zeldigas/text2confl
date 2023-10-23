@@ -2,7 +2,6 @@ package com.github.zeldigas.text2confl.convert.confluence
 
 import com.github.zeldigas.text2confl.convert.PageHeader
 import io.github.oshai.kotlinlogging.KotlinLogging
-import java.net.URL
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.util.regex.Matcher
@@ -75,7 +74,8 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
             val targetPath = source.resolveSibling(ref).relativeTo(basePath).normalize()
             val document = normalizedDocs[targetPath]?.title ?: return null
             return Xref(document, anchor)
-        } catch (ex: InvalidPathException) {
+
+        } catch (ex: InvalidPathException){
             logger.error { "Failed to resolve : $refTo  from $source" }
             throw ex
         }
