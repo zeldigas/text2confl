@@ -9,10 +9,8 @@ import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageHeader
 import com.github.zeldigas.text2confl.core.config.Cleanup
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import io.ktor.client.network.sockets.*
+import kotlinx.coroutines.*
 
 
 class ContentUploader(
@@ -48,10 +46,82 @@ class ContentUploader(
         private val logger = KotlinLogging.logger {}
     }
 
+    fun run(pages: List<Page>, space: String, parentPageId: String) = runBlocking {
+        try {
+            withContext(Dispatchers.Default) {
+                uploadPages(pages , space, parentPageId)
+            }
+        } catch (ex: Exception) {
+            tryHandleException(ex)
+        }
+    }
+
+    fun runBlocking(pages: List<Page>, space: String, parentPageId: String) = runBlocking {
+        try {
+            withContext(Dispatchers.Default) {
+                uploadPagesBlocking(pages , space, parentPageId)
+            }
+        } catch (ex: Exception) {
+            tryHandleException(ex)
+        }
+    }
+
+    private fun tryHandleException(ex: Exception) {
+        logger.error { "Exception caught in tryHandleException" }
+        when (ex) {
+            is PageNotCreatedException -> {
+                logger.error { ex.message }
+            }
+            is PageNotUpdatedException -> {
+                logger.error { ex.message }
+            }
+            else -> {
+                throw ex
+            }
+        }
+    }
+
+    suspend fun uploadPagesBlocking(pages: List<Page>, space: String, parentPageId: String) {
+        val uploadedPages = uploadPagesRecursiveBlocking(pages, space, parentPageId)
+        val uploadedPagesByParent = buildOrphanedRemovalRegistry(uploadedPages)
+        deleteOrphans(uploadedPagesByParent)
+    }
+
     suspend fun uploadPages(pages: List<Page>, space: String, parentPageId: String) {
         val uploadedPages = uploadPagesRecursive(pages, space, parentPageId)
         val uploadedPagesByParent = buildOrphanedRemovalRegistry(uploadedPages)
         deleteOrphans(uploadedPagesByParent)
+    }
+
+    private suspend fun uploadPagesRecursiveBlocking(
+        pages: List<Page>,
+        space: String,
+        parentPageId: String
+    ): List<PageUploadResult> {
+
+        val uploadedPages = ArrayList<PageUploadResult>()
+        pages.forEach {
+            try {
+                val result = uploadPage(it, space, parentPageId)
+                uploadedPages.addAll(
+                    buildList {
+                        add(result)
+                        if (it.children.isNotEmpty()) {
+                            addAll(uploadPagesRecursiveBlocking(it.children, space, result.page.id))
+                        }
+                    })
+            } catch (e: PageNotCreatedException){
+                logger.error { e.message }
+                return emptyList()
+            } catch (e: PageNotUpdatedException){
+                logger.error { e.message }
+                return emptyList()
+            } catch (e: ConnectTimeoutException){
+                logger.error { e.message }
+                return emptyList()
+            }
+        }
+        return uploadedPages
     }
 
     private suspend fun uploadPagesRecursive(
@@ -60,7 +130,7 @@ class ContentUploader(
         parentPageId: String
     ): List<PageUploadResult> {
         return try {
-            coroutineScope {
+            supervisorScope {
                 pages.map { page ->
                     async {
                         val result = uploadPage(page, space, parentPageId)
