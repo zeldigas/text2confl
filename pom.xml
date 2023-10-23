@@ -4,11 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.text2confl</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>test2confl-parent</artifactId>
     <version>0.16.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Text2Confl</name>
+
     <description>Publisher of pages in lightweight markup formats to Confluence.
         Forked from https://github.com/zeldigas/text2confl to publish to maven
     </description>
