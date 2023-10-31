@@ -83,7 +83,9 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         } else {
             converter.convertDir(docs.toPath())
         }
-        serviceProvider.createContentValidator().validate(result)
+
+        val autofix = true
+        serviceProvider.createContentValidator().validate(result, autofix)
         val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
