@@ -1,5 +1,6 @@
 package com.github.zeldigas.text2confl.convert
 
+import org.htmlcleaner.HtmlCleaner
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 import java.security.DigestInputStream
@@ -89,7 +90,7 @@ data class Attachment(
 
 data class PageContent(
     val header: PageHeader,
-    val body: String,
+    var body: String,
     val attachments: List<Attachment>
 ) {
     val hash by lazy {
@@ -99,7 +100,7 @@ data class PageContent(
         toBase64(digest)
     }
 
-    fun validate(): Validation {
+    fun validate(autofix: Boolean): Validation {
         val stack: Deque<StartElement> = LinkedList()
 
         try {
@@ -110,6 +111,10 @@ data class PageContent(
                 }
             }
         } catch (e: XMLStreamException) {
+            if (autofix){
+                body = HtmlCleaner().clean(body).getText().toString()
+                return validate(false)
+            }
             val message = (e.message ?: "Unknown error occurred").substringAfter("Message: ")
             return if (message.contains("must be terminated by the matching")) {
                 val startTag = stack.pop()

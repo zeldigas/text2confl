@@ -65,7 +65,7 @@ class PageContentTest {
                 <p>hello world</p>                
             """.trimIndent(),
                 emptyList()
-            ).validate()
+            ).validate(false)
         ).isEqualTo(Validation.Ok)
     }
 
@@ -84,9 +84,28 @@ class PageContentTest {
                 PageHeader("", emptyMap()),
                 sampleXml,
                 emptyList()
-            ).validate()
+            ).validate(false)
         ).isInstanceOf(Validation.Invalid::class)
             .transform { it.issue }
             .contains("[5:3] The element type \"p\" must be terminated by the matching end-tag \"</p>\". Start tag location - [3:4]")
+    }
+
+    @Test
+    internal fun `Valid result for unbalanced xml`() {
+        Locale.setDefault(Locale.ENGLISH);
+        val sampleXml = """
+                <table>    
+                <p ac:parameter="hello">hello world</p>                                
+                <p>hello world &lt;/p>                
+                <p>hello world</p>
+                </table>""".trimIndent()
+        print(sampleXml)
+        assertThat(
+            PageContent(
+                PageHeader("", emptyMap()),
+                sampleXml,
+                emptyList()
+            ).validate(true)
+        ).isEqualTo(Validation.Ok)
     }
 }

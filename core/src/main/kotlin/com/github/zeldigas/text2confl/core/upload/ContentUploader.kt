@@ -83,14 +83,19 @@ class ContentUploader(
 
     suspend fun uploadPagesBlocking(pages: List<Page>, space: String, parentPageId: String) {
         val uploadedPages = uploadPagesRecursiveBlocking(pages, space, parentPageId)
+        logger.info { "Uploaded Pages : " + uploadedPages.size }
+        handleOrphans(uploadedPages)
+    }
+
+    private suspend fun ContentUploader.handleOrphans(uploadedPages: List<PageUploadResult>) {
         val uploadedPagesByParent = buildOrphanedRemovalRegistry(uploadedPages)
+        logger.info { "Uploaded Pages : " + uploadedPages.size }
         deleteOrphans(uploadedPagesByParent)
     }
 
     suspend fun uploadPages(pages: List<Page>, space: String, parentPageId: String) {
         val uploadedPages = uploadPagesRecursive(pages, space, parentPageId)
-        val uploadedPagesByParent = buildOrphanedRemovalRegistry(uploadedPages)
-        deleteOrphans(uploadedPagesByParent)
+        handleOrphans(uploadedPages)
     }
 
     private suspend fun uploadPagesRecursiveBlocking(
