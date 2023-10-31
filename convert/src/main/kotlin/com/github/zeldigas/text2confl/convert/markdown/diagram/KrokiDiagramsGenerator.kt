@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.github.zeldigas.text2confl.convert.markdown.KrokiDiagramsConfiguration
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -13,6 +14,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import kotlinx.coroutines.runBlocking
+import java.net.ConnectException
 import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.writeBytes
@@ -53,6 +55,7 @@ class KrokiDiagramsGenerator(
                 this.expectSuccess = false
             }
         }
+        private val logger = KotlinLogging.logger {}
     }
 
     override val supportedFileFormats: Set<String>
@@ -61,14 +64,20 @@ class KrokiDiagramsGenerator(
     override fun generate(source: String, target: Path, attributes: Map<String, String>): ImageInfo {
         val request = createRequest(source, attributes)
         runBlocking {
-            val result = client.post(server.toURL()) {
-                contentType(ContentType.Application.Json)
-                setBody(request)
+            try {
+                val result = client.post(server.toURL()) {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+                if (result.status != HttpStatusCode.OK) {
+                    throw DiagramGenerationFailedException(result.body())
+                }
+                target.writeBytes(result.body())
+            } catch (ex : ConnectException){
+                logger.error { "Trying to connect to $server" }
+                throw DiagramGenerationFailedException(ex.message)
             }
-            if (result.status != HttpStatusCode.OK) {
-                throw DiagramGenerationFailedException(result.body())
-            }
-            target.writeBytes(result.body())
+
         }
         return ImageInfo()
     }

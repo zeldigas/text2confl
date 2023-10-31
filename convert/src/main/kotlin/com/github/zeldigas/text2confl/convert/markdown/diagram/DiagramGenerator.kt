@@ -56,7 +56,7 @@ fun loadAvailableGenerators(
 }
 
 
-class DiagramGenerationFailedException(msg: String) : RuntimeException(msg)
+class DiagramGenerationFailedException(msg: String?) : RuntimeException(msg)
 
 
 
