@@ -43,9 +43,9 @@ Values can be unquoted if they don't contain spaces, or you can put value in quo
 [NOTE]
 .Parameters for macros - how to find them?
 ====
-Parameters are ***not validated***, so make sure that you use expected params for your macro.
+Parameters are **not validated**, so make sure that you use expected params for your macro.
 This can be done by adding the macro you need on sample page in WYSIWYG editor and then opening page in "storage format".
-Macro name will be in `<ac-structured-macro ac:name="MACRONAME">` block and all `<ac-parameter ac:name="columns">` elements are macro parameters.
+Macro name will be in `ac:structured-macro ac:name="MACRONAME"` block and all `ac:parameter ac:name="columns"` elements are macro parameters.
 
 This is especially helpful for special hidden parameters like `serverId` in jira chart macro, that is GUID string and unique per jira server integration.
 ====
@@ -74,7 +74,7 @@ Some examples:
 
 For complex cases, you can always generate raw html/confluence markup via {adocs_pass}[passthrough]
 
-So this tags
+So these tags
 
 [source,asciidoc]
 ----

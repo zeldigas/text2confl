@@ -25,6 +25,7 @@ Images support attributes that you can use to customize their alignment and widt
 
 [cols=",a,a"]
 |===
+| Image type | AsciiDoc | Result
 
 |External
 |`+image:https://myoctocat.com/assets/images/base-octocat.svg[Octocat,100]+`
@@ -45,11 +46,12 @@ Besides images, you can attach to page any other file:
 
 [cols=","]
 |===
+| AsciiDoc | Confluence
 
 | `+link:../markdown/_assets/sample_file.txt[simple text file]+`
 | link:../markdown/_assets/sample_file.txt[simple text file]
 
-2+|Link title is optional, in this case it will be equal to name of file
+2+^|Link title is optional, in this case it will be equal to the name of the file
 
 | `+link:../markdown/_assets/sample_file.txt[]+`
 | link:../markdown/_assets/sample_file.txt[]

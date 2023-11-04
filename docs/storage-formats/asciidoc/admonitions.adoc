@@ -9,8 +9,7 @@ Mapping:
 
 [cols="a,a"]
 |===
-| AsciiDoc
-| Confluence
+| AsciiDoc | Confluence
 
 |
 ....
@@ -53,8 +52,7 @@ Short syntax for admonitions works too:
 
 [cols="a,a"]
 |===
-| AsciiDoc
-| Confluence
+| AsciiDoc | Confluence
 
 |
 ....

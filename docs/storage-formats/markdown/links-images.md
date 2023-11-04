@@ -6,37 +6,45 @@ labels: supported-format,markdown
 
 ## Links
 
-[**text2confl**](https://github.com/zeldigas/text2confl) supports both [external] links as well cross-linking to
-another [pages](../../storage-formats.md) or [anchors inside page](../../storage-formats.md#markdown). If you need to
-put a
-link to [anchor on same page](#images) it is supported too.
+Links of different types supported:
+
+| Link type                                    | Markdown                                                   | Confluence                                               |
+|----------------------------------------------|------------------------------------------------------------|----------------------------------------------------------|
+| External                                     | `[name of the link](http://example.org)`                   | [name of the link](http://example.org)                   |
+| External as [link reference][link_ref_guide] | `[name of the link][external]`                             | [name of the link][external]                             |
+| Link to another page                         | `[linkg to page](../../storage-formats.md)`                | [link to page](../../storage-formats.md)                 |
+| Link to another page with anchor             | `[anchors inside page](../../storage-formats.md#markdown)` | [anchors inside page](../../storage-formats.md#markdown) |
+| Anchor on same page                          | `[anchor inside current page](#images)`                    | [anchor inside current page](#images)                    |
+
+[external]: https://example.org
+
+[link_ref_guide]: https://www.markdownguide.org/basic-syntax/#reference-style-links
 
 ## Images
 
 You can embed images - both external and attached to page. Images support attributes that you can use to customize their
 alignment and width/height.
 
-External:
-
-![Octocat](https://myoctocat.com/assets/images/base-octocat.svg)
-
-Attached:
-
-![markdown logo](./markdown.png){width=200}
-
-[external]: https://example.org
+| Link type | Markdown                                                           | Confluence                                                       |
+|-----------|--------------------------------------------------------------------|------------------------------------------------------------------|
+| External  | `![Octocat](https://myoctocat.com/assets/images/base-octocat.svg)` | ![Octocat](https://myoctocat.com/assets/images/base-octocat.svg) |
+| Attached  | `![markdown logo](./markdown.png){width=200}`                      | ![markdown logo](./markdown.png){width=200}                      |
 
 You can find details about supported attributes
 on [page "Controlling images representation"](../../user-guide/image-attributes.md)
 
 ## Page attachments
 
-Besides images, you can attach to page any other file, like [simple text file](_assets/sample_file.txt).
+Besides images, you can attach to page any other file:
+
+| Markdown                                      | Confluence                                  |
+|-----------------------------------------------|---------------------------------------------|
+| `[simple text file](_assets/sample_file.txt)` | [simple text file](_assets/sample_file.txt) |
 
 **text2confl** collects all references pointing to local files, no matter if there is a link on page to reference or
 not.
 
-When you need to attach a file, but without link in text, use link reference that is not used on page:
+When you need to attach a file, but without a link on page itself, use link reference that is not used on page:
 
 ```markdown
 [another_file]: _assets/attached_not_referenced.txt

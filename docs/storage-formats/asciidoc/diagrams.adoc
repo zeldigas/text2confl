@@ -23,6 +23,8 @@ Some attributes such as diagram file format can be convenient to configure not o
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
+
 |
 ----
 include::_assets/example.adoc[tag=diagram]
@@ -34,6 +36,8 @@ include::_assets/example.adoc[tag=diagram]
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
+
 |`+plantuml::_assets/test.puml[format=png]+`
 | plantuml::_assets/test.puml[format=png]
 |===

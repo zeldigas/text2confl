@@ -12,6 +12,7 @@ Code blocks are also supported including callouts
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
 
 |
 [listing,subs="none"]
@@ -26,6 +27,7 @@ Callouts in xml and similar markup supported too:
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
 
 |
 [listing,subs="none"]
@@ -61,6 +63,7 @@ Other attributes are Confluence specific.
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
 
 |
 [listing,subs="none"]
@@ -77,6 +80,8 @@ Literal blocks are converted as pre-formatted text.
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
+
 |
 ----
 ....
@@ -94,6 +99,7 @@ Same is applied to literal line (one prepended with space)
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
 
 |
 ----
@@ -109,6 +115,7 @@ Listing blocks are converted using the `noformat` macro.
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
 
 |
 [listing]

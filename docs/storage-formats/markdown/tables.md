@@ -8,6 +8,16 @@ labels: supported-format,markdown
 
 You can use tables based on [GitHub Flavored Format](https://github.github.com/gfm/#tables-extension-):
 
+Markdown table:
+
+```markdown
+| foo | bar |
+|-----|-----|
+| baz | bim |
+```
+
+Will produce:
+
 | foo | bar |
 |-----|-----|
 | baz | bim |
@@ -16,6 +26,34 @@ You can use tables based on [GitHub Flavored Format](https://github.github.com/g
 
 For complex cases (e.g. when you need multiline cells or complex content) you can just regular
 tables (`<table>...</table>`):
+
+Html table:
+
+````markdown
+<table>
+<thead>
+<tr>
+<th>First column</th>
+<th>Second column</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="highlight-#ffbdad" data-highlight-colour="#ffbdad">
+
+```
+code block
+that you might need to put in table
+```
+
+</td>
+<td data-highlight-colour="#eeffbb">Simple text cell</td>
+</tr>
+</tbody>
+</table>
+````
+
+Will produce:
 
 <table>
 <thead>
