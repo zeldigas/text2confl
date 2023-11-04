@@ -39,14 +39,14 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
     ReferenceProvider {
 
     companion object {
-        private val URI_DETECTOR = "^[a-zA-Z][a-zA-Z0-9.+-]+:/{0,2}".toRegex()
+        private val URI_DETECTOR = "^[a-zA-Z][a-zA-Z0-9.+-]+:/{0,2}".toRegex(RegexOption.IGNORE_CASE)
     }
 
     private val normalizedDocs =
         documents.map { (path, header) -> path.relativeTo(basePath).normalize() to header }.toMap()
 
     override fun resolveReference(source: Path, refTo: String): Reference? {
-        if (URI_DETECTOR.matches(refTo)) return null
+        if (URI_DETECTOR.find(refTo) != null) return null
         if (refTo.startsWith("#")) return Anchor(refTo.substring(1))
 
         val parts = refTo.split("#", limit = 2)

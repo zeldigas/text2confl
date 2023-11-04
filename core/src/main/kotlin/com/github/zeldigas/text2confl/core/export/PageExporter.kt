@@ -74,7 +74,8 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
                     writer.append('[')
                     writer.write(attachment.title)
                     writer.append("]: ")
-                    writer.append("${attachmentDir / attachment.title}")
+                    val attachmentLocation = path(attachmentDir, attachment).joinToString("/")
+                    writer.append(attachmentLocation)
                 }
             }
         }
@@ -82,6 +83,11 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
             (dest / "$sanitizedTitle.html").writer().use { it.write(content) }
         }
     }
+
+    private fun path(
+        attachmentDir: Path,
+        attachment: Attachment
+    ) = attachmentDir / attachment.title
 
     private fun writeHeader(writer: OutputStreamWriter, page: ConfluencePage) {
         writer.appendLine("""# ${page.title}""")

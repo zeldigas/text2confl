@@ -5,7 +5,7 @@ import com.vladsch.flexmark.util.sequence.Escaping.unescapeHtml
 import org.asciidoctor.*
 import org.asciidoctor.ast.Document
 import java.nio.file.Path
-import kotlin.io.path.Path
+import java.nio.file.Paths
 import kotlin.io.path.div
 
 
@@ -29,7 +29,7 @@ class AsciidocParser(
     private val templatesLocation: Path by lazy {
         val templateResources = AsciidocParser::class.java.getResource(TEMPLATES_LOCATION)!!.toURI()
         if (templateResources.scheme == "file") {
-            Path(templateResources.path)
+            Paths.get(templateResources)
         } else {
             val dest = config.workdir / "templates"
 

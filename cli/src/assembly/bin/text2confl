@@ -7,5 +7,7 @@ SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-java -cp "$SCRIPTPATH/app/*:$SCRIPTPATH/lib/*" ${JAVA_OPTS:-} com.github.zeldigas.text2confl.cli.MainKt "$@"
+java -cp "$SCRIPTPATH/app/*:$SCRIPTPATH/lib/*" ${JAVA_OPTS:-} \
+  --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED \
+  com.github.zeldigas.text2confl.cli.MainKt "$@"
 

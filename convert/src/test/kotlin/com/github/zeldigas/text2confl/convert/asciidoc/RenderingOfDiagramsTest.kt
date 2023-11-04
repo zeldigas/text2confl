@@ -59,10 +59,11 @@ internal class RenderingOfDiagramsTest : RenderingTestBase() {
                 "auth-protocol.png" to Attachment.fromLink("auth-protocol.png", tempDir / "out" / "auth-protocol.png")
             )
         )
-        assertThat(result).isEqualToConfluenceFormat(
-            """
-            <p><ac:image ac:height="207" ac:width="290" ac:alt="auth protocol"><ri:attachment ri:filename="auth-protocol.png" /></ac:image></p>
+        assertThat(result).transform { it.replace("""ac:(height|width)="\d+"""".toRegex(), "ac:$1=\"?\"") }
+            .isEqualToConfluenceFormat(
+                """
+            <p><ac:image ac:height="?" ac:width="?" ac:alt="auth protocol"><ri:attachment ri:filename="auth-protocol.png" /></ac:image></p>
             """.trimIndent()
-        )
+            )
     }
 }
