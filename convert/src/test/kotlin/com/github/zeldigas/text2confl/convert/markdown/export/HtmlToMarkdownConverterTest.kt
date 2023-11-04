@@ -29,7 +29,7 @@ class HtmlToMarkdownConverterTest {
 
     private fun readResoource(resource: String): String {
         return HtmlToMarkdownConverter::class.java.getResourceAsStream(resource)?.use {
-            String(it.readAllBytes())
+            String(it.readAllBytes()).replace("\r\n", "\n")
         } ?: throw IllegalStateException("Failed to load $resource")
     }
 }

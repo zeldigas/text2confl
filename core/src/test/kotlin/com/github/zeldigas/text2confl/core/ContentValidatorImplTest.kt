@@ -51,6 +51,6 @@ internal class ContentValidatorImplTest {
                     )
             ,autofix)
         }.isInstanceOf(ContentValidationFailedException::class)
-            .transform { it.errors }.isEqualTo(listOf("a/b.txt: err1", "c.txt: err2"))
+            .transform { it.errors }.isEqualTo(listOf("${Path.of("a", "b.txt")}: err1", "c.txt: err2"))
     }
 }
