@@ -16,6 +16,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - dependency updates:
   - migrated to `io.github.oshai:kotlin-logging-jvm`
+  - plantuml to 1.2023.12
+  
+### Fixed
+
+- Non-local links detection (may cause crash on Windows)
+- \[export-to-md] now always uses `/` as path separator for attachments
 
 ## 0.14.0 - 2023-09-20
 
