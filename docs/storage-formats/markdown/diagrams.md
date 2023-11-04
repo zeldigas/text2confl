@@ -30,7 +30,7 @@ As every diagram translated to separate page attachment, there are 2 options to 
 
 By default, generated diagrams are saved in `.diagrams` directory under documents root.
 
-This is configurable with the following parameters in `.text2confl.yml` file
+This is configurable with the following parameters in `text2confl.yml` file
 
 ```yaml
 markdown:
@@ -38,10 +38,10 @@ markdown:
 #  parameters here
 ```
 
-| name       | description                                                                                       | default value |
-|------------|---------------------------------------------------------------------------------------------------|---------------|
-| `base-dir` | Base directory to store diagrams. Relative path is resolved from directory with `.text2confl.yml` | `.diagrams`   |
-| `temp-dir` | Use random temporary directory instead of `base-dir`                                              | `false`       |
+| name       | description                                                                                      | default value |
+|------------|--------------------------------------------------------------------------------------------------|---------------|
+| `base-dir` | Base directory to store diagrams. Relative path is resolved from directory with `text2confl.yml` | `.diagrams`   |
+| `temp-dir` | Use random temporary directory instead of `base-dir`                                             | `false`       |
 
 ## Formats
 
@@ -66,20 +66,20 @@ Supported code-block attributes:
 
 #### Generator configuration
 
-PlantUML parameters can be specified in `.text2confl.yml` file:
+PlantUML parameters can be specified in `text2confl.yml` file:
 
-```yaml {title=.text2confl.yml}
+```yaml {title=text2confl.yml}
 markdown:
   diagrams:
     plantuml:
 #      parameters here
 ```
 
-| name             | description                                                                                                                                                                                                                                     | default value |
-|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| `enabled`        | Enable PlantUML diagrams support                                                                                                                                                                                                                | `true`        |
-| `executable`     | Command name to invoke for plantuml. There is no support for invoking a jar with `java -jar`, so you need to have a wrapper script that will do it and pass all arguments down. Relative path is resolved from directory with `.text2confl.yml` | `platuml`     |
-| `default-format` | Format to use for generated images. Available options: `svg`, `png`                                                                                                                                                                             | `png`         |
+| name             | description                                                                                                                                                                                                                                    | default value |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| `enabled`        | Enable PlantUML diagrams support                                                                                                                                                                                                               | `true`        |
+| `executable`     | Command name to invoke for plantuml. There is no support for invoking a jar with `java -jar`, so you need to have a wrapper script that will do it and pass all arguments down. Relative path is resolved from directory with `text2confl.yml` | `platuml`     |
+| `default-format` | Format to use for generated images. Available options: `svg`, `png`                                                                                                                                                                            | `png`         |
 
 ### Mermaid
 
@@ -110,9 +110,9 @@ Supported code-block attributes:
 
 #### Generator configuration
 
-Mermaid parameters can be specified in `.text2confl.yml` file:
+Mermaid parameters can be specified in `text2confl.yml` file:
 
-```yaml {title=.text2confl.yml}
+```yaml {title=text2confl.yml}
 markdown:
   diagrams:
     mermaid:
@@ -122,11 +122,11 @@ markdown:
 | name               | description                                                                                                                      | default value                                |
 |--------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
 | `enabled`          | Enable Mermaid diagrams support                                                                                                  | `true`                                       |
-| `executable`       | Command name to invoke for mermaid. Relative path is resolved from directory with `.text2confl.yml`                              | `mmdc`                                       |
+| `executable`       | Command name to invoke for mermaid. Relative path is resolved from directory with `text2confl.yml`                              | `mmdc`                                       |
 | `default-format`   | Format to use for generated images. Available options: `svg`, `png`                                                              | `png`                                        |
-| `config-file`      | Mermaid configuration file to pass for every diagram invocation. Relative path is resolved from directory with `.text2confl.yml` |                                              |
-| `css-file`         | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `.text2confl.yml`                      |                                              |
-| `puppeeter-config` | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `.text2confl.yml`                      | Value of `T2C_PUPPEETER_CONFIG` env variable |
+| `config-file`      | Mermaid configuration file to pass for every diagram invocation. Relative path is resolved from directory with `text2confl.yml` |                                              |
+| `css-file`         | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `text2confl.yml`                      |                                              |
+| `puppeeter-config` | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `text2confl.yml`                      | Value of `T2C_PUPPEETER_CONFIG` env variable |
 
 ### Kroki
 
@@ -161,9 +161,9 @@ Supported code-block attributes:
 
 #### Generator configuration
 
-Kroki parameters can be specified in `.text2confl.yml` file:
+Kroki parameters can be specified in `text2confl.yml` file:
 
-```yaml {title=.text2confl.yml}
+```yaml {title=text2confl.yml}
 markdown:
   diagrams:
     kroki:
