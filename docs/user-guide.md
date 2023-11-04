@@ -30,7 +30,7 @@ it and will put *root* pages in it.
 
 #### Configuration file
 
-Configuration file is `.text2confl.yml` (or `.text2confl.yaml` if you prefer this extension more) - create it in
+Configuration file is `.text2confl.yml` (or `.text2confl.yml` if you prefer this extension more) - create it in
 documentation root dir.
 
 For the start put the following contents:

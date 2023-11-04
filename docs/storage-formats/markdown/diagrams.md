@@ -18,9 +18,9 @@ Generated diagrams are attached to page like a regular files.
 
 ## Name generation
 
-As every diagram translated to separate page attachment, there are 2 options to control its name:
+As every diagram is translated to a separate page attachment, you have two options to control its name:
 
-* explicitly specify it using `target` code block attribute. This is recommended approach, because it provides
+* explicitly specify it using `target` code block attribute. This is a recommended approach because it provides
   consistent naming
   when changing diagram content
 * use automatically generated names based on code block content. In this case attachment name is equal to sha256 hash of
@@ -28,7 +28,7 @@ As every diagram translated to separate page attachment, there are 2 options to 
 
 ## Location where diagrams are generated
 
-By default, generated diagrams are saved in `.diagrams` directory under documents root.
+By default, generated diagrams are saved in `.diagrams` directory under document's root.
 
 This is configurable with the following parameters in `.text2confl.yml` file
 
@@ -49,12 +49,32 @@ markdown:
 
 Code block language tags: `plantuml`, `puml`
 
+<table>
+<thead>
+<tr><th>Markdown</th><th>Confluence</th></tr>
+</thead>
+<tbody><tr>
+<td>
+
+````markdown
 ```puml
 !theme carbon-gray
 Bob->Alice : Hello!
 ```
 
 {target=puml-sample}
+````
+
+</td><td>
+
+```puml
+!theme carbon-gray
+Bob->Alice : Hello!
+```
+
+{target=puml-sample}
+
+</td></tr></tbody></table>
 
 PlantUML is bundled in **text2confl** Docker image.
 
@@ -85,6 +105,27 @@ markdown:
 
 Code block language tags: `mermaid`
 
+<table>
+<thead>
+<tr><th>Markdown</th><th>Confluence</th></tr>
+</thead>
+<tbody><tr>
+<td>
+
+````markdown
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
+{target=mermaid-sample}
+````
+
+</td><td>
+
 ```mermaid
 graph TD;
     A-->B;
@@ -95,8 +136,10 @@ graph TD;
 
 {target=mermaid-sample}
 
-Mermaid is not bundled with **text2confl** Docker image by default, so you can create derivative image with it or use
-non-docker version with locally installed mermaid-cli.
+</td></tr></tbody></table>
+
+Mermaid is not bundled with **text2confl** Docker image by default, so you can create a derivative image with it or use
+a non-docker version with locally installed mermaid-cli.
 
 Supported code-block attributes:
 
@@ -135,6 +178,14 @@ uses public service for generation - <https://kroki.io>.
 
 Example [Erd](https://github.com/BurntSushi/erd) diagram:
 
+<table>
+<thead>
+<tr><th>Markdown</th><th>Confluence</th></tr>
+</thead>
+<tbody><tr>
+<td>
+
+````markdown
 ```erd {target=kroki-erd}
 [Person]
 *name
@@ -150,6 +201,27 @@ country
 
 Person *--1 Location
 ```
+````
+
+</td><td>
+
+```erd {target=kroki-erd}
+[Person]
+*name
+height
+weight
++birth_location_id
+
+[Location]
+*id
+city
+state
+country
+
+Person *--1 Location
+```
+
+</td></tr></tbody></table>
 
 Supported code-block attributes:
 
@@ -178,7 +250,9 @@ markdown:
 
 #### Supported formats
 
-Kroki supports [more than 20 diagram formats](https://kroki.io/#support), including `plantuml` and `mermaid`. Native PlantUML and Mermaid generator takes higher precedence, but if you disable them, these formats will be still supported by Kroki.
+Kroki supports [more than 20 diagram formats](https://kroki.io/#support), including `plantuml` and `mermaid`. Native
+PlantUML and Mermaid generator takes higher precedence, but if you disable them, these formats will be still supported
+by Kroki.
 
 Supported diagrams:
 

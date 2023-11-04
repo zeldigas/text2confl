@@ -16,7 +16,7 @@ with [supported options](https://confluence.atlassian.com/doc/table-of-contents-
 | exclude   | Filter headings to exclude according to specified regex                                                        |
 | class     | Css class to add to wrapping div where toc is put                                                              |
 
-Example of table of contents that is put after foreword block on markdown page:
+Example: table of contents that is put after foreword block on markdown page:
 
 ```markdown
 This page will tell you about important widget `FOO` usage in our project

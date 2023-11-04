@@ -13,13 +13,54 @@ and rendered as information panels as they called in Confluence Cloud or _note_,
 Server edition. Note that expand functionality (block that starts with `???`) is not supported because Confluence can't
 configure expand for these macros (and wrapping them into separate expand section seems too much).
 
-!!! note
+<table>
+<thead>
+<tr><th>Markdown</th><th>Confluence</th></tr>
+</thead>
+<tbody><tr>
+<td>
+
+```markdown
+!!! note "Optional header in quotes"
 
     A note to yourself
+```
+
+</td><td>
+
+!!! note "Optional header in quotes"
+
+    A note to yourself
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+!!! tip
+
+    Some tips and tricks with `rich` ~formatting~
+```
+
+</td><td>
 
 !!! tip
 
     Some tips and tricks with `rich` ~formatting~
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+!!! warning
+
+    Description of pitfalls that your user
+    
+    Should know about
+```
+
+</td><td>
 
 !!! warning
 
@@ -27,15 +68,31 @@ configure expand for these macros (and wrapping them into separate expand sectio
     
     Should know about
 
+</td>
+</tr><tr>
+<td>
+
+```markdown
 !!! info
 
     Information message
+```
+
+</td><td>
+
+!!! info
+
+    Information message
+
+</td>
+</tr>
+</tbody></table>
 
 ## Table of contents
 
 Table of contents is supported
 via [custom extension](https://github.com/vsch/flexmark-java/wiki/Table-of-Contents-Extension) that can be put in any
-document location by special `[TOC]` reference put on separate line. 
+document location by special `[TOC]` reference put on separate line.
 
 [Supported attributes](../../user-guide/toc-attributes.md) can be passed as key value inside `TOC`.
 
@@ -47,7 +104,11 @@ Status is a specific element that can serve as eye candy element for various rep
 <status color="green">on track</status>, <status color="grey">on hold</status>, <status color="red">off track</status>
 
 For this you need to put custom tag: `<status color="$color">$text_of_status</status>`, where `$color` is valid color
-and `$text_of_status` is simple text that will be put in block.
+and `$text_of_status` is simple text that will be put in block:
+
+| Markdown                                  | Confluence                              |
+|-------------------------------------------|-----------------------------------------|
+| `<status color="green">on track</status>` | <status color="green">on track</status> |
 
 Note that only limited colors are supported, and you need to properly specify one of the following allowed
 values: `grey`
@@ -70,9 +131,43 @@ more standard format of this tag by putting text inside time block: <time dateti
 
 You can use admonition-like syntax to add Confluence expand block:
 
+<table>
+<thead>
+<tr><th>Markdown</th><th>Confluence</th></tr>
+</thead>
+<tbody><tr>
+<td>
+
+```markdown
 !!! expand
 
     I'm text that is put inside expand block
+```
+
+</td><td>
+
+!!! expand
+
+    I'm text that is put inside expand block
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+!!! expand "Custom text on expand link"
+
+    I'm text that is put inside expand block
+```
+
+</td><td>
+
+!!! expand "Custom text on expand link"
+
+    I'm text that is put inside expand block
+
+</td>
+</tr></tbody></table>
 
 ## Confluence macros with simple options
 
@@ -91,7 +186,7 @@ down the road. Values can be unquoted if they don't contain spaces, or you can p
 
     Parameters are ***not validated***, so make sure that you use expected params for your macro. This can be done by 
     adding the macro you need on sample page in WYSIWYG editor and then opening page in "storage format".
-    Macro name will be in `<ac-structured-macro ac:name="MACRONAME">` block and all `<ac-parameter ac:name="columns">`
+    Macro name will be in `ac:structured-macro ac:name="MACRONAME"` block and all `ac:parameter ac:name="columns"`
     elements are macro parameters.
     
     This is especially helpful for special hidden parameters like `serverId` in jira chart macro, that is GUID string

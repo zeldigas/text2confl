@@ -9,6 +9,7 @@ All basic styling features are supported &mdash; text can be:
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
 
 | `+*bold*+` | *bold*
 | `+_italic_+` | _italic_
@@ -26,6 +27,8 @@ You can also use quotation blocks:
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
+
 |
 ----
 include::_assets/example.adoc[tag=style-quotation]
@@ -39,6 +42,8 @@ Both numbered and bullet lists are supported:
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
+
 |
 ----
 include::_assets/example.adoc[tag=style-list]
@@ -52,6 +57,8 @@ This will work:
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
+
 |
 ----
 include::_assets/example.adoc[tag=style-tasklist-ok]
@@ -63,6 +70,8 @@ But this will not work:
 
 [cols="a,a"]
 |===
+| AsciiDoc | Confluence
+
 |
 ----
 include::_assets/example.adoc[tag=style-tasklist-bad]

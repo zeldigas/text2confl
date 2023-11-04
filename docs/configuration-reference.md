@@ -7,13 +7,15 @@ alternatives in command line or env variables format.
 
 !!! warning
 
-     Keep in mind the lookup order of values:
-        
-     1. command line argument
-     2. environment variable
-     3. value in `.text2confl.yml`
+    Keep in mind the lookup order of values:
+         
+    1. command line argument
+    2. environment variable
+    3. value in `.text2confl.yml`/`.textconfl.yaml`/`text2confl.yml`/`text2confl.yaml` file (whatever is found first)
+    
+       For brevity, we will use `.text2confl.yml` in examples below. 
 
-| .text2confl.yml              | cli option                                 | env variable       | description                                                                                                                                                                                                                                                                         |
+| configuration file           | cli option                                 | env variable       | description                                                                                                                                                                                                                                                                         |
 |------------------------------|--------------------------------------------|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | server                       | `--Confluence-url`                         | `CONFLUENCE_URL`   | Address of Confluence server. For Confluence Cloud specify in format `https://YOURSITE.atlassian.net/wiki`                                                                                                                                                                          |
 | space                        | `--space`                                  | `CONFLUENCE_SPACE` | Space where documents will be uploaded. It is not possible to upload docs to multiple spaces in one run                                                                                                                                                                             |
@@ -36,7 +38,7 @@ alternatives in command line or env variables format.
 
 ### Markdown configuration options
 
-Markdown can be configured in `.text2confl.yaml` file, in `markdown` section.
+Markdown can be configured in `.text2confl.yml` file, in `markdown` section.
 
 Table contains available parameters. Dot (`.`) means that this is next level, e.g.
 
@@ -72,7 +74,7 @@ markdown:
 
 ### AsciiDoc configuration options
 
-AsciiDoc can be configured in `.text2confl.yaml` file, in `asciidoc` section.
+AsciiDoc can be configured in `.text2confl.yml` file, in `asciidoc` section.
 
 Table contains available parameters. Dot (`.`) means that this is next level, e.g.
 
