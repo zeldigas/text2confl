@@ -62,7 +62,7 @@ class PrintingUploadOperationsTracker(
                     serverPage,
                     local
                 )
-            }${if (labelsAttachmentsInfo.isNotBlank()) ". $labelsAttachmentsInfo" else "" }"
+            }${if (labelsAttachmentsInfo.isNotBlank()) " $labelsAttachmentsInfo" else "" }"
         )
     }
 
@@ -77,6 +77,7 @@ class PrintingUploadOperationsTracker(
         if (uiLink != null) {
             append(" URL - ")
             append(URLBuilder(server).appendPathSegments(uiLink).buildString())
+            append(".")
         }
     }
 
@@ -85,16 +86,16 @@ class PrintingUploadOperationsTracker(
             if (labelsUpdateResult is LabelsUpdateResult.Updated) {
                 append("Labels ")
                 if (labelsUpdateResult.added.isNotEmpty()) {
-                    append(green("added "))
+                    append(green("+"))
                     append("[")
                     append(labelsUpdateResult.added.joinToString(", "))
                     append("]")
                     if (labelsUpdateResult.removed.isNotEmpty()) {
-                        append("; ")
+                        append(", ")
                     }
                 }
                 if (labelsUpdateResult.removed.isNotEmpty()) {
-                    append(red("removed "))
+                    append(red("-"))
                     append("[")
                     append(labelsUpdateResult.removed.joinToString(", "))
                     append("]")
@@ -103,13 +104,18 @@ class PrintingUploadOperationsTracker(
         }
         val attachmentsInfo = buildString {
             if (attachmentsUpdated is AttachmentsUpdateResult.Updated) {
-                append(" attachments: ")
+                append("attachments: ")
                 append(green("added ${attachmentsUpdated.added.size}, "))
                 append(cyan("modified ${attachmentsUpdated.modified.size}, "))
-                append(red("removed ${attachmentsUpdated.removed.size}. "))
+                append(red("removed ${attachmentsUpdated.removed.size}"))
             }
         }
-        return listOf(labelsInfo, attachmentsInfo).filter { it.isNotBlank() }.joinToString(", ")
+        val labelsAttachmentsDetails = listOf(labelsInfo, attachmentsInfo).filter { it.isNotBlank() }
+        return if (labelsAttachmentsDetails.isEmpty()) {
+            return ""
+        } else {
+            labelsAttachmentsDetails.joinToString(", ", postfix = ".")
+        }
     }
 
     override fun uploadsCompleted() {
@@ -123,7 +129,7 @@ class PrintingUploadOperationsTracker(
         if (allDeletedPages.isEmpty()) return
 
         printWithPrefix(buildString {
-            append(red("Deleted page"))
+            append(red("Deleted:"))
             append(" ")
             append(deletedPage(allDeletedPages[0]))
             if (allDeletedPages.size > 1) {
@@ -134,14 +140,16 @@ class PrintingUploadOperationsTracker(
         val tail = allDeletedPages.drop(1)
         if (tail.isNotEmpty()) {
             tail.forEach { page ->
-                printWithPrefix("${red("  Deleted page")} ${deletedPage(page)}")
+                printWithPrefix("${red("  Deleted:")} ${deletedPage(page)}")
             }
         }
     }
 
     private fun deletedPage(confluencePage: ConfluencePage): String {
         return buildString {
+            append("\"")
             append(blue(confluencePage.title))
+            append("\"")
             append(" (")
             append(confluencePage.id)
             append(")")

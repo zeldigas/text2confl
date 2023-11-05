@@ -84,3 +84,9 @@ class PageNotCreatedException(val title: String, val status: Int, val body: Stri
 class PageNotFoundException : RuntimeException()
 
 class TooManyPagesFound(val pages: List<ConfluencePage>) : RuntimeException()
+
+class UnknownConfluenceErrorException(val status: Int, val body: String?) :
+    RuntimeException("Unknown Confluence error: status=$status, body:\n$body")
+
+class ConfluenceApiErrorException(val status: Int, val error: String, val body: Map<String, Any?>) :
+    RuntimeException("Confluence API error: status=$error, body:\n$body")
