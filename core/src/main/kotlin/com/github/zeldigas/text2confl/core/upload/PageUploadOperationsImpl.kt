@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.core.upload
 
 import com.github.zeldigas.confclient.*
+import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageProperty
 import com.github.zeldigas.text2confl.convert.EditorVersion
@@ -25,7 +26,11 @@ internal class PageUploadOperationsImpl(
         private val logger = KotlinLogging.logger { }
     }
 
-    override suspend fun createOrUpdatePageContent(page: Page, space: String, parentPageId: String): ServerPage {
+    override suspend fun createOrUpdatePageContent(
+        page: Page,
+        space: String,
+        parentPageId: String
+    ): PageOperationResult {
         val serverPage = findPageOnServer(space, page)
         return if (serverPage != null) {
             updateExistingPage(serverPage, page, parentPageId)
@@ -53,30 +58,89 @@ internal class PageUploadOperationsImpl(
     )
 
     private suspend fun updateExistingPage(
-        serverPage: ConfluencePage,
+        confluencePageToUpdate: ConfluencePage,
         page: Page,
         parentPageId: String
-    ): ServerPage {
-        checkTenantBeforeUpdate(serverPage)
-        if (pageContentChangeDetector.strategy(serverPage, page.content)) {
-            logger.info { "Page content requires update: ${serverPage.id}, ${serverPage.title}" }
-            client.updatePage(
-                serverPage.id,
-                PageContentInput(
-                    parentPageId,
-                    page.title,
-                    page.content.body,
-                    version = serverPage.version!!.number + 1
-                ),
-                PageUpdateOptions(notifyWatchers, uploadMessage)
+    ): PageOperationResult {
+        checkTenantBeforeUpdate(confluencePageToUpdate)
+        val (renamed, confluencePage) = adjustTitleIfRequired(confluencePageToUpdate, page)
+
+        val serverPageDetails = createServerPage(confluencePage, parentPageId);
+
+        val result = if (pageContentChangeDetector.strategy(confluencePage, page.content)) {
+            updatePageContent(confluencePage, parentPageId, page, serverPageDetails)
+        } else if (confluencePage.parent?.id != parentPageId) {
+            changePageParent(confluencePage, parentPageId, page, serverPageDetails, confluencePageToUpdate.title)
+        } else if (renamed) {
+            PageOperationResult.LocationModified(
+                page,
+                serverPageDetails,
+                parentPageId,
+                confluencePageToUpdate.title
             )
-        } else if (serverPage.parent?.id != parentPageId) {
-            changeParent(serverPage, parentPageId)
         } else {
-            logger.info { "Page is up to date, nothing to do: ${serverPage.id}, ${serverPage.title}" }
+            logger.info { "Page is up to date, nothing to do: ${confluencePage.id}, ${confluencePage.title}" }
+            PageOperationResult.NotModified(page, serverPageDetails)
         }
-        setPageProperties(page, serverPage)
-        return createServerPage(serverPage, parentPageId)
+        setPageProperties(page, confluencePage)
+
+        return result
+    }
+
+    private suspend fun adjustTitleIfRequired(
+        serverPage: ConfluencePage,
+        page: Page
+    ): Pair<Boolean, ConfluencePage> {
+        return if (page.title != serverPage.title) {
+            logger.info { "Changing page title: ${serverPage.title} -> ${page.title} " }
+            val updated = client.renamePage(serverPage, page.title, PageUpdateOptions(notifyWatchers, uploadMessage))
+            true to serverPage.copy(
+                title = updated.title,
+                version = updated.version,
+            )
+        } else {
+            false to serverPage
+        }
+    }
+
+    private suspend fun updatePageContent(
+        confluencePage: ConfluencePage,
+        parentPageId: String,
+        page: Page,
+        serverPageDetails: ServerPage
+    ): PageOperationResult.ContentModified {
+        logger.info { "Page content requires update: ${confluencePage.id}, ${confluencePage.title}" }
+        client.updatePage(
+            confluencePage.id,
+            PageContentInput(
+                parentPageId,
+                page.title,
+                page.content.body,
+                version = confluencePage.version!!.number + 1
+            ),
+            PageUpdateOptions(notifyWatchers, uploadMessage)
+        )
+        return PageOperationResult.ContentModified(
+            page,
+            serverPageDetails,
+            confluencePage.parent?.id != parentPageId
+        )
+    }
+
+    private suspend fun changePageParent(
+        confluencePage: ConfluencePage,
+        parentPageId: String,
+        page: Page,
+        serverPageDetails: ServerPage,
+        originalTitle: String
+    ): PageOperationResult.LocationModified {
+        changeParent(confluencePage, parentPageId)
+        return PageOperationResult.LocationModified(
+            page,
+            serverPageDetails,
+            confluencePage.parent?.id ?: "",
+            originalTitle
+        )
     }
 
     private fun checkTenantBeforeUpdate(serverPage: ConfluencePage) {
@@ -98,7 +162,7 @@ internal class PageUploadOperationsImpl(
             space, title, expansions = setOf(
                 "ancestors", "version", propertyExpansion(TENANT_PROPERTY)
             )
-        ) ?: throw IllegalStateException("Page not found in $space: $title")
+        ) ?: throw PageNotFoundException(space, title)
         if (serverPage.parent?.id != parentId) {
             checkTenantBeforeUpdate(serverPage)
             changeParent(serverPage, parentId)
@@ -128,14 +192,15 @@ internal class PageUploadOperationsImpl(
         serverPage.title,
         parentPageId,
         serverPage.metadata?.labels?.results ?: emptyList(),
-        serverPage.children?.attachment?.let { client.fetchAllAttachments(it) } ?: emptyList()
+        serverPage.children?.attachment?.let { client.fetchAllAttachments(it) } ?: emptyList(),
+        serverPage.links
     )
 
     private suspend fun createNewPage(
         space: String,
         parentPageId: String,
         page: Page
-    ): ServerPage {
+    ): PageOperationResult.Created {
         logger.info { "Page does not exist, need to create it: ${page.title}" }
         val serverPage = client.createPage(
             PageContentInput(parentPageId, page.title, page.content.body, space),
@@ -149,7 +214,7 @@ internal class PageUploadOperationsImpl(
             )
         )
         setPageProperties(page, serverPage)
-        return createServerPage(serverPage, parentPageId)
+        return PageOperationResult.Created(page, createServerPage(serverPage, parentPageId))
     }
 
     private suspend fun setPageProperties(
@@ -189,9 +254,9 @@ internal class PageUploadOperationsImpl(
         }
     }
 
-    override suspend fun updatePageLabels(serverPage: ServerPage, content: PageContent) {
+    override suspend fun updatePageLabels(serverPage: ServerPage, content: PageContent): LabelsUpdateResult {
         val labels = serverPage.labels.map { it.label ?: it.name }
-        if (labels != content.labels) {
+        return if (labels != content.labels) {
 
             val labelsToDelete = labels - content.labels
             labelsToDelete.forEach { client.deleteLabel(serverPage.id, it) }
@@ -199,16 +264,19 @@ internal class PageUploadOperationsImpl(
             if (labelsToAdd.isNotEmpty()) {
                 client.addLabels(serverPage.id, labelsToAdd)
             }
+            LabelsUpdateResult.Updated(labelsToAdd, labelsToDelete)
+        } else {
+            LabelsUpdateResult.NotChanged
         }
     }
 
-    override suspend fun updatePageAttachments(serverPage: ServerPage, content: PageContent) {
-        if (serverPage.attachments.isEmpty() && content.attachments.isEmpty()) return
+    override suspend fun updatePageAttachments(serverPage: ServerPage, content: PageContent): AttachmentsUpdateResult {
+        if (serverPage.attachments.isEmpty() && content.attachments.isEmpty()) return AttachmentsUpdateResult.NotChanged
 
         val serverAttachments =
             serverPage.attachments.map {
                 it.title to ServerAttachment(
-                    it.id,
+                    it,
                     it.metadata.attachmentHash
                 )
             }.toMap()
@@ -237,6 +305,11 @@ internal class PageUploadOperationsImpl(
         extraAttachments.values.forEach {
             client.deleteAttachment(it.id)
         }
+        return if (new.isEmpty() && reUpload.isEmpty() && extraAttachments.isEmpty()) {
+            AttachmentsUpdateResult.NotChanged
+        } else {
+            AttachmentsUpdateResult.Updated(new, reUpload, extraAttachments.values.map { it.attachment })
+        }
     }
 
     override suspend fun findChildPages(pageId: String): List<ConfluencePage> {
@@ -246,20 +319,25 @@ internal class PageUploadOperationsImpl(
         )
     }
 
-    override suspend fun deletePageWithChildren(pageId: String) {
+    override suspend fun deletePageWithChildren(page: ConfluencePage): List<ConfluencePage> {
+        val deletedPages = mutableListOf(page)
         coroutineScope {
-            for (subpage in client.findChildPages(pageId)) {
+            for (subpage in client.findChildPages(page.id)) {
                 launch {
-                    deletePageWithChildren(subpage.id)
+                    deletedPages.addAll(deletePageWithChildren(subpage))
                 }
             }
         }
-        client.deletePage(pageId)
+        client.deletePage(page.id)
+        return deletedPages
     }
 
     private data class ServerAttachment(
-        val id: String, val hash: String?
-    )
+        val attachment: Attachment, val hash: String?
+    ) {
+        val id: String
+            get() = attachment.id
+    }
 
     private fun propertyExpansion(property: String) = "metadata.properties.$property"
 }

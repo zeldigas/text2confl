@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.convert.confluence
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import com.github.zeldigas.text2confl.convert.PageHeader
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -67,5 +68,22 @@ internal class ReferenceProviderImplTest {
         val result = providerImpl.resolveReference(Path("docs/one.md"), "sub/one.md#test")
 
         assertThat(result).isNotNull().isEqualTo(Xref("Sub Title One", "test"))
+    }
+
+    @CsvSource(
+        value = [
+            "mailto:john@example.org",
+            "http://example.org",
+            "https://example.org",
+            "https://example.org/docs/one.md",
+            "file://example.org/docs/one.md", //for now this one is filtered out as well
+            "ftp://example.org/docs/one.md"
+        ]
+    )
+    @ParameterizedTest
+    fun `Links of varios kinds are filtered out`(link:String) {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), link)
+
+        assertThat(result).isNull()
     }
 }

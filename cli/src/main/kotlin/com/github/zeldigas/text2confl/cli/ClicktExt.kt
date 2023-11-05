@@ -11,6 +11,7 @@ import com.github.ajalt.mordant.terminal.StringPrompt
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
 import com.github.zeldigas.text2confl.core.ContentValidationFailedException
+import com.github.zeldigas.text2confl.core.upload.ContentUploadException
 import com.github.zeldigas.text2confl.core.upload.InvalidTenantException
 
 fun parameterMissing(what: String, cliOption: String, fileOption: String): Nothing {
@@ -31,8 +32,9 @@ fun RawOption.optionalFlag(vararg secondaryNames: String): NullableOption<Boolea
 
 fun tryHandleException(ex: Exception): Nothing {
     when (ex) {
-        is InvalidTenantException -> throw PrintMessage(ex.message!!, printError = true)
-        is FileDoesNotExistException -> throw PrintMessage(ex.message!!, printError = true)
+        is InvalidTenantException -> error(ex.message!!)
+        is FileDoesNotExistException -> error(ex.message!!)
+        is ContentUploadException -> error(ex.message!!)
         is ConversionFailedException -> {
             val reason = buildString {
                 append(ex.message)
@@ -40,16 +42,20 @@ fun tryHandleException(ex: Exception): Nothing {
                     append(" (cause: ${ex.cause})")
                 }
             }
-            throw PrintMessage("Failed to convert ${ex.file}: $reason", printError = true)
+            error("Failed to convert ${ex.file}: $reason")
         }
 
         is ContentValidationFailedException -> {
             val issues = ex.errors.mapIndexed { index, error -> "${index + 1}. $error" }.joinToString(separator = "\n")
-            throw PrintMessage("Some pages content is invalid:\n${issues}", printError = true)
+            error("Some pages content is invalid:\n${issues}")
         }
 
         else -> throw ex
     }
+}
+
+private fun error(message: String): Nothing {
+    throw PrintMessage(message, printError = true, statusCode = 1)
 }
 
 fun CliktCommand.promptForSecret(prompt: String, requireConfirmation: Boolean): String? {

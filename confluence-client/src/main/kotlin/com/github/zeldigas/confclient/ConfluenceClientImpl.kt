@@ -46,7 +46,7 @@ class ConfluenceClientImpl(
     override suspend fun describeSpace(key: String, expansions: List<String>): Space {
         return httpClient.get("$apiBase/space/$key") {
             addExpansions(expansions)
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun getPage(
@@ -66,7 +66,7 @@ class ConfluenceClientImpl(
     ): ConfluencePage {
         return httpClient.get("$apiBase/content/$id") {
             addExpansions(expansions)
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun getPageOrNull(
@@ -105,7 +105,7 @@ class ConfluenceClientImpl(
             parameter("title", title)
             status?.let { parameter("status", it.toString()) }
             addExpansions(expansions)
-        }.body()
+        }.readApiResponse()
         return result.results
     }
 
@@ -161,13 +161,27 @@ class ConfluenceClientImpl(
             )
         )
 
+    override suspend fun renamePage(
+        serverPage: ConfluencePage,
+        newTitle: String,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage =
+        performPageUpdate(
+            serverPage.id, mapOf(
+                "type" to "page",
+                "title" to newTitle,
+                "version" to versionNode(serverPage.version!!.number + 1, updateParameters)
+            )
+        )
+
+
     private suspend fun performPageUpdate(pageId: String, body: Map<String, Any?>): ConfluencePage {
         val response = httpClient.put("$apiBase/content/$pageId") {
             contentType(ContentType.Application.Json)
             setBody(body)
         }
         if (response.status.isSuccess()) {
-            return response.body()
+            return response.readApiResponse()
         } else {
             throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
         }
@@ -209,7 +223,7 @@ class ConfluenceClientImpl(
         return httpClient.put("$apiBase/content/$pageId/property/$name") {
             contentType(ContentType.Application.Json)
             setBody(value)
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
@@ -222,7 +236,7 @@ class ConfluenceClientImpl(
                 addExpansions(expansions ?: emptyList())
                 parameter("start", start)
                 parameter("limit", limit)
-            }.body<PageSearchResult>()
+            }.readApiResponse<PageSearchResult>()
             result.addAll(page.results)
             limit = page.limit
             start += limit
@@ -253,7 +267,7 @@ class ConfluenceClientImpl(
             while ("next" in current.links) {
                 val nextPage = makeLink(confluenceBaseUrl, current.links.getValue("next"))
                 logger.debug { "Loading next attachments page: $nextPage" }
-                current = httpClient.get(nextPage).body()
+                current = httpClient.get(nextPage).readApiResponse()
                 if (current.results.isEmpty()) {
                     break
                 } else {
@@ -274,7 +288,7 @@ class ConfluenceClientImpl(
         }) {
             header("X-Atlassian-Token", "nocheck")
             header("Accept", "application/json")
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun updateAttachment(
@@ -289,11 +303,11 @@ class ConfluenceClientImpl(
             }) {
             header("X-Atlassian-Token", "nocheck")
             header("Accept", "application/json")
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun deleteAttachment(attachmentId: String) {
-        httpClient.delete("$apiBase/content/$attachmentId").body<String>()
+        httpClient.delete("$apiBase/content/$attachmentId").readApiResponse<String>()
     }
 
     override suspend fun downloadAttachment(attachment: Attachment, destination: Path) {
@@ -314,6 +328,20 @@ class ConfluenceClientImpl(
                 attachment.contentType?.let { append(HttpHeaders.ContentType, it) }
                 append(HttpHeaders.ContentDisposition, "filename=${attachment.name}")
             })
+    }
+}
+
+private suspend inline fun <reified T> HttpResponse.readApiResponse(): T {
+    val contentType = contentType()
+    if (contentType != null && ContentType.Application.Json.match(contentType)){
+        try {
+            return body<T>()
+        } catch (e: JsonConvertException) {
+            val content = body<Map<String, Any?>>()
+            throw ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
+        }
+    } else {
+        throw UnknownConfluenceErrorException(status.value, bodyAsText())
     }
 }
 
@@ -366,6 +394,6 @@ fun confluenceClient(
         }
 
     }
-
-    return ConfluenceClientImpl(config.server, "${config.server}/rest/api", client)
+    val baseUrl = URLBuilder(config.server).appendPathSegments("rest", "api").build().toString()
+    return ConfluenceClientImpl(config.server, baseUrl, client)
 }

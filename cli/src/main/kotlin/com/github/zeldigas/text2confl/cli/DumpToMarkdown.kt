@@ -43,6 +43,7 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md", help = "Exports confl
 
     override fun run() {
         try {
+            configureRequestLoggingIfEnabled()
             runBlocking { dumpPage() }
         } catch (ex: Exception) {
             tryHandleException(ex)

@@ -12,6 +12,7 @@ import com.github.zeldigas.text2confl.core.config.UploadConfig
 import com.github.zeldigas.text2confl.core.export.PageExporter
 import com.github.zeldigas.text2confl.core.upload.ContentUploader
 import com.github.zeldigas.text2confl.core.upload.DryRunClient
+import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
 
 interface ServiceProvider {
     fun createConverter(space: String, config: ConverterConfig): Converter
@@ -19,7 +20,8 @@ interface ServiceProvider {
     fun createUploader(
         client: ConfluenceClient,
         uploadConfig: UploadConfig,
-        converterConfig: ConverterConfig
+        converterConfig: ConverterConfig,
+        uploadOperationTracker: UploadOperationTracker
     ): ContentUploader
 
     fun createContentValidator(): ContentValidator
@@ -51,13 +53,15 @@ class ServiceProviderImpl : ServiceProvider {
     override fun createUploader(
         client: ConfluenceClient,
         uploadConfig: UploadConfig,
-        converterConfig: ConverterConfig
+        converterConfig: ConverterConfig,
+        uploadOperationTracker: UploadOperationTracker
     ): ContentUploader {
         return ContentUploader(
             client, uploadConfig.uploadMessage, uploadConfig.notifyWatchers,
             uploadConfig.modificationCheck,
             converterConfig.editorVersion, uploadConfig.removeOrphans,
-            uploadConfig.tenant
+            uploadConfig.tenant,
+            uploadOperationTracker
         )
     }
 

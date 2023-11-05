@@ -51,7 +51,7 @@ internal class UploadTest(
     internal fun setUp() {
         every { serviceProvider.createConverter(any(), any()) } returns converter
         every { serviceProvider.createConfluenceClient(any(), any()) } returns confluenceClient
-        every { serviceProvider.createUploader(confluenceClient, any(), any()) } returns contentUploader
+        every { serviceProvider.createUploader(confluenceClient, any(), any(), any()) } returns contentUploader
         every { serviceProvider.createContentValidator() } returns contentValidator
 
         command.context {
@@ -100,7 +100,8 @@ internal class UploadTest(
                 confluenceClient, UploadConfig(
                     "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH, "test"
                 ),
-                expectedConverterConfig
+                expectedConverterConfig,
+                any()
             )
         }
     }
@@ -154,7 +155,8 @@ internal class UploadTest(
                     directoryConfig.modificationCheck,
                     "test1"
                 ),
-                converterConfig
+                converterConfig,
+                any()
             )
         }
     }

@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.convert.confluence
 
 import com.github.zeldigas.text2confl.convert.PageHeader
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 import kotlin.io.path.relativeTo
 
@@ -40,13 +41,17 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
 
     companion object {
         private val URI_DETECTOR = "^[a-zA-Z][a-zA-Z0-9.+-]+:/{0,2}".toRegex(RegexOption.IGNORE_CASE)
+        private val log = KotlinLogging.logger {  }
     }
 
     private val normalizedDocs =
         documents.map { (path, header) -> path.relativeTo(basePath).normalize() to header }.toMap()
 
     override fun resolveReference(source: Path, refTo: String): Reference? {
-        if (URI_DETECTOR.find(refTo) != null) return null
+        if (URI_DETECTOR.find(refTo) != null) {
+            log.debug { "$refTo detected as link in $source" }
+            return null
+        }
         if (refTo.startsWith("#")) return Anchor(refTo.substring(1))
 
         val parts = refTo.split("#", limit = 2)

@@ -17,7 +17,8 @@ class ContentUploader(
     val pageUploadOperations: PageUploadOperations,
     val client: ConfluenceClient,
     val cleanup: Cleanup,
-    val tenant: String?
+    val tenant: String?,
+    val tracker: UploadOperationTracker = NOP
 ) {
 
     constructor(
@@ -27,7 +28,8 @@ class ContentUploader(
         pageContentChangeDetector: ChangeDetector,
         editorVersion: EditorVersion,
         cleanup: Cleanup,
-        tenant: String?
+        tenant: String?,
+        tracker: UploadOperationTracker = NOP
     ) : this(
         PageUploadOperationsImpl(
             client,
@@ -39,7 +41,8 @@ class ContentUploader(
         ),
         client,
         cleanup,
-        tenant
+        tenant,
+        tracker
     )
 
     companion object {
@@ -48,6 +51,7 @@ class ContentUploader(
 
     suspend fun uploadPages(pages: List<Page>, space: String, parentPageId: String) {
         val uploadedPages = uploadPagesRecursive(pages, space, parentPageId)
+        tracker.uploadsCompleted()
         val uploadedPagesByParent = buildOrphanedRemovalRegistry(uploadedPages)
         deleteOrphans(uploadedPagesByParent)
     }
@@ -75,14 +79,21 @@ class ContentUploader(
     private suspend fun uploadPage(page: Page, space: String, defaultParentPage: String): PageUploadResult {
         val parentId = customPageParent(page, space) ?: defaultParentPage
         return if (!page.virtual) {
-            logger.info { "Uploading page: title=${page.title}" }
-            val serverPage = pageUploadOperations.createOrUpdatePageContent(page, space, parentId)
-            pageUploadOperations.updatePageLabels(serverPage, page.content)
-            pageUploadOperations.updatePageAttachments(serverPage, page.content)
+            logger.info { "Uploading page: title=${page.title}, src=${page.source}" }
+            val pageResult = pageUploadOperations.createOrUpdatePageContent(page, space, parentId)
+            val serverPage = pageResult.serverPage
+            val labelUpdate = pageUploadOperations.updatePageLabels(serverPage, page.content)
+            val attachmentsUpdated = pageUploadOperations.updatePageAttachments(serverPage, page.content)
+            tracker.pageUpdated(pageResult, labelUpdate, attachmentsUpdated)
+            logger.info { "Page uploaded: title=${page.title}, src=${page.source}: id=${serverPage.id}" }
             PageUploadResult(parentId, serverPage, virtual = false)
         } else {
             logger.info { "Checking that virtual page exists and properly located: ${page.title}" }
-            val virtualPage = pageUploadOperations.checkPageAndUpdateParentIfRequired(page.title, space, parentId)
+            val virtualPage = try {
+                pageUploadOperations.checkPageAndUpdateParentIfRequired(page.title, space, parentId)
+            } catch (ex: PageNotFoundException) {
+                throw VirtualPageNotFound(page.source, page.title, space)
+            }
             PageUploadResult(parentId, virtualPage, true)
         }
     }
@@ -108,6 +119,7 @@ class ContentUploader(
 
     private suspend fun deleteOrphans(uploadedPagesByParent: Map<String, List<ServerPage>>) {
         logger.debug { "Running cleanup operation using strategy: $cleanup" }
+        logger.debug { "Cleanup operation: $cleanup" }
         coroutineScope {
             for ((parent, children) in uploadedPagesByParent) {
                 launch { deleteOrphanedChildren(parent, children) }
@@ -127,8 +139,9 @@ class ContentUploader(
         coroutineScope {
             for (page in pagesForDeletion) {
                 launch {
-                    logger.info { "Deleting orphaned page: title=${page.title}, id=${page.id}" }
-                    pageUploadOperations.deletePageWithChildren(page.id)
+                    logger.info { "Deleting orphaned page and subpages: title=${page.title}, id=${page.id}" }
+                    val deletedPages = pageUploadOperations.deletePageWithChildren(page)
+                    tracker.pagesDeleted(page, deletedPages)
                 }
             }
         }
