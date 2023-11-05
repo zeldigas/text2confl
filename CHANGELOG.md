@@ -7,12 +7,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.15.0 - 2023-11-06
+
 ### Added
 
-- now in `upload` and `export-to-md` commands you can enable logging of http requests/responses and configure request
+- in `upload` and `export-to-md` commands you can enable logging of http requests/responses and configure request
   timeout
-- now configuration file can be named as `text2confl.yml` or `text2confl.yaml` in addition to dot-prefixed
+- configuration file can be named as `text2confl.yml` or `text2confl.yaml` in addition to dot-prefixed
   names (`.text2confl.yml`, `.text2confl.yaml`).
+- `-v` option can be passed to enable verbose logging. Repeat up to three times to get more details in logs.
+- `upload` command now print well-formatted summary of uploaded pages
 
 ### Changed
 
@@ -22,8 +26,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Non-local links detection (may cause crash on Windows)
-- \[export-to-md] now always uses `/` as path separator for attachments
+- Non-local links detection (may cause crash on Windows, #116, #96)
+- `export-to-md` now always uses `/` as path separator for attachments
+- Difference in page names causes page to be renamed first. This stabilize upload operation (#25) and also fixes
+  inconsistent cleanup of pages that were renamed.
 
 ## 0.14.0 - 2023-09-20
 
