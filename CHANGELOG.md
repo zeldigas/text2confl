@@ -11,13 +11,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - now in `upload` and `export-to-md` commands you can enable logging of http requests/responses and configure request
   timeout
+- now configuration file can be named as `text2confl.yml` or `text2confl.yaml` in addition to dot-prefixed
+  names (`.text2confl.yml`, `.text2confl.yaml`).
 
 ### Changed
 
 - dependency updates:
-  - migrated to `io.github.oshai:kotlin-logging-jvm`
-  - plantuml to 1.2023.12
-  
+    - migrated to `io.github.oshai:kotlin-logging-jvm`
+    - plantuml to 1.2023.12
+
 ### Fixed
 
 - Non-local links detection (may cause crash on Windows)
@@ -38,8 +40,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - `cli` model is split into 2: `core` and `cli`. Contributed by @dgautier.
 - dependency updates
-  - Asciidoctor diagram to 2.2.13
-  - plantuml to 1.2023.11
+    - Asciidoctor diagram to 2.2.13
+    - plantuml to 1.2023.11
 
 ## 0.13.0 - 2023-08-28
 

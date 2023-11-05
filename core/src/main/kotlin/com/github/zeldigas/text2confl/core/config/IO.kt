@@ -2,24 +2,28 @@ package com.github.zeldigas.text2confl.core.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 
 
-private val mapper = ObjectMapper(YAMLFactory())
-    .registerKotlinModule()
-    .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
+private val mapper = JsonMapper.builder(YAMLFactory())
+    .addModule(kotlinModule())
+    .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
     .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
     .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .build()
 
-private val CONFIG_FILE_NAMES = listOf(".text2confl.yml", ".text2confl.yaml")
+private val CONFIG_FILE_NAMES = listOf(".text2confl", "text2confl")
+
+private val log = KotlinLogging.logger {  }
 
 fun readDirectoryConfig(dirOfFile: Path): DirectoryConfig {
     val resolver: (String) -> Path = if (dirOfFile.isRegularFile()) {
@@ -27,12 +31,20 @@ fun readDirectoryConfig(dirOfFile: Path): DirectoryConfig {
     } else {
         dirOfFile::resolve
     }
+    val docsDir = if (dirOfFile.isRegularFile()) dirOfFile.absolute().parent else dirOfFile
 
-    val directoryConfig = CONFIG_FILE_NAMES.asSequence()
+    val configFile = CONFIG_FILE_NAMES.asSequence()
+        .flatMap { listOf("$it.yml", "$it.yaml") }
         .map(resolver)
         .filter { it.exists() }
-        .map { mapper.readValue<DirectoryConfig>(it.toFile()) }
-        .firstOrNull() ?: DirectoryConfig()
-    directoryConfig.docsDir = if (dirOfFile.isRegularFile()) dirOfFile.absolute().parent else dirOfFile
+        .firstOrNull()
+    val directoryConfig:DirectoryConfig = if (configFile != null) {
+        log.debug { "Found config file $configFile" }
+        mapper.readValue(configFile.toFile())
+    } else {
+        log.debug { "No config file found in $docsDir. Using defaults" }
+        DirectoryConfig()
+    }
+    directoryConfig.docsDir = docsDir
     return directoryConfig
 }

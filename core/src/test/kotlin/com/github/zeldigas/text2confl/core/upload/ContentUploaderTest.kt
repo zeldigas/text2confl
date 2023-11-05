@@ -1,31 +1,41 @@
 package com.github.zeldigas.text2confl.core.upload
 
 import assertk.assertFailure
+import assertk.assertThat
 import assertk.assertions.hasMessage
+import assertk.assertions.isEqualTo
 import com.github.zeldigas.confclient.ConfluenceClient
+import com.github.zeldigas.confclient.model.ConfluencePage
+import com.github.zeldigas.confclient.model.ContentType
+import com.github.zeldigas.confclient.model.PageMetadata
 import com.github.zeldigas.confclient.model.PageProperty
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.core.config.Cleanup
 import com.github.zeldigas.text2confl.core.upload.*
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.io.path.Path
 
 @ExtendWith(MockKExtension::class)
 internal class ContentUploaderTest(
     @MockK private val uploadOperations: PageUploadOperations,
-    @MockK private val confluenceClient: ConfluenceClient
+    @MockK private val confluenceClient: ConfluenceClient,
+    @MockK(relaxed = true) private val tracker: UploadOperationTracker,
 ) {
 
     @BeforeEach
     internal fun setUp() {
-        coEvery { uploadOperations.updatePageLabels(any(), any()) } just Runs
-        coEvery { uploadOperations.updatePageAttachments(any(), any()) } just Runs
+        coEvery { uploadOperations.updatePageLabels(any(), any()) } returns LabelsUpdateResult.NotChanged
+        coEvery { uploadOperations.updatePageAttachments(any(), any()) } returns AttachmentsUpdateResult.NotChanged
     }
 
     @Test
@@ -56,9 +66,9 @@ internal class ContentUploaderTest(
         registry.forEach { (page, delayTime) ->
             coEvery { uploadOperations.createOrUpdatePageContent(page, "TEST", any()) } coAnswers {
                 delay(delayTime)
-                mockk {
+                PageOperationResult.Created(page, mockk {
                     every { id } returns "$delayTime"
-                }
+                })
             }
         }
 
@@ -76,7 +86,8 @@ internal class ContentUploaderTest(
         uploadOperations,
         confluenceClient,
         cleanup,
-        tenant
+        tenant,
+        tracker
     )
 
     @Test
@@ -89,7 +100,7 @@ internal class ContentUploaderTest(
         val slowPage = aPage("Slow page")
 
         val fastServerPage = ServerPage("fastId", "Fast page", "id", emptyList(), emptyList())
-        coEvery { uploadOperations.createOrUpdatePageContent(fastPage, "TEST", "id") } returns fastServerPage
+        coEvery { uploadOperations.createOrUpdatePageContent(fastPage, "TEST", "id") } returns PageOperationResult.NotModified(fastPage, fastServerPage)
 
         coEvery { uploadOperations.createOrUpdatePageContent(failedPage, any(), any()) } coAnswers {
             delay(100)
@@ -99,7 +110,7 @@ internal class ContentUploaderTest(
         val slowServerPage = ServerPage("slowId", "Slow page", "id", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(slowPage, "TEST", "id") } coAnswers {
             delay(20000)
-            slowServerPage
+            PageOperationResult.Created(slowPage, slowServerPage)
         }
 
         assertFailure {
@@ -124,7 +135,7 @@ internal class ContentUploaderTest(
         }
 
         val defaultServerPage = ServerPage("defaultId", "Default page", "id", emptyList(), emptyList())
-        coEvery { uploadOperations.createOrUpdatePageContent(defaultPage, "TEST", "id") } returns defaultServerPage
+        coEvery { uploadOperations.createOrUpdatePageContent(defaultPage, "TEST", "id") } returns PageOperationResult.Created(defaultPage, defaultServerPage)
 
         val parentIdServerPage = ServerPage("pIdPage", "Parent id", "123", emptyList(), emptyList())
         coEvery {
@@ -133,7 +144,7 @@ internal class ContentUploaderTest(
                 any(),
                 "123"
             )
-        } returns parentIdServerPage
+        } returns PageOperationResult.Created(pageWithParentId, parentIdServerPage)
 
         val parentTitleServerPage = ServerPage("tIdPage", "Parent title", "345", emptyList(), emptyList())
         coEvery {
@@ -142,7 +153,7 @@ internal class ContentUploaderTest(
                 "TEST",
                 "345"
             )
-        } returns parentTitleServerPage
+        } returns PageOperationResult.Created(pageWithParentTitle, parentTitleServerPage)
 
         coEvery { confluenceClient.getPage("TEST", "Custom") } returns mockk { every { id } returns "345" }
 
@@ -166,15 +177,15 @@ internal class ContentUploaderTest(
         val pages = inputPagesStructure()
         givenPagesCreated(pages)
         givenChildPagesFound(serverPagesStructure(), "root_id")
-        coEvery { uploadOperations.deletePageWithChildren(any()) } just Runs
+        coEvery { uploadOperations.deletePageWithChildren(any()) } returns listOf()
 
         runBlocking { contentUploader.uploadPages(pages, "TEST", "root_id") }
 
-        listOf("c", "d", "e", "a3", "a4", "a5", "a6", "b3", "b4", "a11", "a12", "b21").forEach {
-            coVerify { uploadOperations.deletePageWithChildren("id_$it") }
+        listOf("c", "d", "e", "a3", "a4", "a5", "a6", "b3", "b4", "a11", "a12", "b21").forEach { id ->
+            coVerify { uploadOperations.deletePageWithChildren(withArg { assertThat(it.id).isEqualTo("id_$id") }) }
         }
-        listOf("root_id", "a_root", "b_root", "a", "b", "a1", "a2", "b1", "b2").forEach {
-            coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("id_$it") }
+        listOf("root_id", "a_root", "b_root", "a", "b", "a1", "a2", "b1", "b2").forEach {id ->
+            coVerify(exactly = 0) { uploadOperations.deletePageWithChildren(withArg { assertThat(it.id).isEqualTo("id_$id") }) }
         }
 
     }
@@ -185,15 +196,15 @@ internal class ContentUploaderTest(
         val pages = inputPagesStructure()
         givenPagesCreated(pages)
         givenChildPagesFound(serverPagesStructure(), "root_id")
-        coEvery { uploadOperations.deletePageWithChildren(any()) } just Runs
+        coEvery { uploadOperations.deletePageWithChildren(any()) } returns listOf()
 
         runBlocking { contentUploader.uploadPages(pages, "TEST", "root_id") }
 
-        listOf("d", "a3", "a5", "b4", "a11", "b21").forEach {
-            coVerify { uploadOperations.deletePageWithChildren("id_$it") }
+        listOf("d", "a3", "a5", "b4", "a11", "b21").forEach {id ->
+            coVerify { uploadOperations.deletePageWithChildren(withArg { assertThat(it.id).isEqualTo("id_$id") }) }
         }
-        listOf("root_id", "a_root", "b_root", "a", "b", "e", "a1", "a2", "a4", "a6", "b1", "b2", "b3", "a12").forEach {
-            coVerify(exactly = 0) { uploadOperations.deletePageWithChildren("id_$it") }
+        listOf("root_id", "a_root", "b_root", "a", "b", "e", "a1", "a2", "a4", "a6", "b1", "b2", "b3", "a12").forEach { id ->
+            coVerify(exactly = 0) { uploadOperations.deletePageWithChildren(withArg { assertThat(it.id).isEqualTo("id_$id") }) }
         }
     }
 
@@ -328,6 +339,7 @@ internal class ContentUploaderTest(
                 every { title } returns titleValue
                 every { children } returns childValue
                 every { virtual } returns virtualValue
+                every { source } returns Path(titleValue)
                 if (parentId != null) {
                     every { content.header.attributes } returns mapOf("parentId" to parentId)
                 } else {
@@ -349,27 +361,41 @@ internal class ContentUploaderTest(
 
     private fun givenPagesCreated(pages: List<Page>) {
         for (page in pages) {
-            coEvery { uploadOperations.createOrUpdatePageContent(page, any(), any()) } returns mockk {
-                every { id } returns "id_${page.title}"
-                every { title } returns page.title
-            }
+            coEvery { uploadOperations.createOrUpdatePageContent(page, any(), any()) } returns PageOperationResult.Created(
+                page,
+                mockk {
+                    every { id } returns "id_${page.title}"
+                    every { title } returns page.title
+                }
+            )
             givenPagesCreated(page.children)
         }
     }
 
     private fun givenChildPagesFound(pages: List<ServerPageNode>, parentId: String) {
         coEvery { uploadOperations.findChildPages(parentId) } returns pages.map {
-            mockk {
-                every { id } returns it.id
-                every { title } returns it.title
-                every { pageProperty(HASH_PROPERTY) } returns (if (it.managed) mockk { every { value } returns "abc" } else null)
-                every { pageProperty(TENANT_PROPERTY) } returns (if (it.tenant != null) PageProperty(
-                    "",
-                    TENANT_PROPERTY,
-                    it.tenant,
-                    mockk()
-                ) else null)
+            val pageProperties = buildMap<String, PageProperty>{
+                if (it.managed) {
+                    put(HASH_PROPERTY, PageProperty("", HASH_PROPERTY, "abc", mockk()))
+                }
+                if (it.tenant != null) {
+                    put(TENANT_PROPERTY, PageProperty("", TENANT_PROPERTY, it.tenant, mockk()))
+                }
             }
+            ConfluencePage(
+                id = it.id,
+                title = it.title,
+                type = ContentType.page,
+                status = "",
+                metadata = PageMetadata(
+                    labels = null,
+                    properties = pageProperties
+                ),
+                body = null,
+                version = null,
+                children = null,
+                ancestors = null,
+            )
         }
         for (page in pages) {
             givenChildPagesFound(page.children, page.id)

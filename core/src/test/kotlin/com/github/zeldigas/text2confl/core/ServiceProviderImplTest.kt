@@ -21,6 +21,7 @@ import com.github.zeldigas.text2confl.core.upload.ChangeDetector
 import com.github.zeldigas.text2confl.core.upload.ContentUploader
 import com.github.zeldigas.text2confl.core.upload.DryRunClient
 import com.github.zeldigas.text2confl.core.upload.PageUploadOperationsImpl
+import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
 import io.ktor.http.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -36,7 +37,8 @@ internal class ServiceProviderImplTest {
 
     @Test
     internal fun `Content uploader creation`(
-        @MockK client: ConfluenceClient
+        @MockK client: ConfluenceClient,
+        @MockK uploadOperationTracker: UploadOperationTracker,
     ) {
         val result = provider.createUploader(
             client,
@@ -47,7 +49,8 @@ internal class ServiceProviderImplTest {
                 CodeBlockParams(),
                 MarkdownConfiguration(),
                 AsciidoctorConfiguration()
-            )
+            ),
+            uploadOperationTracker
         )
 
         assertThat(result).all {
@@ -60,6 +63,7 @@ internal class ServiceProviderImplTest {
                 prop(PageUploadOperationsImpl::uploadMessage).isEqualTo("test")
                 prop(PageUploadOperationsImpl::tenant).isEqualTo("test")
             }
+            prop(ContentUploader::tracker).isEqualTo(uploadOperationTracker)
         }
     }
 

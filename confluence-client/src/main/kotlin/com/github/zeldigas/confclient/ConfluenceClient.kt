@@ -42,6 +42,8 @@ interface ConfluenceClient {
 
     suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage
 
+    suspend fun renamePage(serverPage: ConfluencePage, newTitle: String, updateParameters: PageUpdateOptions) : ConfluencePage
+
     suspend fun changeParent(
         pageId: String,
         title: String,

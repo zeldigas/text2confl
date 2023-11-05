@@ -1,8 +1,10 @@
 package com.github.zeldigas.text2confl.cli
 
+import PrintingUploadOperationsTracker
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
@@ -13,6 +15,7 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.core.ServiceProvider
 import com.github.zeldigas.text2confl.core.config.*
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
+import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +69,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
 
     override fun run() = runBlocking {
         try {
+            configureRequestLoggingIfEnabled()
             tryUpload()
         } catch (ex: Exception) {
             tryHandleException(ex)
@@ -87,11 +91,17 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
-        val contentUploader = serviceProvider.createUploader(confluenceClient, uploadConfig, conversionConfig)
+        val contentUploader = serviceProvider.createUploader(confluenceClient, uploadConfig, conversionConfig, operationsTracker(clientConfig.server))
         withContext(Dispatchers.Default) {
             contentUploader.uploadPages(pages = result, uploadConfig.space, publishUnder)
         }
     }
+
+    private fun operationsTracker(server: Url): UploadOperationTracker = PrintingUploadOperationsTracker(
+        server = server,
+        printer = terminal::println,
+        prefix = if (dryRun) "(dryrun) " else ""
+    )
 
     private fun createUploadConfig(configuration: DirectoryConfig): UploadConfig {
         val orphanRemoval = if (docs.isFile) {

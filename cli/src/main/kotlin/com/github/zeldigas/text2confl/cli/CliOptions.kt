@@ -96,6 +96,12 @@ internal interface WithConfluenceServerOptions {
         requestTimeout = httpRequestTimeout
     )
     fun askForSecret(prompt: String, requireConfirmation: Boolean = true): String?
+
+    fun configureRequestLoggingIfEnabled() {
+        if (httpLogLevel != LogLevel.NONE) {
+            enableHttpLogging()
+        }
+    }
 }
 
 internal interface WithConversionOptions {
