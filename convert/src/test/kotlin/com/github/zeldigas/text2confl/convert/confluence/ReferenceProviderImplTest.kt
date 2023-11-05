@@ -70,6 +70,23 @@ internal class ReferenceProviderImplTest {
         assertThat(result).isNotNull().isEqualTo(Xref("Sub Title One", "test"))
     }
 
+    @CsvSource(
+        value = [
+            "mailto:john@example.org",
+            "http://example.org",
+            "https://example.org",
+            "https://example.org/docs/one.md",
+            "file://example.org/docs/one.md", //for now this one is filtered out as well
+            "ftp://example.org/docs/one.md"
+        ]
+    )
+    @ParameterizedTest
+    fun `Links of varios kinds are filtered out`(link:String) {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), link)
+
+        assertThat(result).isNull()
+    }
+
 
     @Test
     internal fun `Http resolution`() {

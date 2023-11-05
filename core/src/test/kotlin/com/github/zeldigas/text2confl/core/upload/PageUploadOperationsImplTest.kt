@@ -8,9 +8,9 @@ import assertk.assertions.isInstanceOf
 import com.github.zeldigas.confclient.*
 import com.github.zeldigas.confclient.model.*
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 import com.github.zeldigas.text2confl.convert.PageHeader
-import com.github.zeldigas.text2confl.core.upload.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -65,18 +65,27 @@ internal class PageUploadOperationsImplTest(
         }
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
 
+        val localPage = mockk<Page> {
+            every { title } returns "Page title"
+            every { content } returns mockk {
+                every { body } returns "body"
+                every { hash } returns "body-hash"
+            }
+            every { properties } returns emptyMap()
+        }
         val result = runBlocking {
-            uploadOperations("create-page", false, tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
-                every { title } returns "Page title"
-                every { content } returns mockk {
-                    every { body } returns "body"
-                    every { hash } returns "body-hash"
-                }
-                every { properties } returns emptyMap()
-            }, "TEST", "parentId")
+            uploadOperations(
+                "create-page",
+                false,
+                tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(localPage, "TEST", "parentId")
         }
 
-        assertThat(result).isEqualTo(ServerPage("new_id", "Page title", "parentId", emptyList(), emptyList()))
+        assertThat(result).isEqualTo(
+            PageOperationResult.Created(
+                localPage,
+                ServerPage("new_id", "Page title", "parentId", emptyList(), emptyList())
+            )
+        )
 
         coVerify {
             client.createPage(
@@ -131,31 +140,35 @@ internal class PageUploadOperationsImplTest(
             ))
             every { pageProperty("extra") } returns null
             every { children?.attachment } returns mockk()
+            every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
         }
 
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
+        val localPage = mockk<Page> {
+            every { title } returns "Page title"
+            every { content } returns mockk {
+                every { body } returns "body"
+                every { hash } returns "body-hash"
+            }
+            every { properties } returns mapOf("extra" to "value")
+        }
         val result = runBlocking {
             uploadOperations(
                 "update-page",
                 editorVersion = EditorVersion.V1,
-                tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(mockk {
-                every { title } returns "Page title"
-                every { content } returns mockk {
-                    every { body } returns "body"
-                    every { hash } returns "body-hash"
-                }
-                every { properties } returns mapOf("extra" to "value")
-            }, "TEST", "parentId")
+                tenant = tenant.ifEmpty { null }).createOrUpdatePageContent(localPage, "TEST", "parentId")
         }
 
         assertThat(result).isEqualTo(
-            ServerPage(
-                PAGE_ID, "Page title", "parentId",
-                listOf(serverLabel("one")),
-                listOf(serverAttachment("one", "HASH:123"))
+            PageOperationResult.ContentModified(
+                localPage, ServerPage(
+                    PAGE_ID, "Page title", "parentId",
+                    listOf(serverLabel("one")),
+                    listOf(serverAttachment("one", "HASH:123"))
+                ), parentChanged = false
             )
         )
 
@@ -240,7 +253,8 @@ internal class PageUploadOperationsImplTest(
             }, "TEST", "parentId")
         }
 
-        assertThat(result.id).isEqualTo(PAGE_ID)
+        assertThat(result).isInstanceOf<PageOperationResult.NotModified>()
+        assertThat(result.serverPage.id).isEqualTo(PAGE_ID)
         coVerify(exactly = 0) { client.updatePage(any(), any(), any()) }
         coVerify { client.setPageProperty(PAGE_ID, "extra", PagePropertyInput("updatedValue", PropertyVersion(4))) }
     }
@@ -270,32 +284,36 @@ internal class PageUploadOperationsImplTest(
             every { pageProperty("t2ctenant") } returns null
             every { pageProperty("extra") } returns null
             every { children?.attachment } returns mockk()
+            every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
         }
 
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
+        val localPage = mockk<Page> {
+            every { title } returns "Page title"
+            every { content } returns mockk {
+                every { body } returns "body"
+                every { hash } returns "body-hash"
+            }
+            every { properties } returns mapOf("extra" to "value")
+        }
         val result = runBlocking {
             uploadOperations(
                 "update-page",
                 editorVersion = EditorVersion.V1,
                 tenant = "value"
-            ).createOrUpdatePageContent(mockk {
-                every { title } returns "Page title"
-                every { content } returns mockk {
-                    every { body } returns "body"
-                    every { hash } returns "body-hash"
-                }
-                every { properties } returns mapOf("extra" to "value")
-            }, "TEST", "parentId")
+            ).createOrUpdatePageContent(localPage, "TEST", "parentId")
         }
 
         assertThat(result).isEqualTo(
-            ServerPage(
-                PAGE_ID, "Page title", "parentId",
-                listOf(serverLabel("one")),
-                listOf(serverAttachment("one", "HASH:123"))
+            PageOperationResult.ContentModified(
+                localPage, ServerPage(
+                    PAGE_ID, "Page title", "parentId",
+                    listOf(serverLabel("one")),
+                    listOf(serverAttachment("one", "HASH:123"))
+                )
             )
         )
 
@@ -357,7 +375,7 @@ internal class PageUploadOperationsImplTest(
         coEvery { client.addLabels(PAGE_ID, any()) } just Runs
         coEvery { client.deleteLabel(PAGE_ID, "three") } just Runs
 
-        runBlocking {
+        val result = runBlocking {
             operations.updatePageLabels(
                 serverPage(
                     labels = listOf(
@@ -372,6 +390,8 @@ internal class PageUploadOperationsImplTest(
             )
         }
 
+        assertThat(result).isEqualTo(LabelsUpdateResult.Updated(added = listOf("four", "five"), removed = listOf("three")))
+
         coVerify { client.addLabels(PAGE_ID, listOf("four", "five")) }
         coVerify { client.deleteLabel(PAGE_ID, "three") }
     }
@@ -382,7 +402,7 @@ internal class PageUploadOperationsImplTest(
 
         coEvery { client.addLabels(PAGE_ID, any()) } just Runs
 
-        runBlocking {
+        val result = runBlocking {
             operations.updatePageLabels(
                 serverPage(
                     labels = emptyList()
@@ -393,6 +413,8 @@ internal class PageUploadOperationsImplTest(
             )
         }
 
+        assertThat(result).isEqualTo(LabelsUpdateResult.Updated(added = listOf("one", "two", "four", "five"), removed = emptyList()))
+
         coVerify { client.addLabels(PAGE_ID, listOf("one", "two", "four", "five")) }
     }
 
@@ -400,12 +422,14 @@ internal class PageUploadOperationsImplTest(
     internal fun `No update of page labels when nothing to change`() {
         val operations = uploadOperations()
 
-        runBlocking {
+        val result = runBlocking {
             operations.updatePageLabels(
                 serverPage(labels = listOf(serverLabel("one"), serverLabel(null, "two"))),
                 PageContent(pageHeader(mapOf("labels" to listOf("one", "two"))), "body", emptyList())
             )
         }
+
+        assertThat(result).isEqualTo(LabelsUpdateResult.NotChanged)
 
         coVerify(exactly = 0) { client.addLabels(any(), any()) }
         coVerify(exactly = 0) { client.deleteLabel(any(), any()) }
@@ -428,28 +452,38 @@ internal class PageUploadOperationsImplTest(
         coEvery { client.updateAttachment(any(), any(), any()) } returns mockk()
         coEvery { client.addAttachments(any(), any()) } returns mockk()
 
-        runBlocking {
+        val localAttachments = listOf(
+            pageAttachment("one", "aaa", "test.txt"),
+            pageAttachment("two", "1234", "test.jpg"),
+            pageAttachment("three", "456", "test.docx"),
+            pageAttachment("five", "ccc", "test.png"),
+            pageAttachment("six", "ddd", "test.unknown")
+        )
+        val serverAttachments = listOf(
+            serverAttachment("one", "unrelated"),
+            serverAttachment("two", "a HASH:123 b"),
+            serverAttachment("three", "HASH:456"),
+            serverAttachment("four", "HASH:456"),
+        )
+        val result = runBlocking {
             operations.updatePageAttachments(
                 serverPage = ServerPage(
                     PAGE_ID, "Title", "parent_id",
-                    labels = emptyList(), attachments = listOf(
-                        serverAttachment("one", "unrelated"),
-                        serverAttachment("two", "a HASH:123 b"),
-                        serverAttachment("three", "HASH:456"),
-                        serverAttachment("four", "HASH:456"),
-                    )
+                    labels = emptyList(), attachments = serverAttachments
                 ),
                 content = PageContent(
-                    pageHeader(), "body", listOf(
-                        pageAttachment("one", "aaa", "test.txt"),
-                        pageAttachment("two", "1234", "test.jpg"),
-                        pageAttachment("three", "456", "test.docx"),
-                        pageAttachment("five", "ccc", "test.png"),
-                        pageAttachment("six", "ddd", "test.unknown")
-                    )
+                    pageHeader(), "body", localAttachments
                 )
             )
         }
+
+        assertThat(result).isEqualTo(AttachmentsUpdateResult.Updated(
+            added = listOf(localAttachments[3], localAttachments[4]),
+            modified = listOf(localAttachments[0], localAttachments[1]),
+            removed = listOf(
+                serverAttachments[3]
+            )
+        ))
 
         coVerifyAll {
             client.deleteAttachment("id_four")
@@ -538,17 +572,21 @@ internal class PageUploadOperationsImplTest(
 
     @Test
     internal fun `Search delete page with children`() {
-        val expectedResult = listOf<ConfluencePage>(mockk {
+        val childSubpages = listOf<ConfluencePage>(mockk {
             every { id } returns "567"
         })
-
-        coEvery { client.findChildPages("123") } returns expectedResult
+        val rootPage = mockk<ConfluencePage> {
+            every { id } returns "123"
+        }
+        coEvery { client.findChildPages("123") } returns childSubpages
         coEvery { client.findChildPages("567") } returns emptyList()
         coEvery { client.deletePage(any()) } just Runs
 
-        runBlocking {
-            uploadOperations().deletePageWithChildren("123")
+        val result = runBlocking {
+            uploadOperations().deletePageWithChildren(rootPage)
         }
+
+        assertThat(result).isEqualTo(listOf(rootPage) + childSubpages)
 
         coVerifyOrder {
             client.findChildPages("123")
@@ -572,6 +610,7 @@ internal class PageUploadOperationsImplTest(
             every { children } returns null
             every { metadata } returns null
             every { pageProperty(TENANT_PROPERTY) } returns null
+
         }
 
         coEvery {
@@ -654,7 +693,7 @@ internal class PageUploadOperationsImplTest(
 
         assertFailure {
             runBlocking { uploadOperations().checkPageAndUpdateParentIfRequired("page title", "TEST", "parentId") }
-        }.isInstanceOf(IllegalStateException::class)
-            .hasMessage("Page not found in TEST: page title")
+        }.isInstanceOf(PageNotFoundException::class)
+            .isEqualTo(PageNotFoundException(space = "TEST", title = "page title"))
     }
 }

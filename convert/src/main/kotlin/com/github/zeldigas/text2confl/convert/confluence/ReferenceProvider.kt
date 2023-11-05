@@ -4,7 +4,6 @@ import com.github.zeldigas.text2confl.convert.PageHeader
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.io.path.relativeTo
 

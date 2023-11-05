@@ -166,6 +166,20 @@ class ConfluenceClientImpl(
             )
         )
 
+    override suspend fun renamePage(
+        serverPage: ConfluencePage,
+        newTitle: String,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage =
+        performPageUpdate(
+            serverPage.id, mapOf(
+                "type" to "page",
+                "title" to newTitle,
+                "version" to versionNode(serverPage.version!!.number + 1, updateParameters)
+            )
+        )
+
+
     private suspend fun performPageUpdate(pageId: String, body: Map<String, Any?>): ConfluencePage {
         val response = httpClient.put("$apiBase/content/$pageId") {
             contentType(ContentType.Application.Json)
@@ -375,6 +389,6 @@ fun confluenceClient(
         }
 
     }
-
-    return ConfluenceClientImpl(config.server, "${config.server}/rest/api", client)
+    val baseUrl = URLBuilder(config.server).appendPathSegments("rest", "api").build().toString()
+    return ConfluenceClientImpl(config.server, baseUrl, client)
 }

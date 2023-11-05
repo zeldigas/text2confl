@@ -2,25 +2,25 @@ package com.github.zeldigas.text2confl.core.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 
-
 private val logger = KotlinLogging.logger { }
 
-private val mapper = ObjectMapper(YAMLFactory())
-    .registerKotlinModule()
-    .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
+private val mapper = JsonMapper.builder(YAMLFactory())
+    .addModule(kotlinModule())
+    .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
     .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
     .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .build()
 
 
 private val CONFIG_FILE_NAME = "text2confl.yml"
