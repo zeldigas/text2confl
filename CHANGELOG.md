@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- dependency updates:
+  - using image with Java 21 to distribute text2confl
+  - plantuml to 1.2023.13
+  - other deps (kotlin, ktor, jackson)
+
 ## 0.15.0 - 2023-11-06
 
 ### Added
