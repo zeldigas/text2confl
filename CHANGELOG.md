@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Fixed
+
+- Detection of duplicate titles in scanned files (#131)
+
 ### Changed
 
 - dependency updates:

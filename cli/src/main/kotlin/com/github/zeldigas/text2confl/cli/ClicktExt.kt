@@ -8,8 +8,8 @@ import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.nullableFlag
 import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import com.github.ajalt.mordant.terminal.StringPrompt
+import com.github.zeldigas.text2confl.convert.ConversionException
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
-import com.github.zeldigas.text2confl.convert.FileDoesNotExistException
 import com.github.zeldigas.text2confl.core.ContentValidationFailedException
 import com.github.zeldigas.text2confl.core.upload.ContentUploadException
 import com.github.zeldigas.text2confl.core.upload.InvalidTenantException
@@ -33,7 +33,7 @@ fun RawOption.optionalFlag(vararg secondaryNames: String): NullableOption<Boolea
 fun tryHandleException(ex: Exception): Nothing {
     when (ex) {
         is InvalidTenantException -> error(ex.message!!)
-        is FileDoesNotExistException -> error(ex.message!!)
+        is ConversionException -> error(ex.message!!)
         is ContentUploadException -> error(ex.message!!)
         is ConversionFailedException -> {
             val reason = buildString {

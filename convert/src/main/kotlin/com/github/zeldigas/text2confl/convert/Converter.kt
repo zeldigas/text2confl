@@ -9,10 +9,7 @@ import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.extension
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.*
 
 interface Converter {
 
@@ -22,7 +19,10 @@ interface Converter {
 
 }
 
-class FileDoesNotExistException(val file: Path) : RuntimeException("File does not exist: $file")
+open class ConversionException(message: String) : RuntimeException(message)
+
+class FileDoesNotExistException(val file: Path) : ConversionException("File does not exist: $file")
+class DuplicateTitlesException(val duplicates: List<String>, message: String) : ConversionException(message)
 
 const val DEFAULT_AUTOGEN_BANNER =
     "Edit <a href=\"__doc-root____file__\">source file</a> instead of changing page in Confluence. " +
@@ -77,10 +77,30 @@ internal class UniversalConverter(
     override fun convertDir(dir: Path): List<Page> {
         val documents = scanDocuments(dir)
 
+        checkForDuplicates(dir, documents)
+
         return convertFilesInDirectory(
             dir,
             ConvertingContext(ReferenceProvider.fromDocuments(dir, documents), conversionParameters, space)
         )
+    }
+
+    private fun checkForDuplicates(base: Path, documents: Map<Path, PageHeader>) {
+        val duplicates = documents.entries
+            .groupBy { (_, v) -> v.title }
+            .entries.asSequence()
+            .filter { (_, v) -> v.size > 1 }
+            .map { (title, v) -> title to v.map { it.key.relativeTo(base) }.sorted() }
+            .map { (title, paths) -> "\"$title\": ${paths.joinToString(", ")}" }
+            .toList()
+        if (duplicates.isNotEmpty()) {
+            throw DuplicateTitlesException(
+                duplicates,
+                "Files with duplicate titles detected. Confluence has flat structure and every published page must have unique title.\n${
+                    duplicates.joinToString("\n")
+                }"
+            )
+        }
     }
 
     private fun scanDocuments(dir: Path) =
