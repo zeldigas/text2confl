@@ -18,7 +18,7 @@ is easier for building various automation scenarios and CI/CD pipelines for your
 
 ## Initial setup
 
-Assuming that you plan to store many documents uploaded to confluence and version them in some VCS (e.g. git) it makes
+Assuming that you plan to store many documents uploaded to Confluence and version them in some VCS (e.g. git) it makes
 sense to spend some time and configure the place for our docs and make it in the way so that subsequent uploads will
 require minimal amount of parameters or not parameters at all. If you want just to quickly upload something, say just
 one document you can check [adhoc upload section](#adhoc-upload) below.
@@ -36,14 +36,14 @@ documentation root dir.
 For the start put the following contents:
 
 ```yaml
-server: <address of confluence server>
+server: <address of Confluence server>
 space: <space for docs>
 docs-location: <root url of your documents>
 ```
 
 Where:
 
-1. `address of confluence server` - is the address of server/datacenter confluence server
+1. `address of Confluence server` - is the address of server/datacenter Confluence server
    or `https://<YOURNAME>.atlassian.net/wiki` for Cloud version
 2. `space for docs` - is space key where you will publish your pages (the string that you can find in url e.g. with
    url https://text2conf.atlassian.net/wiki/spaces/DOCS/pages/2818199/Markdown `DOCS` will be a space we are looking
@@ -148,10 +148,10 @@ text2confl upload --docs .
 ```
 
 Assuming that you are currently in directory with docs. You can also enable ***dry** mode for upload by passing `--dry`
-option to command. In dry-run mode no confluence content will be modified, instead all changes will be logged
+option to command. In dry-run mode no Confluence content will be modified, instead all changes will be logged
 with `(dryrun)` marker.
 
-If you want to see how your documents will be converted in confluence *storage format* without uploading them (or if you
+If you want to see how your documents will be converted in Confluence *storage format* without uploading them (or if you
 just want conversion part because for some reason you plan to upload them yourself) you can use `convert` command to
 produce documents as files on machine:
 

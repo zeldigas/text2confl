@@ -7,9 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.15.1 - 2024-01-02
+
 ### Fixed
 
 - Detection of duplicate titles in scanned files (#131)
+- User macro in asciidoc files with email format (#135)
 
 ### Changed
 

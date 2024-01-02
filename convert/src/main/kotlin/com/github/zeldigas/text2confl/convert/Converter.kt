@@ -7,9 +7,10 @@ import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.exists
+import kotlin.io.path.extension
+import kotlin.io.path.relativeTo
 
 interface Converter {
 

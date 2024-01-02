@@ -8,7 +8,7 @@ labels: supported-format,markdown
 
 # Document structure
 
-Every Markdown document corresponds to separate confluence page.
+Every Markdown document corresponds to separate Confluence page.
 
 Document can contain *YAML Front Matter* block at the very beginning - section in YAML format where various metadata can
 be defined like custom title for page, page labels and properties. You can read about supported attributes
@@ -39,7 +39,7 @@ On subpages, you will find details about various formatting aspects:
 3. [](./markdown/links-images.md) - using links (cross links and external), attaching images and other files
 4. [](./markdown/code.md) -
 5. [](./markdown/diagrams.md) - support for diagrmas defined as text
-6. [](./markdown/confluence-specific.md) - details about confluence specific goodies, such as macros support (table of
+6. [](./markdown/confluence-specific.md) - details about Confluence specific goodies, such as macros support (table of
    contents, status text, others)
 
 How to read subpages:

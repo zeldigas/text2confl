@@ -4,7 +4,7 @@ labels: supported-format,markdown
 
 # Markdown - diagrams
 
-**text2confl** supports a number of text diagram formats to be embedded in confluence page as code blocks:
+**text2confl** supports a number of text diagram formats to be embedded in Confluence page as code blocks:
 
 * [PlantUML](https://plantuml.com/en/)
 * [Mermaid](https://mermaid.js.org/)

@@ -133,7 +133,7 @@ Should know about
 //tag::adm-important[]
 [IMPORTANT]
 ====
-Also mapped to warning in confluence
+Also mapped to warning in Confluence
 ====
 //end::adm-important[]
 

@@ -71,9 +71,9 @@ Some examples:
 |===
 
 [#raw-confluence-formatting]
-== Adding raw confluence formatting
+== Adding raw Confluence formatting
 
-For complex cases, you can always generate raw html/confluence markup via {adocs_pass}[passthrough]
+For complex cases, you can always generate raw html/Confluence markup via {adocs_pass}[passthrough]
 
 So these tags
 
