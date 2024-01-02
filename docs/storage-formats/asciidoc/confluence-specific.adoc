@@ -17,7 +17,8 @@ NOTE: Only limited colors are supported, and you need to properly specify one of
 
 == Mentioning user macro (Confluence Server only)
 
-You can mention user using `+user:username[]+` macro.
+You can mention user using `+user:username[]+` macro, where `username` is your login in Confluence.
+If you use email to log in, use it in macro: for example login \jsmith@example.org should be used as `+user:jsmith@example.org+[]`.
 
 Unfortunately due to absence of human-readable usernames in Cloud edition this will work only on Server/Datacenter where human-readable usernames are still supported.
 
@@ -28,7 +29,7 @@ If you still need to mention user in Cloud, consider using <<raw-confluence-form
 To put a date that is rendered in fancy way in Confluence, standard html tag is used - `+<time datetime="YYYY-MM-DD"/>+`, e.g. +++<time datetime="2022-02-15" />+++.
 You need to use link:{adocs_pass}[passthrough] to properly insert it, for example "triple plus" in paragraph.
 
-If you need this date to be rendered not just on Confluence page, consider using more standard format of this tag by putting text inside time block: +++<time datetime="2022-02-15">Feb 15th</time>+++
+TIP: If you need this date to be rendered by regular Asciidoc processors in addition to Confluence page, consider using more standard format of this tag by putting text inside time block: +++<time datetime="2022-02-15">Feb 15th</time>+++
 
 == Confluence macros with simple options
 

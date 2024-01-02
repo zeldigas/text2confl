@@ -8,6 +8,10 @@ class UserMacro < Asciidoctor::Extensions::InlineMacroProcessor
 
   # @param target [String]
   def process parent, target, attrs
-    create_inline_pass parent, %(<ac:link><ri:user ri:username="#{target}" /></ac:link>)
+    if Asciidoctor::InlineEmailRx.match target
+      create_inline_pass parent, %(<ac:link><ri:user ri:username="\\#{target}" /></ac:link>)
+    else
+      create_inline_pass parent, %(<ac:link><ri:user ri:username="#{target}" /></ac:link>)
+    end
   end
 end
