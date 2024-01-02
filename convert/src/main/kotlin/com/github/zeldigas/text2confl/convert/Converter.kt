@@ -51,14 +51,15 @@ fun universalConverter(
         space, parameters, mapOf(
             "md" to MarkdownFileConverter(parameters.markdownConfiguration),
             "adoc" to AsciidocFileConverter(parameters.asciidoctorConfiguration)
-        )
+        ), FileNameBasedDetector
     )
 }
 
 internal class UniversalConverter(
     val space: String,
     val conversionParameters: ConversionParameters,
-    val converters: Map<String, FileConverter>
+    val converters: Map<String, FileConverter>,
+    val pagesDetector: PagesDetector,
 ) : Converter {
 
     override fun convertFile(file: Path): Page {
@@ -103,34 +104,29 @@ internal class UniversalConverter(
         }
     }
 
-    private fun scanDocuments(dir: Path) =
-        dir.toFile().walk().filter { it.supported() }
-            .map {
-                it.toPath() to converters.getValue(it.extension.lowercase())
-                    .readHeader(it.toPath(), HeaderReadingContext(conversionParameters.titleConverter))
-            }
-            .toMap()
-
-    private fun convertFilesInDirectory(dir: Path, context: ConvertingContext): List<Page> {
-        return dir.listDirectoryEntries().filter { it.supported() }.sorted()
-            .map { file ->
-                val content = convertSupported(file, context)
-                val subdirectory = file.parent.resolve(file.nameWithoutExtension)
-                val children = if (Files.exists(subdirectory) && Files.isDirectory(subdirectory)) {
-                    convertFilesInDirectory(subdirectory, context)
-                } else {
-                    emptyList()
-                }
-                Page(content, file, children)
-            }
+    private fun scanDocuments(dir: Path): Map<Path, PageHeader> {
+        val headers = mutableMapOf<Path, PageHeader>()
+        val context = HeaderReadingContext(conversionParameters.titleConverter)
+        pagesDetector.scanDirectoryRecursively(dir,
+            filter = { it.supported() },
+            converter = { file ->
+                headers[file] = converterFor(file).readHeader(file, context)
+            },
+            assembler = { _, _, _ -> }
+        )
+        return headers
     }
 
-    private fun convertSupported(file: Path, context: ConvertingContext): PageContent {
-        return converterFor(file).convert(file, context)
-    }
+    private fun convertFilesInDirectory(dir: Path, context: ConvertingContext): List<Page> =
+        pagesDetector.scanDirectoryRecursively(dir,
+            filter = { it.supported() },
+            converter = { file -> converterFor(file).convert(file, context) },
+            assembler = { file, content, children -> Page(content, file, children) }
+        )
 
     private fun converterFor(file: Path) =
-        converters[file.extension] ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
+        converters[file.extension.lowercase()]
+            ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
 
     private fun File.supported() = isFile && !name.startsWith("_") && extension.lowercase() in converters
     private fun Path.supported() = toFile().supported()

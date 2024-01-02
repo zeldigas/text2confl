@@ -41,7 +41,7 @@ internal class UniversalConverterTest(
     private val converter = UniversalConverter(
         "TEST", conversionParameters, mapOf(
             "t" to fileConverter
-        )
+        ), FileNameBasedDetector
     )
 
     @Test
@@ -85,7 +85,7 @@ internal class UniversalConverterTest(
     }
 
     @Test
-    internal fun `Directory conversion`(@TempDir dir: Path) {
+    internal fun `Detection of documents with duplicate titles`(@TempDir dir: Path) {
         createFileStructure(
             dir,
             "one.t",
@@ -96,6 +96,7 @@ internal class UniversalConverterTest(
             "three/bar.md",
             "four.md",
             "five.adoc",
+            "another.t",
             "another/hello.t",
             "another/foo.t",
         )
@@ -113,7 +114,7 @@ internal class UniversalConverterTest(
     }
 
     @Test
-    internal fun `Detection of documents with duplicate titles`(@TempDir dir: Path) {
+    internal fun `Directory conversion`(@TempDir dir: Path) {
         createFileStructure(
             dir,
             "one.t",

@@ -2,7 +2,7 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import assertk.Assert
 import assertk.assertThat
-import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
+import com.github.zeldigas.text2confl.convert.confluence.LanguageMappers
 import org.junit.jupiter.api.Test
 
 internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
@@ -45,7 +45,7 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
             ```ruby
             puts "Hello"           
             ```
-        """.trimIndent(), languageMapper = LanguageMapper.nop()
+        """.trimIndent(), languageMapper = LanguageMappers.NOP
         )
 
         assertThat(resultWithNullLang).isEqualToConfluenceFormat(

@@ -15,7 +15,7 @@ internal class LanguageMapperImplTest {
 
     @Test
     internal fun `Server mapper`() {
-        val mapper = LanguageMapper.forServer("test", CUSTOMIZATION)
+        val mapper = LanguageMappers.forServer("test", CUSTOMIZATION)
         assertThat(mapper).isInstanceOf(LanguageMapperImpl::class).all {
             transform { it.defaultLanguage }.isEqualTo("test")
             prop(LanguageMapperImpl::mapping).isEqualTo(SERVER_REMAPPING + CUSTOMIZATION)
@@ -25,7 +25,7 @@ internal class LanguageMapperImplTest {
 
     @Test
     internal fun `Cloud mapper`() {
-        val mapper = LanguageMapper.forCloud("test1", CUSTOMIZATION)
+        val mapper = LanguageMappers.forCloud("test1", CUSTOMIZATION)
         assertThat(mapper).isInstanceOf(LanguageMapperImpl::class).all {
             transform { it.defaultLanguage }.isEqualTo("test1")
             prop(LanguageMapperImpl::mapping).isEqualTo(CLOUD_REMAPPING + CUSTOMIZATION)
