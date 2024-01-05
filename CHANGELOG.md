@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Fixed
+
+- \[AsciiDoc] `xrefstyle` attribute is taken into account for references (#136)
+
 ## 0.15.1 - 2024-01-02
 
 ### Fixed

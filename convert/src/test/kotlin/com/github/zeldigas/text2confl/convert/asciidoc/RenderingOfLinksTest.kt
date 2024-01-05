@@ -4,6 +4,7 @@ import assertk.assertThat
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.PageHeader
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 
@@ -165,6 +166,42 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             <p><a href="mailto:example@example.org">Send email</a></p>
         """.trimIndent(),
         )
+    }
+
+    @Test
+    @Tag("GH-136")
+    fun `Xrefstyle is used for xref rendering`() {
+        val result = toHtml(
+            """
+            = Document
+            :sectnums:
+            :xrefstyle: full
+            
+            == test
+
+            As it was described in <<another>>
+
+            == another
+            
+            section
+        """.trimIndent(),
+            referenceProvider = AsciidocReferenceProvider(
+                Path("./test.adoc"),
+                ReferenceProvider.fromDocuments(
+                    Path("."), emptyMap()
+                )
+            )
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <h1>1. test<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">test</ac:parameter></ac:structured-macro></h1>
+            <p>As it was described in <ac:link ac:anchor="another"><ac:link-body>Section 2, &#8220;another&#8221;</ac:link-body></ac:link></p>
+            <h1>2. another<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">another</ac:parameter></ac:structured-macro></h1>
+            <p>section</p>
+        """.trimIndent(),
+        )
+
     }
 }
 
