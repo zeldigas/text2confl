@@ -22,6 +22,7 @@ internal class ReferenceProviderImplTest {
             doc("docs/sub1/one.md", "Sub1 Title One"),
             doc("docs/sub/sub/a.md", "SubSub A"),
             doc("docs/sub/sub1/a.md", "SubSub1 A"),
+            doc("docs/a spaced/a.md", "Spaced dir file"),
         )
     )
 
@@ -38,6 +39,7 @@ internal class ReferenceProviderImplTest {
             "docs/one.md,sub/one.md,Sub Title One",
             "docs/one.md,sub/sub/../one.md,Sub Title One",
             "docs/one.md,sub/sub/a.md,SubSub A",
+            "docs/one.md,a%20spaced/a.md,Spaced dir file",
             "docs/sub/two.md,one.md,Sub Title One",
             "docs/sub/two.md,./one.md,Sub Title One",
             "docs/sub/two.md,sub/one.md,",

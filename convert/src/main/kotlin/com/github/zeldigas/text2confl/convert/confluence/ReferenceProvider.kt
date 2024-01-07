@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.convert.confluence
 
 import com.github.zeldigas.text2confl.convert.PageHeader
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.net.URLDecoder
 import java.nio.file.Path
 import kotlin.io.path.relativeTo
 
@@ -52,9 +53,10 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
             log.debug { "$refTo detected as link in $source" }
             return null
         }
-        if (refTo.startsWith("#")) return Anchor(refTo.substring(1))
+        val normalizedRef = URLDecoder.decode(refTo, "UTF-8")
+        if (normalizedRef.startsWith("#")) return Anchor(normalizedRef.substring(1))
 
-        val parts = refTo.split("#", limit = 2)
+        val parts = normalizedRef.split("#", limit = 2)
         val ref = parts[0]
         val anchor = parts.getOrNull(1)
 

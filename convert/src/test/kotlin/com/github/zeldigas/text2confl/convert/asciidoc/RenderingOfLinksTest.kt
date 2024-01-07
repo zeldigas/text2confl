@@ -26,7 +26,9 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             
             link:test/another.md#first-header[Link with anchor to another type via link macro]
             
-            xref:test/another.md#first-header[Link [.line-through]#with# **anchor** to `another type`]                       
+            xref:test/another.md#first-header[Link [.line-through]#with# **anchor** to `another type`]
+                                   
+            xref:a%20spaced/file.md#first-header[Link to spaced file]
         """.trimIndent(),
             referenceProvider = AsciidocReferenceProvider(
                 Path("./test.adoc"),
@@ -34,7 +36,8 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
                     Path("."), mapOf(
                         Path("src.adoc") to PageHeader("Test", emptyMap()),
                         Path("another.adoc") to PageHeader("Another adoc", emptyMap()),
-                        Path("test/another.md") to PageHeader("Markdown", emptyMap())
+                        Path("test/another.md") to PageHeader("Markdown", emptyMap()),
+                        Path("a spaced/file.md") to PageHeader("File in spaced dir", emptyMap())
                     )
                 )
             )
@@ -49,6 +52,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor to another type]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor to another type via link macro]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
+            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="File in spaced dir" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link to spaced file]]></ac:plain-text-link-body></ac:link></p>
         """.trimIndent(),
         )
     }
