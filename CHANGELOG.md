@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.16.0 - 2024-01-07
+
 ### Added
 
 - \[export-to-md] now resolves user references for Confluence Server (#51)
@@ -14,7 +16,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - handling of links with spaces for both Markdown and AsciiDoc. Such links need to be specified urlencoded (
-  e.g. `dir%20with%20space/my-doc.md` for file in `dir with space` directory) and now file is properly resolved.
+  e.g. `dir%20with%20space/my-doc.md` for file in `dir with space` directory) and now file is properly resolved. (#83)
 - \[AsciiDoc] `xrefstyle` attribute is taken into account for references (#136)
 
 ## 0.15.1 - 2024-01-02
