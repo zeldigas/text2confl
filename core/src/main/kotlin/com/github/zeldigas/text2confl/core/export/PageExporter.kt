@@ -37,7 +37,11 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
 
         val attachmentDir = assetsLocation?.let { destinationDir / it } ?: destinationDir
         val space = page.space?.key!!
-        val converter = HtmlToMarkdownConverter(ConfluenceLinkResolverImpl(client, space), assetsLocation ?: "")
+        val converter = HtmlToMarkdownConverter(
+            ConfluenceLinkResolverImpl(client, space),
+            assetsLocation ?: "",
+            ConfluenceUserResolverImpl(client)
+        )
 
         val attachments = page.children?.attachment?.let { client.fetchAllAttachments(it) } ?: emptyList()
         exportPageContent(converter, page, attachments, destinationDir, Path.of(assetsLocation ?: ""))

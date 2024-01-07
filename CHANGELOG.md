@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- \[export-to-md] now resolves user references for Confluence Server (#51)
+
 ### Fixed
 
 - \[AsciiDoc] `xrefstyle` attribute is taken into account for references (#136)

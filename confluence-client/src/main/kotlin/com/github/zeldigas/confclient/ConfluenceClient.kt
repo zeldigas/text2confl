@@ -1,9 +1,6 @@
 package com.github.zeldigas.confclient
 
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.PageAttachments
-import com.github.zeldigas.confclient.model.Space
+import com.github.zeldigas.confclient.model.*
 import io.ktor.http.*
 import java.nio.file.Path
 
@@ -75,6 +72,8 @@ interface ConfluenceClient {
     suspend fun deleteAttachment(attachmentId: String)
 
     suspend fun downloadAttachment(attachment: Attachment, destination: Path)
+
+    suspend fun getUserByKey(userKey: String): User
 
 }
 

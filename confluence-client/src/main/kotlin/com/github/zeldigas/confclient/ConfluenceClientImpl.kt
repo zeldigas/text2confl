@@ -3,10 +3,7 @@ package com.github.zeldigas.confclient
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.PageAttachments
-import com.github.zeldigas.confclient.model.Space
+import com.github.zeldigas.confclient.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -19,6 +16,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.ContentType
 import io.ktor.serialization.*
 import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
@@ -329,20 +327,33 @@ class ConfluenceClientImpl(
                 append(HttpHeaders.ContentDisposition, "filename=${attachment.name}")
             })
     }
+
+    override suspend fun getUserByKey(userKey: String): User {
+        return httpClient.get("$apiBase/user") {
+            parameter("key", userKey)
+        }.readApiResponse<User>(expectSuccess = true)
+    }
 }
 
-private suspend inline fun <reified T> HttpResponse.readApiResponse(): T {
+private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T {
+    if (expectSuccess && !status.isSuccess()) {
+        parseAndThrowConfluencError()
+    }
     val contentType = contentType()
     if (contentType != null && ContentType.Application.Json.match(contentType)){
         try {
             return body<T>()
         } catch (e: JsonConvertException) {
-            val content = body<Map<String, Any?>>()
-            throw ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
+            parseAndThrowConfluencError()
         }
     } else {
         throw UnknownConfluenceErrorException(status.value, bodyAsText())
     }
+}
+
+private suspend fun HttpResponse.parseAndThrowConfluencError(): Nothing {
+    val content = body<Map<String, Any?>>()
+    throw ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
 }
 
 private data class PageSearchResult(
