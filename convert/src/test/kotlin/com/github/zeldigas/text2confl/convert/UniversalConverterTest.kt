@@ -17,8 +17,10 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.verify
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -39,7 +41,7 @@ internal class UniversalConverterTest(
     private val converter = UniversalConverter(
         "TEST", conversionParameters, mapOf(
             "t" to fileConverter
-        )
+        ), FileNameBasedDetector
     )
 
     @Test
@@ -80,6 +82,35 @@ internal class UniversalConverterTest(
 
         assertFailure { converter.convertFile(src) }
             .isInstanceOf(FileDoesNotExistException::class).hasMessage("File does not exist: $src")
+    }
+
+    @Test
+    internal fun `Detection of documents with duplicate titles`(@TempDir dir: Path) {
+        createFileStructure(
+            dir,
+            "one.t",
+            "_two.t",
+            "three.t",
+            "three/foo.t",
+            "three/one.t",
+            "three/bar.md",
+            "four.md",
+            "five.adoc",
+            "another.t",
+            "another/hello.t",
+            "another/foo.t",
+        )
+        every { fileConverter.readHeader(any(), any()) } answers {
+            val file = it.invocation.args[0] as Path
+            PageHeader(file.fileName.toString(), emptyMap())
+        }
+        val exception = assertThrows<DuplicateTitlesException> { converter.convertDir(dir) }
+        assertThat(exception).all {
+            prop(DuplicateTitlesException::duplicates).hasSize(2)
+            messageContains("Files with duplicate titles detected. Confluence has flat structure and every published page must have unique title")
+            messageContains(""""one.t": one.t, three${File.separator}one.t""")
+            messageContains(""""foo.t": another${File.separator}foo.t, three${File.separator}foo.t""")
+        }
     }
 
     @Test

@@ -1,22 +1,25 @@
-import com.github.ajalt.mordant.rendering.TextColors.*
+package com.github.zeldigas.text2confl.core.upload
+
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Page
-import com.github.zeldigas.text2confl.core.upload.*
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import java.util.concurrent.atomic.AtomicLong
 
-class PrintingUploadOperationsTracker(
-    val server: Url,
-    val prefix: String = "",
-    val printer: (msg: String) -> Unit = ::println
+class LoggingUploadOperationsTracker(
+    val server: Url
 ) : UploadOperationTracker {
 
     companion object {
         const val UILINK = "tinyui"
+        private val logger = KotlinLogging.logger { }
     }
 
     private val updatedCount = AtomicLong(0L)
 
+    private fun print(msg: String) {
+        logger.info { msg }
+    }
 
     override fun pageUpdated(
         pageResult: PageOperationResult,
@@ -32,17 +35,29 @@ class PrintingUploadOperationsTracker(
 
         when (pageResult) {
             is PageOperationResult.Created -> {
-                printWithPrefix("${green("Created:")} ${pageInfo(pageResult.serverPage, pageResult.local)}")
+                print("Created: ${pageInfo(pageResult.serverPage, pageResult.local)}")
             }
 
             is PageOperationResult.ContentModified,
-            is PageOperationResult.LocationModified-> {
-                describeModifiedPage("Updated:", pageResult.serverPage, pageResult.local, labelUpdate, attachmentsUpdated)
+            is PageOperationResult.LocationModified -> {
+                describeModifiedPage(
+                    "Updated:",
+                    pageResult.serverPage,
+                    pageResult.local,
+                    labelUpdate,
+                    attachmentsUpdated
+                )
             }
 
             is PageOperationResult.NotModified -> {
                 if (labelUpdate != LabelsUpdateResult.NotChanged || attachmentsUpdated != AttachmentsUpdateResult.NotChanged) {
-                    describeModifiedPage("Updated labels/attachments:", pageResult.serverPage, pageResult.local, labelUpdate, attachmentsUpdated)
+                    describeModifiedPage(
+                        "Updated labels/attachments:",
+                        pageResult.serverPage,
+                        pageResult.local,
+                        labelUpdate,
+                        attachmentsUpdated
+                    )
                 }
             }
         }
@@ -56,8 +71,8 @@ class PrintingUploadOperationsTracker(
         attachmentsUpdated: AttachmentsUpdateResult
     ) {
         val labelsAttachmentsInfo = labelsAttachmentsInfo(labelUpdate, attachmentsUpdated)
-        printWithPrefix(
-            "${cyan(operation)} ${
+        print(
+            "$operation ${
                 pageInfo(
                     serverPage,
                     local
@@ -68,7 +83,7 @@ class PrintingUploadOperationsTracker(
 
     private fun pageInfo(serverPage: ServerPage, page: Page): String = buildString {
         append('"')
-        append(blue(serverPage.title))
+        append(serverPage.title)
         append('"')
         append(" from - ")
         append(page.source.normalize())
@@ -81,12 +96,15 @@ class PrintingUploadOperationsTracker(
         }
     }
 
-    private fun labelsAttachmentsInfo(labelsUpdateResult: LabelsUpdateResult, attachmentsUpdated: AttachmentsUpdateResult): String {
-        val labelsInfo =  buildString {
+    private fun labelsAttachmentsInfo(
+        labelsUpdateResult: LabelsUpdateResult,
+        attachmentsUpdated: AttachmentsUpdateResult
+    ): String {
+        val labelsInfo = buildString {
             if (labelsUpdateResult is LabelsUpdateResult.Updated) {
                 append("Labels ")
                 if (labelsUpdateResult.added.isNotEmpty()) {
-                    append(green("+"))
+                    append("+")
                     append("[")
                     append(labelsUpdateResult.added.joinToString(", "))
                     append("]")
@@ -95,7 +113,7 @@ class PrintingUploadOperationsTracker(
                     }
                 }
                 if (labelsUpdateResult.removed.isNotEmpty()) {
-                    append(red("-"))
+                    append("-")
                     append("[")
                     append(labelsUpdateResult.removed.joinToString(", "))
                     append("]")
@@ -105,9 +123,9 @@ class PrintingUploadOperationsTracker(
         val attachmentsInfo = buildString {
             if (attachmentsUpdated is AttachmentsUpdateResult.Updated) {
                 append("attachments: ")
-                append(green("added ${attachmentsUpdated.added.size}, "))
-                append(cyan("modified ${attachmentsUpdated.modified.size}, "))
-                append(red("removed ${attachmentsUpdated.removed.size}"))
+                append("added ${attachmentsUpdated.added.size}, ")
+                append(("modified ${attachmentsUpdated.modified.size}, "))
+                append("removed ${attachmentsUpdated.removed.size}")
             }
         }
         val labelsAttachmentsDetails = listOf(labelsInfo, attachmentsInfo).filter { it.isNotBlank() }
@@ -121,16 +139,15 @@ class PrintingUploadOperationsTracker(
     override fun uploadsCompleted() {
         val updated = updatedCount.get()
         if (updated == 0L) {
-            printer(green("All pages are up to date"))
+            print("All pages are up to date")
         }
     }
 
     override fun pagesDeleted(root: ConfluencePage, allDeletedPages: List<ConfluencePage>) {
         if (allDeletedPages.isEmpty()) return
 
-        printWithPrefix(buildString {
-            append(red("Deleted:"))
-            append(" ")
+        print(buildString {
+            append("Deleted: ")
             append(deletedPage(allDeletedPages[0]))
             if (allDeletedPages.size > 1) {
                 append(" with subpages:")
@@ -140,7 +157,7 @@ class PrintingUploadOperationsTracker(
         val tail = allDeletedPages.drop(1)
         if (tail.isNotEmpty()) {
             tail.forEach { page ->
-                printWithPrefix("${red("  Deleted:")} ${deletedPage(page)}")
+                print("  Deleted:  ${deletedPage(page)}")
             }
         }
     }
@@ -148,7 +165,7 @@ class PrintingUploadOperationsTracker(
     private fun deletedPage(confluencePage: ConfluencePage): String {
         return buildString {
             append("\"")
-            append(blue(confluencePage.title))
+            append(confluencePage.title)
             append("\"")
             append(" (")
             append(confluencePage.id)
@@ -156,7 +173,4 @@ class PrintingUploadOperationsTracker(
         }
     }
 
-    private fun printWithPrefix(msg: String) {
-        printer("$prefix$msg")
-    }
 }

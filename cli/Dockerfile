@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21.0.1_12-jre as build
+FROM eclipse-temurin:21.0.2_13-jre as build
 
 ARG VERSION=""
 
@@ -6,11 +6,11 @@ ADD target/text2confl${VERSION}-dist/text2confl /opt/app
 
 RUN find /opt/app -exec touch -t 200001010101 {} \;
 
-FROM eclipse-temurin:21.0.1_12-jre
+FROM eclipse-temurin:21.0.2_13-jre
 
 LABEL org.opencontainers.image.source="https://github.com/zeldigas/text2confl"
 
-ARG PLANTUML="1.2023.12"
+ARG PLANTUML="1.2023.13"
 
 ADD https://github.com/plantuml/plantuml/releases/download/v$PLANTUML/plantuml.jar /usr/local/bin/plantuml.jar
 ADD scripts/plantuml /usr/local/bin/plantuml

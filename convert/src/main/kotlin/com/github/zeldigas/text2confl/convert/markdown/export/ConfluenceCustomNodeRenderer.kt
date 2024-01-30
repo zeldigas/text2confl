@@ -12,6 +12,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
 
     private val myHtmlConverterOptions = HtmlConverterOptions(options)
     private val linkResolver = HtmlToMarkdownConverter.LINK_RESOLVER.get(options)
+    private val userResolver = HtmlToMarkdownConverter.USER_RESOLVER.get(options)
 
     private val basicRenderer =
         HtmlConverterCoreNodeRenderer(options).htmlNodeRendererHandlers.map { it.tagName to it }.toMap()
@@ -187,6 +188,8 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
             processLinkToAttachment(element, context, writer)
         } else if (element.hasAttr("ac:anchor")) {
             processThisPageAnchor(element, context, writer)
+        } else if (element.getElementsByTag("ri:user").isNotEmpty()) {
+            processUserReference(element.getElementsByTag("ri:user").first()!!, context, writer)
         }
     }
 
@@ -212,6 +215,20 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         val attachmentName = element.getElementsByTag("ri:attachment").first()!!.attr("ri:filename")
         writer.append(attachmentName.toString())
         writer.append("]")
+    }
+
+    private fun processUserReference(element: Element, context: HtmlNodeConverterContext, writer: HtmlMarkdownWriter) {
+        val key = element.attr("ri:userkey") ?: return
+        val username = userResolver.resolve(key) ?: return
+
+        writer.append('@')
+        if ('@' in username) {
+            writer.append('"')
+            writer.append(username)
+            writer.append('"')
+        } else {
+            writer.append(username)
+        }
     }
 
 

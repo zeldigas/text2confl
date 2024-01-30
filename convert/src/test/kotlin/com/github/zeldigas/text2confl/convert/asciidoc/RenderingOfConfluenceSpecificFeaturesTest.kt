@@ -36,6 +36,8 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
             Hello user:user-name[].
             
             Hello user:user-name[]-.
+            
+            Hello user:user@example.com[]-.
                         
             Hello @..            
         """.trimIndent()
@@ -48,6 +50,7 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
             <p>Hello <ac:link><ri:user ri:username="__user__" /></ac:link>.</p>
             <p>Hello <ac:link><ri:user ri:username="user-name" /></ac:link>.</p>
             <p>Hello <ac:link><ri:user ri:username="user-name" /></ac:link>-.</p>
+            <p>Hello <ac:link><ri:user ri:username="user@example.com" /></ac:link>-.</p>
             <p>Hello @..</p>
         """.trimIndent()
         )

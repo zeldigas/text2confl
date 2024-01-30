@@ -13,7 +13,7 @@ List of supported attributes:
 | `collapse`    | Flag that control if code block is collapsed on page by default. Allowed values - `true` or `false`                               | :white_check_mark:️ | :warning:️ Only if editor v1 is forcibly set :warning:️ |
 | `linenumbers` | Flag that controls if line numbers are displayed. Allowed values - `true` or `false`                                              | :white_check_mark:️ | :warning:️ Only if editor v1 is forcibly set :warning:️ |
 | `firstline`   | Sets starting line number for codeblocks                                                                                          | :white_check_mark:️ | :warning:️ Only if editor v1 is forcibly set :warning:️ |
-| `theme`       | Sets theme for code block. Valid values - in [confluence docs](https://confluence.atlassian.com/doc/code-block-macro-139390.html) | :white_check_mark:️ | :warning:️ Only if editor v1 is forcibly set :warning:️ |
+| `theme`       | Sets theme for code block. Valid values - in [Confluence docs](https://confluence.atlassian.com/doc/code-block-macro-139390.html) | :white_check_mark:️ | :warning:️ Only if editor v1 is forcibly set :warning:️ |
 
 ## Language tags
 

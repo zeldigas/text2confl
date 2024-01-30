@@ -15,7 +15,7 @@ Document title (name) can be defined in the following ways (from top priority to
 3. name of file
 
 Recommended approach is to use first level heading as it provides also good-looking content outside of
-Confluence. Usage of `title` attribute also fine, especially if you prefer to hide as much confluence-specific things
+Confluence. Usage of `title` attribute also fine, especially if you prefer to hide as much Confluence-specific things
 from content as possible.
 
 ### Example 1 - title will be taken from *yaml front matter*
@@ -98,7 +98,7 @@ Document content
 
 ## Page properties
 
-Page properties is set of special key-value pairs in confluence. Confluence and plugins use them to configure page
+Page properties is set of special key-value pairs in Confluence. Confluence and plugins use them to configure page
 behavior.
 
 Properties can be of the following types: string, boolean, list of strings, object (json)

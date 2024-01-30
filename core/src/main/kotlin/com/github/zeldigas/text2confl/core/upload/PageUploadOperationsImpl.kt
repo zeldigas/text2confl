@@ -70,13 +70,13 @@ internal class PageUploadOperationsImpl(
         val result = if (pageContentChangeDetector.strategy(confluencePage, page.content)) {
             updatePageContent(confluencePage, parentPageId, page, serverPageDetails)
         } else if (confluencePage.parent?.id != parentPageId) {
-            changePageParent(confluencePage, parentPageId, page, serverPageDetails)
+            changePageParent(confluencePage, parentPageId, page, serverPageDetails, confluencePageToUpdate.title)
         } else if (renamed) {
             PageOperationResult.LocationModified(
                 page,
                 serverPageDetails,
                 parentPageId,
-                confluencePage.title
+                confluencePageToUpdate.title
             )
         } else {
             logger.info { "Page is up to date, nothing to do: ${confluencePage.id}, ${confluencePage.title}" }
@@ -85,6 +85,22 @@ internal class PageUploadOperationsImpl(
         setPageProperties(page, confluencePage)
 
         return result
+    }
+
+    private suspend fun adjustTitleIfRequired(
+        serverPage: ConfluencePage,
+        page: Page
+    ): Pair<Boolean, ConfluencePage> {
+        return if (page.title != serverPage.title) {
+            logger.info { "Changing page title: ${serverPage.title} -> ${page.title} " }
+            val updated = client.renamePage(serverPage, page.title, PageUpdateOptions(notifyWatchers, uploadMessage))
+            true to serverPage.copy(
+                title = updated.title,
+                version = updated.version,
+            )
+        } else {
+            false to serverPage
+        }
     }
 
     private suspend fun updatePageContent(
@@ -111,35 +127,20 @@ internal class PageUploadOperationsImpl(
         )
     }
 
-    private suspend fun PageUploadOperationsImpl.changePageParent(
+    private suspend fun changePageParent(
         confluencePage: ConfluencePage,
         parentPageId: String,
         page: Page,
-        serverPageDetails: ServerPage
+        serverPageDetails: ServerPage,
+        originalTitle: String
     ): PageOperationResult.LocationModified {
         changeParent(confluencePage, parentPageId)
         return PageOperationResult.LocationModified(
             page,
             serverPageDetails,
             confluencePage.parent?.id ?: "",
-            confluencePage.title
+            originalTitle
         )
-    }
-
-    private suspend fun adjustTitleIfRequired(
-        serverPage: ConfluencePage,
-        page: Page
-    ): Pair<Boolean, ConfluencePage> {
-        return if (page.title != serverPage.title) {
-            logger.info { "Changing page title: ${serverPage.title} -> ${page.title} " }
-            val updated = client.renamePage(serverPage, page.title, PageUpdateOptions(notifyWatchers, uploadMessage))
-            true to serverPage.copy(
-                title = updated.title,
-                version = updated.version,
-            )
-        } else {
-            false to serverPage
-        }
     }
 
     private fun checkTenantBeforeUpdate(serverPage: ConfluencePage) {

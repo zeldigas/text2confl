@@ -3,10 +3,7 @@ package com.github.zeldigas.confclient
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.PageAttachments
-import com.github.zeldigas.confclient.model.Space
+import com.github.zeldigas.confclient.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -20,6 +17,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.ContentType
 import io.ktor.serialization.*
 import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
@@ -47,7 +45,7 @@ class ConfluenceClientImpl(
     override suspend fun describeSpace(key: String, expansions: List<String>): Space {
         return httpClient.get("$apiBase/space/$key") {
             addExpansions(expansions)
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun getPage(
@@ -67,7 +65,7 @@ class ConfluenceClientImpl(
     ): ConfluencePage {
         return httpClient.get("$apiBase/content/$id") {
             addExpansions(expansions)
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun getPageOrNull(
@@ -106,7 +104,7 @@ class ConfluenceClientImpl(
             parameter("title", title)
             status?.let { parameter("status", it.toString()) }
             addExpansions(expansions)
-        }.body()
+        }.readApiResponse()
         return result.results
     }
 
@@ -186,8 +184,8 @@ class ConfluenceClientImpl(
             setBody(body)
         }
         if (response.status.isSuccess()) {
-            return try {
-                response.body()
+            try {
+                return response.readApiResponse()
             } catch (e: ConnectTimeoutException) {
                 throw PageNotUpdatedException(pageId, response.status.value, response.bodyAsText())
             }
@@ -232,7 +230,7 @@ class ConfluenceClientImpl(
         return httpClient.put("$apiBase/content/$pageId/property/$name") {
             contentType(ContentType.Application.Json)
             setBody(value)
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
@@ -245,7 +243,7 @@ class ConfluenceClientImpl(
                 addExpansions(expansions ?: emptyList())
                 parameter("start", start)
                 parameter("limit", limit)
-            }.body<PageSearchResult>()
+            }.readApiResponse<PageSearchResult>()
             result.addAll(page.results)
             limit = page.limit
             start += limit
@@ -276,7 +274,7 @@ class ConfluenceClientImpl(
             while ("next" in current.links) {
                 val nextPage = makeLink(confluenceBaseUrl, current.links.getValue("next"))
                 logger.debug { "Loading next attachments page: $nextPage" }
-                current = httpClient.get(nextPage).body()
+                current = httpClient.get(nextPage).readApiResponse()
                 if (current.results.isEmpty()) {
                     break
                 } else {
@@ -297,7 +295,7 @@ class ConfluenceClientImpl(
         }) {
             header("X-Atlassian-Token", "nocheck")
             header("Accept", "application/json")
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun updateAttachment(
@@ -312,11 +310,11 @@ class ConfluenceClientImpl(
             }) {
             header("X-Atlassian-Token", "nocheck")
             header("Accept", "application/json")
-        }.body()
+        }.readApiResponse()
     }
 
     override suspend fun deleteAttachment(attachmentId: String) {
-        httpClient.delete("$apiBase/content/$attachmentId").body<String>()
+        httpClient.delete("$apiBase/content/$attachmentId").readApiResponse<String>()
     }
 
     override suspend fun downloadAttachment(attachment: Attachment, destination: Path) {
@@ -338,6 +336,33 @@ class ConfluenceClientImpl(
                 append(HttpHeaders.ContentDisposition, "filename=${attachment.name}")
             })
     }
+
+    override suspend fun getUserByKey(userKey: String): User {
+        return httpClient.get("$apiBase/user") {
+            parameter("key", userKey)
+        }.readApiResponse<User>(expectSuccess = true)
+    }
+}
+
+private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T {
+    if (expectSuccess && !status.isSuccess()) {
+        parseAndThrowConfluencError()
+    }
+    val contentType = contentType()
+    if (contentType != null && ContentType.Application.Json.match(contentType)){
+        try {
+            return body<T>()
+        } catch (e: JsonConvertException) {
+            parseAndThrowConfluencError()
+        }
+    } else {
+        throw UnknownConfluenceErrorException(status.value, bodyAsText())
+    }
+}
+
+private suspend fun HttpResponse.parseAndThrowConfluencError(): Nothing {
+    val content = body<Map<String, Any?>>()
+    throw ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
 }
 
 private data class PageSearchResult(

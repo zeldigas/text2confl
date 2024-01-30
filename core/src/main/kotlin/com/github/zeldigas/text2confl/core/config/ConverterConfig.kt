@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.core.config
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
+import com.github.zeldigas.text2confl.convert.confluence.LanguageMappers
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import io.ktor.http.*
 import java.nio.file.Path
@@ -20,8 +21,8 @@ data class ConverterConfig(
 ) {
     val languageMapper: LanguageMapper
         get() = when (editorVersion) {
-            EditorVersion.V1 -> LanguageMapper.forServer(codeBlockParams.defaultLanguage, codeBlockParams.extraMapping)
-            EditorVersion.V2 -> LanguageMapper.forCloud(codeBlockParams.defaultLanguage, codeBlockParams.extraMapping)
+            EditorVersion.V1 -> LanguageMappers.forServer(codeBlockParams.defaultLanguage, codeBlockParams.extraMapping)
+            EditorVersion.V2 -> LanguageMappers.forCloud(codeBlockParams.defaultLanguage, codeBlockParams.extraMapping)
         }
 
     val titleConverter: (Path, String) -> String

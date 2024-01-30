@@ -1,32 +1,32 @@
 package com.github.zeldigas.text2confl.convert.confluence
 
+object LanguageMappers {
+    val NOP: LanguageMapper = object : LanguageMapper {
+        override fun mapToConfluenceLanguage(language: String): String? = null
+        override val supportedLanguages: Set<String>
+            get() = emptySet()
+    }
+
+    fun forServer(defaultLanguage: String? = null, extraMapping: Map<String, String> = emptyMap()): LanguageMapper =
+        LanguageMapperImpl(
+            CONFLUENCE_SERVER_LANGUAGES,
+            mapping = SERVER_REMAPPING + extraMapping,
+            defaultLanguage = defaultLanguage
+        )
+
+    fun forCloud(defaultLanguage: String? = null, extraMapping: Map<String, String> = emptyMap()): LanguageMapper =
+        LanguageMapperImpl(
+            CONFLUENCE_CLOUD_LANGUAGES,
+            mapping = CLOUD_REMAPPING + extraMapping,
+            defaultLanguage = defaultLanguage
+        )
+}
+
 interface LanguageMapper {
 
     fun mapToConfluenceLanguage(language: String): String?
 
     val supportedLanguages: Set<String>
-
-    companion object {
-        fun nop(): LanguageMapper = object : LanguageMapper {
-            override fun mapToConfluenceLanguage(language: String): String? = null
-            override val supportedLanguages: Set<String>
-                get() = emptySet()
-        }
-
-        fun forServer(defaultLanguage: String? = null, extraMapping: Map<String, String> = emptyMap()): LanguageMapper =
-            LanguageMapperImpl(
-                CONFLUENCE_SERVER_LANGUAGES,
-                mapping = SERVER_REMAPPING + extraMapping,
-                defaultLanguage = defaultLanguage
-            )
-
-        fun forCloud(defaultLanguage: String? = null, extraMapping: Map<String, String> = emptyMap()): LanguageMapper =
-            LanguageMapperImpl(
-                CONFLUENCE_CLOUD_LANGUAGES,
-                mapping = CLOUD_REMAPPING + extraMapping,
-                defaultLanguage = defaultLanguage
-            )
-    }
 
 }
 

@@ -8,12 +8,10 @@ import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.extension
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.relativeTo
 
 interface Converter {
 
@@ -23,7 +21,10 @@ interface Converter {
 
 }
 
-class FileDoesNotExistException(val file: Path) : RuntimeException("File does not exist: $file")
+open class ConversionException(message: String) : RuntimeException(message)
+
+class FileDoesNotExistException(val file: Path) : ConversionException("File does not exist: $file")
+class DuplicateTitlesException(val duplicates: List<String>, message: String) : ConversionException(message)
 
 const val DEFAULT_AUTOGEN_BANNER =
     "Edit <a href=\"__doc-root____file__\">source file</a> instead of changing page in Confluence. " +
@@ -52,14 +53,15 @@ fun universalConverter(
         space, parameters, mapOf(
             "md" to MarkdownFileConverter(parameters.markdownConfiguration),
             "adoc" to AsciidocFileConverter(parameters.asciidoctorConfiguration)
-        )
+        ), FileNameBasedDetector
     )
 }
 
 internal class UniversalConverter(
     val space: String,
     val conversionParameters: ConversionParameters,
-    val converters: Map<String, FileConverter>
+    val converters: Map<String, FileConverter>,
+    val pagesDetector: PagesDetector,
 ) : Converter {
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -82,41 +84,54 @@ internal class UniversalConverter(
         val documents = scanDocuments(dir)
 
         logger.info { "Found " + documents.size + " documents in " + dir }
-
+        checkForDuplicates(dir, documents)
         return convertFilesInDirectory(
             dir,
             ConvertingContext(ReferenceProvider.fromDocuments(dir, documents), conversionParameters, space)
         )
     }
 
-    private fun scanDocuments(dir: Path) =
-        dir.toFile().walk().filter { it.supported() }
-            .map {
-                it.toPath() to converters.getValue(it.extension.lowercase())
-                    .readHeader(it.toPath(), HeaderReadingContext(conversionParameters.titleConverter))
-            }
-            .toMap()
-
-    private fun convertFilesInDirectory(dir: Path, context: ConvertingContext): List<Page> {
-        return dir.listDirectoryEntries().filter { it.supported() }.sorted()
-            .map { file ->
-                val content = convertSupported(file, context)
-                val subdirectory = file.parent.resolve(file.nameWithoutExtension)
-                val children = if (Files.exists(subdirectory) && Files.isDirectory(subdirectory)) {
-                    convertFilesInDirectory(subdirectory, context)
-                } else {
-                    emptyList()
-                }
-                Page(content, file, children)
-            }
+    private fun checkForDuplicates(base: Path, documents: Map<Path, PageHeader>) {
+        val duplicates = documents.entries
+            .groupBy { (_, v) -> v.title }
+            .entries.asSequence()
+            .filter { (_, v) -> v.size > 1 }
+            .map { (title, v) -> title to v.map { it.key.relativeTo(base) }.sorted() }
+            .map { (title, paths) -> "\"$title\": ${paths.joinToString(", ")}" }
+            .toList()
+        if (duplicates.isNotEmpty()) {
+            throw DuplicateTitlesException(
+                duplicates,
+                "Files with duplicate titles detected. Confluence has flat structure and every published page must have unique title.\n${
+                    duplicates.joinToString("\n")
+                }"
+            )
+        }
     }
 
-    private fun convertSupported(file: Path, context: ConvertingContext): PageContent {
-        return converterFor(file).convert(file, context)
+    private fun scanDocuments(dir: Path): Map<Path, PageHeader> {
+        val headers = mutableMapOf<Path, PageHeader>()
+        val context = HeaderReadingContext(conversionParameters.titleConverter)
+        pagesDetector.scanDirectoryRecursively(dir,
+            filter = { it.supported() },
+            converter = { file ->
+                headers[file] = converterFor(file).readHeader(file, context)
+            },
+            assembler = { _, _, _ -> }
+        )
+        return headers
     }
+
+    private fun convertFilesInDirectory(dir: Path, context: ConvertingContext): List<Page> =
+        pagesDetector.scanDirectoryRecursively(dir,
+            filter = { it.supported() },
+            converter = { file -> converterFor(file).convert(file, context) },
+            assembler = { file, content, children -> Page(content, file, children) }
+        )
 
     private fun converterFor(file: Path) =
-        converters[file.extension] ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
+        converters[file.extension.lowercase()]
+            ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
 
     private fun File.supported() = isFile && !name.startsWith("_") && extension.lowercase() in converters
     private fun Path.supported() = toFile().supported()

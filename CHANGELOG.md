@@ -7,12 +7,42 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.16.0 - 2024-01-07
+
 ### Added
 
-- now in `upload` and `export-to-md` commands you can enable logging of http requests/responses and configure request
+- \[export-to-md] now resolves user references for Confluence Server (#51)
+
+### Fixed
+
+- handling of links with spaces for both Markdown and AsciiDoc. Such links need to be specified urlencoded (
+  e.g. `dir%20with%20space/my-doc.md` for file in `dir with space` directory) and now file is properly resolved. (#83)
+- \[AsciiDoc] `xrefstyle` attribute is taken into account for references (#136)
+
+## 0.15.1 - 2024-01-02
+
+### Fixed
+
+- Detection of duplicate titles in scanned files (#131)
+- User macro in asciidoc files with email format (#135)
+
+### Changed
+
+- dependency updates:
+  - using image with Java 21 to distribute text2confl
+  - plantuml to 1.2023.13
+  - other deps (kotlin, ktor, jackson)
+
+## 0.15.0 - 2023-11-06
+
+### Added
+
+- in `upload` and `export-to-md` commands you can enable logging of http requests/responses and configure request
   timeout
-- now configuration file can be named as `text2confl.yml` or `text2confl.yaml` in addition to dot-prefixed
+- configuration file can be named as `text2confl.yml` or `text2confl.yaml` in addition to dot-prefixed
   names (`.text2confl.yml`, `.text2confl.yaml`).
+- `-v` option can be passed to enable verbose logging. Repeat up to three times to get more details in logs.
+- `upload` command now print well-formatted summary of uploaded pages
 
 ### Changed
 
@@ -22,8 +52,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Non-local links detection (may cause crash on Windows)
-- \[export-to-md] now always uses `/` as path separator for attachments
+- Non-local links detection (may cause crash on Windows, #116, #96)
+- `export-to-md` now always uses `/` as path separator for attachments
+- Difference in page names causes page to be renamed first. This stabilize upload operation (#25) and also fixes
+  inconsistent cleanup of pages that were renamed.
 
 ## 0.14.0 - 2023-09-20
 

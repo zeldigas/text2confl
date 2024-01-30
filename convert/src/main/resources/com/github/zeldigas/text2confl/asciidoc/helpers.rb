@@ -177,7 +177,7 @@ module Slim::Helpers
   def xref_text empty_fallback
     if attributes[:refid] == text
       ref = document.catalog[:refs][attributes['refid'] || target]
-      str = (ref ? ref.xreftext : empty_fallback || text)
+      str = (ref ? ref.xreftext(attr 'xrefstyle', nil, true) : empty_fallback || text)
     else
       str = text
     end
@@ -268,7 +268,7 @@ module Slim::Helpers
 
   # @param text [String]
   def link_content text
-    if text.include? '<'
+    if text.include?('<') || text.include?('&#')
       %(<ac:link-body>#{text}</ac:link-body>)
     else
       %(<ac:plain-text-link-body><![CDATA[#{text}]]></ac:plain-text-link-body>)

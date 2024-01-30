@@ -25,6 +25,8 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             
             [Link ~~with~~ **anchor** to `another type`][ref2]
             
+            [Link to spaced file](a%20spaced/file.md#first-header)
+            
             [ref1]: another.md#test
             [ref2]: test/another.adoc#first-header
         """.trimIndent(),
@@ -32,7 +34,8 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
                 Path("."), mapOf(
                     Path("src.md") to PageHeader("Test", emptyMap()),
                     Path("another.md") to PageHeader("Another md", emptyMap()),
-                    Path("test/another.adoc") to PageHeader("Asciidoc", emptyMap())
+                    Path("test/another.adoc") to PageHeader("Asciidoc", emptyMap()),
+                    Path("a spaced/file.md") to PageHeader("File in spaced dir", emptyMap())
                 )
             )
         )
@@ -45,6 +48,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Asciidoc" ri:space-key="TEST" /><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
             <p><ac:link ac:anchor="test"><ri:page ri:content-title="Another md" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Asciidoc" ri:space-key="TEST" /><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
+            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="File in spaced dir" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link to spaced file]]></ac:plain-text-link-body></ac:link></p>
         """.trimIndent(),
         )
     }

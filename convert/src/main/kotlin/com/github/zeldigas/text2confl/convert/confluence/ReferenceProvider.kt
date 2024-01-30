@@ -1,8 +1,9 @@
 package com.github.zeldigas.text2confl.convert.confluence
 
 import com.github.zeldigas.text2confl.convert.PageHeader
-import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.InvalidPathException
+import io.github.oshai.kotlinlogging.KotlinLogging
+import java.net.URLDecoder
 import java.nio.file.Path
 import java.util.regex.Pattern
 import kotlin.io.path.relativeTo
@@ -62,9 +63,11 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
         if (refTo.startsWith(MAILTO_DETECTOR)) return null
         if (refTo.startsWith(LOCALHOST_DETECTOR)) return null
         if (isValid(refTo)) return null
-        if (refTo.startsWith("#")) return Anchor(refTo.substring(1))
 
-        val parts = refTo.split("#", limit = 2)
+        val normalizedRef = URLDecoder.decode(refTo, "UTF-8")
+        if (normalizedRef.startsWith("#")) return Anchor(normalizedRef.substring(1))
+
+        val parts = normalizedRef.split("#", limit = 2)
         val ref = parts[0]
         val anchor = parts.getOrNull(1)
 

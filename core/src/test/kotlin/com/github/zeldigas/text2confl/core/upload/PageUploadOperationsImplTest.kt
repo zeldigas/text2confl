@@ -62,6 +62,7 @@ internal class PageUploadOperationsImplTest(
             every { pageProperty(any()) } returns null
             every { metadata } returns null
             every { children } returns null
+            every { links } returns emptyMap()
         }
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
 
@@ -112,6 +113,27 @@ internal class PageUploadOperationsImplTest(
     @ValueSource(strings = ["", "value"])
     @ParameterizedTest
     internal fun `Update of existing page`(tenant: String) {
+        val serverPage = ConfluencePage(
+            id = PAGE_ID,
+            type = ContentType.page,
+            status = "",
+            title = "Page Title",
+            metadata = PageMetadata(
+                labels = PageLabels(listOf(Label("", "one", "one", "one")), 1),
+                properties = buildMap {
+                    put("editor", PageProperty("123", "editor", "v1", PropertyVersion(2)))
+                    put("contenthash", PageProperty("124", "contenthash", "abc", PropertyVersion(3)))
+                    if (tenant.isNotEmpty()) {
+                        put("t2ctenant", PageProperty("125", "t2ctenant", tenant, PropertyVersion(1)))
+                    }
+                }
+            ),
+            body = null,
+            version = PageVersionInfo(42, false, null),
+            children = PageChildren(mockk()),
+            ancestors = listOf(mockk { every { id } returns "parentId" }),
+            space = null
+        )
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", expansions = setOf(
@@ -125,24 +147,12 @@ internal class PageUploadOperationsImplTest(
                     "ancestors"
                 )
             )
-        } returns mockk {
-            every { id } returns PAGE_ID
-            every { title } returns "Page title"
-            every { version?.number } returns 42
-            every { metadata?.labels?.results } returns listOf(serverLabel("one"))
-            every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
-            every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
-            every { pageProperty("t2ctenant") } returns (if (tenant.isEmpty()) null else PageProperty(
-                "124",
-                "contenthash",
-                tenant,
-                PropertyVersion(3)
-            ))
-            every { pageProperty("extra") } returns null
-            every { children?.attachment } returns mockk()
-            every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
-        }
+        } returns serverPage
 
+        coEvery { client.renamePage(any(), "Page title", any()) } returns mockk {
+            every { version?.number } returns 43
+            every { title } returns "Page title"
+        }
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
@@ -175,7 +185,7 @@ internal class PageUploadOperationsImplTest(
         coVerify {
             client.updatePage(
                 PAGE_ID,
-                PageContentInput("parentId", "Page title", "body", null, 43),
+                PageContentInput("parentId", "Page title", "body", null, 44),
                 PageUpdateOptions(true, "update-page")
             )
         }
@@ -238,6 +248,7 @@ internal class PageUploadOperationsImplTest(
 
                 else -> {}
             }
+            every { links } returns emptyMap()
         }
         coEvery { client.fetchAllAttachments(any()) } returns emptyList()
         coEvery { client.setPageProperty(PAGE_ID, "extra", any()) } just Runs
@@ -285,6 +296,7 @@ internal class PageUploadOperationsImplTest(
             every { pageProperty("extra") } returns null
             every { children?.attachment } returns mockk()
             every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
+            every { links } returns emptyMap()
         }
 
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
@@ -319,6 +331,75 @@ internal class PageUploadOperationsImplTest(
 
         coVerify {
             client.setPageProperty(PAGE_ID, TENANT_PROPERTY, PagePropertyInput.newProperty("value"))
+        }
+    }
+
+    @ValueSource(strings = ["parentId", "anotherParent"])
+    @ParameterizedTest
+    fun `Only location change`(targetParent: String) {
+        val serverPage = ConfluencePage(
+            id = PAGE_ID,
+            type = ContentType.page,
+            status = "",
+            title = "Page Title",
+            metadata = PageMetadata(
+                labels = PageLabels(emptyList(), 0),
+                properties = buildMap {
+                    put("editor", PageProperty("123", "editor", "v1", PropertyVersion(2)))
+                    put("contenthash", PageProperty("124", "contenthash", "body-hash", PropertyVersion(3)))
+                }
+            ),
+            body = null,
+            version = PageVersionInfo(42, false, null),
+            children = PageChildren(mockk()),
+            ancestors = listOf(mockk { every { id } returns "parentId" }),
+            space = null
+        )
+        coEvery {
+            client.getPageOrNull("TEST", "Page title", expansions = any())
+        } returns serverPage
+
+        val parentChanged = serverPage.ancestors?.get(0)?.id != targetParent
+
+        coEvery { client.renamePage(any(), "Page title", any()) } returns mockk {
+            every { version?.number } returns 43
+            every { title } returns "Page title"
+        }
+        if (parentChanged) {
+            coEvery { client.changeParent(any(), any(), 44, targetParent, any())} returns mockk()
+        }
+        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
+
+        val localPage = mockk<Page> {
+            every { title } returns "Page title"
+            every { content } returns mockk {
+                every { body } returns "body"
+                every { hash } returns "body-hash"
+            }
+            every { properties } returns mapOf("extra" to "value")
+        }
+        val result = runBlocking {
+            uploadOperations(
+                "update-page",
+                editorVersion = EditorVersion.V1,
+            ).createOrUpdatePageContent(localPage, "TEST", targetParent)
+        }
+
+        assertThat(result).isEqualTo(
+            PageOperationResult.LocationModified(
+                localPage, ServerPage(
+                    PAGE_ID, "Page title", targetParent,
+                    listOf(),
+                    listOf(serverAttachment("one", "HASH:123"))
+                ), previousParent = "parentId", previousTitle = "Page Title"
+            )
+        )
+
+        coVerify(exactly = 0) { client.updatePage(any(), any(), any()) }
+        coVerify { client.renamePage(serverPage, "Page title", any()) }
+        if (parentChanged) {
+            coVerify { client.changeParent(PAGE_ID, "Page title", 44, targetParent, any()) }
         }
     }
 
@@ -610,7 +691,7 @@ internal class PageUploadOperationsImplTest(
             every { children } returns null
             every { metadata } returns null
             every { pageProperty(TENANT_PROPERTY) } returns null
-
+            every { links } returns emptyMap()
         }
 
         coEvery {
@@ -672,6 +753,7 @@ internal class PageUploadOperationsImplTest(
             every { ancestors } returns listOf(mockk { every { id } returns "id" })
             every { metadata } returns null
             every { children } returns null
+            every { links } returns emptyMap()
         }
 
         runBlocking {

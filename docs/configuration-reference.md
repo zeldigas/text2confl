@@ -85,7 +85,7 @@ asciidoc:
 | Parameter      | Default value | Description                                                                                                                                  |
 |----------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------|
 | diagrams       | `Diagrams`    | How to generate diagrams. The only option now is `Diagrams` that activates `asciidoctor-diagrams`                                            |
-| bundled-macros | `true`        | Enables [asciidoctor macros for confluence](./storage-formats/asciidoc/confluence-specific.adoc)                                             |
+| bundled-macros | `true`        | Enables [asciidoctor macros for Confluence](./storage-formats/asciidoc/confluence-specific.adoc)                                             |
 | attributes     | emtpy map     | Section where you can specify key-value pairs. All provided pairs will be passed to Asciidoc as attributes.                                  | 
 | gems           | empty list    | Additional ruby gems to _require_. Mentioned gems must be on classpath, packaged as jar files (like `asciidoctor-diagram`)                   | 
 | temp-dir       | false         | If temporary directory should be used to store all generated content                                                                         | 

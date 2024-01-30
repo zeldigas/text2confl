@@ -119,7 +119,7 @@ values: `grey`
 You can mention user using `@username` format just like you can do on GitHub or in WYSIWYG Confluence editor.
 Unfortunately due to absence of human-readable usernames in Cloud edition this will work only on Server/Datacenter where
 human-readable usernames are still supported. If you still need to mention user in Cloud, consider
-using [raw confluence markdown](#adding-raw-confluence-formatting)
+using [raw Confluence markdown](#adding-raw-confluence-formatting)
 
 ## Putting date
 
@@ -172,7 +172,7 @@ You can use admonition-like syntax to add Confluence expand block:
 ## Confluence macros with simple options
 
 Confluence has a lot of [*macros*](https://confluence.atlassian.com/doc/macros-139387.html) - special gadgets that can
-add extra features to your confluence page. While some of them has comprehensive configuration or can embed text
+add extra features to your Confluence page. While some of them has comprehensive configuration or can embed text
 content (like expand block), a lot of macros are as simple as macro keyword and a number of options that helps you
 configure behavior.
 
@@ -203,12 +203,12 @@ Some examples:
 | [Jira report table][JIRA_MACRO_TABLE]         | `[JIRA jqlQuery="project = SI" columns=key,summary,assignee,reporter,status maximumIssues=20]` | [JIRA jqlQuery="project = SI" columns=key,summary,assignee,reporter,status maximumIssues=5] |
 | [Jira charts][JIRA_CHART]                     | `[JIRACHART jql="project = SI" chartType=pie statType=components serverId=<JIRA_SERVER_ID>]`   | [JIRACHART jql="project = SI" chartType=pie statType=components serverId=<JIRA_SERVER_ID>]  |
 
-## Adding raw confluence formatting
+## Adding raw Confluence formatting
 
 Flexmark library that is used to parse markdown follows common mark spec that prohibits html tags with colons, but this
 is the heart of custom Confluence markup because they use `ac:` and `ri:` as their namespace prefixes for all macro
 tags.
-To overcome this limitation, **text2confl** supports alternative format confluence tags with dashes.
+To overcome this limitation, **text2confl** supports alternative format Confluence tags with dashes.
 
 So this tags
 
