@@ -6,6 +6,7 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.exists
+import kotlin.io.path.isRegularFile
 
 class AttachmentCollector(
     private val referencesProvider: ReferenceProvider,
@@ -62,7 +63,7 @@ class AttachmentCollector(
 
     private fun lookupInDirAndAdd(dir: Path, pathToFile: String, effectiveName: String): Attachment? {
         val file = dir.resolve(pathToFile).normalize()
-        return if (file.exists()) {
+        return if (file.exists() && file.isRegularFile()) {
             logger.debug { "File exists, adding as attachment: $file with ref $effectiveName" }
             val attachment = Attachment.fromLink(effectiveName, file)
             attachmentsRegistry.register(effectiveName, attachment)
