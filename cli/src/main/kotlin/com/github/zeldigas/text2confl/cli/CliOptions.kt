@@ -58,7 +58,17 @@ fun ParameterHolder.httpLoggingLevel() = option(
 
 fun ParameterHolder.httpRequestTimeout() = option(
     "--http-request-timeout",
-    help = "Http request timeout in milliseconds. Default "
+    help = "Http request timeout in milliseconds. Default 30 000 "
+).long()
+
+fun ParameterHolder.httpSocketTimeout() = option(
+    "--http-socket-timeout",
+    help = "Http socket timeout in milliseconds. Default 30 000 "
+).long()
+
+fun ParameterHolder.httpConnectTimeout() = option(
+    "--http-connect-timeout",
+    help = "Http connect timeout in milliseconds. Default 30 000 "
 ).long()
 
 internal interface WithConfluenceServerOptions {
@@ -69,6 +79,8 @@ internal interface WithConfluenceServerOptions {
     val skipSsl: Boolean?
     val httpLogLevel: LogLevel
     val httpRequestTimeout: Long?
+    val httpConnectTimeout: Long?
+    val httpSocketTimeout: Long?
 
     val confluenceAuth: ConfluenceAuth
         get() = when {
@@ -93,7 +105,9 @@ internal interface WithConfluenceServerOptions {
         skipSsl = skipSsl ?: defaultSslSkip,
         auth = confluenceAuth,
         httpLogLevel = httpLogLevel,
-        requestTimeout = httpRequestTimeout
+        requestTimeout = httpRequestTimeout,
+        connectTimeout = httpConnectTimeout,
+        socketTimeout = httpSocketTimeout
     )
     fun askForSecret(prompt: String, requireConfirmation: Boolean = true): String?
 

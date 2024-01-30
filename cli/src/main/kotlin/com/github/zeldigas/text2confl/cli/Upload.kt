@@ -33,6 +33,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     override val skipSsl: Boolean? by skipSsl()
     override val httpLogLevel: LogLevel by httpLoggingLevel()
     override val httpRequestTimeout: Long? by httpRequestTimeout()
+    override val httpSocketTimeout: Long? by httpSocketTimeout()
+    override val httpConnectTimeout: Long? by httpConnectTimeout()
 
     override val spaceKey: String? by confluenceSpace()
     private val parentId: String? by option("--parent-id", help = "Id of parent page where root pages should be added")
@@ -88,8 +90,7 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
             converter.convertDir(docs.toPath())
         }
 
-        val autofix = true
-        serviceProvider.createContentValidator().validate(result, autofix)
+        serviceProvider.createContentValidator().validate(result)
         val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
