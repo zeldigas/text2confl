@@ -76,7 +76,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         newTitle: String,
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
-        log.info { "(dryrun) Changing title of page with ${serverPage.id}: ${serverPage.title} -> $newTitle" }
+        logger.info { "(dryrun) Changing title of page with ${serverPage.id}: ${serverPage.title} -> $newTitle" }
         return serverPage.copy(
             title = newTitle,
             version = PageVersionInfo(serverPage.version!!.number + 1, true, ZonedDateTime.now())
