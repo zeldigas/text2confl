@@ -126,6 +126,15 @@ internal class ReferenceProviderImplTest {
         assertThat(result).isNull()
     }
 
+
+    @Test
+    internal fun `Plus url resolution`() {
+        val result = providerImpl.resolveReference(Path("docs/one.md"), "https://github.com/handle/+/case")
+
+        assertThat(result).isNull()
+    }
+
+
     @Test
     internal fun `localhost url resolution`() {
         val result = providerImpl.resolveReference(Path("docs/one.md"), "localhost:9000")

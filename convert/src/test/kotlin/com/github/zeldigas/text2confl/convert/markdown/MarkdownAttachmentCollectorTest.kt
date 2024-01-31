@@ -145,4 +145,28 @@ internal class MarkdownAttachmentCollectorTest {
 
         assertThat(registry.collectedAttachments).isEmpty()
     }
+
+
+    @Test
+    internal fun `Attachment collection for folder`(
+        @TempDir dir: Path,
+        @MockK referenceProvider: ReferenceProvider
+    ) {
+
+        Files.createDirectory(dir.resolve("folder"))
+        val ast = parser.parse(
+            """
+            ["folder"](folder)
+            
+        """.trimIndent()
+        )
+
+        val doc = dir.resolve("doc.md")
+
+        every { referenceProvider.resolveReference(doc, "folder") } returns Xref("test", null)
+
+        MarkdownAttachmentCollector(doc, referenceProvider, registry).collectAttachments(ast)
+
+        assertThat(registry.collectedAttachments).isEmpty()
+    }
 }
