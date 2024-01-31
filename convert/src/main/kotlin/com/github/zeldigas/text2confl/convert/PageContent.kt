@@ -106,10 +106,10 @@ data class PageContent(
         toBase64(digest)
     }
 
-    fun fixHtml(){
+    fun fixHtml(): PageContent {
         val document = Jsoup.parse(body, Parser.xmlParser())
-        body =  document.html()
-
+        body = document.html()
+        return this
     }
 
     fun validate(): Validation {

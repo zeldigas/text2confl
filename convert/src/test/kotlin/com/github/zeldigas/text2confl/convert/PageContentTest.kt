@@ -105,7 +105,10 @@ class PageContentTest {
                 PageHeader("", emptyMap()),
                 sampleXml,
                 emptyList()
-            ).validate()
+            )
+                .fixHtml()
+                .validate()
+
         ).isEqualTo(Validation.Ok)
     }
 
