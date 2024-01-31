@@ -61,7 +61,7 @@ class ContentUploader(
 
     suspend fun uploadPagesBlocking(pages: List<Page>, space: String, parentPageId: String) {
         val uploadedPages = uploadPagesRecursiveBlocking(pages, space, parentPageId)
-        logger.info { "Uploaded Pages : " + uploadedPages.size + "/" + pages.size }
+        logger.info { "Uploaded Pages : " + uploadedPages.size }
         tracker.uploadsCompleted()
         handleOrphans(uploadedPages)
     }
