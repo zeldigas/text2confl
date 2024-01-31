@@ -1,6 +1,8 @@
 package com.github.zeldigas.text2confl.convert
 
-import org.htmlcleaner.HtmlCleaner
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.jsoup.Jsoup
+import org.jsoup.parser.Parser
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 import java.security.DigestInputStream
