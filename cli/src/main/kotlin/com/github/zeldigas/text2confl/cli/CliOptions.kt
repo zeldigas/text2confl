@@ -59,17 +59,17 @@ fun ParameterHolder.httpLoggingLevel() = option(
 fun ParameterHolder.httpRequestTimeout() = option(
     "--http-request-timeout",
     help = "Http request timeout in milliseconds. Default 30 000 "
-).long()
+).long().default(30000)
 
 fun ParameterHolder.httpSocketTimeout() = option(
     "--http-socket-timeout",
     help = "Http socket timeout in milliseconds. Default 30 000 "
-).long()
+).long().default(30000)
 
 fun ParameterHolder.httpConnectTimeout() = option(
     "--http-connect-timeout",
     help = "Http connect timeout in milliseconds. Default 30 000 "
-).long()
+).long().default(30000)
 
 internal interface WithConfluenceServerOptions {
     val confluenceUrl: Url?
