@@ -131,7 +131,11 @@ class ContentUploader(
             val labelUpdate = pageUploadOperations.updatePageLabels(serverPage, page.content)
             val attachmentsUpdated = pageUploadOperations.updatePageAttachments(serverPage, page.content)
             tracker.pageUpdated(pageResult, labelUpdate, attachmentsUpdated)
-            logger.info { "Page uploaded: title=${page.title}, src=${page.source}: id=${serverPage.id}" }
+            if (pageResult is PageOperationResult.Failed){
+                logger.warn { "Failed to upload Page : title=${page.title}, src=${page.source}" }
+            } else {
+                logger.info { "Page uploaded: title=${page.title}, src=${page.source}: id=${serverPage.id}" }
+            }
             PageUploadResult(parentId, serverPage, virtual = false)
         } else {
             logger.info { "Checking that virtual page exists and properly located: ${page.title}" }
