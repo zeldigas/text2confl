@@ -2,29 +2,45 @@ package com.github.zeldigas.text2confl.core
 
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.Validation
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class ContentValidationFailedException(val errors: List<String>) : RuntimeException()
 
 interface ContentValidator {
-    fun validate(content: List<Page>, autofix: Boolean)
+    fun validate(content: List<Page>)
+    fun fixHtml(content: List<Page>)
 }
 
 class ContentValidatorImpl : ContentValidator {
-    override fun validate(content: List<Page>,autofix: Boolean) {
+
+    companion object {
+        private val logger = KotlinLogging.logger { }
+    }
+    override fun validate(content: List<Page>) {
         val foundIssues: MutableList<String> = arrayListOf()
-        collectErrors(content, foundIssues, autofix)
+        collectErrors(content, foundIssues)
         if (foundIssues.isNotEmpty()) {
             throw ContentValidationFailedException(foundIssues)
         }
     }
 
-    private fun collectErrors(pages: List<Page>, foundIssues: MutableList<String>,autofix: Boolean) {
+    override fun fixHtml(content: List<Page>) {
+        logger.info { "Fixing html pages : " + content.size }
+        for (page in content){
+            page.content.fixHtml()
+            fixHtml(page.children)
+        }
+    }
+
+    private fun collectErrors(pages: List<Page>, foundIssues: MutableList<String>) {
         for (page in pages) {
-            val validationResult = page.content.validate(autofix)
+            logger.debug {  "Validating : ${page.source}: "}
+            val validationResult = page.content.validate()
             if (validationResult is Validation.Invalid) {
+                logger.debug { validationResult.issue }
                 foundIssues.add("${page.source}: ${validationResult.issue}")
             }
-            collectErrors(page.children, foundIssues, autofix)
+            collectErrors(page.children, foundIssues)
         }
     }
 }

@@ -37,7 +37,7 @@ class ConvertTest(
     internal fun setUp() {
         every { serviceProvider.createConverter(any(), any()) } returns converter
         every { serviceProvider.createContentValidator() } returns contentValidator
-        every { contentValidator.validate(any(), false) } just Runs
+        every { contentValidator.validate(any()) } just Runs
 
         command.context {
             obj = serviceProvider

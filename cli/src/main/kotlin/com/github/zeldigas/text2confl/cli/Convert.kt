@@ -47,8 +47,7 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
             val result = tryConvert(converter)
             if (validate) {
                 val validator = serviceProvider.createContentValidator()
-                val autofix = false
-                validator.validate(result, autofix)
+                validator.validate(result)
             }
         } catch (ex: Exception) {
             tryHandleException(ex)

@@ -65,7 +65,7 @@ class PageContentTest {
                 <p>hello world</p>                
             """.trimIndent(),
                 emptyList()
-            ).validate(false)
+            ).validate()
         ).isEqualTo(Validation.Ok)
     }
 
@@ -84,7 +84,7 @@ class PageContentTest {
                 PageHeader("", emptyMap()),
                 sampleXml,
                 emptyList()
-            ).validate(false)
+            ).validate()
         ).isInstanceOf(Validation.Invalid::class)
             .transform { it.issue }
             .contains("[5:3] The element type \"p\" must be terminated by the matching end-tag \"</p>\". Start tag location - [3:4]")
@@ -105,7 +105,8 @@ class PageContentTest {
                 PageHeader("", emptyMap()),
                 sampleXml,
                 emptyList()
-            ).validate(true)
+            ).validate()
         ).isEqualTo(Validation.Ok)
     }
+
 }

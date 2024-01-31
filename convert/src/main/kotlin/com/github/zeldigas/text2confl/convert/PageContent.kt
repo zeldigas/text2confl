@@ -93,6 +93,10 @@ data class PageContent(
     var body: String,
     val attachments: List<Attachment>
 ) {
+    companion object {
+        private val logger = KotlinLogging.logger { }
+    }
+
     val hash by lazy {
         val bytes = body.toByteArray()
         val md = MessageDigest.getInstance("SHA-256")
@@ -100,9 +104,14 @@ data class PageContent(
         toBase64(digest)
     }
 
-    fun validate(autofix: Boolean): Validation {
-        val stack: Deque<StartElement> = LinkedList()
+    fun fixHtml(){
+        val document = Jsoup.parse(body, Parser.xmlParser())
+        body =  document.html()
 
+    }
+
+    fun validate(): Validation {
+        val stack: Deque<StartElement> = LinkedList()
         try {
             for (event in traverseDocument(body)) {
                 when {
@@ -111,10 +120,6 @@ data class PageContent(
                 }
             }
         } catch (e: XMLStreamException) {
-            if (autofix){
-                body = HtmlCleaner().clean(body).getText().toString()
-                return validate(false)
-            }
             val message = (e.message ?: "Unknown error occurred").substringAfter("Message: ")
             return if (message.contains("must be terminated by the matching")) {
                 val startTag = stack.pop()

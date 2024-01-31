@@ -64,7 +64,7 @@ internal class UploadTest(
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result, true) } just Runs
+        every { contentValidator.validate(result) } just Runs
 
         command.parse(
             listOf(
@@ -115,7 +115,7 @@ internal class UploadTest(
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result, true) } just Runs
+        every { contentValidator.validate(result) } just Runs
 
         command.parse(
             listOf(
@@ -212,7 +212,7 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.getPage("TR", "Test page").id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result, true) } just Runs
+        every { contentValidator.validate(result) } just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
@@ -234,7 +234,7 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { confluenceClient.describeSpace("TR", listOf("homepage")).homepage?.id } returns "1234"
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
-        every { contentValidator.validate(result, true) } just Runs
+        every { contentValidator.validate(result) } just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
@@ -291,7 +291,7 @@ internal class UploadTest(
     internal fun `Handling of content validation exception`(@TempDir tempDir: Path) {
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
-        every { contentValidator.validate(result, true) } throws ContentValidationFailedException(
+        every { contentValidator.validate(result) } throws ContentValidationFailedException(
             listOf(
                 "error message1",
                 "error message2"
