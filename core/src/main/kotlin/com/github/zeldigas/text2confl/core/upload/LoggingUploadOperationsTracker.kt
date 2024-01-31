@@ -38,7 +38,15 @@ class LoggingUploadOperationsTracker(
                 print("Created: ${pageInfo(pageResult.serverPage, pageResult.local)}")
             }
 
-            is PageOperationResult.ContentModified,
+            is PageOperationResult.ContentModified-> {
+                describeModifiedPage(
+                    "Updated:",
+                    pageResult.serverPage,
+                    pageResult.local,
+                    labelUpdate,
+                    attachmentsUpdated
+                )
+            }
             is PageOperationResult.LocationModified -> {
                 describeModifiedPage(
                     "Updated:",
@@ -58,6 +66,11 @@ class LoggingUploadOperationsTracker(
                         labelUpdate,
                         attachmentsUpdated
                     )
+                }
+            }
+            is PageOperationResult.Failed -> {
+                logger.error {
+                    "Failed: ${failedPage(pageResult)}"
                 }
             }
         }
@@ -170,6 +183,19 @@ class LoggingUploadOperationsTracker(
             append(" (")
             append(confluencePage.id)
             append(")")
+        }
+    }
+
+    private fun failedPage(error: PageOperationResult.Failed): String {
+        return buildString {
+            append("\"")
+            append(error.local.title)
+            append("\"")
+            append(" (")
+            append(error.status)
+            append(")")
+            append(" ")
+            append(error.body)
         }
     }
 

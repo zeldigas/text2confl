@@ -26,6 +26,7 @@ interface PageUploadOperations {
 }
 
 sealed class PageOperationResult {
+
     data class NotModified(override val local: Page, override val serverPage: ServerPage) : PageOperationResult()
     data class LocationModified(
         override val local: Page,
@@ -40,6 +41,13 @@ sealed class PageOperationResult {
         override val serverPage: ServerPage,
         val parentChanged: Boolean = false
     ) : PageOperationResult()
+
+    data class Failed(
+        override val local: Page,
+        override val serverPage: ServerPage,
+        val status: Int,
+        val body: String?
+    ): PageOperationResult()
 
     abstract val local: Page
     abstract val serverPage: ServerPage

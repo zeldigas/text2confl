@@ -62,29 +62,39 @@ internal class PageUploadOperationsImpl(
         page: Page,
         parentPageId: String
     ): PageOperationResult {
+
+
         checkTenantBeforeUpdate(confluencePageToUpdate)
         val (renamed, confluencePage) = adjustTitleIfRequired(confluencePageToUpdate, page)
 
         val serverPageDetails = createServerPage(confluencePage, parentPageId);
 
-        val result = if (pageContentChangeDetector.strategy(confluencePage, page.content)) {
-            updatePageContent(confluencePage, parentPageId, page, serverPageDetails)
-        } else if (confluencePage.parent?.id != parentPageId) {
-            changePageParent(confluencePage, parentPageId, page, serverPageDetails, confluencePageToUpdate.title)
-        } else if (renamed) {
-            PageOperationResult.LocationModified(
+        try {
+            val result = if (pageContentChangeDetector.strategy(confluencePage, page.content)) {
+                updatePageContent(confluencePage, parentPageId, page, serverPageDetails)
+            } else if (confluencePage.parent?.id != parentPageId) {
+                changePageParent(confluencePage, parentPageId, page, serverPageDetails, confluencePageToUpdate.title)
+            } else if (renamed) {
+                PageOperationResult.LocationModified(
+                    page,
+                    serverPageDetails,
+                    parentPageId,
+                    confluencePageToUpdate.title
+                )
+            } else {
+                logger.info { "Page is up to date, nothing to do: ${confluencePage.id}, ${confluencePage.title}" }
+                PageOperationResult.NotModified(page, serverPageDetails)
+            }
+            setPageProperties(page, confluencePage)
+            return result
+        } catch (ex: PageNotUpdatedException) {
+            return PageOperationResult.Failed(
                 page,
                 serverPageDetails,
-                parentPageId,
-                confluencePageToUpdate.title
+                ex.status,
+                ex.body
             )
-        } else {
-            logger.info { "Page is up to date, nothing to do: ${confluencePage.id}, ${confluencePage.title}" }
-            PageOperationResult.NotModified(page, serverPageDetails)
         }
-        setPageProperties(page, confluencePage)
-
-        return result
     }
 
     private suspend fun adjustTitleIfRequired(
@@ -200,21 +210,31 @@ internal class PageUploadOperationsImpl(
         space: String,
         parentPageId: String,
         page: Page
-    ): PageOperationResult.Created {
+    ): PageOperationResult {
         logger.info { "Page does not exist, need to create it: ${page.title}" }
-        val serverPage = client.createPage(
-            PageContentInput(parentPageId, page.title, page.content.body, space),
-            PageUpdateOptions(notifyWatchers, uploadMessage),
-            expansions = listOf(
-                "metadata.labels",
-                "metadata.properties.$HASH_PROPERTY",
-                "metadata.properties.$EDITOR_PROPERTY",
-                "version",
-                "children.attachment"
+        try {
+            val serverPage = client.createPage(
+                PageContentInput(parentPageId, page.title, page.content.body, space),
+                PageUpdateOptions(notifyWatchers, uploadMessage),
+                expansions = listOf(
+                    "metadata.labels",
+                    "metadata.properties.$HASH_PROPERTY",
+                    "metadata.properties.$EDITOR_PROPERTY",
+                    "version",
+                    "children.attachment"
+                )
             )
-        )
-        setPageProperties(page, serverPage)
-        return PageOperationResult.Created(page, createServerPage(serverPage, parentPageId))
+            setPageProperties(page, serverPage)
+            return PageOperationResult.Created(page, createServerPage(serverPage, parentPageId))
+        } catch (ex: PageNotCreatedException) {
+            //TODO fix parent object to something better
+            return PageOperationResult.Failed(
+                page,
+                serverPage = ServerPage("fake","fake","fake", emptyList(), emptyList()),
+                ex.status,
+                ex.body
+            )
+        }
     }
 
     private suspend fun setPageProperties(

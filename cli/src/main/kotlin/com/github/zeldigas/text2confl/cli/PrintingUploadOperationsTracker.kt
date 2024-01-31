@@ -45,6 +45,10 @@ class PrintingUploadOperationsTracker(
                     describeModifiedPage("Updated labels/attachments:", pageResult.serverPage, pageResult.local, labelUpdate, attachmentsUpdated)
                 }
             }
+
+            is PageOperationResult.Failed -> {
+                printWithPrefix("${red("Failed:")} ${failedPage(pageResult)}")
+            }
         }
     }
 
@@ -158,5 +162,18 @@ class PrintingUploadOperationsTracker(
 
     private fun printWithPrefix(msg: String) {
         printer("$prefix$msg")
+    }
+
+    private fun failedPage(error: PageOperationResult.Failed): String {
+        return buildString {
+            append("\"")
+            append(red(error.local.title))
+            append("\"")
+            append(" (")
+            append(error.status)
+            append(")")
+            append(" ")
+            append(error.body)
+        }
     }
 }
