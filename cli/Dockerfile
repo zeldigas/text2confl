@@ -10,7 +10,7 @@ FROM eclipse-temurin:21.0.2_13-jre
 
 LABEL org.opencontainers.image.source="https://github.com/zeldigas/text2confl"
 
-ARG PLANTUML="1.2023.13"
+ARG PLANTUML="1.2024.0"
 
 ADD https://github.com/plantuml/plantuml/releases/download/v$PLANTUML/plantuml.jar /usr/local/bin/plantuml.jar
 ADD scripts/plantuml /usr/local/bin/plantuml
