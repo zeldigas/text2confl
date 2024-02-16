@@ -4,14 +4,11 @@ This is a fork of original [Text2Confl](https://github.com/zeldigas/text2confl)
 
 It's main purposes is to deploy artifacts to maven central.
 
-
 # text2confl
-
 
 ![](https://img.shields.io/docker/v/zeldigas/text2confl?label=docker%20version&sort=semver) ![](https://img.shields.io/docker/image-size/zeldigas/text2confl?label=docker%20image%20size&sort=semver)
 
 [![maven-central](https://img.shields.io/maven-central/v/io.github.text2confl/text2confl-cli.svg)](https://search.maven.org/artifact/io.github.text2confl/text2confl-cli) ![codecov](https://codecov.io/gh/text2confl/text2confl/branch/master/graph/badge.svg)
-
 
 Is a tool for publishing documentation written in structured text formats like markdown to Confluence (either server or
 cloud edition).
@@ -24,6 +21,8 @@ no clear end state of features (so far) that should be supported and features th
 find something missing - feel free to create an issue and describe your needs.
 
 ## User guide
+
+### CLI
 
 To get started and learn how to start using text2confl, consult with [user guide](docs/user-guide.md).
 
@@ -47,6 +46,18 @@ Will upload docs producing pages similar to this one:
 **Note on having public showcase for docs**: I would be happy to use confluence cloud for this, but free tier does not
 allow making space or pages available to non-members of wiki (wide open to internet) that's why so far you need to
 publish to your own server or spend 10-15 minutes and create your own free wiki in Confluence Cloud.
+
+### Maven
+
+```xml
+<dependency>
+    <groupId>io.github.text2confl</groupId>
+    <artifactId>text2confl-core</artifactId>
+    <version>0.16.2</version>
+</dependency>
+```
+
+Then 
 
 ## Design and usability goals
 
