@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.text2confl</groupId>
-    <artifactId>test2confl-parent</artifactId>
+    <artifactId>text2confl-parent</artifactId>
     <version>0.16.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 

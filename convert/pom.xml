@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.github.text2confl</groupId>
-        <artifactId>test2confl-parent</artifactId>
+        <artifactId>text2confl-parent</artifactId>
         <version>0.16.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -149,4 +149,38 @@
         </dependency>
     </dependencies>
 
+
+
+    <build>
+        <plugins>
+            <!-- TODO Improve me : Keep Trask about changes made in confluence-publisher -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.sahli.asciidoc.confluence.publisher</groupId>
+                                    <artifactId>asciidoc-confluence-publisher-converter</artifactId>
+                                    <version>0.22.0</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/confluence-publisher-templates</outputDirectory>
+                                    <includes>**/*.slim,**/*.rb</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
