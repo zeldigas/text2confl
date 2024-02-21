@@ -1,6 +1,6 @@
 package com.github.zeldigas.confclient
 
-import com.github.zeldigas.confclient.model.*
+import com.github.zeldigas.text2confl.model.*
 import io.ktor.http.*
 import java.nio.file.Path
 

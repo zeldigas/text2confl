@@ -6,11 +6,11 @@ import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import com.github.zeldigas.confclient.*
-import com.github.zeldigas.confclient.model.*
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 import com.github.zeldigas.text2confl.convert.PageHeader
+import com.github.zeldigas.text2confl.model.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -517,8 +517,8 @@ internal class PageUploadOperationsImplTest(
     }
 
     private fun serverPage(
-        labels: List<Label> = emptyList(),
-        attachments: List<Attachment> = emptyList()
+            labels: List<Label> = emptyList(),
+            attachments: List<Attachment> = emptyList()
     ) = ServerPage(
         PAGE_ID, "Title", "parent_id", labels = labels, attachments = attachments
     )

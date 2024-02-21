@@ -1,4 +1,4 @@
-package com.github.zeldigas.confclient.model
+package com.github.zeldigas.text2confl.model
 
 data class Space(
     val id: Int,

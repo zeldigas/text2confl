@@ -1,5 +1,5 @@
 import com.github.ajalt.mordant.rendering.TextColors.*
-import com.github.zeldigas.confclient.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.core.upload.*
 import io.ktor.http.*

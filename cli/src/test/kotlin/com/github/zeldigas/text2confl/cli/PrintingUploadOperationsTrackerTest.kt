@@ -5,7 +5,7 @@ import PrintingUploadOperationsTracker.Companion.UILINK
 import assertk.assertThat
 import assertk.assertions.*
 import com.github.ajalt.mordant.rendering.TextColors.*
-import com.github.zeldigas.confclient.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.core.upload.AttachmentsUpdateResult
@@ -148,7 +148,7 @@ class PrintingUploadOperationsTrackerTest {
         every { attachmentName } returns name
     }
 
-    private fun serverAttachment(expectedName: String): com.github.zeldigas.confclient.model.Attachment = mockk {
+    private fun serverAttachment(expectedName: String): com.github.zeldigas.text2confl.model.Attachment = mockk {
         every { title } returns expectedName
     }
 

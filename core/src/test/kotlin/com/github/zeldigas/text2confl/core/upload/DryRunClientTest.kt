@@ -9,9 +9,9 @@ import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.PageAttachmentInput
 import com.github.zeldigas.confclient.PageContentInput
 import com.github.zeldigas.confclient.PageUpdateOptions
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.PageAttachments
+import com.github.zeldigas.text2confl.model.Attachment
+import com.github.zeldigas.text2confl.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.PageAttachments
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK

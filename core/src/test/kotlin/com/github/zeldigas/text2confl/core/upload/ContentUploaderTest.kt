@@ -5,13 +5,12 @@ import assertk.assertThat
 import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.confclient.ConfluenceClient
-import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.ContentType
-import com.github.zeldigas.confclient.model.PageMetadata
-import com.github.zeldigas.confclient.model.PageProperty
+import com.github.zeldigas.text2confl.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.ContentType
+import com.github.zeldigas.text2confl.model.PageMetadata
+import com.github.zeldigas.text2confl.model.PageProperty
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.core.config.Cleanup
-import com.github.zeldigas.text2confl.core.upload.*
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

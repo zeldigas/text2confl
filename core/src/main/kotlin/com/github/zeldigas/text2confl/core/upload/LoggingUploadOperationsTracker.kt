@@ -1,6 +1,6 @@
 package com.github.zeldigas.text2confl.core.upload
 
-import com.github.zeldigas.confclient.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Page
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*

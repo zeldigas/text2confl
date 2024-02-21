@@ -1,8 +1,8 @@
 package com.github.zeldigas.text2confl.core.export
 
 import com.github.zeldigas.confclient.ConfluenceClient
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.Attachment
+import com.github.zeldigas.text2confl.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.markdown.export.HtmlToMarkdownConverter
 import java.io.OutputStreamWriter
@@ -56,11 +56,11 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
     }
 
     private fun exportPageContent(
-        converter: HtmlToMarkdownConverter,
-        page: ConfluencePage,
-        attachments: List<Attachment>,
-        dest: Path,
-        attachmentDir: Path
+            converter: HtmlToMarkdownConverter,
+            page: ConfluencePage,
+            attachments: List<Attachment>,
+            dest: Path,
+            attachmentDir: Path
     ) {
         val content = page.body?.storage?.value!!
         val pageContent = converter.convert(content)
