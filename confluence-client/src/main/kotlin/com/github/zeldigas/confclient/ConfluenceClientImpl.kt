@@ -3,7 +3,7 @@ package com.github.zeldigas.confclient
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.github.zeldigas.confclient.model.*
+import com.github.zeldigas.text2confl.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -165,9 +165,9 @@ class ConfluenceClientImpl(
         )
 
     override suspend fun renamePage(
-        serverPage: ConfluencePage,
-        newTitle: String,
-        updateParameters: PageUpdateOptions
+            serverPage: ConfluencePage,
+            newTitle: String,
+            updateParameters: PageUpdateOptions
     ): ConfluencePage =
         performPageUpdate(
             serverPage.id, mapOf(
@@ -366,10 +366,10 @@ private suspend fun HttpResponse.parseAndThrowConfluencError(): Nothing {
 }
 
 private data class PageSearchResult(
-    val results: List<ConfluencePage> = emptyList(),
-    val start: Int,
-    val limit: Int,
-    val size: Int
+        val results: List<ConfluencePage> = emptyList(),
+        val start: Int,
+        val limit: Int,
+        val size: Int
 )
 
 fun confluenceClient(

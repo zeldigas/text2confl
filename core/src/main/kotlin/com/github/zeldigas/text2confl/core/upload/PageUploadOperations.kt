@@ -1,8 +1,8 @@
 package com.github.zeldigas.text2confl.core.upload
 
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.Label
+import com.github.zeldigas.text2confl.model.Attachment
+import com.github.zeldigas.text2confl.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.Label
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 
@@ -88,8 +88,8 @@ enum class ChangeDetector(
 }
 
 data class ServerPage(
-    val id: String, val title: String, val parent: String, val labels: List<Label>, val attachments: List<Attachment>,
-    val links: Map<String, String> = emptyMap()
+        val id: String, val title: String, val parent: String, val labels: List<Label>, val attachments: List<Attachment>,
+        val links: Map<String, String> = emptyMap()
 )
 
 class InvalidTenantException(page: String, expected: String?, actual: String?) :

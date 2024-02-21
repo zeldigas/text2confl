@@ -1,9 +1,9 @@
 package com.github.zeldigas.text2confl.core.upload
 
 import com.github.zeldigas.confclient.*
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.ConfluencePage
-import com.github.zeldigas.confclient.model.PageProperty
+import com.github.zeldigas.text2confl.model.Attachment
+import com.github.zeldigas.text2confl.model.ConfluencePage
+import com.github.zeldigas.text2confl.model.PageProperty
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
@@ -58,9 +58,9 @@ internal class PageUploadOperationsImpl(
     )
 
     private suspend fun updateExistingPage(
-        confluencePageToUpdate: ConfluencePage,
-        page: Page,
-        parentPageId: String
+            confluencePageToUpdate: ConfluencePage,
+            page: Page,
+            parentPageId: String
     ): PageOperationResult {
 
 
@@ -98,8 +98,8 @@ internal class PageUploadOperationsImpl(
     }
 
     private suspend fun adjustTitleIfRequired(
-        serverPage: ConfluencePage,
-        page: Page
+            serverPage: ConfluencePage,
+            page: Page
     ): Pair<Boolean, ConfluencePage> {
         return if (page.title != serverPage.title) {
             logger.info { "Changing page title: ${serverPage.title} -> ${page.title} " }
@@ -114,10 +114,10 @@ internal class PageUploadOperationsImpl(
     }
 
     private suspend fun updatePageContent(
-        confluencePage: ConfluencePage,
-        parentPageId: String,
-        page: Page,
-        serverPageDetails: ServerPage
+            confluencePage: ConfluencePage,
+            parentPageId: String,
+            page: Page,
+            serverPageDetails: ServerPage
     ): PageOperationResult.ContentModified {
         logger.info { "Page content requires update: ${confluencePage.id}, ${confluencePage.title}" }
         client.updatePage(
@@ -138,11 +138,11 @@ internal class PageUploadOperationsImpl(
     }
 
     private suspend fun changePageParent(
-        confluencePage: ConfluencePage,
-        parentPageId: String,
-        page: Page,
-        serverPageDetails: ServerPage,
-        originalTitle: String
+            confluencePage: ConfluencePage,
+            parentPageId: String,
+            page: Page,
+            serverPageDetails: ServerPage,
+            originalTitle: String
     ): PageOperationResult.LocationModified {
         changeParent(confluencePage, parentPageId)
         return PageOperationResult.LocationModified(
@@ -181,8 +181,8 @@ internal class PageUploadOperationsImpl(
     }
 
     private suspend fun changeParent(
-        serverPage: ConfluencePage,
-        parentPageId: String
+            serverPage: ConfluencePage,
+            parentPageId: String
     ) {
         logger.info { "Changing page parent from ${serverPage.parent?.id} to $parentPageId" }
         client.changeParent(
@@ -195,8 +195,8 @@ internal class PageUploadOperationsImpl(
     }
 
     private suspend fun createServerPage(
-        serverPage: ConfluencePage,
-        parentPageId: String
+            serverPage: ConfluencePage,
+            parentPageId: String
     ) = ServerPage(
         serverPage.id,
         serverPage.title,
@@ -353,7 +353,7 @@ internal class PageUploadOperationsImpl(
     }
 
     private data class ServerAttachment(
-        val attachment: Attachment, val hash: String?
+            val attachment: Attachment, val hash: String?
     ) {
         val id: String
             get() = attachment.id

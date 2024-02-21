@@ -10,9 +10,9 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.PageAttachments
-import com.github.zeldigas.confclient.model.User
+import com.github.zeldigas.text2confl.model.Attachment
+import com.github.zeldigas.text2confl.model.PageAttachments
+import com.github.zeldigas.text2confl.model.User
 import io.ktor.http.*
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest

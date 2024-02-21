@@ -49,6 +49,7 @@
 
     <modules>
         <module>convert</module>
+        <module>confluence-model</module>
         <module>confluence-client</module>
         <module>core</module>
         <module>cli</module>

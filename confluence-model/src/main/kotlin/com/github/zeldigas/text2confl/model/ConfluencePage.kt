@@ -1,21 +1,21 @@
-package com.github.zeldigas.confclient.model
+package com.github.zeldigas.text2confl.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.ZonedDateTime
 
 data class ConfluencePage(
-    val id: String,
-    val type: ContentType,
-    val status: String,
-    val title: String,
-    val metadata: PageMetadata?,
-    val body: PageBody?,
-    val version: PageVersionInfo?,
-    val children: PageChildren?,
-    val ancestors: List<ConfluencePage>?,
-    val space: Space? = null,
-    @JsonProperty("_links")
+        val id: String,
+        val type: ContentType,
+        val status: String,
+        val title: String,
+        val metadata: PageMetadata?,
+        val body: PageBody?,
+        val version: PageVersionInfo?,
+        val children: PageChildren?,
+        val ancestors: List<ConfluencePage>?,
+        val space: Space? = null,
+        @JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
 ) {
     fun pageProperty(name: String): PageProperty? {
@@ -28,14 +28,14 @@ enum class ContentType {
 }
 
 data class PageMetadata(
-    val labels: PageLabels?,
-    @JsonIgnoreProperties("_links", "_expandable")
+        val labels: PageLabels?,
+        @JsonIgnoreProperties("_links", "_expandable")
     val properties: Map<String, PageProperty> = emptyMap()
 )
 
 data class PageLabels(
-    val results: List<Label>,
-    val size: Int
+        val results: List<Label>,
+        val size: Int
 )
 
 data class Label(
@@ -76,11 +76,11 @@ data class PageChildren(
 )
 
 data class PageAttachments(
-    val start: Int? = null,
-    val limit: Int? = null,
-    val size: Int? = null,
-    val results: List<Attachment> = emptyList(),
-    @JsonProperty("_links")
+        val start: Int? = null,
+        val limit: Int? = null,
+        val size: Int? = null,
+        val results: List<Attachment> = emptyList(),
+        @JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
 )
 

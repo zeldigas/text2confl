@@ -3,7 +3,7 @@ package com.github.zeldigas.text2confl.core.export
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.confclient.ConfluenceClient
-import com.github.zeldigas.confclient.model.Label
+import com.github.zeldigas.text2confl.model.Label
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

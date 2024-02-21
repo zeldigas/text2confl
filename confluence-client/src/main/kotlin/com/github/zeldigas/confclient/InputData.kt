@@ -1,7 +1,7 @@
 package com.github.zeldigas.confclient
 
-import com.github.zeldigas.confclient.model.PageProperty
-import com.github.zeldigas.confclient.model.PropertyVersion
+import com.github.zeldigas.text2confl.model.PageProperty
+import com.github.zeldigas.text2confl.model.PropertyVersion
 import java.nio.file.Path
 
 data class PagePropertyInput(val value: Any, val version: PropertyVersion) {
