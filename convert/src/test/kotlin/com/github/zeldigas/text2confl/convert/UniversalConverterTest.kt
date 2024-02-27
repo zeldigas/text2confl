@@ -186,7 +186,7 @@ internal class UniversalConverterTest(
             val result = universalConverter("TEST", conversionParameters)
 
             assertThat(result).isInstanceOf(UniversalConverter::class).all {
-                prop(UniversalConverter::conversionParameters).isSameAs(conversionParameters)
+                prop(UniversalConverter::conversionParameters).isSameInstanceAs(conversionParameters)
                 prop(UniversalConverter::space).isEqualTo("TEST")
                 prop(UniversalConverter::converters).all {
                     hasSize(2)
