@@ -8,7 +8,7 @@ import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import io.ktor.http.*
 import java.nio.file.Path
 
-data class ConverterConfig(
+data class ConverterConfig @JvmOverloads constructor(
     val titlePrefix: String,
     val titlePostfix: String,
     val editorVersion: EditorVersion,

@@ -12,7 +12,7 @@ import kotlin.io.path.div
 /**
  * Holder of data that can be put to `text2confl.yml` configuration file that is located in root directory of directory structure
  */
-data class DirectoryConfig(
+data class DirectoryConfig @JvmOverloads constructor (
     val server: String? = null,
     val skipSsl: Boolean = false,
     val space: String? = null,
@@ -33,14 +33,16 @@ data class DirectoryConfig(
     val asciidoc: AsciidocParams = AsciidocParams()
 ) {
     lateinit var docsDir: Path
+
+
 }
 
-data class CodeBlockParams(
+data class CodeBlockParams @JvmOverloads constructor(
     val defaultLanguage: String? = null,
     val extraMapping: Map<String, String> = emptyMap()
 )
 
-data class MarkdownParams(
+data class MarkdownParams @JvmOverloads constructor(
     val anyMacro: Boolean? = null,
     val enabledMacros: List<String> = emptyList(),
     val emoji: Boolean = true,
@@ -62,7 +64,7 @@ data class MarkdownParams(
     }
 }
 
-data class MarkdownDiagramParameters(
+data class MarkdownDiagramParameters @JvmOverloads constructor(
     val tempDir: Boolean = false,
     val baseDir: String = ".diagrams",
     val mermaid: MermaidDiagramsConfiguration = MermaidDiagramsConfiguration(),
@@ -88,7 +90,7 @@ data class MarkdownDiagramParameters(
 }
 
 
-data class AsciidocParams(
+data class AsciidocParams @JvmOverloads constructor(
     val gems: List<String> = emptyList(),
     val diagrams: AsciidocDiagrams = AsciidocDiagrams.Diagrams,
     val bundledMacros: Boolean = true,

@@ -2,7 +2,7 @@ package com.github.zeldigas.text2confl.core.config
 
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
 
-data class UploadConfig(
+data class UploadConfig @JvmOverloads constructor(
     val space: String,
     val removeOrphans: Cleanup,
     val uploadMessage: String,
