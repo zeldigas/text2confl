@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.core
 
 import assertk.assertFailure
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import com.github.zeldigas.text2confl.convert.Validation
@@ -9,6 +10,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 internal class ContentValidatorImplTest {
 
@@ -50,5 +52,30 @@ internal class ContentValidatorImplTest {
             )
         }.isInstanceOf(ContentValidationFailedException::class)
             .transform { it.errors }.isEqualTo(listOf("${Path.of("a", "b.txt")}: err1", "c.txt: err2"))
+    }
+
+    @Test
+    fun `Clash with parent page is detected`() {
+        val pagePath = Path("test.md")
+        assertFailure {
+            validator.checkNoClashWithParent(mockk {
+                every { title } returns "parent"
+                every { id } returns "1234"
+            }, listOf(mockk {
+                every { title } returns "parent"
+                every { source } returns pagePath
+            }))
+        }.hasMessage("Page to publish clashes with parent under which pages will be published. Problem file - ${pagePath}, parent confluence page - parent (id=1234)")
+    }
+
+    @Test
+    fun `No clash with parent page does nothing`() {
+        assertDoesNotThrow {
+            validator.checkNoClashWithParent(mockk {
+                every { title } returns "parent"
+            }, listOf(mockk {
+                every { title } returns "another title"
+            }))
+        }
     }
 }

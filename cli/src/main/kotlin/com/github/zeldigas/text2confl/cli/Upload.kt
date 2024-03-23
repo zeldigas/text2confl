@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.PasswordAuth
+import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.core.ServiceProvider
 import com.github.zeldigas.text2confl.core.config.*
@@ -82,18 +83,20 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         val clientConfig = createClientConfig(directoryStoredParams)
         val conversionConfig = createConversionConfig(directoryStoredParams, editorVersion, clientConfig.server)
         val converter = serviceProvider.createConverter(uploadConfig.space, conversionConfig)
-        val result = if (docs.isFile) {
+        val pagesToPublish = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {
             converter.convertDir(docs.toPath())
         }
-        serviceProvider.createContentValidator().validate(result)
+        val contentValidator = serviceProvider.createContentValidator()
+        contentValidator.validate(pagesToPublish)
         val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
         val contentUploader = serviceProvider.createUploader(confluenceClient, uploadConfig, conversionConfig, operationsTracker(clientConfig.server))
         withContext(Dispatchers.Default) {
-            contentUploader.uploadPages(pages = result, uploadConfig.space, publishUnder)
+            contentValidator.checkNoClashWithParent(publishUnder, pagesToPublish)
+            contentUploader.uploadPages(pages = pagesToPublish, uploadConfig.space, publishUnder.id)
         }
     }
 
@@ -140,12 +143,12 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
         confluenceClient: ConfluenceClient,
         uploadConfig: UploadConfig,
         directoryConfig: DirectoryConfig
-    ): String {
+    ): ConfluencePage {
         val anyParentId = listOf(parentId, directoryConfig.defaultParentId).firstOrNull { it != null }
-        if (anyParentId != null) return anyParentId
+        if (anyParentId != null) return confluenceClient.getPageById(anyParentId, emptySet())
         val anyTitle = listOf(parentTitle, directoryConfig.defaultParent).firstOrNull { it != null }
-        if (anyTitle != null) return confluenceClient.getPage(uploadConfig.space, anyTitle).id
+        if (anyTitle != null) return confluenceClient.getPage(uploadConfig.space, anyTitle)
 
-        return confluenceClient.describeSpace(uploadConfig.space, listOf("homepage")).homepage?.id!!
+        return confluenceClient.describeSpace(uploadConfig.space, listOf("homepage")).homepage!!
     }
 }

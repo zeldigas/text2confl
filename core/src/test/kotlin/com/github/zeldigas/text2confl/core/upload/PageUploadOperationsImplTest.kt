@@ -366,7 +366,7 @@ internal class PageUploadOperationsImplTest(
             every { title } returns "Page title"
         }
         if (parentChanged) {
-            coEvery { client.changeParent(any(), any(), 44, targetParent, any())} returns mockk()
+            coEvery { client.changeParent(any(), any(), 44, targetParent, any()) } returns mockk()
         }
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
@@ -471,7 +471,12 @@ internal class PageUploadOperationsImplTest(
             )
         }
 
-        assertThat(result).isEqualTo(LabelsUpdateResult.Updated(added = listOf("four", "five"), removed = listOf("three")))
+        assertThat(result).isEqualTo(
+            LabelsUpdateResult.Updated(
+                added = listOf("four", "five"),
+                removed = listOf("three")
+            )
+        )
 
         coVerify { client.addLabels(PAGE_ID, listOf("four", "five")) }
         coVerify { client.deleteLabel(PAGE_ID, "three") }
@@ -494,7 +499,12 @@ internal class PageUploadOperationsImplTest(
             )
         }
 
-        assertThat(result).isEqualTo(LabelsUpdateResult.Updated(added = listOf("one", "two", "four", "five"), removed = emptyList()))
+        assertThat(result).isEqualTo(
+            LabelsUpdateResult.Updated(
+                added = listOf("one", "two", "four", "five"),
+                removed = emptyList()
+            )
+        )
 
         coVerify { client.addLabels(PAGE_ID, listOf("one", "two", "four", "five")) }
     }
@@ -558,13 +568,15 @@ internal class PageUploadOperationsImplTest(
             )
         }
 
-        assertThat(result).isEqualTo(AttachmentsUpdateResult.Updated(
-            added = listOf(localAttachments[3], localAttachments[4]),
-            modified = listOf(localAttachments[0], localAttachments[1]),
-            removed = listOf(
-                serverAttachments[3]
+        assertThat(result).isEqualTo(
+            AttachmentsUpdateResult.Updated(
+                added = listOf(localAttachments[3], localAttachments[4]),
+                modified = listOf(localAttachments[0], localAttachments[1]),
+                removed = listOf(
+                    serverAttachments[3]
+                )
             )
-        ))
+        )
 
         coVerifyAll {
             client.deleteAttachment("id_four")
@@ -777,5 +789,25 @@ internal class PageUploadOperationsImplTest(
             runBlocking { uploadOperations().checkPageAndUpdateParentIfRequired("page title", "TEST", "parentId") }
         }.isInstanceOf(PageNotFoundException::class)
             .isEqualTo(PageNotFoundException(space = "TEST", title = "page title"))
+    }
+
+    @Test
+    fun `Cycle with parent is detected for found page`() {
+        coEvery {
+            client.getPageOrNull(any(), any(), expansions = any())
+        } returns mockk {
+            every { id } returns "parentId"
+            every { title } returns "Page title"
+        }
+
+        assertFailure {
+            runBlocking {
+                uploadOperations().createOrUpdatePageContent(mockk() {
+                    every { title } returns "Page title"
+                    every { properties } returns emptyMap()
+                }, "TEST", "parentId")
+            }
+        }.isInstanceOf(PageCycleException::class)
+            .isEqualTo(PageCycleException("parentId", "Page title"))
     }
 }

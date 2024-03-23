@@ -62,6 +62,7 @@ internal class PageUploadOperationsImpl(
         page: Page,
         parentPageId: String
     ): PageOperationResult {
+        checkNoCycle(parentPageId, confluencePageToUpdate)
         checkTenantBeforeUpdate(confluencePageToUpdate)
         val (renamed, confluencePage) = adjustTitleIfRequired(confluencePageToUpdate, page)
 
@@ -141,6 +142,12 @@ internal class PageUploadOperationsImpl(
             confluencePage.parent?.id ?: "",
             originalTitle
         )
+    }
+
+    private fun checkNoCycle(parentPageId: String, pageToUpdate: ConfluencePage) {
+        if (pageToUpdate.id == parentPageId) {
+            throw PageCycleException(parentPageId, pageToUpdate.title)
+        }
     }
 
     private fun checkTenantBeforeUpdate(serverPage: ConfluencePage) {
