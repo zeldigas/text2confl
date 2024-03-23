@@ -55,3 +55,7 @@ asciidoc:
     toclevels: 5
   temp-dir: true
   base-dir: b
+  kroki:
+    server: https://example.org
+    fetch: false
+    default-format: png

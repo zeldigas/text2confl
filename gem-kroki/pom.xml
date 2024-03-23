@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>com.github.zeldigas.confluence</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>gem-kroki</artifactId>
+    <version>1.0.0</version>
+
+    <description>Module that provides asciidoctor-kroki gem as jar dependency, just like we have for
+        asciidoctor-diagram
+    </description>
+
+    <properties>
+        <kroki.version>0.10.0<!--renovate dependency=asciidoctor-kroki --></kroki.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>rubygems</groupId>
+            <artifactId>asciidoctor-kroki</artifactId>
+            <version>${kroki.version}</version>
+            <type>gem</type>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>rubygems</groupId>
+                    <artifactId>asciidoctor</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jruby.maven</groupId>
+                <artifactId>gem-maven-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <includeRubygemsInResources>true</includeRubygemsInResources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>initialize</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.jruby.maven</groupId>
+                <artifactId>mavengem-wagon</artifactId>
+                <version>2.0.0</version>
+            </extension>
+        </extensions>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>mavengems</id>
+            <url>mavengem:https://rubygems.org</url>
+        </repository>
+    </repositories>
+
+</project>
