@@ -11,5 +11,7 @@ data class ConfluenceClientConfig(
     val skipSsl: Boolean,
     val auth: ConfluenceAuth,
     val httpLogLevel: LogLevel = LogLevel.NONE,
-    val requestTimeout: Long? = null,
+    val requestTimeout: Long? = 30000,
+    val connectTimeout: Long? = 30000,
+    val socketTimeout: Long? = 30000
 )

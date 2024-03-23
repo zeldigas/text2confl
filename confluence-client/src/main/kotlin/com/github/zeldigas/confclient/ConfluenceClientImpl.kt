@@ -340,7 +340,7 @@ private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSucces
         parseAndThrowConfluencError()
     }
     val contentType = contentType()
-    if (contentType != null && ContentType.Application.Json.match(contentType)){
+    if (contentType != null && ContentType.Application.Json.match(contentType)) {
         try {
             return body<T>()
         } catch (e: JsonConvertException) {
@@ -357,7 +357,7 @@ private suspend fun HttpResponse.parseAndThrowConfluencError(): Nothing {
 }
 
 private data class PageSearchResult(
-    val results: List<ConfluencePage>,
+    val results: List<ConfluencePage> = emptyList(),
     val start: Int,
     val limit: Int,
     val size: Int
@@ -367,10 +367,12 @@ fun confluenceClient(
     config: ConfluenceClientConfig
 ): ConfluenceClient {
     val client = HttpClient(CIO) {
+        install(HttpTimeout) {
+            requestTimeoutMillis = config.requestTimeout
+            connectTimeoutMillis = config.connectTimeout
+            socketTimeoutMillis = config.socketTimeout
+        }
         engine {
-            if (config.requestTimeout != null) {
-                requestTimeout = config.requestTimeout
-            }
             if (config.skipSsl) {
                 https {
                     trustManager = object : X509TrustManager {
