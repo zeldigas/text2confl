@@ -18,7 +18,8 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             
             image::assets/image.jpg[]
             
-            .Asset
+            [#img_custom_id]
+            ."Quoted text" regular text <special text>
             image::assets/image.jpg[Alt]                       
         """.trimIndent(),
             attachments = mapOf(
@@ -35,7 +36,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             <p><ac:image ac:title="A Title" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image><div class="t2c-image-title"><em>Figure 1. A Title</em></div></p>
             <p><ac:image ac:alt="test"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
             <p><ac:image ac:alt="image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
-            <p><ac:image ac:title="Asset" ac:alt="Alt"><ri:attachment ri:filename="an_attachment" /></ac:image><div class="t2c-image-title"><em>Figure 2. Asset</em></div></p>
+            <p><ac:image ac:title="&quot;Quoted text&quot; regular text &lt;special text&gt;" ac:alt="Alt"><ri:attachment ri:filename="an_attachment" /></ac:image><div class="t2c-image-title"><em>Figure 2. "Quoted text" regular text &lt;special text&gt;</em></div></p>
         """.trimIndent(),
         )
     }

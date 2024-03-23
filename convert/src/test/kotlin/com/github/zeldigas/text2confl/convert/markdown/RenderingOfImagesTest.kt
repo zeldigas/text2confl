@@ -17,7 +17,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             
             ![](assets/image.jpg)
             
-            ![Alt](assets/image.jpg "Asset")                       
+            ![Alt text with "quotes"](assets/image.jpg "Asset")                       
         """.trimIndent(),
             attachments = mapOf(
                 "assets/image.jpg" to Attachment(
@@ -33,7 +33,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             <p><ac:image ac:alt="Alt text" ac:title="A Title"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
             <p><ac:image><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
             <p><ac:image><ri:attachment ri:filename="an_attachment" /></ac:image></p>
-            <p><ac:image ac:alt="Alt" ac:title="Asset"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
+            <p><ac:image ac:alt="Alt text with &quot;quotes&quot;" ac:title="Asset"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
         """.trimIndent(),
         )
     }

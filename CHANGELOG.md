@@ -7,6 +7,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Check for conflict of published page with pages parent (#142)
+
+### Changed
+
+- dependency updates:
+  - plantuml to 1.2024.3
+  - other deps (kotlin, ktor, logback, asciidoctor)
+
+### Fixed
+
+- Handling of quotes in image titles and alt text (#166)
+
 ## 0.16.0 - 2024-01-07
 
 ### Added

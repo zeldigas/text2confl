@@ -287,5 +287,9 @@ module Slim::Helpers
     content.gsub(Asciidoctor::LF, ' ')
   end
 
+  def escape_quotes val
+    val.gsub(/"/, '&quot;'.freeze)
+  end
+
 
 end
