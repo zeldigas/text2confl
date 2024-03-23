@@ -67,6 +67,9 @@ abstract class PageOperationException(message: String, cause: Exception? = null)
 data class PageNotFoundException(val space: String, val title: String) :
     PageOperationException("Page $title in space $space not found")
 
+data class PageCycleException(val parentId: String, val title: String) :
+    PageOperationException("Can't publish page $title with parent $parentId - this is id of page itself")
+
 enum class ChangeDetector(
     val extraData: Set<String>,
     val strategy: (serverPage: ConfluencePage, content: PageContent) -> Boolean

@@ -65,6 +65,11 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
         every { contentValidator.validate(result) } just Runs
+        coEvery { confluenceClient.getPageById("1234", emptySet()) } returns mockk {
+            every { title } returns "parent page"
+            every { id } returns "1234"
+        }
+        every { contentValidator.checkNoClashWithParent(any(), any()) } just Runs
 
         command.parse(
             listOf(
@@ -116,6 +121,11 @@ internal class UploadTest(
         every { converter.convertDir(tempDir) } returns result
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
         every { contentValidator.validate(result) } just Runs
+        coEvery { confluenceClient.getPageById("1234", emptySet()) } returns mockk {
+            every { title } returns "parent page"
+            every { id } returns "1234"
+        }
+        every { contentValidator.checkNoClashWithParent(any(), any()) } just Runs
 
         command.parse(
             listOf(
@@ -210,9 +220,13 @@ internal class UploadTest(
     internal fun `Resolution of page by title`(@TempDir tempDir: Path) {
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
-        coEvery { confluenceClient.getPage("TR", "Test page").id } returns "1234"
+        coEvery { confluenceClient.getPage("TR", "Test page") } returns mockk {
+            every { id } returns "1234"
+            every { title } returns "Test page"
+        }
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
         every { contentValidator.validate(result) } just Runs
+        every { contentValidator.checkNoClashWithParent(any(), result) } just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",
@@ -232,9 +246,13 @@ internal class UploadTest(
     internal fun `Using home page if not specified`(@TempDir tempDir: Path) {
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
-        coEvery { confluenceClient.describeSpace("TR", listOf("homepage")).homepage?.id } returns "1234"
+        coEvery { confluenceClient.describeSpace("TR", listOf("homepage")).homepage } returns mockk {
+            every { id } returns "1234"
+            every { title } returns "home page"
+        }
         coEvery { contentUploader.uploadPages(result, "TR", "1234") } just Runs
         every { contentValidator.validate(result) } just Runs
+        every { contentValidator.checkNoClashWithParent(any(), result) } just Runs
         command.parse(
             listOf(
                 "--confluence-url", "https://test.atlassian.net/wiki",

@@ -1,12 +1,15 @@
 package com.github.zeldigas.text2confl.core
 
+import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.Validation
+import com.github.zeldigas.text2confl.core.upload.ContentUploadException
 
 class ContentValidationFailedException(val errors: List<String>) : RuntimeException()
 
 interface ContentValidator {
     fun validate(content: List<Page>)
+    fun checkNoClashWithParent(publishUnder: ConfluencePage, pagesToPublish: List<Page>)
 }
 
 class ContentValidatorImpl : ContentValidator {
@@ -26,5 +29,11 @@ class ContentValidatorImpl : ContentValidator {
             }
             collectErrors(page.children, foundIssues)
         }
+    }
+
+    override fun checkNoClashWithParent(publishUnder: ConfluencePage, pagesToPublish: List<Page>) {
+        val conflictWithParent = pagesToPublish.find { it.title == publishUnder.title } ?: return
+
+        throw ContentUploadException("Page to publish clashes with parent under which pages will be published. Problem file - ${conflictWithParent.source}, parent confluence page - ${publishUnder.title} (id=${publishUnder.id})")
     }
 }
