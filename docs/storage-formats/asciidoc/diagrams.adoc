@@ -64,7 +64,9 @@ asciidoc:
 
 == Disabling diagram extensions
 
-If you want
+You can disable diagrams support by setting `asciidoc.diagrams` to `None`.
+
+This can be useful for specific scenarios such as registering your custom diagrams extension that clashes with standard ones.
 
 == Adding diagrams to page
 
