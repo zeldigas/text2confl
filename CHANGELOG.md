@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Check for conflict of published page with pages parent (#142)
+- Support for Kroki in asciidoc files via `kroki-extension` (#162)
 
 ### Changed
 

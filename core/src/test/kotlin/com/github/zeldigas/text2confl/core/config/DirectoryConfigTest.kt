@@ -3,12 +3,14 @@ package com.github.zeldigas.text2confl.core.config
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.*
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.net.URI
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.writeText
 
 class DirectoryConfigTest {
@@ -77,9 +79,71 @@ class DirectoryConfigTest {
                     bundledMacros = false,
                     attributes = mapOf("toclevels" to 5),
                     tempDir = true,
-                    baseDir = "b"
+                    baseDir = "b",
+                    kroki = KrokiDiagramsParameters(
+                        server = URI.create("https://example.org"),
+                        fetch = false,
+                        defaultFormat = "png"
+                    )
                 )
             )
         )
+    }
+
+    @Test
+    fun `Conversion of directory inputs to asciidoctor parameters for asciidoctor diagrams`() {
+        val dirAsciidoc = AsciidocParams(
+            gems = listOf("extra"),
+            diagrams = AsciidocDiagrams.Diagrams,
+            bundledMacros = true,
+            attributes = mapOf("toclevels" to 5),
+            tempDir = false,
+            baseDir = "test",
+            kroki = KrokiDiagramsParameters(
+                server = URI.create("https://example.org"),
+                fetch = true,
+                defaultFormat = "png"
+            )
+        )
+
+        val baseDir = Path(".")
+        assertThat(dirAsciidoc.toConfig(baseDir)).isEqualTo(AsciidoctorConfiguration(
+            libsToLoad = listOf("extra", "asciidoctor-diagram"),
+            loadBundledMacros = true,
+            attributes = mapOf(
+                "toclevels" to 5
+            ),
+            workdir = baseDir.resolve(Path("test"))
+        ))
+    }
+
+    @Test
+    fun `Conversion of directory inputs to asciidoctor parameters for kroki diagrams`() {
+        val dirAsciidoc = AsciidocParams(
+            gems = listOf("extra"),
+            diagrams = AsciidocDiagrams.Kroki,
+            bundledMacros = true,
+            attributes = mapOf("toclevels" to 5),
+            tempDir = false,
+            baseDir = "test",
+            kroki = KrokiDiagramsParameters(
+                server = URI.create("https://example.org"),
+                fetch = true,
+                defaultFormat = "png"
+            )
+        )
+
+        val baseDir = Path(".")
+        assertThat(dirAsciidoc.toConfig(baseDir)).isEqualTo(AsciidoctorConfiguration(
+            libsToLoad = listOf("extra", "asciidoctor-kroki"),
+            loadBundledMacros = true,
+            attributes = mapOf(
+                "kroki-server-url" to "https://example.org",
+                "kroki-default-format" to "png",
+                "kroki-fetch-diagram" to "true",
+                "toclevels" to 5
+            ),
+            workdir = baseDir.resolve(Path("test"))
+        ))
     }
 }

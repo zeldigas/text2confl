@@ -4,6 +4,7 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.*
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createTempDirectory
@@ -95,23 +96,42 @@ data class AsciidocParams(
     val attributes: Map<String, Any?> = emptyMap(),
     val tempDir: Boolean = false,
     val baseDir: String = ".asciidoc",
+    val kroki: KrokiDiagramsParameters = KrokiDiagramsParameters()
 ) {
     fun toConfig(docsDir: Path): AsciidoctorConfiguration {
         val baseDir = if (tempDir) createTempDirectory() else docsDir / baseDir
+
         return AsciidoctorConfiguration(
             libsToLoad = gems + diagrams.let {
                 when (it) {
                     AsciidocDiagrams.None -> emptyList()
                     AsciidocDiagrams.Diagrams -> listOf("asciidoctor-diagram")
+                    AsciidocDiagrams.Kroki -> listOf("asciidoctor-kroki")
                 }
             },
             loadBundledMacros = bundledMacros,
-            attributes = attributes,
+            attributes = diagramAttributes(diagrams) + attributes,
             workdir = baseDir
         )
+    }
+
+    private fun diagramAttributes(diagrams: AsciidocDiagrams): Map<String, Any?> {
+        if (diagrams != AsciidocDiagrams.Kroki) return emptyMap()
+
+        return buildMap {
+            kroki.server?.let { put("kroki-server-url", it.toString()) }
+            kroki.defaultFormat?.let { put("kroki-default-format", it) }
+            put("kroki-fetch-diagram", "${kroki.fetch}")
+        }
     }
 }
 
 enum class AsciidocDiagrams {
-    None, Diagrams
+    None, Diagrams, Kroki
 }
+
+data class KrokiDiagramsParameters(
+    val server: URI? = null,
+    val fetch: Boolean = true,
+    val defaultFormat: String? = null
+)

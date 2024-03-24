@@ -84,14 +84,17 @@ asciidoc:
     plantuml-format: png
 ```
 
-| Parameter      | Default value | Description                                                                                                                                  |
-|----------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| diagrams       | `Diagrams`    | How to generate diagrams. The only option now is `Diagrams` that activates `asciidoctor-diagrams`                                            |
-| bundled-macros | `true`        | Enables [asciidoctor macros for Confluence](./storage-formats/asciidoc/confluence-specific.adoc)                                             |
-| attributes     | emtpy map     | Section where you can specify key-value pairs. All provided pairs will be passed to Asciidoc as attributes.                                  | 
-| gems           | empty list    | Additional ruby gems to _require_. Mentioned gems must be on classpath, packaged as jar files (like `asciidoctor-diagram`)                   | 
-| temp-dir       | false         | If temporary directory should be used to store all generated content                                                                         | 
-| base-dir       | `.asciidoc`   | Working directory where all generated content is stored if `temp-dir` option is not enabled. Directory is resolved relative to document root | 
+| Parameter            | Default value | Description                                                                                                                                  |
+|----------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| diagrams             | `Diagrams`    | How to generate diagrams. You can use `Diagrams` that activates `asciidoctor-diagrams` or `Kroki` to rely on `asciidoctor-kroki`             |
+| kroki.server         | not specified | Sets url of kroki server to use via `kroki-server-url`                                                                                       |
+| kroki.fetch          | `true`        | If Kroki-generated diagrams should be attached as files to page. This sets `kroki-fetch-diagram` attribute                                   |
+| kroki.default-format | not specified | Sets `kroki-default-format` variable.                                                                                                        |
+| bundled-macros       | `true`        | Enables [asciidoctor macros for Confluence](./storage-formats/asciidoc/confluence-specific.adoc)                                             |
+| attributes           | emtpy map     | Section where you can specify key-value pairs. All provided pairs will be passed to Asciidoc as attributes.                                  | 
+| gems                 | empty list    | Additional ruby gems to _require_. Mentioned gems must be on classpath, packaged as jar files (like `asciidoctor-diagram`)                   | 
+| temp-dir             | false         | If temporary directory should be used to store all generated content                                                                         | 
+| base-dir             | `.asciidoc`   | Working directory where all generated content is stored if `temp-dir` option is not enabled. Directory is resolved relative to document root | 
 
 ### Modifications check strategies
 

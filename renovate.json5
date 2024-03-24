@@ -10,12 +10,19 @@
       "enabled": false
     }
   ],
-  "regexManagers": [
+  "customManagers": [
     {
+      "customType": "regex",
       "fileMatch": ["(^|/)Dockerfile$"],
       "matchStrings": ["ARG PLANTUML=\"(?<currentValue>.*?)\""],
       "depNameTemplate": "homebrew/plantuml",
       "datasourceTemplate": "repology"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["(^|/)gem-kroki/pom.xml"],
+      "matchStrings": [">(?<currentValue>.*?)<!--renovate dependency=(?<depName>[^ ]+) -->"],
+      "datasourceTemplate": "rubygems"
     }
   ]
 }

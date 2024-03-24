@@ -1,19 +1,74 @@
 = AsciiDoc - diagrams
-:keywords: supported-format,markdown
+:keywords: supported-format,asciidoc
 :toc: preamble
 
-For AsciiDoc *text2confl* relies on native diagrams support provided by link:https://docs.asciidoctor.org/diagram-extension/latest/[`asciidoctor-diagram` extension].
+*text2confl* supports two asciidoc-native diagrams extensions:
+
+. link:https://docs.asciidoctor.org/diagram-extension/latest/[`asciidoctor-diagram` extension].
+. link:https://github.com/asciidoctor/asciidoctor-kroki[`asciidoctor-kroki` extension].
+
+Approach for diagrams generation is controlled by
+
+[source,yaml]
+----
+asciidoc:
+  diagrams: Diagrams / Kroki / None
+----
+
+== Using `asciidoctor-diagram`
+
+`asciidoctor-diagram` support is enabled by default.
 
 That means that you have access to dozens of diagram formats as long as tools that can generate them is available on machine where *text2confl* works.
 
 NOTE: *text2confl* Docker image by default contains only `plantuml`.
 If you need any other diagram type, you can create derivative image with it.
 
+List of supported diagrams and macro names: https://docs.asciidoctor.org/diagram-extension/latest/diagram_types/a2s/
+
 Generated diagrams are attached to page like a regular files.
+
+== Using `asciidoctor-kroki`
+
+`asciidoctor-kroki` support can be enabled by explicitly setting diagram provider via `.text2confl.yml` file:
+
+[source,yaml]
+----
+asciidoc:
+  diagrams: Kroki
+  kroki:
+    server: ... # <1>
+    format: png # <2>
+    fetch: true/false # <3>
+----
+
+<1> `server` specifies custom Kroki server
+<2> `format` set's default format for generated diagrams
+<3> `fetch` setting to `false` will put a links to Kroki server instead of attaching diagram files to page
+
+Generated diagrams are attached to page like a regular files or put as an image links to Kroki server.
+
+You can find details about available options in xref:../../configuration-reference.md#asciidoc-configuration-options[configuration reference]
+
+List of supported diagrams and macro names: https://github.com/asciidoctor/asciidoctor-kroki/?tab=readme-ov-file#supported-diagram-types
+
+=== Additional customizations for Kroki
+
+You can customize kroki extension via `asciidoc.attributes` section in config with all link:https://github.com/asciidoctor/asciidoctor-kroki/?tab=readme-ov-file#configuration[supported attributes]:
+
+[source,yaml]
+----
+asciidoc:
+  attributes:
+----
+
+== Disabling diagram extensions
+
+If you want
 
 == Adding diagrams to page
 
-As link:https://docs.asciidoctor.org/diagram-extension/latest/blocks/[official AsciiDoc documentations] says, diagrams can be either put inline similar to code block or included from file using per diagram type macro.
+With both link:https://docs.asciidoctor.org/diagram-extension/latest/blocks/[asciidoctor-diagram] and link:https://github.com/asciidoctor/asciidoctor-kroki/?tab=readme-ov-file#usage[asciidoctor-kroki], diagrams can be either put inline similar to code block or included from file using per diagram type macro.
 
 With block or macro attributes, you can control name of generated file, file format and diagram-specific features.
 
@@ -38,9 +93,17 @@ include::_assets/example.adoc[tag=diagram]
 |===
 | AsciiDoc | Confluence
 
-|`+plantuml::_assets/test.puml[format=png]+`
-| plantuml::_assets/test.puml[format=png]
+|`+plantuml::_assets/test.puml[target=test,format=png]+`
+| plantuml::{docdir}/_assets/test.puml[target=test,format=png]
 |===
+
+[WARNING]
+.asciidoctor-kroki file imports
+====
+Until link:https://github.com/asciidoctor/asciidoctor-kroki/issues/446[file resolution issue] is not fixed, Kroki extension will fail to resolve files properly when you use relative paths.
+
+There is a workaround for this - add `+{docdir}+` to macro target: `+plantuml::{docdir}/_assets/test.puml[target=test,format=png]+`
+====
 
 == Location where diagrams are generated
 
@@ -52,7 +115,7 @@ This is configurable with the following parameters in `.text2confl.yml` file
 ----
 asciidoc:
   attributes:
-    plantuml-format: png
+    baseDir: .asciidoc
 ----
 
 You can find details about available options in xref:../../configuration-reference.md#asciidoc-configuration-options[configuration reference]
