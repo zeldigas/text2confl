@@ -165,7 +165,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><a href="mailto:join@discuss.example.org?subject=Subscribe+me&amp;body=I+want+to+participate.">Subscribe</a></p>
+            <p><a href="mailto:join@discuss.example.org?subject=Subscribe%20me&amp;body=I%20want%20to%20participate.">Subscribe</a></p>
             <p>Send email to <a href="mailto:example@example.org">example@example.org</a></p>
             <p><a href="mailto:example@example.org">Send email</a></p>
         """.trimIndent(),

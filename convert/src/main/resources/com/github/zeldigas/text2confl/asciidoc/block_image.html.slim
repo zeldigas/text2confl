@@ -1,12 +1,13 @@
 p
   = html_a_tag_if (attr? :link)
     ac:image ac:height=(attr :height) ac:width=(attr :width) ac:title=(escape_quotes(title) if title?) ac:alt=(escape_quotes(attr :alt) if attr :alt) ac:thumbnail=(attr :thumbnail) ac:align=(attr :align) ac:border=(attr :border) ac:class=(attr :class) ac:style=(attr :imgstyle) ac:vspace=(attr :vspace) ac:hspace=(attr :hspace) ac:queryparams=(escape_quotes(attr :queryparams) if attr :queryparams)
+      - target = attr :target
       - if uriish? attr :target
-        ri:url ri:value=(attr :target) /
+        ri:url ri:value=(escape_xml_attr target) /
       - else
-        - attachment = page_attachment(attr :target)
+        - attachment = page_attachment(target)
         - if attachment.nil?
-          ri:url ri:value=(attr :target) /
+          ri:url ri:value=(escape_xml_attr target) /
         -  else
           ri:attachment ri:filename=(attachment) /
     - if title?

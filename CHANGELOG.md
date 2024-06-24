@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.17.0 - 2024-06-24
+
 ### Added
 
 - Check for conflict of published page with pages parent (#142)
@@ -15,12 +17,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - dependency updates:
-  - plantuml to 1.2024.3
+  - plantuml to 1.2024.5
   - other deps (kotlin, ktor, logback, asciidoctor)
 
 ### Fixed
 
 - Handling of quotes in image titles and alt text (#166)
+- Escaping url for block images (#183)
+- Using attributes enclosed in quotes, but not jsons (#176)
 
 ## 0.16.0 - 2024-01-07
 

@@ -14,7 +14,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             .A Title    
             image::https://example.org/test.jpg[Alt text]
             
-            image::https://example.org/test.jpg[]
+            image::https://example.org/test.jpg?id=12&param=b[]
             
             image::assets/image.jpg[]
             
@@ -34,7 +34,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
         assertThat(result).isEqualToConfluenceFormat(
             """
             <p><ac:image ac:title="A Title" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image><div class="t2c-image-title"><em>Figure 1. A Title</em></div></p>
-            <p><ac:image ac:alt="test"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
+            <p><ac:image ac:alt="test"><ri:url ri:value="https://example.org/test.jpg?id=12&amp;param=b" /></ac:image></p>
             <p><ac:image ac:alt="image"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
             <p><ac:image ac:title="&quot;Quoted text&quot; regular text &lt;special text&gt;" ac:alt="Alt"><ri:attachment ri:filename="an_attachment" /></ac:image><div class="t2c-image-title"><em>Figure 2. "Quoted text" regular text &lt;special text&gt;</em></div></p>
         """.trimIndent(),
@@ -45,7 +45,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
     internal fun `Existing images inline rendering`() {
         val result = toHtml(
             """
-            External image inside paragraph - image:https://example.org/test.jpg[Alt text,title="A Title"]
+            External image inside paragraph - image:https://example.org/test.jpg?id=12&param=b[Alt text,title="A Title"]
             
             Attachment image inside paragraph - image:assets/image.jpg[Alt,title="Asset"]
         """.trimIndent(),
@@ -60,7 +60,7 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p>External image inside paragraph - <ac:image ac:title="A Title" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
+            <p>External image inside paragraph - <ac:image ac:title="A Title" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg?id=12&amp;param=b" /></ac:image></p>
             <p>Attachment image inside paragraph - <ac:image ac:title="Asset" ac:alt="Alt"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
         """.trimIndent(),
         )

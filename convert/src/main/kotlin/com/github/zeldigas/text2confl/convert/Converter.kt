@@ -20,7 +20,7 @@ interface Converter {
 
 }
 
-open class ConversionException(message: String) : RuntimeException(message)
+open class ConversionException(message: String, e: Throwable? = null) : RuntimeException(message, e)
 
 class FileDoesNotExistException(val file: Path) : ConversionException("File does not exist: $file")
 class DuplicateTitlesException(val duplicates: List<String>, message: String) : ConversionException(message)
@@ -64,13 +64,12 @@ internal class UniversalConverter(
 ) : Converter {
 
     override fun convertFile(file: Path): Page {
-        val converter = converterFor(file)
         if (!file.exists()) {
             throw FileDoesNotExistException(file)
         }
 
         return Page(
-            converter.convert(file, ConvertingContext(ReferenceProvider.singleFile(), conversionParameters, space)),
+            performConversion(file, ConvertingContext(ReferenceProvider.singleFile(), conversionParameters, space)),
             file,
             emptyList()
         )
@@ -121,13 +120,22 @@ internal class UniversalConverter(
     private fun convertFilesInDirectory(dir: Path, context: ConvertingContext): List<Page> =
         pagesDetector.scanDirectoryRecursively(dir,
             filter = { it.supported() },
-            converter = { file -> converterFor(file).convert(file, context) },
+            converter = { file -> performConversion(file, context) },
             assembler = { file, content, children -> Page(content, file, children) }
         )
 
     private fun converterFor(file: Path) =
         converters[file.extension.lowercase()]
             ?: throw IllegalArgumentException("Unsupported extension: ${file.extension}")
+
+    private fun performConversion(file: Path, context: ConvertingContext): PageContent {
+        val convert = converterFor(file)
+        return try {
+            convert.convert(file, context)
+        } catch(e: Exception) {
+            throw ConversionException("Failed to convert $file: ${e.message}", e)
+        }
+    }
 
     private fun File.supported() = isFile && !name.startsWith("_") && extension.lowercase() in converters
     private fun Path.supported() = toFile().supported()

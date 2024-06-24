@@ -291,5 +291,10 @@ module Slim::Helpers
     val.gsub(/"/, '&quot;'.freeze)
   end
 
+  def escape_xml_attr val
+    decoder = document.attr 't2c-decoder'
+    decoder.escapeXml(val)
+  end
+
 
 end

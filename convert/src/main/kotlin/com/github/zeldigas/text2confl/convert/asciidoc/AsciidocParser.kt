@@ -92,4 +92,9 @@ data class AsciidocRenderingParameters(
 
 object Converter {
     fun convert(string: String): String = unescapeHtml(string)
+
+    fun escapeXml(string: String) = string.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
 }

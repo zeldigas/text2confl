@@ -71,6 +71,7 @@ internal class UniversalConverterTest(
     @Test
     internal fun `No file conversion for unsupported format`(@TempDir dir: Path) {
         val src = dir.resolve("test.unsupported")
+        Files.createFile(src)
 
         assertFailure { converter.convertFile(src) }
             .isInstanceOf(IllegalArgumentException::class).hasMessage("Unsupported extension: unsupported")
