@@ -48,6 +48,10 @@ class AsciidocFileConverterTest {
             """
             :title: Custom title
             :labels: a,b,c
+            :with_braces: {hello}
+            :with_brackets: [a, b, c]
+            :json_with_braces: { "hello": "world" }
+            :json_with_brackets: ["hello", "world"]
             
             = Doc title
             
@@ -59,7 +63,13 @@ class AsciidocFileConverterTest {
 
         assertThat(result).all {
             prop(PageHeader::title).isEqualTo("Prefixed: Custom title")
-            prop(PageHeader::attributes).contains("labels", "a,b,c")
+            prop(PageHeader::attributes).all {
+                contains("labels", "a,b,c")
+                contains("with_braces", "{hello}")
+                contains("with_brackets", "[a, b, c]")
+                contains("json_with_braces", mapOf("hello" to "world"))
+                contains("json_with_brackets", listOf("hello", "world"))
+            }
         }
     }
 

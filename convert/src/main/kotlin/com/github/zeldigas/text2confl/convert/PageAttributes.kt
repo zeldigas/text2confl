@@ -1,6 +1,6 @@
 package com.github.zeldigas.text2confl.convert
 
-import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.JacksonException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -18,7 +18,7 @@ fun parseAttribute(value: Any): Any {
             } else {
                 value
             }
-        } catch (e: JsonParseException) {
+        } catch (e: JacksonException) {
             logger.debug(e) { "Failed to parse value $value, looks like not a valid json" }
             value
         }

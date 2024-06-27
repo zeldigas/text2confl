@@ -7,6 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.17.1 - 2024-06-27
+
+### Fixed
+
+- Using attributes enclosed in quotes, but not jsons. Extra scenario handled (#176)
+
+### Changed
+
+- Dependency updates
+  - asciidoctor-diagram to 2.3.1
+
 ## 0.17.0 - 2024-06-24
 
 ### Added
