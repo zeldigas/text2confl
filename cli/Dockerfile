@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21.0.3_9-jre as build
+FROM eclipse-temurin:21.0.4_7-jre as build
 
 ARG VERSION=""
 
@@ -6,7 +6,7 @@ ADD target/text2confl${VERSION}-dist/text2confl /opt/app
 
 RUN find /opt/app -exec touch -t 200001010101 {} \;
 
-FROM eclipse-temurin:21.0.3_9-jre
+FROM eclipse-temurin:21.0.4_7-jre
 
 LABEL org.opencontainers.image.source="https://github.com/zeldigas/text2confl"
 
