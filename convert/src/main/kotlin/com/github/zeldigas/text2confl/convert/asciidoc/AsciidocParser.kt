@@ -64,11 +64,10 @@ class AsciidocParser(
     ) + config.attributes + parameters.extraAttrs
 
     private fun htmlConversionOptions(attrs: Map<String, Any?>) = parserOptions {
-        attributes(
-            Attributes.builder().attributes(attrs)
-                .sourceHighlighter("none")
-                .build()
-        )
+        val a = Attributes.builder().build()
+        a.setAttributes(attrs)
+        a.setSourceHighlighter("none")
+        attributes(a)
         templateDirs(templatesLocation.toFile())
     }
 
