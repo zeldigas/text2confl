@@ -5,12 +5,12 @@ import io.ktor.client.plugins.auth.providers.*
 
 interface ConfluenceAuth {
 
-    fun create(auth: Auth)
+    fun create(auth: AuthConfig)
 
 }
 
 data class PasswordAuth(private val username: String, private val password: String) : ConfluenceAuth {
-    override fun create(auth: Auth) {
+    override fun create(auth: AuthConfig) {
         val creds = BasicAuthCredentials(username, password)
         auth.basic {
             credentials { creds }
@@ -25,7 +25,7 @@ data class PasswordAuth(private val username: String, private val password: Stri
 }
 
 data class TokenAuth(private val token: String) : ConfluenceAuth {
-    override fun create(auth: Auth) {
+    override fun create(auth: AuthConfig) {
         auth.bearer {
             loadTokens { BearerTokens(token, "") }
             sendWithoutRequest { true }
