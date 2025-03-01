@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -13,7 +14,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-class DumpToMarkdown : CliktCommand(name = "export-to-md", help = "Exports confluence page to markdown file"),
+class DumpToMarkdown : CliktCommand(name = "export-to-md"),
     WithConfluenceServerOptions {
     override val confluenceUrl: Url by confluenceUrl().required()
     override val confluenceUser: String? by confluenceUser()
@@ -40,6 +41,8 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md", help = "Exports confl
         .flag("--no-dump-also-storage-format", default = false)
 
     private val serviceProvider: ServiceProvider by requireObject()
+
+    override fun help(context: Context) = "Exports confluence page to markdown file"
 
     override fun run() {
         try {

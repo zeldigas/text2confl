@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.nullableFlag
 import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import com.github.ajalt.mordant.terminal.StringPrompt
+import com.github.ajalt.mordant.terminal.prompt
 import com.github.zeldigas.text2confl.convert.ConversionException
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.core.ContentValidationFailedException

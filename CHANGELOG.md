@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- Password confirmation is no longer asked in interactive prompt
+- Dependency updates
+  - plantuml to 1.2025.1
+  - other deps (kotlin, ktor)
+
 ## 0.17.1 - 2024-06-27
 
 ### Fixed

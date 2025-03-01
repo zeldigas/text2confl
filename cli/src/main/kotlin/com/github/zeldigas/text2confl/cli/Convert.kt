@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -19,7 +20,7 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.*
 
-class Convert : CliktCommand(name = "convert", help = "Converts source files to confluence markup"),
+class Convert : CliktCommand(name = "convert"),
     WithConversionOptions {
 
     private val docs: File by docsLocation()
@@ -36,6 +37,8 @@ class Convert : CliktCommand(name = "convert", help = "Converts source files to 
     override val editorVersion: EditorVersion? by editorVersion()
 
     private val serviceProvider: ServiceProvider by requireObject()
+
+    override fun help(context: Context) = "Converts source files to confluence markup"
 
     override fun run() {
         val directoryConfig = readDirectoryConfig(docs.toPath())

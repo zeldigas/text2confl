@@ -5,6 +5,7 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.parse
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.subcommands
 import com.github.zeldigas.text2confl.core.ServiceProvider

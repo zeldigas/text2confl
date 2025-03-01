@@ -1,10 +1,7 @@
 package com.github.zeldigas.text2confl.cli
 
 import PrintingUploadOperationsTracker
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.PrintMessage
-import com.github.ajalt.clikt.core.requireObject
-import com.github.ajalt.clikt.core.terminal
+import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
@@ -24,7 +21,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class Upload : CliktCommand(name = "upload", help = "Converts source files and uploads them to confluence"),
+class Upload : CliktCommand(name = "upload"),
     WithConversionOptions, WithConfluenceServerOptions {
 
     override val confluenceUrl by confluenceUrl()
@@ -67,6 +64,8 @@ class Upload : CliktCommand(name = "upload", help = "Converts source files and u
     private val docs: File by docsLocation()
 
     private val serviceProvider: ServiceProvider by requireObject()
+
+    override fun help(context: Context) = "Converts source files and uploads them to confluence"
 
     override fun run() = runBlocking {
         try {

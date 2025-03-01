@@ -83,7 +83,7 @@ internal interface WithConfluenceServerOptions {
 
     private fun passwordAuth(username: String, password: String?): PasswordAuth {
         val effectivePassword = password
-            ?: askForSecret("Enter password: ", requireConfirmation = true)
+            ?: askForSecret("Enter password: ", requireConfirmation = false)
             ?: throw PrintMessage("Password can't be null")
         return PasswordAuth(username, effectivePassword)
     }

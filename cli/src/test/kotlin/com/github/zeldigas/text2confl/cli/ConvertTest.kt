@@ -4,6 +4,8 @@ import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.isFalse
 import com.github.ajalt.clikt.core.context
+import com.github.ajalt.clikt.core.obj
+import com.github.ajalt.clikt.core.parse
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.Page
