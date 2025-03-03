@@ -31,6 +31,7 @@ class Upload : CliktCommand(name = "upload"),
     override val skipSsl: Boolean? by skipSsl()
     override val httpLogLevel: LogLevel by httpLoggingLevel()
     override val httpRequestTimeout: Long? by httpRequestTimeout()
+    override val confluenceCloud: Boolean? by confluenceCloudFlag()
 
     override val spaceKey: String? by confluenceSpace()
     private val parentId: String? by option("--parent-id", help = "Id of parent page where root pages should be added")
@@ -125,7 +126,7 @@ class Upload : CliktCommand(name = "upload"),
         val server = confluenceUrl ?: configuration.server?.let { Url(it) }
         ?: parameterMissing("Confluence url", "--confluence-url", "server")
 
-        return httpClientConfig(server, configuration.skipSsl)
+        return httpClientConfig(server, configuration.skipSsl, configuration.confluenceCloud)
     }
 
     private fun passwordAuth(username: String, password: String?): PasswordAuth {
@@ -148,6 +149,6 @@ class Upload : CliktCommand(name = "upload"),
         val anyTitle = listOf(parentTitle, directoryConfig.defaultParent).firstOrNull { it != null }
         if (anyTitle != null) return confluenceClient.getPage(uploadConfig.space, anyTitle)
 
-        return confluenceClient.describeSpace(uploadConfig.space, listOf("homepage")).homepage!!
+        return confluenceClient.describeSpace(uploadConfig.space).homepage!!
     }
 }

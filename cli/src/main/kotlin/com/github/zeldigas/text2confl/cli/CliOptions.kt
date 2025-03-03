@@ -61,6 +61,11 @@ fun ParameterHolder.httpRequestTimeout() = option(
     help = "Http request timeout in milliseconds. Default "
 ).long()
 
+fun ParameterHolder.confluenceCloudFlag() = option(
+    "--confluence-cloud",
+    help = "Activates usage confluence cloud api v2. Inferred by default for if confluence is hosted on atlassian.net domain"
+).optionalFlag("--no-confluence-cloud")
+
 internal interface WithConfluenceServerOptions {
     val confluenceUrl: Url?
     val confluenceUser: String?
@@ -69,6 +74,7 @@ internal interface WithConfluenceServerOptions {
     val skipSsl: Boolean?
     val httpLogLevel: LogLevel
     val httpRequestTimeout: Long?
+    val confluenceCloud: Boolean?
 
     val confluenceAuth: ConfluenceAuth
         get() = when {
@@ -88,12 +94,15 @@ internal interface WithConfluenceServerOptions {
         return PasswordAuth(username, effectivePassword)
     }
 
-    fun httpClientConfig(server: Url, defaultSslSkip: Boolean = false) = ConfluenceClientConfig(
+    fun httpClientConfig(server: Url,
+                         defaultSslSkip: Boolean = false,
+                         defaultCloudApi: Boolean? = null) = ConfluenceClientConfig(
         server = server,
         skipSsl = skipSsl ?: defaultSslSkip,
         auth = confluenceAuth,
         httpLogLevel = httpLogLevel,
-        requestTimeout = httpRequestTimeout
+        requestTimeout = httpRequestTimeout,
+        cloudApi = confluenceCloud ?: defaultCloudApi ?: server.host.endsWith(".atlassian.net", ignoreCase = true)
     )
     fun askForSecret(prompt: String, requireConfirmation: Boolean = true): String?
 

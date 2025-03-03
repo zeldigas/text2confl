@@ -1,15 +1,27 @@
 package com.github.zeldigas.confclient
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.zeldigas.confclient.model.*
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import java.nio.file.Path
+import java.security.cert.X509Certificate
+import javax.net.ssl.X509TrustManager
 
 interface ConfluenceClient {
 
     val confluenceBaseUrl: Url
     val confluenceApiBaseUrl: Url
 
-    suspend fun describeSpace(key: String, expansions: List<String>): Space
+    suspend fun describeSpace(key: String, includeHome: Boolean = true): Space
 
     suspend fun getPageById(id: String, expansions: Set<String>): ConfluencePage
 
@@ -77,6 +89,8 @@ interface ConfluenceClient {
 
 }
 
+class SpaceNotFoundException(val space: String): RuntimeException()
+
 class PageNotCreatedException(val title: String, val status: Int, val body: String?) :
     RuntimeException("Failed to create '$title' page: status=$status, body:\n$body")
 
@@ -89,3 +103,68 @@ class UnknownConfluenceErrorException(val status: Int, val body: String?) :
 
 class ConfluenceApiErrorException(val status: Int, val error: String, val body: Map<String, Any?>) :
     RuntimeException("Confluence API error: status=$error, body:\n$body")
+
+
+private fun httpClientForApi(config: ConfluenceClientConfig) = HttpClient(CIO) {
+    engine {
+        if (config.requestTimeout != null) {
+            requestTimeout = config.requestTimeout
+        }
+        if (config.skipSsl) {
+            https {
+                trustManager = object : X509TrustManager {
+                    override fun getAcceptedIssuers(): Array<X509Certificate>? = null
+                    override fun checkClientTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
+                    override fun checkServerTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
+                }
+            }
+        }
+    }
+    install(ContentNegotiation) {
+        jackson {
+            registerModule(Jdk8Module())
+            registerModule(JavaTimeModule())
+            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        }
+    }
+
+    install(Auth) {
+        config.auth.create(this)
+    }
+
+    install(UserAgent) {
+        agent = "text2confl"
+    }
+    if (config.httpLogLevel != LogLevel.NONE) {
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = config.httpLogLevel
+            sanitizeHeader { header -> header == HttpHeaders.Authorization }
+        }
+    }
+}
+
+fun confluenceClient(
+    config: ConfluenceClientConfig
+): ConfluenceClient {
+    val client = httpClientForApi(config)
+    return confluenceClientV1(config, client)
+}
+
+private fun confluenceClientV1(
+    config: ConfluenceClientConfig,
+    client: HttpClient
+): ConfluenceClientImpl {
+    val baseUrl = URLBuilder(config.server).appendPathSegments("rest", "api").build().toString()
+    return ConfluenceClientImpl(config.server, baseUrl, client)
+}
+
+fun confluenceClientV2(
+    config: ConfluenceClientConfig
+): ConfluenceClient {
+    val client = httpClientForApi(config)
+    val baseUrl = URLBuilder(config.server).appendPathSegments("api", "v2").build().toString()
+    return ConfluenceCloudClient(
+        config.server, baseUrl, client, confluenceClientV1(config, client)
+    )
+}

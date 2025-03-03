@@ -15,6 +15,7 @@ import kotlin.io.path.div
  */
 data class DirectoryConfig(
     val server: String? = null,
+    val confluenceCloud: Boolean? = null,
     val skipSsl: Boolean = false,
     val space: String? = null,
     val defaultParentId: String? = null,

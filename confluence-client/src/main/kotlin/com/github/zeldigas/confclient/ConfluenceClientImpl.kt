@@ -1,30 +1,19 @@
 package com.github.zeldigas.confclient
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.zeldigas.confclient.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
 import io.ktor.serialization.*
-import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import java.nio.file.Path
-import java.security.cert.X509Certificate
-import javax.net.ssl.X509TrustManager
 import kotlin.io.path.fileSize
 
 class ConfluenceClientImpl(
@@ -41,9 +30,11 @@ class ConfluenceClientImpl(
     override val confluenceApiBaseUrl: Url
         get() = Url(apiBase)
 
-    override suspend fun describeSpace(key: String, expansions: List<String>): Space {
+    override suspend fun describeSpace(key: String, includeHome: Boolean): Space {
         return httpClient.get("$apiBase/space/$key") {
-            addExpansions(expansions)
+            if (includeHome) {
+                addExpansions(listOf("homepage"))
+            }
         }.readApiResponse()
     }
 
@@ -372,49 +363,3 @@ private data class PageSearchResult(
     val limit: Int,
     val size: Int
 )
-
-fun confluenceClient(
-    config: ConfluenceClientConfig
-): ConfluenceClient {
-    val client = HttpClient(CIO) {
-        engine {
-            if (config.requestTimeout != null) {
-                requestTimeout = config.requestTimeout
-            }
-            if (config.skipSsl) {
-                https {
-                    trustManager = object : X509TrustManager {
-                        override fun getAcceptedIssuers(): Array<X509Certificate>? = null
-                        override fun checkClientTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
-                        override fun checkServerTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
-                    }
-                }
-            }
-        }
-        install(ContentNegotiation) {
-            jackson {
-                registerModule(Jdk8Module())
-                registerModule(JavaTimeModule())
-                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            }
-        }
-
-        install(Auth) {
-            config.auth.create(this)
-        }
-
-        install(UserAgent) {
-            agent = "text2confl"
-        }
-        if (config.httpLogLevel != LogLevel.NONE) {
-            install(Logging) {
-                logger = Logger.DEFAULT
-                level = config.httpLogLevel
-                sanitizeHeader { header -> header == HttpHeaders.Authorization }
-            }
-        }
-
-    }
-    val baseUrl = URLBuilder(config.server).appendPathSegments("rest", "api").build().toString()
-    return ConfluenceClientImpl(config.server, baseUrl, client)
-}

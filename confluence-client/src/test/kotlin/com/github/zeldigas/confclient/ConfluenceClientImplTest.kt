@@ -158,7 +158,13 @@ class ConfluenceClientImplTest(runtimeInfo: WireMockRuntimeInfo) {
     }
 }
 
-private fun ResponseDefinitionBuilder.withJson(data: Any): ResponseDefinitionBuilder? {
+internal fun ResponseDefinitionBuilder.withJson(data: Any): ResponseDefinitionBuilder? {
     return withBody(jacksonObjectMapper().writeValueAsBytes(data))
+        .withHeader("content-type", "application/json")
+}
+
+internal fun ResponseDefinitionBuilder.withJsonFromFile(pathToFile: String): ResponseDefinitionBuilder? {
+    val content = ConfluenceClientImplTest::class.java.getResourceAsStream(pathToFile)!!.reader().use { it.readText() }
+    return withBody(content)
         .withHeader("content-type", "application/json")
 }

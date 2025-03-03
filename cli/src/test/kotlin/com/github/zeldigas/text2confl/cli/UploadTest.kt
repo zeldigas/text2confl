@@ -91,7 +91,8 @@ internal class UploadTest(
                 ConfluenceClientConfig(
                     Url("https://test.atlassian.net/wiki"),
                     false,
-                    PasswordAuth("test", "test")
+                    PasswordAuth("test", "test"),
+                    cloudApi = true
                 ),
                 false
             )
@@ -134,7 +135,8 @@ internal class UploadTest(
                 "--access-token", "token",
                 "--message", "custom upload message",
                 "--docs", tempDir.toString(),
-                "--dry"
+                "--dry",
+                "--no-confluence-cloud"
             )
         )
 
@@ -248,7 +250,7 @@ internal class UploadTest(
     internal fun `Using home page if not specified`(@TempDir tempDir: Path) {
         val result = mockk<List<Page>>()
         every { converter.convertDir(tempDir) } returns result
-        coEvery { confluenceClient.describeSpace("TR", listOf("homepage")).homepage } returns mockk {
+        coEvery { confluenceClient.describeSpace("TR").homepage } returns mockk {
             every { id } returns "1234"
             every { title } returns "home page"
         }

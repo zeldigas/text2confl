@@ -17,11 +17,7 @@ import com.github.zeldigas.text2confl.core.config.Cleanup
 import com.github.zeldigas.text2confl.core.config.CodeBlockParams
 import com.github.zeldigas.text2confl.core.config.ConverterConfig
 import com.github.zeldigas.text2confl.core.config.UploadConfig
-import com.github.zeldigas.text2confl.core.upload.ChangeDetector
-import com.github.zeldigas.text2confl.core.upload.ContentUploader
-import com.github.zeldigas.text2confl.core.upload.DryRunClient
-import com.github.zeldigas.text2confl.core.upload.PageUploadOperationsImpl
-import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
+import com.github.zeldigas.text2confl.core.upload.*
 import io.ktor.http.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -85,7 +81,9 @@ internal class ServiceProviderImplTest {
         mockkStatic(::confluenceClient) {
             every { confluenceClient(any()) } returns client
 
-            val result = provider.createConfluenceClient(mockk(), true)
+            val result = provider.createConfluenceClient(mockk {
+                every { cloudApi } returns false
+            }, true)
 
             assertThat(result).isInstanceOf(DryRunClient::class)
         }
