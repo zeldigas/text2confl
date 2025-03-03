@@ -1,0 +1,23 @@
+{
+  "results": [
+    {
+      "createdAt": "2025-03-01T15:25:49.883Z",
+      "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+      "homepageId": "98581",
+      "icon": null,
+      "description": null,
+      "status": "current",
+      "name": "Documentation",
+      "key": "Docs",
+      "id": "98445",
+      "type": "knowledge_base",
+      "_links": {
+        "webui": "/spaces/Docs"
+      },
+      "currentActiveAlias": "Docs"
+    }
+  ],
+  "_links": {
+    "base": "https://text2confl.atlassian.net/wiki"
+  }
+}

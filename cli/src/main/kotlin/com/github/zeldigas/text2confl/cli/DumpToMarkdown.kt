@@ -23,6 +23,7 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md"),
     override val skipSsl: Boolean? by skipSsl()
     override val httpLogLevel: LogLevel by httpLoggingLevel()
     override val httpRequestTimeout: Long? by httpRequestTimeout()
+    override val confluenceCloud: Boolean? by confluenceCloudFlag()
 
     val space: String? by confluenceSpace()
     private val pageId: String? by option("--page-id", help = "Id of page that you want to dump")

@@ -12,4 +12,5 @@ data class ConfluenceClientConfig(
     val auth: ConfluenceAuth,
     val httpLogLevel: LogLevel = LogLevel.NONE,
     val requestTimeout: Long? = null,
+    val cloudApi: Boolean = false,
 )

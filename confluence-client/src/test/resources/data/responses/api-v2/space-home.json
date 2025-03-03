@@ -1,0 +1,28 @@
+{
+  "parentType": null,
+  "parentId": null,
+  "ownerId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+  "lastOwnerId": null,
+  "createdAt": "2025-03-01T15:25:50.792Z",
+  "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+  "position": 738,
+  "version": {
+    "number": 1,
+    "message": "",
+    "minorEdit": false,
+    "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+    "createdAt": "2025-03-01T15:25:51.008Z"
+  },
+  "body": {},
+  "status": "current",
+  "title": "Docs",
+  "spaceId": "98445",
+  "id": "98581",
+  "_links": {
+    "editui": "/pages/resumedraft.action?draftId=98581",
+    "webui": "/spaces/Docs/overview",
+    "edituiv2": "/spaces/Docs/pages/edit-v2/98581",
+    "tinyui": "/x/FYEB",
+    "base": "https://text2confl.atlassian.net/wiki"
+  }
+}
