@@ -1,28 +1,37 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
   ],
-  "packageRules": [
+  packageRules: [
     {
-      // we don't monitor own packages
-      "matchPackagePrefixes": ["com.github.zeldigas.confluence:"],
-      "enabled": false
-    }
+      enabled: false,
+      matchPackageNames: [
+        'com.github.zeldigas.confluence:{/,}**',
+      ],
+    },
   ],
-  "customManagers": [
+  customManagers: [
     {
-      "customType": "regex",
-      "fileMatch": ["(^|/)Dockerfile$"],
-      "matchStrings": ["ARG PLANTUML=\"(?<currentValue>.*?)\""],
-      "depNameTemplate": "homebrew/plantuml",
-      "datasourceTemplate": "repology"
+      customType: 'regex',
+      fileMatch: [
+        '(^|/)Dockerfile$',
+      ],
+      matchStrings: [
+        'ARG PLANTUML="(?<currentValue>.*?)"',
+      ],
+      depNameTemplate: 'homebrew/plantuml',
+      datasourceTemplate: 'repology',
     },
     {
-      "customType": "regex",
-      "fileMatch": ["(^|/)gem-kroki/pom.xml"],
-      "matchStrings": [">(?<currentValue>.*?)<!--renovate dependency=(?<depName>[^ ]+) -->"],
-      "datasourceTemplate": "rubygems"
-    }
-  ]
+      customType: 'regex',
+      fileMatch: [
+        '(^|/)gem-kroki/pom.xml',
+      ],
+      matchStrings: [
+        '>(?<currentValue>.*?)<!--renovate dependency=(?<depName>[^ ]+) -->',
+      ],
+      datasourceTemplate: 'rubygems',
+    },
+  ],
 }
