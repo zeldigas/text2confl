@@ -43,7 +43,7 @@ internal class PageUploadOperationsImpl(
         space: String,
         page: Page
     ) = client.getPageOrNull(
-        space = space, title = page.title, expansions =
+        space = space, title = page.title, loadOptions =
         setOf(
             "metadata.labels",
             propertyExpansion(HASH_PROPERTY),
@@ -166,7 +166,7 @@ internal class PageUploadOperationsImpl(
         parentId: String
     ): ServerPage {
         val serverPage = client.getPageOrNull(
-            space, title, expansions = setOf(
+            space, title, loadOptions = setOf(
                 "ancestors", "version", propertyExpansion(TENANT_PROPERTY)
             )
         ) ?: throw PageNotFoundException(space, title)

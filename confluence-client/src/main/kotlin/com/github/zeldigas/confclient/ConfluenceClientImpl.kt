@@ -41,30 +41,38 @@ class ConfluenceClientImpl(
     override suspend fun getPage(
         space: String,
         title: String,
-        status: List<String>?,
-        expansions: Set<String>
+        expansions: Set<PageLoadOptions>
     ): ConfluencePage {
-        val results = findPages(space, title, status, expansions)
+        val results = findPages(space, title, expansions = toExpansions(expansions).toSet())
 
         return extractSinglePage(results)
     }
 
     override suspend fun getPageById(
         id: String,
-        expansions: Set<String>
+        loadOptions: Set<PageLoadOptions>
     ): ConfluencePage {
         return httpClient.get("$apiBase/content/$id") {
-            addExpansions(expansions)
+            addExpansions(toExpansions(loadOptions))
         }.readApiResponse()
+    }
+
+    private fun toExpansions(loadOptions: Set<PageLoadOptions>) = buildList {
+        if (PageLoadOptions.Metadata in loadOptions) {
+            add("metadata.labels")
+            add("metadata.properties")
+        }
+        if (PageLoadOptions.Space in loadOptions) add("space")
+        if (PageLoadOptions.Content in loadOptions) add("body.storage")
+        if (PageLoadOptions.Attachments in loadOptions) add("children.attachment")
     }
 
     override suspend fun getPageOrNull(
         space: String,
         title: String,
-        status: List<String>?,
-        expansions: Set<String>
+        loadOptions: Set<String>
     ): ConfluencePage? {
-        val results = findPages(space, title, status, expansions)
+        val results = findPages(space, title, expansions = loadOptions)
 
         return if (results.isEmpty()) {
             null
@@ -73,26 +81,14 @@ class ConfluenceClientImpl(
         }
     }
 
-    private fun extractSinglePage(results: List<ConfluencePage>): ConfluencePage {
-        if (results.isEmpty()) {
-            throw PageNotFoundException()
-        } else if (results.size > 1) {
-            throw TooManyPagesFound(results)
-        } else {
-            return results.first()
-        }
-    }
-
     override suspend fun findPages(
         space: String?,
         title: String,
-        status: List<String>?,
         expansions: Set<String>
     ): List<ConfluencePage> {
         val result: PageSearchResult = httpClient.get("$apiBase/content") {
             space?.let { parameter("spaceKey", it) }
             parameter("title", title)
-            status?.let { parameter("status", it.toString()) }
             addExpansions(expansions)
         }.readApiResponse()
         return result.results

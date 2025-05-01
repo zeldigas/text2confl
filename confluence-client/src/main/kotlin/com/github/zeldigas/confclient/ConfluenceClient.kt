@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.zeldigas.confclient.model.*
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
@@ -16,6 +17,8 @@ import java.nio.file.Path
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
 
+private val logger = KotlinLogging.logger {}
+
 interface ConfluenceClient {
 
     val confluenceBaseUrl: Url
@@ -23,23 +26,21 @@ interface ConfluenceClient {
 
     suspend fun describeSpace(key: String, includeHome: Boolean = true): Space
 
-    suspend fun getPageById(id: String, expansions: Set<String>): ConfluencePage
+    suspend fun getPageById(id: String, loadOptions: Set<PageLoadOptions>): ConfluencePage
 
     suspend fun getPage(
         space: String, title: String,
-        status: List<String>? = null,
-        expansions: Set<String> = emptySet()
+        loadOptions: Set<PageLoadOptions> = emptySet()
     ): ConfluencePage
 
     suspend fun getPageOrNull(
         space: String, title: String,
-        status: List<String>? = null,
-        expansions: Set<String> = emptySet()
+        loadOptions: Set<String> = emptySet()
     ): ConfluencePage?
 
     suspend fun findPages(
-        space: String?, title: String,
-        status: List<String>? = null,
+        space: String?,
+        title: String,
         expansions: Set<String> = emptySet()
     ): List<ConfluencePage>
 
@@ -89,6 +90,10 @@ interface ConfluenceClient {
 
 }
 
+enum class PageLoadOptions {
+    Space, Content, Metadata, Attachments
+}
+
 class SpaceNotFoundException(val space: String): RuntimeException()
 
 class PageNotCreatedException(val title: String, val status: Int, val body: String?) :
@@ -103,6 +108,17 @@ class UnknownConfluenceErrorException(val status: Int, val body: String?) :
 
 class ConfluenceApiErrorException(val status: Int, val error: String, val body: Map<String, Any?>) :
     RuntimeException("Confluence API error: status=$error, body:\n$body")
+
+
+internal fun extractSinglePage(results: List<ConfluencePage>): ConfluencePage {
+    if (results.isEmpty()) {
+        throw PageNotFoundException()
+    } else if (results.size > 1) {
+        throw TooManyPagesFound(results)
+    } else {
+        return results.first()
+    }
+}
 
 
 private fun httpClientForApi(config: ConfluenceClientConfig) = HttpClient(CIO) {
@@ -163,6 +179,13 @@ fun confluenceClientV2(
     config: ConfluenceClientConfig
 ): ConfluenceClient {
     val client = httpClientForApi(config)
+    client.plugin(HttpSend).intercept { request ->
+        val call = execute(request)
+        if ("Warning" in call.response.headers) {
+            logger.warn { "${call.response.headers["Warning"]}: ${request.method} ${request.url}" }
+        }
+        call
+    }
     val baseUrl = URLBuilder(config.server).appendPathSegments("api", "v2").build().toString()
     return ConfluenceCloudClient(
         config.server, baseUrl, client, confluenceClientV1(config, client)

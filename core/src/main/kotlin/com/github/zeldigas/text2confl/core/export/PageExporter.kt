@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.core.export
 
 import com.github.zeldigas.confclient.ConfluenceClient
+import com.github.zeldigas.confclient.PageLoadOptions
 import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Page
@@ -15,10 +16,7 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
 
     companion object {
         internal val CONTENT_EXTENSIONS = setOf(
-            "metadata.labels",
-            "children.attachment",
-            "body.storage",
-            "space"
+            PageLoadOptions.Metadata, PageLoadOptions.Attachments, PageLoadOptions.Content, PageLoadOptions.Space
         )
     }
 
@@ -28,7 +26,7 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
     }
 
     suspend fun exportPageContent(space: String, title: String, destinationDir: Path, assetsLocation: String?) {
-        val page = client.getPage(space, title, expansions = CONTENT_EXTENSIONS)
+        val page = client.getPage(space, title, loadOptions = CONTENT_EXTENSIONS)
         exportPageWithAttachments(page, destinationDir, assetsLocation)
     }
 

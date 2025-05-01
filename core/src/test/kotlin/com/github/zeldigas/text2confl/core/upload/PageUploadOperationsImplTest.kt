@@ -34,7 +34,7 @@ internal class PageUploadOperationsImplTest(
     internal fun `Creation of new page`(tenant: String) {
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = setOf(
+                "TEST", "Page title", loadOptions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
@@ -136,7 +136,7 @@ internal class PageUploadOperationsImplTest(
         )
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = setOf(
+                "TEST", "Page title", loadOptions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
@@ -205,7 +205,7 @@ internal class PageUploadOperationsImplTest(
     internal fun `Only properties update if content is not changed`(changeDetector: ChangeDetector) {
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = setOf(
+                "TEST", "Page title", loadOptions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
@@ -274,7 +274,7 @@ internal class PageUploadOperationsImplTest(
     internal fun `Update of existing page with setting explicit tenant`() {
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = setOf(
+                "TEST", "Page title", loadOptions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
@@ -356,7 +356,7 @@ internal class PageUploadOperationsImplTest(
             space = null
         )
         coEvery {
-            client.getPageOrNull("TEST", "Page title", expansions = any())
+            client.getPageOrNull("TEST", "Page title", loadOptions = any())
         } returns serverPage
 
         val parentChanged = serverPage.ancestors?.get(0)?.id != targetParent
@@ -408,7 +408,7 @@ internal class PageUploadOperationsImplTest(
     internal fun `Update of existing page with different tenant not allowed`(tenant: String) {
         coEvery {
             client.getPageOrNull(
-                "TEST", "Page title", expansions = setOf(
+                "TEST", "Page title", loadOptions = setOf(
                     "metadata.labels",
                     "metadata.properties.contenthash",
                     "metadata.properties.editor",
@@ -692,7 +692,7 @@ internal class PageUploadOperationsImplTest(
     @Test
     internal fun virtualPageWithWrongParent() {
         coEvery {
-            client.getPageOrNull(any(), any(), expansions = any())
+            client.getPageOrNull(any(), any(), loadOptions = any())
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
@@ -725,7 +725,7 @@ internal class PageUploadOperationsImplTest(
     @ParameterizedTest
     internal fun `Virtual page with wrong parent cannot be changed if it has different tenant`(tenant: String) {
         coEvery {
-            client.getPageOrNull(any(), any(), expansions = any())
+            client.getPageOrNull(any(), any(), loadOptions = any())
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
@@ -758,7 +758,7 @@ internal class PageUploadOperationsImplTest(
     @Test
     internal fun virtualPageWithCorrectParent() {
         coEvery {
-            client.getPageOrNull(any(), any(), expansions = any())
+            client.getPageOrNull(any(), any(), loadOptions = any())
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
@@ -781,7 +781,7 @@ internal class PageUploadOperationsImplTest(
             client.getPageOrNull(
                 any(),
                 any(),
-                expansions = setOf("ancestors", "version", "metadata.properties.$TENANT_PROPERTY")
+                loadOptions = setOf("ancestors", "version", "metadata.properties.$TENANT_PROPERTY")
             )
         } returns null
 
@@ -794,7 +794,7 @@ internal class PageUploadOperationsImplTest(
     @Test
     fun `Cycle with parent is detected for found page`() {
         coEvery {
-            client.getPageOrNull(any(), any(), expansions = any())
+            client.getPageOrNull(any(), any(), loadOptions = any())
         } returns mockk {
             every { id } returns "parentId"
             every { title } returns "Page title"

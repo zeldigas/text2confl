@@ -64,7 +64,14 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
                         createdAt = ZonedDateTime.parse("2025-03-01T15:25:51.008Z")
                     ),
                     children = null,
-                    ancestors = null
+                    ancestors = null,
+                    links = mapOf(
+                        "editui" to "/pages/resumedraft.action?draftId=98581",
+                        "webui" to "/spaces/Docs/overview",
+                        "edituiv2" to "/spaces/Docs/pages/edit-v2/98581",
+                        "tinyui" to "/x/FYEB",
+                        "base" to "https://text2confl.atlassian.net/wiki"
+                    )
                 )
             )
         )

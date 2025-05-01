@@ -11,6 +11,8 @@ import io.ktor.http.*
 import io.ktor.http.ContentType
 import io.ktor.serialization.*
 import java.time.ZonedDateTime
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
 class ConfluenceCloudClient(
     override val confluenceBaseUrl: Url,
@@ -18,6 +20,8 @@ class ConfluenceCloudClient(
     private val httpClient: HttpClient,
     private val fallbackClient: ConfluenceClient
 ) : ConfluenceClient by fallbackClient {
+
+    private val spacesCache: ConcurrentMap<Int, Space> = ConcurrentHashMap()
 
     companion object {
         private const val PAGE_SIZE = 100
@@ -34,6 +38,7 @@ class ConfluenceCloudClient(
         if (spaces.results.isEmpty()) throw SpaceNotFoundException(key)
 
         val space = spaces.results.first()
+        spacesCache[space.id] = space
         return if (includeHome && space.homepageId != null) {
             space.copy(homepage = this.getPageById(space.homepageId))
         } else {
@@ -41,10 +46,60 @@ class ConfluenceCloudClient(
         }
     }
 
+    private suspend fun getSpaceById(id: Int): Space = httpClient.get("$apiBase/spaces/$id").readApiResponse<Space>()
+
+    override suspend fun getPage(
+        space: String,
+        title: String,
+        expansions: Set<PageLoadOptions>
+    ): ConfluencePage {
+        val results = findPagesWithLoadOptions(space, title, expansions)
+
+        return extractSinglePage(results)
+    }
+
+    suspend fun findPagesWithLoadOptions(
+        space: String,
+        title: String,
+        loadOptions: Set<PageLoadOptions>
+    ): List<ConfluencePage> {
+        val spaceInfo = resolveSpace(space)
+        val pages = httpClient.get("$apiBase/spaces/${spaceInfo.id}/pages") {
+            parameter("title", title)
+            parameter("limit", PAGE_SIZE)
+        }.readApiResponse<ConfCloudPageSearchResult>().results.map { page ->
+            toConfluencePage(page, spaceInfo)
+        }
+        if (loadOptions.isNotEmpty()) {
+            throw NotImplementedError("Page load options are not supported yet")
+        }
+        return pages
+    }
+
+    override suspend fun getPageById(
+        id: String,
+        loadOptions: Set<PageLoadOptions>
+    ): ConfluencePage {
+        var page = getPageById(
+            id,
+            includeBody = PageLoadOptions.Content in loadOptions,
+            includeLabels = PageLoadOptions.Metadata in loadOptions,
+            includeProperties = PageLoadOptions.Metadata in loadOptions,
+            includeSpace = PageLoadOptions.Space in loadOptions
+        )
+        if (PageLoadOptions.Attachments in loadOptions) {
+           page = page.copy(children = PageChildren(
+               getPageAttachments(page.id)
+           ))
+        }
+        return page
+    }
+
     private suspend fun getPageById(id: String,
                                     includeBody: Boolean = false,
                                     includeLabels: Boolean = false,
-                                    includeProperties: Boolean = false): ConfluencePage {
+                                    includeProperties: Boolean = false,
+                                    includeSpace: Boolean = false): ConfluencePage {
         val page = httpClient.get("$apiBase/pages/$id"){
             if (includeBody) {
                 parameter("body-format", "storage")
@@ -56,18 +111,46 @@ class ConfluenceCloudClient(
                 parameter("include-properties", "true")
             }
         }.readApiResponse<ConfCloudPage>()
+        val space: Space? = if (includeSpace) {
+            spacesCache.getOrPut(page.spaceId) { this.getSpaceById(page.spaceId) }
+        } else null
+        return toConfluencePage(page, space)
+    }
 
-        return ConfluencePage(
-            id = page.id,
-            type = com.github.zeldigas.confclient.model.ContentType.page,
-            status = page.status,
-            title = page.title,
-            metadata = page.pageMetadata,
-            body = page.body,
-            version = page.version?.let{ PageVersionInfo(number=it.number, minorEdit = it.minorEdit, createdAt = it.createdAt) },
-            children = null,
-            ancestors = null
+    private fun toConfluencePage(
+        page: ConfCloudPage,
+        space: Space?
+    ): ConfluencePage = ConfluencePage(
+        id = page.id,
+        type = com.github.zeldigas.confclient.model.ContentType.page,
+        status = page.status,
+        title = page.title,
+        metadata = page.pageMetadata,
+        body = page.body,
+        version = page.version?.let {
+            PageVersionInfo(
+                number = it.number,
+                minorEdit = it.minorEdit,
+                createdAt = it.createdAt
+            )
+        },
+        children = null,
+        ancestors = null,
+        space = space,
+        links = page.links
+    )
+
+    private suspend fun getPageAttachments(pageId: String): PageAttachments {
+        val attachments = httpClient.get("$apiBase/pages/$pageId/attachments").readApiResponse<CloudPageAttachments>()
+        return PageAttachments(
+            results = attachments.results.map { Attachment(it.id, it.title, links = it.links) },
+            links = attachments.links
         )
+    }
+
+    private suspend fun resolveSpace(key: String): Space {
+        val space = spacesCache.values.firstOrNull { it.key == key }
+        return space ?: this.describeSpace(key, includeHome = false)
     }
 
 
@@ -120,7 +203,8 @@ private data class ConfCloudPage(
     val labels: AttributesCollection<CloudPageLabel>? = null,
     val body: PageBody? = null,
     @JsonProperty("_links")
-    val links: Map<String, String> = emptyMap()
+    val links: Map<String, String> = emptyMap(),
+    val spaceId: Int
 ) {
     val pageMetadata: PageMetadata?
         get() {
@@ -172,4 +256,12 @@ private data class CloudVersion(
     val number: Int,
     val minorEdit: Boolean,
     val authorId: String
+)
+
+private data class CloudPageAttachments(
+    val results: List<Attachment>, val meta: OptionalFieldMeta?, @JsonProperty("_links") val links: Map<String, String>
+)
+
+private data class ConfCloudPageSearchResult (
+    val results: List<ConfCloudPage>, @JsonProperty("_links") val links: Map<String, String>
 )
