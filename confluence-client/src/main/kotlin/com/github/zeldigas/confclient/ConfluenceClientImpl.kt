@@ -58,14 +58,25 @@ class ConfluenceClientImpl(
     }
 
     private fun toExpansions(loadOptions: Set<PageLoadOptions>) = buildList {
-        if (PageLoadOptions.Metadata in loadOptions) {
+        if (SimplePageLoadOptions.Labels in loadOptions) {
             add("metadata.labels")
-            add("metadata.properties")
         }
-        if (PageLoadOptions.Space in loadOptions) add("space")
-        if (PageLoadOptions.Content in loadOptions) add("body.storage")
-        if (PageLoadOptions.Attachments in loadOptions) add("children.attachment")
+        if (SimplePageLoadOptions.Space in loadOptions) add("space")
+        if (SimplePageLoadOptions.Content in loadOptions) add("body.storage")
+        if (SimplePageLoadOptions.Attachments in loadOptions) add("children.attachment")
+        if (SimplePageLoadOptions.Parent in loadOptions) add("ancestors")
+        if (SimplePageLoadOptions.Version in loadOptions) add("version")
+
+        loadOptions.filterIsInstance<PagePropertyLoad>().forEach {
+            add("metadata.properties.${it.name}")
+        }
     }
+
+    override suspend fun getPageOrNullWithOptions(
+        space: String,
+        title: String,
+        loadOptions: Set<PageLoadOptions>
+    ): ConfluencePage? = getPageOrNull(space, title, toExpansions(loadOptions).toSet())
 
     override suspend fun getPageOrNull(
         space: String,

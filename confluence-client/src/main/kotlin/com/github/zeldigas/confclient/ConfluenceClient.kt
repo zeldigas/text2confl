@@ -38,6 +38,11 @@ interface ConfluenceClient {
         loadOptions: Set<String> = emptySet()
     ): ConfluencePage?
 
+    suspend fun getPageOrNullWithOptions(
+        space: String, title: String,
+        loadOptions: Set<PageLoadOptions> = emptySet()
+    ): ConfluencePage?
+
     suspend fun findPages(
         space: String?,
         title: String,
@@ -90,9 +95,13 @@ interface ConfluenceClient {
 
 }
 
-enum class PageLoadOptions {
-    Space, Content, Metadata, Attachments
+sealed interface PageLoadOptions {}
+
+enum class SimplePageLoadOptions : PageLoadOptions {
+    Space, Content, Labels, Attachments, Parent, Version
 }
+
+data class PagePropertyLoad(val name: String) : PageLoadOptions
 
 class SpaceNotFoundException(val space: String): RuntimeException()
 

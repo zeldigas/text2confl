@@ -165,9 +165,10 @@ internal class PageUploadOperationsImpl(
         space: String,
         parentId: String
     ): ServerPage {
-        val serverPage = client.getPageOrNull(
+        val serverPage = client.getPageOrNullWithOptions(
             space, title, loadOptions = setOf(
-                "ancestors", "version", propertyExpansion(TENANT_PROPERTY)
+                SimplePageLoadOptions.Parent, SimplePageLoadOptions.Version,
+                PagePropertyLoad(TENANT_PROPERTY)
             )
         ) ?: throw PageNotFoundException(space, title)
         if (serverPage.parent?.id != parentId) {

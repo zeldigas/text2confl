@@ -58,6 +58,16 @@ class ConfluenceCloudClient(
         return extractSinglePage(results)
     }
 
+    override suspend fun getPageOrNullWithOptions(
+        space: String,
+        title: String,
+        loadOptions: Set<PageLoadOptions>
+    ): ConfluencePage? {
+        val results = findPagesWithLoadOptions(space, title, loadOptions)
+
+        return if (results.isEmpty()) null else extractSinglePage(results)
+    }
+
     suspend fun findPagesWithLoadOptions(
         space: String,
         title: String,
@@ -82,25 +92,29 @@ class ConfluenceCloudClient(
     ): ConfluencePage {
         var page = getPageById(
             id,
-            includeBody = PageLoadOptions.Content in loadOptions,
-            includeLabels = PageLoadOptions.Metadata in loadOptions,
-            includeProperties = PageLoadOptions.Metadata in loadOptions,
-            includeSpace = PageLoadOptions.Space in loadOptions
+            includeBody = SimplePageLoadOptions.Content in loadOptions,
+            includeLabels = SimplePageLoadOptions.Labels in loadOptions,
+            includeProperties = loadOptions.any { it is PagePropertyLoad },
+            includeSpace = SimplePageLoadOptions.Space in loadOptions
         )
-        if (PageLoadOptions.Attachments in loadOptions) {
-           page = page.copy(children = PageChildren(
-               getPageAttachments(page.id)
-           ))
+        if (SimplePageLoadOptions.Attachments in loadOptions) {
+            page = page.copy(
+                children = PageChildren(
+                    getPageAttachments(page.id)
+                )
+            )
         }
         return page
     }
 
-    private suspend fun getPageById(id: String,
-                                    includeBody: Boolean = false,
-                                    includeLabels: Boolean = false,
-                                    includeProperties: Boolean = false,
-                                    includeSpace: Boolean = false): ConfluencePage {
-        val page = httpClient.get("$apiBase/pages/$id"){
+    private suspend fun getPageById(
+        id: String,
+        includeBody: Boolean = false,
+        includeLabels: Boolean = false,
+        includeProperties: Boolean = false,
+        includeSpace: Boolean = false
+    ): ConfluencePage {
+        val page = httpClient.get("$apiBase/pages/$id") {
             if (includeBody) {
                 parameter("body-format", "storage")
             }
@@ -135,7 +149,12 @@ class ConfluenceCloudClient(
             )
         },
         children = null,
-        ancestors = null,
+        ancestors = listOf(ConfluencePage(
+            id = page.parentId,
+            type = com.github.zeldigas.confclient.model.ContentType.page,
+            status = page.status,
+            title = "")
+        ),
         space = space,
         links = page.links
     )
@@ -153,6 +172,42 @@ class ConfluenceCloudClient(
         return space ?: this.describeSpace(key, includeHome = false)
     }
 
+    override suspend fun changeParent(
+        pageId: String,
+        title: String,
+        version: Int,
+        newParentId: String,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage =
+        performPageUpdate(
+            pageId, mapOf(
+                "id" to pageId,
+                "status" to "current",
+                "title" to title,
+                "parentId" to newParentId,
+                "version" to versionNode(version, updateParameters)
+            )
+        )
+
+    private suspend fun performPageUpdate(pageId: String, body: Map<String, Any?>): ConfluencePage {
+        val response = httpClient.put("$apiBase/pages/$pageId") {
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
+        if (response.status.isSuccess()) {
+            return toConfluencePage(response.readApiResponse<ConfCloudPage>(), null)
+        } else {
+            throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
+        }
+    }
+
+    private fun versionNode(
+        version: Int,
+        pageUpdateOptions: PageUpdateOptions
+    ): Map<String, Any> = buildMap {
+        put("number", version)
+        pageUpdateOptions.message?.let { put("message", it) }
+    }
 
     private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T {
         if (expectSuccess && !status.isSuccess()) {
@@ -198,6 +253,7 @@ private data class ConfCloudPage(
     val id: String,
     val status: String,
     val title: String,
+    val parentId: String,
     val version: CloudPageVersion? = null,
     val properties: AttributesCollection<CloudPageProperty>? = null,
     val labels: AttributesCollection<CloudPageLabel>? = null,
@@ -262,6 +318,6 @@ private data class CloudPageAttachments(
     val results: List<Attachment>, val meta: OptionalFieldMeta?, @JsonProperty("_links") val links: Map<String, String>
 )
 
-private data class ConfCloudPageSearchResult (
+private data class ConfCloudPageSearchResult(
     val results: List<ConfCloudPage>, @JsonProperty("_links") val links: Map<String, String>
 )

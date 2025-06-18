@@ -9,11 +9,11 @@ data class ConfluencePage(
     val type: ContentType,
     val status: String,
     val title: String,
-    val metadata: PageMetadata?,
-    val body: PageBody?,
-    val version: PageVersionInfo?,
-    val children: PageChildren?,
-    val ancestors: List<ConfluencePage>?,
+    val metadata: PageMetadata? = null,
+    val body: PageBody? = null,
+    val version: PageVersionInfo? = null,
+    val children: PageChildren? = null,
+    val ancestors: List<ConfluencePage>? = null,
     val space: Space? = null,
     @JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
