@@ -13,7 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Password confirmation is no longer asked in interactive prompt
 - Dependency updates
-  - plantuml to 1.2025.2
+  - plantuml to 1.2025.3
   - other deps (kotlin, ktor)
 
 ### Fixed
