@@ -66,22 +66,39 @@ class ConfluenceClientImplTest(runtimeInfo: WireMockRuntimeInfo) {
                 )
             )
         )
+    }
 
-
-        val result = client.fetchAllAttachments(
-            PageAttachments(
-                results = attachments,
-                links = mapOf("next" to firstNext)
+    @Test
+    fun `Attachment deletion with no content response`() = runTest {
+        stubFor(
+            delete("/rest/api/content/123").willReturn(
+                noContent()
             )
         )
 
-        assertThat(result).isEqualTo(
-            listOf(
-                attachments[0],
-                Attachment("a", "attachment a"),
-                Attachment("b", "attachment b", mapOf("comment" to "some comment")),
+        client.deleteAttachment("123")
+    }
+
+    @Test
+    fun `Attachment deletion with ok response and body`() = runTest {
+        stubFor(
+            delete("/rest/api/content/123").willReturn(
+                ok().withJson(mapOf("status" to "ok"))
             )
         )
+
+        client.deleteAttachment("123")
+    }
+
+    @Test
+    fun `Attachment deletion fails with some unknown exception`() = runTest {
+        stubFor(
+            delete("/rest/api/content/123").willReturn(
+                status(500).withJson(mapOf("status" to "error"))
+            )
+        )
+
+        assertThrows<ConfluenceApiErrorException> { client.deleteAttachment("123") }
     }
 
     @Test

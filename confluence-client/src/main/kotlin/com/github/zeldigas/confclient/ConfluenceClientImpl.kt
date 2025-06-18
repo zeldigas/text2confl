@@ -244,11 +244,11 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun deletePage(pageId: String) {
-        httpClient.delete("$apiBase/content/$pageId")
+        delete("$apiBase/content/$pageId")
     }
 
     override suspend fun deleteLabel(pageId: String, label: String) {
-        httpClient.delete("$apiBase/content/$pageId/label/$label")
+        delete("$apiBase/content/$pageId/label/$label")
     }
 
     override suspend fun addLabels(pageId: String, labels: List<String>) {
@@ -305,7 +305,7 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun deleteAttachment(attachmentId: String) {
-        httpClient.delete("$apiBase/content/$attachmentId").readApiResponse<String>()
+        delete("$apiBase/content/$attachmentId")
     }
 
     override suspend fun downloadAttachment(attachment: Attachment, destination: Path) {
@@ -333,6 +333,16 @@ class ConfluenceClientImpl(
             parameter("key", userKey)
         }.readApiResponse<User>(expectSuccess = true)
     }
+
+    private suspend fun delete(urlString: String) {
+        val response = httpClient.delete(urlString)
+        if (response.status == HttpStatusCode.NoContent) {
+            logger.debug { "Successfully deleted resource at $urlString" }
+            return
+        } else {
+            response.readApiResponse<String>(expectSuccess = true)
+        }
+    }
 }
 
 private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T {
@@ -340,7 +350,7 @@ private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSucces
         parseAndThrowConfluencError()
     }
     val contentType = contentType()
-    if (contentType != null && ContentType.Application.Json.match(contentType)){
+    if (contentType != null && (ContentType.Application.Json.match(contentType) || T::class == String::class)) {
         try {
             return body<T>()
         } catch (e: JsonConvertException) {
