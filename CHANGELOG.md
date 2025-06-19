@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.17.3 - 2025-06-19
+
+### Fixed
+
+- Rolled back to plantuml 1.2025.2 due to issues with 1.2025.3 (https://github.com/asciidoctor/asciidoctor-diagram/issues/484)
+
 ## 0.17.2 - 2025-06-18
 
 ### Changed
