@@ -22,7 +22,9 @@ import kotlin.io.path.writeText
 
 class AsciidocFileConverterTest {
 
-    private val converter = AsciidocFileConverter(AsciidoctorConfiguration())
+    companion object {
+        private val converter = AsciidocFileConverter(AsciidoctorConfiguration())
+    }
 
     @Test
     internal fun `Read header with no title and title attribute`(@TempDir dir: Path) {
