@@ -32,7 +32,7 @@ class AsciidocFileConverter(private val asciidocParser: AsciidocParser, private 
             ?: file.toFile().nameWithoutExtension
 
     private fun documentTitle(doc: Document, attributes: Map<String, Any>): String? {
-        val title = doc.structuredDoctitle?.combined ?: return null
+        val title = doc.doctitle ?: return null
         return Escaping.unescapeHtml(attributes.entries.fold(title) { current, (key, value) ->
             current.replace(
                 "{$key}",

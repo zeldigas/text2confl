@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.17.4 - 2025-06-20
+
+### Fixed
+
+- Removed ruby warning about duplicate constant registration
+- Updated plantuml to 1.2025.3 along with asciidoctor-diagram to 3.0.1
+
 ## 0.17.3 - 2025-06-19
 
 ### Fixed
