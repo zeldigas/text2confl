@@ -68,6 +68,7 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
                     SimpleMacroExtension(),
                     DiagramsExtension(),
                     ConfluenceFormatExtension(),
+                    DetailsExtension()
                 ) + extraExtensions(parserConfig, config)
             )
         }

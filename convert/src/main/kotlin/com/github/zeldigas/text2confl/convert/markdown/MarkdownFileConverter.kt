@@ -42,7 +42,7 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
         return try {
             Files.newBufferedReader(file, Charsets.UTF_8).use { fileParser(it) }
         } catch (ex: Exception) {
-            throw ConversionFailedException(file, "Document parsing failed", ex)
+            throw ConversionFailedException(file, "Document parsing failed: ${ex.message}", ex)
         }
     }
 

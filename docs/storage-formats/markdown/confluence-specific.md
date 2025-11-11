@@ -129,7 +129,9 @@ more standard format of this tag by putting text inside time block: <time dateti
 
 ## Expand blocks
 
-You can use admonition-like syntax to add Confluence expand block:
+Expand blocks are supported with two syntax options: admonition like syntax and `<details>` tag
+
+### Admonition-like syntax to add Confluence expand block
 
 <table>
 <thead>
@@ -168,6 +170,42 @@ You can use admonition-like syntax to add Confluence expand block:
 
 </td>
 </tr></tbody></table>
+
+### Details tag syntax to add Confluence expand block
+
+<table>
+<thead>
+<tr><th>Markdown</th><th>Confluence</th></tr>
+</thead>
+<tbody><tr>
+<td>
+
+```markdown
+<details>
+<summary>Text for expand macro</summary>
+
+Arbitrary markdown here
+
+</details>
+```
+
+</td><td>
+
+<details>
+<summary>Text for expand macro</summary>
+
+Arbitrary markdown here
+
+</details>
+
+</td>
+</tr>
+</tbody></table>
+
+This syntax format is great for large chunks of content that you want to put inside expand block, as it does not add "
+code-like" indentation allowing you to get benefits from your text editor highlight.
+
+**Important:** Only single-level expand is supported right now with this format, so you can't nest expand inside expand.
 
 ## Confluence macros with simple options
 
