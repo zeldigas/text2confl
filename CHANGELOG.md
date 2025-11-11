@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- `<details>` tag in markdown converted to expand macro. Internal summary works as title for expand macro
+
 ## 0.17.4 - 2025-06-20
 
 ### Fixed

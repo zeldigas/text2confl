@@ -85,4 +85,26 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
         """.trimIndent()
         )
     }
+
+    @Test
+    internal fun `Details block is rendered as confluence expand macro`() {
+        val result = toHtml(
+            """
+            <details>
+            <summary>Some summary test</summary>
+            
+            Contents of expand block **bold**
+            
+            </details>
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">Some summary test</ac:parameter><ac:rich-text-body>
+            <p>Contents of expand block <strong>bold</strong></p>
+            </ac:rich-text-body></ac:structured-macro>
+        """.trimIndent()
+        )
+    }
 }
