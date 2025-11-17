@@ -126,6 +126,37 @@ internal class RenderingOfCodeBlocksTest : RenderingTestBase() {
     }
 
     @Test
+    internal fun `Source code block with collapse attribute is wrapped in expand if configured`() {
+        fun Assert<String>.codeBlockWithAttributes() {
+            val codeBlock =
+                """<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">kotlin</ac:parameter>""" +
+                        """<ac:parameter ac:name="title">hello.kt &amp; world</ac:parameter>""" +
+                        """<ac:parameter ac:name="collapse">true</ac:parameter>""" +
+                        """<ac:parameter ac:name="linenumbers">true</ac:parameter>""" +
+                        """<ac:parameter ac:name="firstline">3</ac:parameter>""" +
+                        """<ac:parameter ac:name="theme">Eclipse</ac:parameter>""" +
+                        """<ac:plain-text-body><![CDATA[println("Hello")]]></ac:plain-text-body></ac:structured-macro>"""
+            isEqualToConfluenceFormat(
+                """
+                    <ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">hello.kt &amp; world</ac:parameter><ac:rich-text-body>
+                    ${codeBlock}
+                    </ac:rich-text-body></ac:structured-macro>""".trimIndent()
+            )
+        }
+
+        val result = toHtml(
+            """
+            [,kotlin,collapse,linenums,start=3,collapse=true,theme=Eclipse,title="hello.kt & world"]                
+            ----
+            println("Hello")
+            ----
+            """.trimIndent(),
+            codeBlocksInExpand = true
+        )
+        assertThat(result).codeBlockWithAttributes()
+    }
+
+    @Test
     internal fun `Listing block is rendered as pretext`() {
         val result = toHtml(
             """

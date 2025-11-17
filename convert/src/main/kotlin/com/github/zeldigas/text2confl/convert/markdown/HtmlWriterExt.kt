@@ -26,6 +26,13 @@ fun HtmlWriter.voidTag(name: String, attrs: Map<String, CharSequence> = emptyMap
     return tagVoid(name)
 }
 
+fun HtmlWriter.tag(name: String, attrs: Map<String, CharSequence> = emptyMap(), block: HtmlWriter.() -> Unit = {}): HtmlWriter {
+    addAttributes(attrs)
+    tag(name)
+    block()
+    return closeTag(name)
+}
+
 fun HtmlWriter.addAttributes(attrs: Map<String, CharSequence>) {
     if (attrs.isNotEmpty()) {
         attrs.forEach { (k, v) -> attr(k, v) }

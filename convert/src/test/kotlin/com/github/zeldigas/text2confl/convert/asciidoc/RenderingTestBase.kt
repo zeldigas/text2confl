@@ -35,6 +35,7 @@ internal open class RenderingTestBase {
         parser: AsciidocParser = DEFAULT_PARSER,
         attachmentsCollector: AsciidocAttachmentCollector? = null,
         referenceProvider: AsciidocReferenceProvider? = null,
+        codeBlocksInExpand: Boolean = false,
     ): String {
         val defaultSource = Path("./test.adoc")
         val effectiveReferenceProvider =
@@ -58,7 +59,8 @@ internal open class RenderingTestBase {
                 autogenText,
                 addAutogenHeader,
                 "TEST",
-                effectiveCollector
+                effectiveCollector,
+                codeBlocksInExpand
             )
         )
 

@@ -38,7 +38,8 @@ data class DirectoryConfig(
 
 data class CodeBlockParams(
     val defaultLanguage: String? = null,
-    val extraMapping: Map<String, String> = emptyMap()
+    val extraMapping: Map<String, String> = emptyMap(),
+    val collapseWithExpand: Boolean? = null
 )
 
 data class MarkdownParams(
