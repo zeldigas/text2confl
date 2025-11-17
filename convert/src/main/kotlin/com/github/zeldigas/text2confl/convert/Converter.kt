@@ -41,7 +41,8 @@ data class ConversionParameters(
     val noteText: String = DEFAULT_AUTOGEN_BANNER,
     val markdownConfiguration: MarkdownConfiguration = MarkdownConfiguration(),
     val asciidoctorConfiguration: AsciidoctorConfiguration = AsciidoctorConfiguration(),
-    val editorVersion: EditorVersion
+    val editorVersion: EditorVersion,
+    val codeBlocksInExpand: Boolean = false,
 )
 
 fun universalConverter(

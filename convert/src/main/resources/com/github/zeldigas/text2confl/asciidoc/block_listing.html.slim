@@ -1,21 +1,14 @@
 - if style == 'source'
-  ac:structured-macro ac:name="code"
-    - confluence_lang = map_to_confluence_supported_lang source_lang
-    - unless confluence_lang.nil?
-      ac:parameter ac:name="language" #{confluence_lang}
-    - if title?
-      ac:parameter ac:name="title" #{title}
-    - if (attr? :collapse, 'true')
-      ac:parameter ac:name="collapse" = (attr :collapse)
-    - if attr? :linenums
-      ac:parameter ac:name="linenumbers" true
-    - if attr? :start
-      ac:parameter ac:name="firstline" =(attr :start)
-    = (macro_param_if_present_in_attr "theme")
-    ac:plain-text-body
-      =="<![CDATA["
-      ==unescaped content
-      =="]]>"
+  - if (attr? :collapse, 'true') and (document.attr? 't2c-code-in-expand')
+    ac:structured-macro ac:name="expand"
+      - if title?
+        ac:parameter ac:name="title" #{title}
+      ac:rich-text-body
+        = line_break
+        include _code_block.html
+        = line_break
+  - else
+    include _code_block.html
 - else
   ac:structured-macro ac:name="noformat"
     - if title?

@@ -14,7 +14,7 @@ data class MarkdownConfiguration(
     val diagrams: DiagramsConfiguration = DiagramsConfiguration(createTempDirectory()),
     val tables: TablesConfiguration = TablesConfiguration(),
     val autoLinks: Boolean = true,
-    val typography: TypographyConfiguration = TypographyConfiguration()
+    val typography: TypographyConfiguration = TypographyConfiguration(),
 )
 
 data class DiagramsConfiguration(
