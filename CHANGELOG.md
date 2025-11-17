@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.19.0 - 2025-11-17
+
+### Added
+
+- Support for auto-wrapping collapsible code blocks in expand macro. Enabled by default in Cloud. (#268)
+
 ## 0.18.0 - 2025-11-11
 
 ### Added
