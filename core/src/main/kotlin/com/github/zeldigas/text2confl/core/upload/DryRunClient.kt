@@ -80,8 +80,16 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         }
     }
 
-    override suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
-        log.info { "(dryrun) Setting property on page $pageId: $name=${value.value}, version=${value.version.number}" }
+    override suspend fun createPageProperty(pageId: String, name: String, value: PagePropertyInput) {
+        log.info { "(dryrun) Creating property on page $pageId: $name=${value.value}, version=${value.version.number}" }
+    }
+
+    override suspend fun updatePageProperty(
+        pageId: String,
+        property: PageProperty,
+        value: PagePropertyInput
+    ) {
+        log.info { "(dryrun) Updating property on page $pageId: ${property.key}=${value.value}, version=${value.version.number}" }
     }
 
     override suspend fun deleteLabel(pageId: String, label: String) {

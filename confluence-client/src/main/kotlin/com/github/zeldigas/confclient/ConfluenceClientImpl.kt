@@ -13,10 +13,12 @@ import io.ktor.http.*
 import io.ktor.http.ContentType
 import io.ktor.serialization.*
 import io.ktor.util.cio.*
+import io.ktor.util.reflect.TypeInfo
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import java.nio.file.Path
 import kotlin.io.path.fileSize
+import kotlin.reflect.KClass
 
 class ConfluenceClientImpl(
     override val confluenceBaseUrl: Url,
@@ -238,7 +240,19 @@ class ConfluenceClientImpl(
         pageUpdateOptions.message?.let { put("message", it) }
     }
 
-    override suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
+    override suspend fun createPageProperty(
+        pageId: String,
+        name: String,
+        value: PagePropertyInput
+    ) {
+        setPageProperty(pageId, name, value)
+    }
+
+    override suspend fun updatePageProperty(pageId: String, property: PageProperty, value: PagePropertyInput) {
+        setPageProperty(pageId, property.key, value)
+    }
+
+    private suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
         return httpClient.put("$apiBase/content/$pageId/property/$name") {
             contentType(ContentType.Application.Json)
             setBody(value)
@@ -290,19 +304,11 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun fetchAllAttachments(pageAttachments: PageAttachments): List<Attachment> {
-        return buildList {
-            addAll(pageAttachments.results)
-            var current = pageAttachments
-            while ("next" in current.links) {
-                val nextPage = makeLink(confluenceBaseUrl, current.links.getValue("next"))
-                logger.debug { "Loading next attachments page: $nextPage" }
-                current = httpClient.get(nextPage).readApiResponse()
-                if (current.results.isEmpty()) {
-                    break
-                } else {
-                    addAll(current.results)
-                }
-            }
+        val fetcher = PagedFetcher(confluenceBaseUrl) {
+            httpClient.get(it).readApiResponse<PageAttachments>()
+        }
+        return fetcher.fetchAll(pageAttachments) {
+            PagedFetcher.Page(it.results, it.links["next"])
         }
     }
 

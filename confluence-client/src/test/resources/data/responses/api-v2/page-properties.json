@@ -1,0 +1,31 @@
+{
+  "results": [
+    {
+      "version": {
+        "number": 1,
+        "message": "",
+        "minorEdit": false,
+        "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+        "createdAt": "2025-11-18T10:09:56.183Z"
+      },
+      "value": "full-width",
+      "key": "content-appearance-draft",
+      "id": "1048577"
+    },
+    {
+      "version": {
+        "number": 1,
+        "message": "",
+        "minorEdit": false,
+        "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+        "createdAt": "2025-11-18T10:09:58.602Z"
+      },
+      "value": "full-width",
+      "key": "content-appearance-published",
+      "id": "1081353"
+    }
+  ],
+  "_links": {
+    "base": "https://text2conf.atlassian.net/wiki"
+  }
+}

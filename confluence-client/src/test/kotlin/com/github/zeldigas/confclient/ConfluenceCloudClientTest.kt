@@ -18,7 +18,7 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
         ConfluenceClientConfig(
             server = Url(runtimeInfo.httpBaseUrl), true, TokenAuth("testToken")
         )
-    )
+    ) as ConfluenceCloudClient
 
     @Test
     fun `Space load by key no homepage`() = runTest {
@@ -66,6 +66,82 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
                         "tinyui" to "/x/FYEB",
                         "base" to "https://text2confl.atlassian.net/wiki"
                     )
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `Load page labels`() = runTest {
+        stubFor(
+            get("/api/v2/pages/123/labels?limit=100").willReturn(
+                ok().withJsonFromFile("/data/responses/api-v2/page-labels.json")
+            )
+        )
+
+        val result = client.getPageLabels("123")
+
+        assertThat(result).isEqualTo(
+            listOf(
+                Label("global", "aaa", "131075"),
+                Label("global", "abc", "524289")
+            )
+        )
+    }
+
+    @Test
+    fun `Load page properties`() = runTest {
+        stubFor(
+            get("/api/v2/pages/123/properties?limit=100").willReturn(
+                ok().withJsonFromFile("/data/responses/api-v2/page-properties.json")
+            )
+        )
+
+        val result = client.getPageProperties("123")
+
+        assertThat(result).isEqualTo(
+            mapOf(
+                "content-appearance-draft" to PageProperty(
+                    "1048577",
+                    "content-appearance-draft",
+                    "full-width",
+                    PropertyVersion(1)
+                ),
+                "content-appearance-published" to PageProperty(
+                    "1081353",
+                    "content-appearance-published",
+                    "full-width",
+                    PropertyVersion(1)
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `Load page attachments`() = runTest {
+        stubFor(
+            get("/api/v2/pages/123/attachments").willReturn(
+                ok().withJsonFromFile("/data/responses/api-v2/page-attachments.json")
+            )
+        )
+
+        val result = client.getPageAttachments("123")
+
+        assertThat(result).isEqualTo(
+            PageAttachments(
+                results = listOf(
+                    Attachment(
+                        id = "att1441849",
+                        title = "test.txt",
+                        metadata = mapOf("comment" to "HASH:ad0289848913e74b3cddda83e68c1b434da5a06cf3924c3d3ee83a3feaa94ac2"),
+                        links = mapOf(
+                            "download" to "/download/attachments/1507344/test.txt?version=5&modificationDate=1763499437434&cacheVersion=1&api=v2",
+                            "webui" to "/pages/viewpageattachments.action?pageId=1507344&preview=%2F1507344%2F1441849%2Ftest.txt"
+                        )
+                    )
+                ),
+                links = mapOf(
+                    "base" to "https://text2conf.atlassian.net/wiki"
                 )
             )
         )

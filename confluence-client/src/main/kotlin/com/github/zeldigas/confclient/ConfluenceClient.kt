@@ -56,7 +56,9 @@ interface ConfluenceClient {
         updateParameters: PageUpdateOptions
     ): ConfluencePage
 
-    suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput)
+    suspend fun createPageProperty(pageId: String, name: String, value: PagePropertyInput)
+
+    suspend fun updatePageProperty(pageId: String, property: PageProperty, value: PagePropertyInput)
 
     suspend fun findChildPages(pageId: String, loadOptions: Set<PageLoadOptions>? = null): List<ConfluencePage>
 

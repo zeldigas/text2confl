@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "prefix": "global",
+      "name": "aaa",
+      "id": "131075"
+    },
+    {
+      "prefix": "global",
+      "name": "abc",
+      "id": "524289"
+    }
+  ],
+  "_links": {
+    "base": "https://text2conf.atlassian.net/wiki"
+  }
+}

@@ -252,11 +252,11 @@ internal class PageUploadOperationsImpl(
         existingProperty: PageProperty?
     ) {
         if (existingProperty == null) {
-            client.setPageProperty(pageId, propertyName, PagePropertyInput.newProperty(value))
+            client.createPageProperty(pageId, propertyName, PagePropertyInput.newProperty(value))
         } else if (existingProperty.value != value) {
-            client.setPageProperty(
+            client.updatePageProperty(
                 pageId,
-                propertyName,
+                existingProperty,
                 PagePropertyInput.updateOf(existingProperty, value)
             )
         }
