@@ -51,14 +51,14 @@ class ConfluenceCloudClient(
     override suspend fun getPage(
         space: String,
         title: String,
-        expansions: Set<PageLoadOptions>
+        loadOptions: Set<PageLoadOptions>
     ): ConfluencePage {
-        val results = findPagesWithLoadOptions(space, title, expansions)
+        val results = findPagesWithLoadOptions(space, title, loadOptions)
 
         return extractSinglePage(results)
     }
 
-    override suspend fun getPageOrNullWithOptions(
+    override suspend fun getPageOrNull(
         space: String,
         title: String,
         loadOptions: Set<PageLoadOptions>
@@ -99,9 +99,7 @@ class ConfluenceCloudClient(
         )
         if (SimplePageLoadOptions.Attachments in loadOptions) {
             page = page.copy(
-                children = PageChildren(
-                    getPageAttachments(page.id)
-                )
+                attachments = getPageAttachments(page.id)
             )
         }
         return page
@@ -136,10 +134,17 @@ class ConfluenceCloudClient(
         space: Space?
     ): ConfluencePage = ConfluencePage(
         id = page.id,
-        type = com.github.zeldigas.confclient.model.ContentType.page,
-        status = page.status,
         title = page.title,
-        metadata = page.pageMetadata,
+        labels = page.labels?.results?.map { l -> Label(l.prefix, l.name, l.id) },
+        properties = page.properties?.results?.let { results ->
+            results.associate {
+                it.key to PageProperty(
+                    it.id, it.key, it.value, PropertyVersion(
+                        it.version.number
+                    )
+                )
+            }
+        },
         body = page.body,
         version = page.version?.let {
             PageVersionInfo(
@@ -148,13 +153,7 @@ class ConfluenceCloudClient(
                 createdAt = it.createdAt
             )
         },
-        children = null,
-        ancestors = listOf(ConfluencePage(
-            id = page.parentId,
-            type = com.github.zeldigas.confclient.model.ContentType.page,
-            status = page.status,
-            title = "")
-        ),
+        parentId = page.parentId,
         space = space,
         links = page.links
     )
@@ -253,7 +252,7 @@ private data class ConfCloudPage(
     val id: String,
     val status: String,
     val title: String,
-    val parentId: String,
+    val parentId: String?,
     val version: CloudPageVersion? = null,
     val properties: AttributesCollection<CloudPageProperty>? = null,
     val labels: AttributesCollection<CloudPageLabel>? = null,
@@ -261,29 +260,7 @@ private data class ConfCloudPage(
     @JsonProperty("_links")
     val links: Map<String, String> = emptyMap(),
     val spaceId: Int
-) {
-    val pageMetadata: PageMetadata?
-        get() {
-            if (properties == null && labels == null) return null
-            return PageMetadata(
-                labels = labels?.let {
-                    PageLabels(
-                        results = it.results.map { l -> Label(l.prefix, l.name, l.id) },
-                        it.results.size
-                    )
-                },
-                properties = properties?.results?.let { results ->
-                    results.associate {
-                        it.key to PageProperty(
-                            it.id, it.key, it.value, PropertyVersion(
-                                it.version.number
-                            )
-                        )
-                    }
-                } ?: emptyMap()
-            )
-        }
-}
+)
 
 private data class AttributesCollection<T>(
     val results: List<T>, val meta: OptionalFieldMeta?, @JsonProperty("_links") val links: Map<String, String>

@@ -35,33 +35,32 @@ internal class PageUploadOperationsImplTest(
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", loadOptions = setOf(
-                    "metadata.labels",
-                    "metadata.properties.contenthash",
-                    "metadata.properties.editor",
-                    "metadata.properties.t2ctenant",
-                    "version",
-                    "children.attachment",
-                    "ancestors"
+                    SimplePageLoadOptions.Labels,
+                    SimplePageLoadOptions.Version,
+                    SimplePageLoadOptions.Attachments,
+                    SimplePageLoadOptions.ParentId,
+                    PagePropertyLoad(HASH_PROPERTY),
+                    PagePropertyLoad(EDITOR_PROPERTY),
+                    PagePropertyLoad(TENANT_PROPERTY),
                 )
             )
         } returns null
 
         coEvery {
             client.createPage(
-                any(), any(), listOf(
-                    "metadata.labels",
-                    "metadata.properties.contenthash",
-                    "metadata.properties.editor",
-                    "version",
-                    "children.attachment"
+                any(), any(), setOf(
+                    SimplePageLoadOptions.Labels,
+                    SimplePageLoadOptions.Version,
+                    PagePropertyLoad("contenthash"),
+                    PagePropertyLoad("editor"),
                 )
             )
         } returns mockk {
             every { id } returns "new_id"
             every { title } returns "Page title"
             every { pageProperty(any()) } returns null
-            every { metadata } returns null
-            every { children } returns null
+            every { labels } returns null
+            every { attachments} returns null
             every { links } returns emptyMap()
         }
         coEvery { client.setPageProperty(any(), any(), any()) } just Runs
@@ -115,36 +114,32 @@ internal class PageUploadOperationsImplTest(
     internal fun `Update of existing page`(tenant: String) {
         val serverPage = ConfluencePage(
             id = PAGE_ID,
-            type = ContentType.page,
-            status = "",
             title = "Page Title",
-            metadata = PageMetadata(
-                labels = PageLabels(listOf(Label("", "one", "one", "one")), 1),
-                properties = buildMap {
-                    put("editor", PageProperty("123", "editor", "v1", PropertyVersion(2)))
-                    put("contenthash", PageProperty("124", "contenthash", "abc", PropertyVersion(3)))
-                    if (tenant.isNotEmpty()) {
-                        put("t2ctenant", PageProperty("125", "t2ctenant", tenant, PropertyVersion(1)))
-                    }
+            labels = listOf(Label("", "one", "one", "one")),
+            properties = buildMap {
+                put("editor", PageProperty("123", "editor", "v1", PropertyVersion(2)))
+                put("contenthash", PageProperty("124", "contenthash", "abc", PropertyVersion(3)))
+                if (tenant.isNotEmpty()) {
+                    put("t2ctenant", PageProperty("125", "t2ctenant", tenant, PropertyVersion(1)))
                 }
-            ),
+            },
             body = null,
             version = PageVersionInfo(42, false, null),
-            children = PageChildren(mockk()),
-            ancestors = listOf(mockk { every { id } returns "parentId" }),
+            attachments = mockk(),
+            parentId = "parentId",
             space = null
         )
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", loadOptions = setOf(
-                    "metadata.labels",
-                    "metadata.properties.contenthash",
-                    "metadata.properties.editor",
-                    "metadata.properties.t2ctenant",
-                    "metadata.properties.extra",
-                    "version",
-                    "children.attachment",
-                    "ancestors"
+                    SimplePageLoadOptions.Labels,
+                    SimplePageLoadOptions.Version,
+                    SimplePageLoadOptions.Attachments,
+                    SimplePageLoadOptions.ParentId,
+                    PagePropertyLoad(HASH_PROPERTY),
+                    PagePropertyLoad(EDITOR_PROPERTY),
+                    PagePropertyLoad(TENANT_PROPERTY),
+                    PagePropertyLoad("extra"),
                 )
             )
         } returns serverPage
@@ -206,22 +201,22 @@ internal class PageUploadOperationsImplTest(
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", loadOptions = setOf(
-                    "metadata.labels",
-                    "metadata.properties.contenthash",
-                    "metadata.properties.editor",
-                    "metadata.properties.t2ctenant",
-                    "metadata.properties.extra",
-                    "version",
-                    "children.attachment",
-                    "ancestors"
-                ) + changeDetector.extraData
+                    SimplePageLoadOptions.Labels,
+                    SimplePageLoadOptions.Version,
+                    SimplePageLoadOptions.Attachments,
+                    SimplePageLoadOptions.ParentId,
+                    PagePropertyLoad(HASH_PROPERTY),
+                    PagePropertyLoad(EDITOR_PROPERTY),
+                    PagePropertyLoad(TENANT_PROPERTY),
+                    PagePropertyLoad("extra"),
+                ) + changeDetector.extraOptions
             )
         } returns mockk {
             every { id } returns PAGE_ID
             every { title } returns "Page title"
-            every { metadata?.labels?.results } returns emptyList()
-            every { children?.attachment } returns mockk()
-            every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
+            every { labels } returns emptyList()
+            every { attachments } returns mockk()
+            every { parentId } returns "parentId"
             every { pageProperty(EDITOR_PROPERTY) } returns PageProperty(
                 "123",
                 EDITOR_PROPERTY,
@@ -275,27 +270,27 @@ internal class PageUploadOperationsImplTest(
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", loadOptions = setOf(
-                    "metadata.labels",
-                    "metadata.properties.contenthash",
-                    "metadata.properties.editor",
-                    "metadata.properties.t2ctenant",
-                    "metadata.properties.extra",
-                    "version",
-                    "children.attachment",
-                    "ancestors"
+                    SimplePageLoadOptions.Labels,
+                    SimplePageLoadOptions.Version,
+                    SimplePageLoadOptions.Attachments,
+                    SimplePageLoadOptions.ParentId,
+                    PagePropertyLoad(HASH_PROPERTY),
+                    PagePropertyLoad(EDITOR_PROPERTY),
+                    PagePropertyLoad(TENANT_PROPERTY),
+                    PagePropertyLoad("extra"),
                 )
             )
         } returns mockk {
             every { id } returns PAGE_ID
             every { title } returns "Page title"
             every { version?.number } returns 42
-            every { metadata?.labels?.results } returns listOf(serverLabel("one"))
+            every { labels } returns listOf(serverLabel("one"))
             every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
             every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
             every { pageProperty("t2ctenant") } returns null
             every { pageProperty("extra") } returns null
-            every { children?.attachment } returns mockk()
-            every { ancestors } returns listOf(mockk { every { id } returns "parentId" })
+            every { attachments } returns mockk()
+            every { parentId } returns "parentId"
             every { links } returns emptyMap()
         }
 
@@ -339,27 +334,23 @@ internal class PageUploadOperationsImplTest(
     fun `Only location change`(targetParent: String) {
         val serverPage = ConfluencePage(
             id = PAGE_ID,
-            type = ContentType.page,
-            status = "",
             title = "Page Title",
-            metadata = PageMetadata(
-                labels = PageLabels(emptyList(), 0),
-                properties = buildMap {
-                    put("editor", PageProperty("123", "editor", "v1", PropertyVersion(2)))
-                    put("contenthash", PageProperty("124", "contenthash", "body-hash", PropertyVersion(3)))
-                }
-            ),
+            labels = emptyList(),
+            properties = buildMap {
+                put("editor", PageProperty("123", "editor", "v1", PropertyVersion(2)))
+                put("contenthash", PageProperty("124", "contenthash", "body-hash", PropertyVersion(3)))
+            },
             body = null,
             version = PageVersionInfo(42, false, null),
-            children = PageChildren(mockk()),
-            ancestors = listOf(mockk { every { id } returns "parentId" }),
+            parentId = "parentId",
+            attachments = mockk(),
             space = null
         )
         coEvery {
             client.getPageOrNull("TEST", "Page title", loadOptions = any())
         } returns serverPage
 
-        val parentChanged = serverPage.ancestors?.get(0)?.id != targetParent
+        val parentChanged = serverPage.parentId != targetParent
 
         coEvery { client.renamePage(any(), "Page title", any()) } returns mockk {
             every { version?.number } returns 43
@@ -409,26 +400,26 @@ internal class PageUploadOperationsImplTest(
         coEvery {
             client.getPageOrNull(
                 "TEST", "Page title", loadOptions = setOf(
-                    "metadata.labels",
-                    "metadata.properties.contenthash",
-                    "metadata.properties.editor",
-                    "metadata.properties.t2ctenant",
-                    "metadata.properties.extra",
-                    "version",
-                    "children.attachment",
-                    "ancestors"
+                    SimplePageLoadOptions.Labels,
+                    SimplePageLoadOptions.Version,
+                    SimplePageLoadOptions.Attachments,
+                    SimplePageLoadOptions.ParentId,
+                    PagePropertyLoad(HASH_PROPERTY),
+                    PagePropertyLoad(EDITOR_PROPERTY),
+                    PagePropertyLoad(TENANT_PROPERTY),
+                    PagePropertyLoad("extra"),
                 )
             )
         } returns mockk {
             every { id } returns PAGE_ID
             every { title } returns "Page title"
             every { version?.number } returns 42
-            every { metadata?.labels?.results } returns listOf(serverLabel("one"))
+            every { labels } returns listOf(serverLabel("one"))
             every { pageProperty("editor") } returns PageProperty("123", "editor", "v1", PropertyVersion(2))
             every { pageProperty("contenthash") } returns PageProperty("124", "contenthash", "abc", PropertyVersion(3))
             every { pageProperty("t2ctenant") } returns PageProperty("124", "t2ctenant", "other", PropertyVersion(1))
             every { pageProperty("extra") } returns null
-            every { children?.attachment?.results } returns listOf(serverAttachment("one", "HASH:123"))
+            every { attachments?.results } returns listOf(serverAttachment("one", "HASH:123"))
         }
 
         assertFailure {
@@ -652,7 +643,7 @@ internal class PageUploadOperationsImplTest(
         coEvery {
             client.findChildPages(
                 "123",
-                listOf("metadata.properties.$HASH_PROPERTY", "metadata.properties.$TENANT_PROPERTY")
+                setOf(PagePropertyLoad(HASH_PROPERTY), PagePropertyLoad(TENANT_PROPERTY))
             )
         } returns expectedResult
 
@@ -696,12 +687,12 @@ internal class PageUploadOperationsImplTest(
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
-            every { ancestors } returns listOf(mockk { every { id } returns "wrong_id" })
+            every { parentId } returns "wrong_id"
             every { version } returns mockk {
                 every { number } returns 1
             }
-            every { children } returns null
-            every { metadata } returns null
+            every { labels } returns null
+            every { attachments } returns null
             every { pageProperty(TENANT_PROPERTY) } returns null
             every { links } returns emptyMap()
         }
@@ -729,12 +720,12 @@ internal class PageUploadOperationsImplTest(
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
-            every { ancestors } returns listOf(mockk { every { id } returns "wrong_id" })
+            every { parentId } returns "wrong_id"
             every { version } returns mockk {
                 every { number } returns 1
             }
-            every { children } returns null
-            every { metadata } returns null
+            every { labels } returns null
+            every { attachments } returns null
             every { pageProperty(TENANT_PROPERTY) } returns mockk { every { value } returns "another" }
         }
 
@@ -762,9 +753,9 @@ internal class PageUploadOperationsImplTest(
         } returns mockk {
             every { id } returns "page_id"
             every { title } returns "Title"
-            every { ancestors } returns listOf(mockk { every { id } returns "id" })
-            every { metadata } returns null
-            every { children } returns null
+            every { parentId } returns "id"
+            every { labels } returns null
+            every { attachments } returns null
             every { links } returns emptyMap()
         }
 
@@ -781,7 +772,10 @@ internal class PageUploadOperationsImplTest(
             client.getPageOrNull(
                 any(),
                 any(),
-                loadOptions = setOf("ancestors", "version", "metadata.properties.$TENANT_PROPERTY")
+                loadOptions = setOf(
+                    SimplePageLoadOptions.ParentId, SimplePageLoadOptions.Version,
+                    PagePropertyLoad(TENANT_PROPERTY)
+                )
             )
         } returns null
 

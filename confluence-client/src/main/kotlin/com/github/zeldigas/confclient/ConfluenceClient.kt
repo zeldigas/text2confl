@@ -35,24 +35,13 @@ interface ConfluenceClient {
 
     suspend fun getPageOrNull(
         space: String, title: String,
-        loadOptions: Set<String> = emptySet()
-    ): ConfluencePage?
-
-    suspend fun getPageOrNullWithOptions(
-        space: String, title: String,
         loadOptions: Set<PageLoadOptions> = emptySet()
     ): ConfluencePage?
-
-    suspend fun findPages(
-        space: String?,
-        title: String,
-        expansions: Set<String> = emptySet()
-    ): List<ConfluencePage>
 
     suspend fun createPage(
         value: PageContentInput,
         updateParameters: PageUpdateOptions,
-        expansions: List<String>? = null
+        loadOptions: Set<PageLoadOptions> = emptySet()
     ): ConfluencePage
 
     suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage
@@ -69,7 +58,7 @@ interface ConfluenceClient {
 
     suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput)
 
-    suspend fun findChildPages(pageId: String, expansions: List<String>? = null): List<ConfluencePage>
+    suspend fun findChildPages(pageId: String, loadOptions: Set<PageLoadOptions>? = null): List<ConfluencePage>
 
     suspend fun deletePage(pageId: String)
 
@@ -95,10 +84,10 @@ interface ConfluenceClient {
 
 }
 
-sealed interface PageLoadOptions {}
+sealed interface PageLoadOptions
 
 enum class SimplePageLoadOptions : PageLoadOptions {
-    Space, Content, Labels, Attachments, Parent, Version
+    Space, Content, Labels, Attachments, ParentId, Version
 }
 
 data class PagePropertyLoad(val name: String) : PageLoadOptions

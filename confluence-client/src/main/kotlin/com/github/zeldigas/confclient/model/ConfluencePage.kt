@@ -6,37 +6,18 @@ import java.time.ZonedDateTime
 
 data class ConfluencePage(
     val id: String,
-    val type: ContentType,
-    val status: String,
     val title: String,
-    val metadata: PageMetadata? = null,
+    val labels: List<Label>? = null,
+    val attachments: PageAttachments? = null,
+    val properties: Map<String, PageProperty>? = null,
     val body: PageBody? = null,
     val version: PageVersionInfo? = null,
-    val children: PageChildren? = null,
-    val ancestors: List<ConfluencePage>? = null,
+    val parentId: String? = null,
     val space: Space? = null,
-    @JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
 ) {
-    fun pageProperty(name: String): PageProperty? {
-        return metadata?.properties?.get(name)
-    }
+    fun pageProperty(name: String): PageProperty? = properties?.let { it[name] }
 }
-
-enum class ContentType {
-    page, blogpost
-}
-
-data class PageMetadata(
-    val labels: PageLabels?,
-    @JsonIgnoreProperties("_links", "_expandable")
-    val properties: Map<String, PageProperty> = emptyMap()
-)
-
-data class PageLabels(
-    val results: List<Label>,
-    val size: Int
-)
 
 data class Label(
     val prefix: String,

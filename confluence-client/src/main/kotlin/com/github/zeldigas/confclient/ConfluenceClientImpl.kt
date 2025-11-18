@@ -1,5 +1,7 @@
 package com.github.zeldigas.confclient
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zeldigas.confclient.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
@@ -52,9 +54,9 @@ class ConfluenceClientImpl(
         id: String,
         loadOptions: Set<PageLoadOptions>
     ): ConfluencePage {
-        return httpClient.get("$apiBase/content/$id") {
+        return toPageModel(httpClient.get("$apiBase/content/$id") {
             addExpansions(toExpansions(loadOptions))
-        }.readApiResponse()
+        }.readApiResponse())
     }
 
     private fun toExpansions(loadOptions: Set<PageLoadOptions>) = buildList {
@@ -64,7 +66,7 @@ class ConfluenceClientImpl(
         if (SimplePageLoadOptions.Space in loadOptions) add("space")
         if (SimplePageLoadOptions.Content in loadOptions) add("body.storage")
         if (SimplePageLoadOptions.Attachments in loadOptions) add("children.attachment")
-        if (SimplePageLoadOptions.Parent in loadOptions) add("ancestors")
+        if (SimplePageLoadOptions.ParentId in loadOptions) add("ancestors")
         if (SimplePageLoadOptions.Version in loadOptions) add("version")
 
         loadOptions.filterIsInstance<PagePropertyLoad>().forEach {
@@ -72,18 +74,18 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun getPageOrNullWithOptions(
-        space: String,
-        title: String,
-        loadOptions: Set<PageLoadOptions>
-    ): ConfluencePage? = getPageOrNull(space, title, toExpansions(loadOptions).toSet())
-
     override suspend fun getPageOrNull(
         space: String,
         title: String,
-        loadOptions: Set<String>
+        loadOptions: Set<PageLoadOptions>
+    ): ConfluencePage? = getPageOrNullWithExpansion(space, title, toExpansions(loadOptions).toSet())
+
+    private suspend fun getPageOrNullWithExpansion(
+        space: String,
+        title: String,
+        expansions: Set<String>
     ): ConfluencePage? {
-        val results = findPages(space, title, expansions = loadOptions)
+        val results = findPages(space, title, expansions = expansions)
 
         return if (results.isEmpty()) {
             null
@@ -92,7 +94,7 @@ class ConfluenceClientImpl(
         }
     }
 
-    override suspend fun findPages(
+    private suspend fun findPages(
         space: String?,
         title: String,
         expansions: Set<String>
@@ -102,7 +104,7 @@ class ConfluenceClientImpl(
             parameter("title", title)
             addExpansions(expansions)
         }.readApiResponse()
-        return result.results
+        return result.results.map { toPageModel(it) }
     }
 
     private fun HttpRequestBuilder.addExpansions(expansions: Collection<String>) {
@@ -112,6 +114,14 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun createPage(
+        value: PageContentInput,
+        updateParameters: PageUpdateOptions,
+        loadOptions: Set<PageLoadOptions>
+    ): ConfluencePage = createPageWithExpansions(
+        value, updateParameters, toExpansions(loadOptions)
+    )
+
+    suspend fun createPageWithExpansions(
         value: PageContentInput,
         updateParameters: PageUpdateOptions,
         expansions: List<String>?
@@ -127,7 +137,7 @@ class ConfluenceClientImpl(
             setBody(toPageData(value, updateParameters))
         }
         return try {
-            response.body()
+            toPageModel(response.body())
         } catch (e: ContentConvertException) {
             throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
         }
@@ -177,11 +187,24 @@ class ConfluenceClientImpl(
             setBody(body)
         }
         if (response.status.isSuccess()) {
-            return response.readApiResponse()
+            return toPageModel(response.readApiResponse())
         } else {
             throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
         }
     }
+
+    private fun toPageModel(serverPage: ConfServerPage): ConfluencePage = ConfluencePage(
+        id = serverPage.id,
+        title = serverPage.title,
+        labels = serverPage.metadata?.labels?.results,
+        properties = serverPage.metadata?.properties,
+        attachments = serverPage.children?.attachment,
+        version = serverPage.version,
+        body = serverPage.body,
+        links = serverPage.links,
+        space = serverPage.space,
+        parentId = serverPage.ancestors?.lastOrNull()?.id
+    )
 
     private fun toPageData(
         value: PageContentInput,
@@ -222,7 +245,17 @@ class ConfluenceClientImpl(
         }.readApiResponse()
     }
 
-    override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
+    override suspend fun findChildPages(
+        pageId: String,
+        loadOptions: Set<PageLoadOptions>?
+    ): List<ConfluencePage> {
+        return findChildPagesWithExpansion(
+            pageId,
+            loadOptions?.let { toExpansions(it) }
+        )
+    }
+
+    private suspend fun findChildPagesWithExpansion(pageId: String, expansions: List<String>?): List<ConfluencePage> {
         val result = mutableListOf<ConfluencePage>()
         var start = 0
         var limit = PAGE_SIZE
@@ -233,7 +266,7 @@ class ConfluenceClientImpl(
                 parameter("start", start)
                 parameter("limit", limit)
             }.readApiResponse<PageSearchResult>()
-            result.addAll(page.results)
+            page.results.forEach { result.add(toPageModel(it)) }
             limit = page.limit
             start += limit
             completed = page.size != page.limit
@@ -364,8 +397,42 @@ private suspend fun HttpResponse.parseAndThrowConfluencError(): Nothing {
     throw ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
 }
 
+private data class ConfServerPage(
+    val id: String,
+    val type: com.github.zeldigas.confclient.ContentType,
+    val status: String,
+    val title: String,
+    val metadata: PageMetadata? = null,
+    val body: PageBody? = null,
+    val version: PageVersionInfo? = null,
+    val children: PageChildren? = null,
+    val ancestors: List<ConfServerPage>? = null,
+    val space: Space? = null,
+    @JsonProperty("_links")
+    val links: Map<String, String> = emptyMap()
+) {
+    fun pageProperty(name: String): PageProperty? {
+        return metadata?.properties?.get(name)
+    }
+}
+
+private data class PageMetadata(
+    val labels: PageLabels?,
+    @JsonIgnoreProperties("_links", "_expandable")
+    val properties: Map<String, PageProperty> = emptyMap()
+)
+
+private data class PageLabels(
+    val results: List<Label>,
+    val size: Int
+)
+
+private enum class ContentType {
+    page, blogpost
+}
+
 private data class PageSearchResult(
-    val results: List<ConfluencePage>,
+    val results: List<ConfServerPage>,
     val start: Int,
     val limit: Int,
     val size: Int

@@ -1,5 +1,7 @@
 package com.github.zeldigas.text2confl.core.upload
 
+import com.github.zeldigas.confclient.PageLoadOptions
+import com.github.zeldigas.confclient.SimplePageLoadOptions
 import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.Label
@@ -72,12 +74,13 @@ data class PageCycleException(val parentId: String, val title: String) :
 
 enum class ChangeDetector(
     val extraData: Set<String>,
+    val extraOptions: Set<PageLoadOptions>,
     val strategy: (serverPage: ConfluencePage, content: PageContent) -> Boolean
 ) {
-    HASH(emptySet(), { serverPage, content ->
+    HASH(emptySet(), emptySet(), { serverPage, content ->
         serverPage.pageProperty(HASH_PROPERTY)?.value != content.hash
     }),
-    CONTENT(setOf("body.storage"), { serverPage, content ->
+    CONTENT(setOf("body.storage"), setOf(SimplePageLoadOptions.Content), { serverPage, content ->
         serverPage.body?.storage?.value != content.body
     })
 }

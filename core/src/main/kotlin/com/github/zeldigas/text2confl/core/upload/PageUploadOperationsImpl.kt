@@ -45,16 +45,16 @@ internal class PageUploadOperationsImpl(
     ) = client.getPageOrNull(
         space = space, title = page.title, loadOptions =
         setOf(
-            "metadata.labels",
+            SimplePageLoadOptions.Labels,
+            SimplePageLoadOptions.Version,
+            SimplePageLoadOptions.Attachments,
+            SimplePageLoadOptions.ParentId,
             propertyExpansion(HASH_PROPERTY),
             propertyExpansion(EDITOR_PROPERTY),
             propertyExpansion(TENANT_PROPERTY),
-            "version",
-            "children.attachment",
-            "ancestors"
         )
                 + page.properties.keys.map { propertyExpansion(it) }
-                + pageContentChangeDetector.extraData
+                + pageContentChangeDetector.extraOptions
     )
 
     private suspend fun updateExistingPage(
@@ -70,7 +70,7 @@ internal class PageUploadOperationsImpl(
 
         val result = if (pageContentChangeDetector.strategy(confluencePage, page.content)) {
             updatePageContent(confluencePage, parentPageId, page, serverPageDetails)
-        } else if (confluencePage.parent?.id != parentPageId) {
+        } else if (confluencePage.parentId != parentPageId) {
             changePageParent(confluencePage, parentPageId, page, serverPageDetails, confluencePageToUpdate.title)
         } else if (renamed) {
             PageOperationResult.LocationModified(
@@ -124,7 +124,7 @@ internal class PageUploadOperationsImpl(
         return PageOperationResult.ContentModified(
             page,
             serverPageDetails,
-            confluencePage.parent?.id != parentPageId
+            confluencePage.parentId != parentPageId
         )
     }
 
@@ -139,7 +139,7 @@ internal class PageUploadOperationsImpl(
         return PageOperationResult.LocationModified(
             page,
             serverPageDetails,
-            confluencePage.parent?.id ?: "",
+            confluencePage.parentId ?: "",
             originalTitle
         )
     }
@@ -165,13 +165,13 @@ internal class PageUploadOperationsImpl(
         space: String,
         parentId: String
     ): ServerPage {
-        val serverPage = client.getPageOrNullWithOptions(
+        val serverPage = client.getPageOrNull(
             space, title, loadOptions = setOf(
-                SimplePageLoadOptions.Parent, SimplePageLoadOptions.Version,
+                SimplePageLoadOptions.ParentId, SimplePageLoadOptions.Version,
                 PagePropertyLoad(TENANT_PROPERTY)
             )
         ) ?: throw PageNotFoundException(space, title)
-        if (serverPage.parent?.id != parentId) {
+        if (serverPage.parentId != parentId) {
             checkTenantBeforeUpdate(serverPage)
             changeParent(serverPage, parentId)
         }
@@ -182,7 +182,7 @@ internal class PageUploadOperationsImpl(
         serverPage: ConfluencePage,
         parentPageId: String
     ) {
-        logger.info { "Changing page parent from ${serverPage.parent?.id} to $parentPageId" }
+        logger.info { "Changing page parent from ${serverPage.parentId} to $parentPageId" }
         client.changeParent(
             serverPage.id,
             serverPage.title,
@@ -199,8 +199,8 @@ internal class PageUploadOperationsImpl(
         serverPage.id,
         serverPage.title,
         parentPageId,
-        serverPage.metadata?.labels?.results ?: emptyList(),
-        serverPage.children?.attachment?.let { client.fetchAllAttachments(it) } ?: emptyList(),
+        serverPage.labels ?: emptyList(),
+        serverPage.attachments?.let { client.fetchAllAttachments(it) } ?: emptyList(),
         serverPage.links
     )
 
@@ -213,12 +213,12 @@ internal class PageUploadOperationsImpl(
         val serverPage = client.createPage(
             PageContentInput(parentPageId, page.title, page.content.body, space),
             PageUpdateOptions(notifyWatchers, uploadMessage),
-            expansions = listOf(
-                "metadata.labels",
-                "metadata.properties.$HASH_PROPERTY",
-                "metadata.properties.$EDITOR_PROPERTY",
-                "version",
-                "children.attachment"
+            loadOptions = setOf(
+                SimplePageLoadOptions.Labels,
+                SimplePageLoadOptions.Version,
+//                SimplePageLoadOptions.Attachments,
+                PagePropertyLoad(HASH_PROPERTY),
+                PagePropertyLoad(EDITOR_PROPERTY),
             )
         )
         setPageProperties(page, serverPage)
@@ -323,7 +323,7 @@ internal class PageUploadOperationsImpl(
     override suspend fun findChildPages(pageId: String): List<ConfluencePage> {
         return client.findChildPages(
             pageId,
-            listOf(propertyExpansion(HASH_PROPERTY), propertyExpansion(TENANT_PROPERTY))
+            setOf(propertyExpansion(HASH_PROPERTY), propertyExpansion(TENANT_PROPERTY))
         )
     }
 
@@ -347,7 +347,7 @@ internal class PageUploadOperationsImpl(
             get() = attachment.id
     }
 
-    private fun propertyExpansion(property: String) = "metadata.properties.$property"
+    private fun propertyExpansion(property: String) = PagePropertyLoad(property)
 }
 
 private val EditorVersion.propertyValue: String

@@ -28,11 +28,11 @@ class PageExporterTest(
             every { space?.key } returns "SP"
             every { title } returns "title"
             every { body?.storage?.value } returns "<p>hello world</p>"
-            every { metadata?.labels?.results } returns listOf(
+            every { labels } returns listOf(
                 Label("", "l1", "1"),
                 Label("", "l2", "1")
             )
-            every { children?.attachment } returns mockk()
+            every { attachments } returns mockk()
         }
         coEvery { client.fetchAllAttachments(any()) } returns listOf(
             mockk {

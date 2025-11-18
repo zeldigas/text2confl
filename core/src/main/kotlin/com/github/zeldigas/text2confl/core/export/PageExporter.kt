@@ -41,7 +41,7 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
             ConfluenceUserResolverImpl(client)
         )
 
-        val attachments = page.children?.attachment?.let { client.fetchAllAttachments(it) } ?: emptyList()
+        val attachments = page.attachments?.let { client.fetchAllAttachments(it) } ?: emptyList()
         exportPageContent(converter, page, attachments, destinationDir, Path.of(assetsLocation ?: ""))
         if (attachments.isNotEmpty()) {
             attachmentDir.createDirectories()
@@ -97,7 +97,7 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
     }
 
     private fun writeLabels(page: ConfluencePage, writer: OutputStreamWriter) {
-        page.metadata?.labels?.results?.let { labels ->
+        page.labels?.let { labels ->
             if (labels.isNotEmpty()) {
                 writer.appendLine("---")
                 writer.append("labels: ")

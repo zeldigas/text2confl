@@ -15,19 +15,13 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
     override suspend fun createPage(
         value: PageContentInput,
         updateParameters: PageUpdateOptions,
-        expansions: List<String>?
+        loadOptions: Set<PageLoadOptions>
     ): ConfluencePage {
         log.info { "(dryrun) Creating page under parent ${value.parentPage} with title ${value.title}" }
         return ConfluencePage(
-            UNDEFINED_ID,
-            ContentType.page,
-            "created",
-            value.title,
-            null,
-            null,
-            PageVersionInfo(value.version, true, ZonedDateTime.now()),
-            null,
-            null
+            id = UNDEFINED_ID,
+            title=value.title,
+            version = PageVersionInfo(value.version, true, ZonedDateTime.now())
         )
     }
 
@@ -39,14 +33,8 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         log.info { "(dryrun) Updating page $pageId with title ${value.title}" }
         return ConfluencePage(
             pageId,
-            ContentType.page,
-            "updated",
-            value.title,
-            null,
-            null,
-            PageVersionInfo(value.version, true, ZonedDateTime.now()),
-            null,
-            null
+            title = value.title,
+            version = PageVersionInfo(value.version, true, ZonedDateTime.now())
         )
     }
 
@@ -59,15 +47,9 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
     ): ConfluencePage {
         log.info { "(dryrun) Changing parent of page $pageId with title ${title} to $newParentId" }
         return ConfluencePage(
-            pageId,
-            ContentType.page,
-            "updated",
-            title,
-            null,
-            null,
-            PageVersionInfo(version, true, ZonedDateTime.now()),
-            null,
-            null
+            id = pageId,
+            title=title,
+            version = PageVersionInfo(version, true, ZonedDateTime.now())
         )
     }
 
@@ -87,11 +69,14 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         log.info { "(dryrun) Deleting page $pageId" }
     }
 
-    override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
+    override suspend fun findChildPages(
+        pageId: String,
+        loadOptions: Set<PageLoadOptions>?
+    ): List<ConfluencePage> {
         return if (pageId == UNDEFINED_ID) {
             emptyList()
         } else {
-            realClient.findChildPages(pageId, expansions)
+            realClient.findChildPages(pageId, loadOptions)
         }
     }
 

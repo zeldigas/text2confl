@@ -9,6 +9,7 @@ import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.PageAttachmentInput
 import com.github.zeldigas.confclient.PageContentInput
 import com.github.zeldigas.confclient.PageUpdateOptions
+import com.github.zeldigas.confclient.SimplePageLoadOptions
 import com.github.zeldigas.confclient.model.Attachment
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.PageAttachments
@@ -75,15 +76,14 @@ internal class DryRunClientTest(
         val expectedChildPages = listOf<ConfluencePage>(mockk())
         coEvery { confluenceClient.findChildPages("123", any()) } returns expectedChildPages
 
-        val resultOfExisting = runBlocking { dryRunClient.findChildPages("123", listOf("exp1")) }
+        val resultOfExisting = runBlocking { dryRunClient.findChildPages("123", setOf(SimplePageLoadOptions.Version)) }
 
-        coVerify(exactly = 1) { confluenceClient.findChildPages("123", listOf("exp1")) }
+        coVerify(exactly = 1) { confluenceClient.findChildPages("123", setOf(SimplePageLoadOptions.Version)) }
         assertThat(resultOfExisting).isEqualTo(expectedChildPages)
 
-        val resultOfNew = runBlocking { dryRunClient.findChildPages("(known after apply)", listOf("exp2")) }
+        val resultOfNew = runBlocking { dryRunClient.findChildPages("(known after apply)", setOf(SimplePageLoadOptions.Labels)) }
         assertThat(resultOfNew).isEmpty()
-        coVerify(exactly = 0) { confluenceClient.findChildPages("(known after apply)", listOf("exp2")) }
-
+        coVerify(exactly = 0) { confluenceClient.findChildPages("(known after apply)", setOf(SimplePageLoadOptions.Labels)) }
     }
 
     @Test

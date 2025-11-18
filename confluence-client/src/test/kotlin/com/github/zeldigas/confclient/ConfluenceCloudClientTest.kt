@@ -6,7 +6,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.github.zeldigas.confclient.model.*
-import com.github.zeldigas.confclient.model.ContentType
 import io.ktor.http.*
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -53,18 +52,13 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
             Space(
                 id = 98445, "Docs", "Documentation", "98581", ConfluencePage(
                     id = "98581",
-                    type = ContentType.page,
-                    status = "current",
                     title = "Docs",
-                    metadata = null,
                     body = PageBody(null),
                     version = PageVersionInfo(
                         number = 1,
                         minorEdit = false,
                         createdAt = ZonedDateTime.parse("2025-03-01T15:25:51.008Z")
                     ),
-                    children = null,
-                    ancestors = null,
                     links = mapOf(
                         "editui" to "/pages/resumedraft.action?draftId=98581",
                         "webui" to "/spaces/Docs/overview",
