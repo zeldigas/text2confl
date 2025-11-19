@@ -179,6 +179,22 @@ class ConfluenceCloudClient(
             }
     }
 
+    override suspend fun renamePage(
+        serverPage: ConfluencePage,
+        newTitle: String,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage {
+        val page =  httpClient.put("$apiBase/pages/${serverPage.id}/title") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf(
+                "status" to "current",
+                "title" to newTitle
+            ))
+        }.readApiResponse<ConfCloudPage>(expectSuccess = true)
+        return toConfluencePage(page, null)
+    }
+
+
     override suspend fun deletePage(pageId: String) {
         delete("$apiBase/pages/$pageId")
     }
@@ -374,7 +390,7 @@ private data class AttributesCollection<T>(
 
 private data class CloudPageVersion(
     val number: Int,
-    val message: String,
+    val message: String?,
     val minorEdit: Boolean,
     val createdAt: ZonedDateTime,
 )

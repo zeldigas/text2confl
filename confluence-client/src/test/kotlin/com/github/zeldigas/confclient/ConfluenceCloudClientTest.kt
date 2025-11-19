@@ -7,6 +7,8 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.github.zeldigas.confclient.model.*
 import io.ktor.http.*
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
@@ -141,6 +143,33 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
                     )
                 ),
                 links = mapOf(
+                    "base" to "https://text2conf.atlassian.net/wiki"
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `Rename page`() = runTest {
+        stubFor(
+            put("/api/v2/pages/1441795/title")
+                .willReturn(ok().withJsonFromFile("/data/responses/api-v2/page-after-rename.json"))
+        )
+
+        val result = client.renamePage(mockk {
+            every { id } returns "1441795"
+        }, "doc title subtitle", PageUpdateOptions(message = null))
+
+        assertThat(result).isEqualTo(
+            ConfluencePage(
+                id = "1441795",
+                title = "doc title subtitle",
+                version = PageVersionInfo(9, false, createdAt = ZonedDateTime.parse("2025-11-19T05:44:33.959Z")),
+                links = mapOf(
+                    "editui" to "/pages/resumedraft.action?draftId=1441795",
+                    "webui" to "/spaces/docs/pages/1441795/doc+title+subtitle",
+                    "edituiv2" to "/spaces/docs/pages/edit-v2/1441795",
+                    "tinyui" to "/x/AwAW",
                     "base" to "https://text2conf.atlassian.net/wiki"
                 )
             )
