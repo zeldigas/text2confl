@@ -87,8 +87,10 @@ class ConfluenceCloudClient(
         }.readApiResponse<ConfCloudPageSearchResult>().results.map { page ->
             toConfluencePage(page, spaceInfo)
         }
-        val leftover = loadOptions - setOf(SimplePageLoadOptions.Content, SimplePageLoadOptions.ParentId,
-            SimplePageLoadOptions.Space)
+        val leftover = loadOptions - setOf(
+            SimplePageLoadOptions.Content, SimplePageLoadOptions.ParentId,
+            SimplePageLoadOptions.Space
+        )
         return if (leftover.isNotEmpty()) {
             coroutineScope {
                 pages.map { page ->
@@ -133,10 +135,12 @@ class ConfluenceCloudClient(
     ) {
         return httpClient.post("$apiBase/pages/$pageId/properties") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf(
-                "key" to name,
-                "value" to value.value
-            ))
+            setBody(
+                mapOf(
+                    "key" to name,
+                    "value" to value.value
+                )
+            )
         }.readApiResponse(expectSuccess = true)
     }
 
@@ -147,11 +151,13 @@ class ConfluenceCloudClient(
     ) {
         return httpClient.put("$apiBase/pages/$pageId/properties/${property.id}") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf(
-                "key" to property.key,
-                "value" to value.value,
-                "version" to value.version
-            ))
+            setBody(
+                mapOf(
+                    "key" to property.key,
+                    "value" to value.value,
+                    "version" to value.version
+                )
+            )
         }.readApiResponse(expectSuccess = true)
     }
 
@@ -161,7 +167,7 @@ class ConfluenceCloudClient(
     ): List<ConfluencePage> {
         val collectionFetcher = PagedFetcher(
             confluenceBaseUrl,
-            { httpClient.get(it).readApiResponse<AttributesCollection<PageChildItem>>()}
+            { httpClient.get(it).readApiResponse<AttributesCollection<PageChildItem>>() }
         )
         val search = httpClient.get("$apiBase/pages/$pageId/direct-children") {
             parameter("limit", PAGE_SIZE)
@@ -179,17 +185,38 @@ class ConfluenceCloudClient(
             }
     }
 
+    override suspend fun updatePage(
+        pageId: String,
+        value: PageContentInput,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage {
+        return performPageUpdate(pageId, buildMap {
+            put("id", pageId)
+            put("status", "current")
+            put("title", value.title)
+            put("body", mapOf(
+                "representation" to "storage",
+                "value" to value.content
+            ))
+            put("version", versionNode(value.version, updateParameters))
+            value.parentPage?.let { put("parentId", it) }
+            value.space?.let { put("spaceId", resolveSpace(it).id.toString()) }
+        })
+    }
+
     override suspend fun renamePage(
         serverPage: ConfluencePage,
         newTitle: String,
         updateParameters: PageUpdateOptions
     ): ConfluencePage {
-        val page =  httpClient.put("$apiBase/pages/${serverPage.id}/title") {
+        val page = httpClient.put("$apiBase/pages/${serverPage.id}/title") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf(
-                "status" to "current",
-                "title" to newTitle
-            ))
+            setBody(
+                mapOf(
+                    "status" to "current",
+                    "title" to newTitle
+                )
+            )
         }.readApiResponse<ConfCloudPage>(expectSuccess = true)
         return toConfluencePage(page, null)
     }
@@ -255,9 +282,13 @@ class ConfluenceCloudClient(
     internal suspend fun getPageAttachments(pageId: String): PageAttachments {
         val attachments = httpClient.get("$apiBase/pages/$pageId/attachments").readApiResponse<CloudPageAttachments>()
         return PageAttachments(
-            results = attachments.results.map { Attachment(it.id, it.title, metadata = mapOf(
-                "comment" to it.comment,
-            ), links = it.links) },
+            results = attachments.results.map {
+                Attachment(
+                    it.id, it.title, metadata = mapOf(
+                        "comment" to it.comment,
+                    ), links = it.links
+                )
+            },
             links = attachments.links
         )
     }
@@ -306,7 +337,8 @@ class ConfluenceCloudClient(
             setBody(body)
         }
         if (response.status.isSuccess()) {
-            return toConfluencePage(response.readApiResponse<ConfCloudPage>(), null)
+            val page = response.readApiResponse<ConfCloudPage>()
+            return toConfluencePage(page, spacesCache[page.spaceId])
         } else {
             throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
         }
@@ -353,6 +385,10 @@ class ConfluenceCloudClient(
         }
     }
 
+
+    internal fun registerSpaceDetails(space: Space) {
+        spacesCache[space.id] = space
+    }
 
 //    {
 //  "errors": [
@@ -422,7 +458,9 @@ private data class CloudVersion(
 )
 
 private data class CloudPageAttachments(
-    val results: List<CloudAttachment>, val meta: OptionalFieldMeta?, @JsonProperty("_links") val links: Map<String, String>
+    val results: List<CloudAttachment>,
+    val meta: OptionalFieldMeta?,
+    @JsonProperty("_links") val links: Map<String, String>
 )
 
 private data class ConfCloudPageSearchResult(

@@ -1,0 +1,34 @@
+{
+  "parentId": "851969",
+  "spaceId": "458757",
+  "ownerId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+  "lastOwnerId": null,
+  "createdAt": "2025-11-18T20:10:12.198Z",
+  "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+  "parentType": "page",
+  "position": 1709,
+  "version": {
+    "number": 2,
+    "message": "msg",
+    "minorEdit": false,
+    "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+    "createdAt": "2025-11-19T05:44:33.959Z",
+    "ncsStepVersion": "44"
+  },
+  "id": "1441795",
+  "body": {
+    "storage": {
+      "representation": "storage",
+      "value": "<p>hello world</p>"
+    }
+  },
+  "status": "current",
+  "title": "Page title",
+  "_links": {
+    "editui": "/pages/resumedraft.action?draftId=1441795",
+    "webui": "/spaces/docs/pages/1441795/Page+title",
+    "edituiv2": "/spaces/docs/pages/edit-v2/1441795",
+    "tinyui": "/x/AwAW",
+    "base": "https://text2conf.atlassian.net/wiki"
+  }
+}

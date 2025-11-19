@@ -150,9 +150,62 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
     }
 
     @Test
+    fun `Update page content`() {
+        val space = Space(458757, "docs", "docs", null, null)
+        runTest{
+            stubFor(
+                put("/api/v2/pages/1441795")
+                    .withJson("""
+                    {
+                      "id": "1441795",
+                      "status": "current",
+                      "title": "Page title",                  
+                      "body": {
+                        "representation": "storage",
+                        "value": "<p>hello world</p>"
+                      },
+                      "version": {
+                        "number": 2,
+                        "message": "msg"
+                      },
+                      "parentId": "851969",
+                      "spaceId": "458757"
+                    }
+                    """.trimIndent())
+                    .willReturn(ok().withJsonFromFile("/data/responses/api-v2/page-after-update.json"))
+            )
+            client.registerSpaceDetails(space)
+
+            val result = client.updatePage("1441795", PageContentInput(
+                parentPage = "851969", title = "Page title", content = "<p>hello world</p>", space = "docs", version = 2
+            ), PageUpdateOptions(message = "msg"))
+
+
+            assertThat(result).isEqualTo(ConfluencePage(
+                id = "1441795",
+                title = "Page title",
+                version = PageVersionInfo(2, false, createdAt = ZonedDateTime.parse("2025-11-19T05:44:33.959Z")),
+                body = PageBody(storage = StorageFormat(
+                    "<p>hello world</p>", "storage"
+                )),
+                parentId = "851969",
+                space = space,
+                links = mapOf(
+                    "editui" to "/pages/resumedraft.action?draftId=1441795",
+                    "webui" to "/spaces/docs/pages/1441795/Page+title",
+                    "edituiv2" to "/spaces/docs/pages/edit-v2/1441795",
+                    "tinyui" to "/x/AwAW",
+                    "base" to "https://text2conf.atlassian.net/wiki"
+                )
+            ))
+        }
+    }
+
+    @Test
     fun `Rename page`() = runTest {
         stubFor(
             put("/api/v2/pages/1441795/title")
+                .withJson("""{"status":  "current", "title":  "doc title subtitle"}""")
                 .willReturn(ok().withJsonFromFile("/data/responses/api-v2/page-after-rename.json"))
         )
 

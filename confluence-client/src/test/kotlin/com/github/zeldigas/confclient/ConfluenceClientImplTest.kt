@@ -6,6 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
@@ -167,4 +168,15 @@ internal fun ResponseDefinitionBuilder.withJsonFromFile(pathToFile: String): Res
     val content = ConfluenceClientImplTest::class.java.getResourceAsStream(pathToFile)!!.reader().use { it.readText() }
     return withBody(content)
         .withHeader("content-type", "application/json")
+}
+
+internal fun MappingBuilder.withJsonFromFile(pathToFile: String): MappingBuilder {
+    val content = ConfluenceClientImplTest::class.java.getResourceAsStream(pathToFile)!!.reader().use { it.readText() }
+    return withRequestBody(equalToJson(content))
+        .withHeader("content-type", equalTo("application/json"))
+}
+
+internal fun MappingBuilder.withJson(content: String): MappingBuilder {
+    return withRequestBody(equalToJson(content))
+        .withHeader("content-type", equalTo("application/json"))
 }
