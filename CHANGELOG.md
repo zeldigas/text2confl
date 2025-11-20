@@ -7,6 +7,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Confluence Cloud Rest API v2 support. When uploading to cloud, it is enabled automatically. If you still need to use
+  old approach (only legacy api), pass `--no-confluence-cloud` flag. This flag is supported for `export-to-md` and
+  `upload` commands
+
+### Changed
+
+- Improved reporting about confluence unexpected errors: now headers are included
+
+### Fixed
+
+- False reporting about labels update, order is ignored now (#272)
+
 ## 0.19.0 - 2025-11-17
 
 ### Added
@@ -34,7 +48,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Rolled back to plantuml 1.2025.2 due to issues with 1.2025.3 (https://github.com/asciidoctor/asciidoctor-diagram/issues/484)
+- Rolled back to plantuml 1.2025.2 due to issues with
+  1.2025.3 (https://github.com/asciidoctor/asciidoctor-diagram/issues/484)
 
 ## 0.17.2 - 2025-06-18
 
@@ -42,8 +57,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Password confirmation is no longer asked in interactive prompt
 - Dependency updates
-  - plantuml to 1.2025.3
-  - other deps (kotlin, ktor)
+    - plantuml to 1.2025.3
+    - other deps (kotlin, ktor)
 
 ### Fixed
 
@@ -58,7 +73,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Dependency updates
-  - asciidoctor-diagram to 2.3.1
+    - asciidoctor-diagram to 2.3.1
 
 ## 0.17.0 - 2024-06-24
 
@@ -70,8 +85,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - dependency updates:
-  - plantuml to 1.2024.5
-  - other deps (kotlin, ktor, logback, asciidoctor)
+    - plantuml to 1.2024.5
+    - other deps (kotlin, ktor, logback, asciidoctor)
 
 ### Fixed
 
@@ -101,9 +116,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - dependency updates:
-  - using image with Java 21 to distribute text2confl
-  - plantuml to 1.2023.13
-  - other deps (kotlin, ktor, jackson)
+    - using image with Java 21 to distribute text2confl
+    - plantuml to 1.2023.13
+    - other deps (kotlin, ktor, jackson)
 
 ## 0.15.0 - 2023-11-06
 

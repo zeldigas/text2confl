@@ -48,12 +48,7 @@ internal class PageUploadOperationsImplTest(
 
         coEvery {
             client.createPage(
-                any(), any(), setOf(
-                    SimplePageLoadOptions.Labels,
-                    SimplePageLoadOptions.Version,
-                    PagePropertyLoad("contenthash"),
-                    PagePropertyLoad("editor"),
-                )
+                any(), any()
             )
         } returns mockk {
             every { id } returns "new_id"
@@ -63,7 +58,7 @@ internal class PageUploadOperationsImplTest(
             every { attachments} returns null
             every { links } returns emptyMap()
         }
-        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.createPageProperty(any(), any(), any()) } just Runs
 
         val localPage = mockk<Page> {
             every { title } returns "Page title"
@@ -90,22 +85,21 @@ internal class PageUploadOperationsImplTest(
         coVerify {
             client.createPage(
                 PageContentInput("parentId", "Page title", "body", "TEST"),
-                PageUpdateOptions(false, "create-page"),
-                any()
+                PageUpdateOptions(false, "create-page")
             )
         }
         coVerify {
-            client.setPageProperty("new_id", "contenthash", PagePropertyInput.newProperty("body-hash"))
+            client.createPageProperty("new_id", "contenthash", PagePropertyInput.newProperty("body-hash"))
         }
         coVerify {
-            client.setPageProperty("new_id", "editor", PagePropertyInput.newProperty("v2"))
+            client.createPageProperty("new_id", "editor", PagePropertyInput.newProperty("v2"))
         }
         if (tenant.isEmpty()) {
             coVerify(exactly = 0) {
-                client.setPageProperty("new_id", "t2ctenant", any())
+                client.createPageProperty("new_id", "t2ctenant", any())
             }
         } else {
-            coVerify { client.setPageProperty("new_id", "t2ctenant", PagePropertyInput.newProperty(tenant)) }
+            coVerify { client.createPageProperty("new_id", "t2ctenant", PagePropertyInput.newProperty(tenant)) }
         }
     }
 
@@ -149,7 +143,8 @@ internal class PageUploadOperationsImplTest(
             every { title } returns "Page title"
         }
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
-        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.createPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.updatePageProperty(any(), any(), any()) } just Runs
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
         val localPage = mockk<Page> {
@@ -185,13 +180,13 @@ internal class PageUploadOperationsImplTest(
             )
         }
         coVerify {
-            client.setPageProperty(PAGE_ID, "contenthash", PagePropertyInput("body-hash", PropertyVersion(4)))
+            client.createPageProperty(PAGE_ID, "extra", PagePropertyInput.newProperty("value"))
         }
         coVerify {
-            client.setPageProperty(PAGE_ID, "extra", PagePropertyInput.newProperty("value"))
+            client.updatePageProperty(PAGE_ID, serverPage.properties!!.getValue("contenthash"), PagePropertyInput("body-hash", PropertyVersion(4)))
         }
         coVerify(exactly = 0) {
-            client.setPageProperty(PAGE_ID, "editor", any())
+            client.updatePageProperty(PAGE_ID, serverPage.properties!!.getValue("editor"), any())
         }
     }
 
@@ -246,7 +241,7 @@ internal class PageUploadOperationsImplTest(
             every { links } returns emptyMap()
         }
         coEvery { client.fetchAllAttachments(any()) } returns emptyList()
-        coEvery { client.setPageProperty(PAGE_ID, "extra", any()) } just Runs
+        coEvery { client.updatePageProperty(PAGE_ID, any(), any()) } just Runs
 
         val result = runBlocking {
             uploadOperations(changeDetector = changeDetector).createOrUpdatePageContent(mockk {
@@ -262,7 +257,7 @@ internal class PageUploadOperationsImplTest(
         assertThat(result).isInstanceOf<PageOperationResult.NotModified>()
         assertThat(result.serverPage.id).isEqualTo(PAGE_ID)
         coVerify(exactly = 0) { client.updatePage(any(), any(), any()) }
-        coVerify { client.setPageProperty(PAGE_ID, "extra", PagePropertyInput("updatedValue", PropertyVersion(4))) }
+        coVerify { client.updatePageProperty(PAGE_ID, any(), PagePropertyInput("updatedValue", PropertyVersion(4))) }
     }
 
     @Test
@@ -295,7 +290,8 @@ internal class PageUploadOperationsImplTest(
         }
 
         coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
-        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.createPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.updatePageProperty(any(), any(), any()) } just Runs
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
         val localPage = mockk<Page> {
@@ -325,7 +321,7 @@ internal class PageUploadOperationsImplTest(
         )
 
         coVerify {
-            client.setPageProperty(PAGE_ID, TENANT_PROPERTY, PagePropertyInput.newProperty("value"))
+            client.createPageProperty(PAGE_ID, TENANT_PROPERTY, PagePropertyInput.newProperty("value"))
         }
     }
 
@@ -359,7 +355,7 @@ internal class PageUploadOperationsImplTest(
         if (parentChanged) {
             coEvery { client.changeParent(any(), any(), 44, targetParent, any()) } returns mockk()
         }
-        coEvery { client.setPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.createPageProperty(any(), any(), any()) } just Runs
         coEvery { client.fetchAllAttachments(any()) } returns listOf(serverAttachment("one", "HASH:123"))
 
         val localPage = mockk<Page> {
