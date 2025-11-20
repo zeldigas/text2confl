@@ -1,0 +1,29 @@
+{
+  "parentType": null,
+  "parentId": null,
+  "spaceId": "458757",
+  "ownerId": null,
+  "lastOwnerId": null,
+  "createdAt": "2025-11-18T20:10:12.198Z",
+  "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+  "position": 1709,
+  "version": {
+    "number": 9,
+    "message": null,
+    "minorEdit": false,
+    "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+    "createdAt": "2025-11-19T05:44:33.959Z",
+    "ncsStepVersion": "44"
+  },
+  "body": null,
+  "status": "current",
+  "title": "doc title subtitle",
+  "id": "1441795",
+  "_links": {
+    "editui": "/pages/resumedraft.action?draftId=1441795",
+    "webui": "/spaces/docs/pages/1441795/doc+title+subtitle",
+    "edituiv2": "/spaces/docs/pages/edit-v2/1441795",
+    "tinyui": "/x/AwAW",
+    "base": "https://text2conf.atlassian.net/wiki"
+  }
+}

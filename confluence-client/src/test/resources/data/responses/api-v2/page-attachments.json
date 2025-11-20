@@ -1,0 +1,32 @@
+{
+  "results": [
+    {
+      "fileId": "b80a5250-1d45-4d43-9d6b-4715ab7f7640",
+      "downloadLink": "/download/attachments/1507344/test.txt?version=5&modificationDate=1763499437434&cacheVersion=1&api=v2",
+      "createdAt": "2025-11-18T20:57:17.434Z",
+      "mediaTypeDescription": "Text File",
+      "webuiLink": "/pages/viewpageattachments.action?pageId=1507344&preview=%2F1507344%2F1441849%2Ftest.txt",
+      "comment": "HASH:ad0289848913e74b3cddda83e68c1b434da5a06cf3924c3d3ee83a3feaa94ac2",
+      "version": {
+        "number": 5,
+        "message": "HASH:ad0289848913e74b3cddda83e68c1b434da5a06cf3924c3d3ee83a3feaa94ac2",
+        "minorEdit": false,
+        "authorId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+        "createdAt": "2025-11-18T20:57:17.434Z"
+      },
+      "pageId": "1507344",
+      "status": "current",
+      "title": "test.txt",
+      "fileSize": 14,
+      "mediaType": "text/plain",
+      "id": "att1441849",
+      "_links": {
+        "download": "/download/attachments/1507344/test.txt?version=5&modificationDate=1763499437434&cacheVersion=1&api=v2",
+        "webui": "/pages/viewpageattachments.action?pageId=1507344&preview=%2F1507344%2F1441849%2Ftest.txt"
+      }
+    }
+  ],
+  "_links": {
+    "base": "https://text2conf.atlassian.net/wiki"
+  }
+}

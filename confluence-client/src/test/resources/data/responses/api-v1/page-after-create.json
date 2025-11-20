@@ -1,0 +1,81 @@
+{
+  "id": "2818049",
+  "type": "page",
+  "ari": "ari:cloud:confluence:09288285-0029-456f-831f-c01e2dc38707:page/2818049",
+  "base64EncodedAri": "YXJpOmNsb3VkOmNvbmZsdWVuY2U6MDkyODgyODUtMDAyOS00NTZmLTgzMWYtYzAxZTJkYzM4NzA3OmNvbnRlbnQvMjgxODA0OQ==",
+  "status": "current",
+  "title": "created new-legacy1",
+  "version": {
+    "by": {
+      "type": "known",
+      "accountId": "557058:08033270-bc81-4215-aa65-f48d85f186f7",
+      "accountType": "atlassian",
+      "email": "zeldigas@gmail.com",
+      "publicName": "zeldigas",
+      "profilePicture": {
+        "path": "/wiki/aa-avatar/557058:08033270-bc81-4215-aa65-f48d85f186f7",
+        "width": 48,
+        "height": 48,
+        "isDefault": false
+      },
+      "displayName": "Dmitry Pavlov",
+      "isExternalCollaborator": false,
+      "isGuest": false,
+      "locale": "ru",
+      "accountStatus": "active",
+      "_expandable": {
+        "operations": "",
+        "personalSpace": ""
+      },
+      "_links": {
+        "self": "https://text2conf.atlassian.net/wiki/rest/api/user?accountId=557058:08033270-bc81-4215-aa65-f48d85f186f7"
+      }
+    },
+    "when": "2025-11-20T08:22:44.892Z",
+    "friendlyWhen": "только что",
+    "message": "",
+    "number": 1,
+    "minorEdit": false,
+    "ncsStepVersion": "1",
+    "ncsStepVersionSource": "ncs-ack",
+    "confRev": "confluence$content$2818049.3",
+    "contentTypeModified": false,
+    "_expandable": {
+      "collaborators": "",
+      "content": "/rest/api/content/2818049"
+    },
+    "_links": {
+      "self": "https://text2conf.atlassian.net/wiki/rest/api/content/2818049/version/1"
+    }
+  },
+  "macroRenderedOutput": {},
+  "extensions": {
+    "position": 4021
+  },
+  "_expandable": {
+    "container": "/rest/api/space/docs",
+    "metadata": "",
+    "restrictions": "/rest/api/content/2818049/restriction/byOperation",
+    "history": "/rest/api/content/2818049/history",
+    "body": "",
+    "descendants": "/rest/api/content/2818049/descendant",
+    "space": "/rest/api/space/docs",
+    "childTypes": "",
+    "schedulePublishInfo": "",
+    "operations": "",
+    "schedulePublishDate": "",
+    "children": "/rest/api/content/2818049/child",
+    "ancestors": "",
+    "draftVersion": ""
+  },
+  "_links": {
+    "editui": "/pages/resumedraft.action?draftId=2818049",
+    "webui": "/spaces/docs/pages/2818049/created+new-legacy1",
+    "edituiv2": "/spaces/docs/pages/edit-v2/2818049",
+    "context": "/wiki",
+    "self": "https://text2conf.atlassian.net/wiki/rest/api/content/2818049",
+    "tinyui": "/x/AQAr",
+    "collection": "/rest/api/content",
+    "base": "https://text2conf.atlassian.net/wiki"
+  }
+}

@@ -16,7 +16,7 @@ import io.ktor.http.*
 
 fun ParameterHolder.confluenceUrl() = option(
     "--confluence-url", envvar = "CONFLUENCE_URL",
-    help = "Address of confluence server. For Confluence cloud it is usually https://<site>.atlassian.net/wiki"
+    help = "Address of Confluence server. For Confluence Cloud it is usually https://<site>.atlassian.net/wiki"
 ).convert { Url(it) }
 
 fun ParameterHolder.confluenceUser() = option("--user", envvar = "CONFLUENCE_USER")
@@ -44,7 +44,7 @@ fun ParameterHolder.editorVersion() = option(
 
 fun ParameterHolder.confluenceSpace() = option(
     "--space", envvar = "CONFLUENCE_SPACE",
-    help = "Destination confluence space"
+    help = "Destination Confluence space"
 )
 
 fun ParameterHolder.docsLocation() = option("--docs")
@@ -58,8 +58,13 @@ fun ParameterHolder.httpLoggingLevel() = option(
 
 fun ParameterHolder.httpRequestTimeout() = option(
     "--http-request-timeout",
-    help = "Http request timeout in milliseconds. Default "
+    help = "Http request timeout in milliseconds. Default - 15seconds"
 ).long()
+
+fun ParameterHolder.confluenceCloudFlag() = option(
+    "--confluence-cloud",
+    help = "Activates usage of Confluence Cloud API v2. Inferred by default for if Confluence is hosted on atlassian.net domain"
+).optionalFlag("--no-confluence-cloud")
 
 internal interface WithConfluenceServerOptions {
     val confluenceUrl: Url?
@@ -69,6 +74,7 @@ internal interface WithConfluenceServerOptions {
     val skipSsl: Boolean?
     val httpLogLevel: LogLevel
     val httpRequestTimeout: Long?
+    val confluenceCloud: Boolean?
 
     val confluenceAuth: ConfluenceAuth
         get() = when {
@@ -88,12 +94,15 @@ internal interface WithConfluenceServerOptions {
         return PasswordAuth(username, effectivePassword)
     }
 
-    fun httpClientConfig(server: Url, defaultSslSkip: Boolean = false) = ConfluenceClientConfig(
+    fun httpClientConfig(server: Url,
+                         defaultSslSkip: Boolean = false,
+                         defaultCloudApi: Boolean? = null) = ConfluenceClientConfig(
         server = server,
         skipSsl = skipSsl ?: defaultSslSkip,
         auth = confluenceAuth,
         httpLogLevel = httpLogLevel,
-        requestTimeout = httpRequestTimeout
+        requestTimeout = httpRequestTimeout,
+        cloudApi = confluenceCloud ?: defaultCloudApi ?: server.host.endsWith(".atlassian.net", ignoreCase = true)
     )
     fun askForSecret(prompt: String, requireConfirmation: Boolean = true): String?
 

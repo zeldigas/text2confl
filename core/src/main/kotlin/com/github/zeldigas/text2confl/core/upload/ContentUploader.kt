@@ -102,7 +102,11 @@ class ContentUploader(
         val header = page.content.header
 
         if (header.parentId != null) return header.parentId
-        if (header.parent != null) return client.getPage(space, header.parent!!).id
+        if (header.parent != null) return try {
+            client.getPage(space, header.parent!!).id
+        } catch (_: com.github.zeldigas.confclient.PageNotFoundException) {
+            throw PageNotFoundException(space, header.parent!!)
+        }
 
         return null
     }

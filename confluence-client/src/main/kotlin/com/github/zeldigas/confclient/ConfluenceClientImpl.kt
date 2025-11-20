@@ -1,30 +1,22 @@
 package com.github.zeldigas.confclient
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zeldigas.confclient.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
 import io.ktor.serialization.*
-import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
+import io.ktor.util.toMap
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import java.nio.file.Path
-import java.security.cert.X509Certificate
-import javax.net.ssl.X509TrustManager
 import kotlin.io.path.fileSize
 
 class ConfluenceClientImpl(
@@ -41,39 +33,60 @@ class ConfluenceClientImpl(
     override val confluenceApiBaseUrl: Url
         get() = Url(apiBase)
 
-    override suspend fun describeSpace(key: String, expansions: List<String>): Space {
+    override suspend fun describeSpace(key: String, includeHome: Boolean): Space {
         return httpClient.get("$apiBase/space/$key") {
-            addExpansions(expansions)
+            if (includeHome) {
+                addExpansions(listOf("homepage"))
+            }
         }.readApiResponse()
     }
 
     override suspend fun getPage(
         space: String,
         title: String,
-        status: List<String>?,
-        expansions: Set<String>
+        expansions: Set<PageLoadOptions>
     ): ConfluencePage {
-        val results = findPages(space, title, status, expansions)
+        val results = findPages(space, title, expansions = toExpansions(expansions).toSet())
 
         return extractSinglePage(results)
     }
 
     override suspend fun getPageById(
         id: String,
-        expansions: Set<String>
+        loadOptions: Set<PageLoadOptions>
     ): ConfluencePage {
-        return httpClient.get("$apiBase/content/$id") {
-            addExpansions(expansions)
-        }.readApiResponse()
+        return toPageModel(httpClient.get("$apiBase/content/$id") {
+            addExpansions(toExpansions(loadOptions))
+        }.readApiResponse())
+    }
+
+    private fun toExpansions(loadOptions: Set<PageLoadOptions>) = buildList {
+        if (SimplePageLoadOptions.Labels in loadOptions) {
+            add("metadata.labels")
+        }
+        if (SimplePageLoadOptions.Space in loadOptions) add("space")
+        if (SimplePageLoadOptions.Content in loadOptions) add("body.storage")
+        if (SimplePageLoadOptions.Attachments in loadOptions) add("children.attachment")
+        if (SimplePageLoadOptions.ParentId in loadOptions) add("ancestors")
+        if (SimplePageLoadOptions.Version in loadOptions) add("version")
+
+        loadOptions.filterIsInstance<PagePropertyLoad>().forEach {
+            add("metadata.properties.${it.name}")
+        }
     }
 
     override suspend fun getPageOrNull(
         space: String,
         title: String,
-        status: List<String>?,
+        loadOptions: Set<PageLoadOptions>
+    ): ConfluencePage? = getPageOrNullWithExpansion(space, title, toExpansions(loadOptions).toSet())
+
+    private suspend fun getPageOrNullWithExpansion(
+        space: String,
+        title: String,
         expansions: Set<String>
     ): ConfluencePage? {
-        val results = findPages(space, title, status, expansions)
+        val results = findPages(space, title, expansions = expansions)
 
         return if (results.isEmpty()) {
             null
@@ -82,29 +95,17 @@ class ConfluenceClientImpl(
         }
     }
 
-    private fun extractSinglePage(results: List<ConfluencePage>): ConfluencePage {
-        if (results.isEmpty()) {
-            throw PageNotFoundException()
-        } else if (results.size > 1) {
-            throw TooManyPagesFound(results)
-        } else {
-            return results.first()
-        }
-    }
-
-    override suspend fun findPages(
+    private suspend fun findPages(
         space: String?,
         title: String,
-        status: List<String>?,
         expansions: Set<String>
     ): List<ConfluencePage> {
         val result: PageSearchResult = httpClient.get("$apiBase/content") {
             space?.let { parameter("spaceKey", it) }
             parameter("title", title)
-            status?.let { parameter("status", it.toString()) }
             addExpansions(expansions)
         }.readApiResponse()
-        return result.results
+        return result.results.map { toPageModel(it) }
     }
 
     private fun HttpRequestBuilder.addExpansions(expansions: Collection<String>) {
@@ -114,6 +115,13 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun createPage(
+        value: PageContentInput,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage = createPageWithExpansions(
+        value, updateParameters, toExpansions(setOf(SimplePageLoadOptions.Version))
+    )
+
+    suspend fun createPageWithExpansions(
         value: PageContentInput,
         updateParameters: PageUpdateOptions,
         expansions: List<String>?
@@ -129,7 +137,7 @@ class ConfluenceClientImpl(
             setBody(toPageData(value, updateParameters))
         }
         return try {
-            response.body()
+            toPageModel(response.body())
         } catch (e: ContentConvertException) {
             throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
         }
@@ -179,11 +187,24 @@ class ConfluenceClientImpl(
             setBody(body)
         }
         if (response.status.isSuccess()) {
-            return response.readApiResponse()
+            return toPageModel(response.readApiResponse())
         } else {
             throw RuntimeException("Failed to update $pageId: ${response.bodyAsText()}")
         }
     }
+
+    private fun toPageModel(serverPage: ConfServerPage): ConfluencePage = ConfluencePage(
+        id = serverPage.id,
+        title = serverPage.title,
+        labels = serverPage.metadata?.labels?.results,
+        properties = serverPage.metadata?.properties,
+        attachments = serverPage.children?.attachment,
+        version = serverPage.version,
+        body = serverPage.body,
+        links = serverPage.links,
+        space = serverPage.space,
+        parentId = serverPage.ancestors?.lastOrNull()?.id
+    )
 
     private fun toPageData(
         value: PageContentInput,
@@ -217,14 +238,36 @@ class ConfluenceClientImpl(
         pageUpdateOptions.message?.let { put("message", it) }
     }
 
-    override suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
+    override suspend fun createPageProperty(
+        pageId: String,
+        name: String,
+        value: PagePropertyInput
+    ) {
+        setPageProperty(pageId, name, value)
+    }
+
+    override suspend fun updatePageProperty(pageId: String, property: PageProperty, value: PagePropertyInput) {
+        setPageProperty(pageId, property.key, value)
+    }
+
+    private suspend fun setPageProperty(pageId: String, name: String, value: PagePropertyInput) {
         return httpClient.put("$apiBase/content/$pageId/property/$name") {
             contentType(ContentType.Application.Json)
             setBody(value)
         }.readApiResponse()
     }
 
-    override suspend fun findChildPages(pageId: String, expansions: List<String>?): List<ConfluencePage> {
+    override suspend fun findChildPages(
+        pageId: String,
+        loadOptions: Set<PageLoadOptions>?
+    ): List<ConfluencePage> {
+        return findChildPagesWithExpansion(
+            pageId,
+            loadOptions?.let { toExpansions(it) }
+        )
+    }
+
+    private suspend fun findChildPagesWithExpansion(pageId: String, expansions: List<String>?): List<ConfluencePage> {
         val result = mutableListOf<ConfluencePage>()
         var start = 0
         var limit = PAGE_SIZE
@@ -235,7 +278,7 @@ class ConfluenceClientImpl(
                 parameter("start", start)
                 parameter("limit", limit)
             }.readApiResponse<PageSearchResult>()
-            result.addAll(page.results)
+            page.results.forEach { result.add(toPageModel(it)) }
             limit = page.limit
             start += limit
             completed = page.size != page.limit
@@ -259,19 +302,11 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun fetchAllAttachments(pageAttachments: PageAttachments): List<Attachment> {
-        return buildList {
-            addAll(pageAttachments.results)
-            var current = pageAttachments
-            while ("next" in current.links) {
-                val nextPage = makeLink(confluenceBaseUrl, current.links.getValue("next"))
-                logger.debug { "Loading next attachments page: $nextPage" }
-                current = httpClient.get(nextPage).readApiResponse()
-                if (current.results.isEmpty()) {
-                    break
-                } else {
-                    addAll(current.results)
-                }
-            }
+        val fetcher = PagedFetcher(confluenceBaseUrl) {
+            httpClient.get(it).readApiResponse<PageAttachments>()
+        }
+        return fetcher.fetchAll(pageAttachments) {
+            PagedFetcher.Page(it.results, it.links["next"])
         }
     }
 
@@ -345,76 +380,51 @@ class ConfluenceClientImpl(
     }
 }
 
-private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T {
-    if (expectSuccess && !status.isSuccess()) {
-        parseAndThrowConfluencError()
-    }
-    val contentType = contentType()
-    if (contentType != null && (ContentType.Application.Json.match(contentType) || T::class == String::class)) {
-        try {
-            return body<T>()
-        } catch (e: JsonConvertException) {
-            parseAndThrowConfluencError()
-        }
-    } else {
-        throw UnknownConfluenceErrorException(status.value, bodyAsText())
+private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T =
+    readApiResponse(expectSuccess) { parseAndThrowConfluenceError() }
+
+private suspend fun HttpResponse.parseAndThrowConfluenceError(): ConfluenceApiErrorException {
+    val content = body<Map<String, Any?>>()
+    return ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
+}
+
+private data class ConfServerPage(
+    val id: String,
+    val type: com.github.zeldigas.confclient.ContentType,
+    val status: String,
+    val title: String,
+    val metadata: PageMetadata? = null,
+    val body: PageBody? = null,
+    val version: PageVersionInfo? = null,
+    val children: PageChildren? = null,
+    val ancestors: List<ConfServerPage>? = null,
+    val space: Space? = null,
+    @JsonProperty("_links")
+    val links: Map<String, String> = emptyMap()
+) {
+    fun pageProperty(name: String): PageProperty? {
+        return metadata?.properties?.get(name)
     }
 }
 
-private suspend fun HttpResponse.parseAndThrowConfluencError(): Nothing {
-    val content = body<Map<String, Any?>>()
-    throw ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
+private data class PageMetadata(
+    val labels: PageLabels?,
+    @JsonIgnoreProperties("_links", "_expandable")
+    val properties: Map<String, PageProperty> = emptyMap()
+)
+
+private data class PageLabels(
+    val results: List<Label>,
+    val size: Int
+)
+
+private enum class ContentType {
+    page, blogpost
 }
 
 private data class PageSearchResult(
-    val results: List<ConfluencePage>,
+    val results: List<ConfServerPage>,
     val start: Int,
     val limit: Int,
     val size: Int
 )
-
-fun confluenceClient(
-    config: ConfluenceClientConfig
-): ConfluenceClient {
-    val client = HttpClient(CIO) {
-        engine {
-            if (config.requestTimeout != null) {
-                requestTimeout = config.requestTimeout
-            }
-            if (config.skipSsl) {
-                https {
-                    trustManager = object : X509TrustManager {
-                        override fun getAcceptedIssuers(): Array<X509Certificate>? = null
-                        override fun checkClientTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
-                        override fun checkServerTrusted(certs: Array<X509Certificate?>?, authType: String?) {}
-                    }
-                }
-            }
-        }
-        install(ContentNegotiation) {
-            jackson {
-                registerModule(Jdk8Module())
-                registerModule(JavaTimeModule())
-                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            }
-        }
-
-        install(Auth) {
-            config.auth.create(this)
-        }
-
-        install(UserAgent) {
-            agent = "text2confl"
-        }
-        if (config.httpLogLevel != LogLevel.NONE) {
-            install(Logging) {
-                logger = Logger.DEFAULT
-                level = config.httpLogLevel
-                sanitizeHeader { header -> header == HttpHeaders.Authorization }
-            }
-        }
-
-    }
-    val baseUrl = URLBuilder(config.server).appendPathSegments("rest", "api").build().toString()
-    return ConfluenceClientImpl(config.server, baseUrl, client)
-}

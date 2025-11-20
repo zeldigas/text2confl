@@ -24,15 +24,15 @@ class PageExporterTest(
 
     @Test
     fun `Export of page with attachments and labels`(@TempDir dir: Path) {
-        coEvery { client.getPageById("abc", expansions = PageExporter.CONTENT_EXTENSIONS) } returns mockk {
+        coEvery { client.getPageById("abc", loadOptions = PageExporter.CONTENT_EXTENSIONS) } returns mockk {
             every { space?.key } returns "SP"
             every { title } returns "title"
             every { body?.storage?.value } returns "<p>hello world</p>"
-            every { metadata?.labels?.results } returns listOf(
+            every { labels } returns listOf(
                 Label("", "l1", "1"),
                 Label("", "l2", "1")
             )
-            every { children?.attachment } returns mockk()
+            every { attachments } returns mockk()
         }
         coEvery { client.fetchAllAttachments(any()) } returns listOf(
             mockk {
