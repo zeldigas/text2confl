@@ -13,12 +13,11 @@ import io.ktor.http.*
 import io.ktor.http.ContentType
 import io.ktor.serialization.*
 import io.ktor.util.cio.*
-import io.ktor.util.reflect.TypeInfo
+import io.ktor.util.toMap
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import java.nio.file.Path
 import kotlin.io.path.fileSize
-import kotlin.reflect.KClass
 
 class ConfluenceClientImpl(
     override val confluenceBaseUrl: Url,
@@ -117,10 +116,9 @@ class ConfluenceClientImpl(
 
     override suspend fun createPage(
         value: PageContentInput,
-        updateParameters: PageUpdateOptions,
-        loadOptions: Set<PageLoadOptions>
+        updateParameters: PageUpdateOptions
     ): ConfluencePage = createPageWithExpansions(
-        value, updateParameters, toExpansions(loadOptions)
+        value, updateParameters, toExpansions(setOf(SimplePageLoadOptions.Version))
     )
 
     suspend fun createPageWithExpansions(
@@ -382,25 +380,12 @@ class ConfluenceClientImpl(
     }
 }
 
-private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T {
-    if (expectSuccess && !status.isSuccess()) {
-        parseAndThrowConfluencError()
-    }
-    val contentType = contentType()
-    if (contentType != null && (ContentType.Application.Json.match(contentType) || T::class == String::class)) {
-        try {
-            return body<T>()
-        } catch (e: JsonConvertException) {
-            parseAndThrowConfluencError()
-        }
-    } else {
-        throw UnknownConfluenceErrorException(status.value, bodyAsText())
-    }
-}
+private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T =
+    readApiResponse(expectSuccess) { parseAndThrowConfluenceError() }
 
-private suspend fun HttpResponse.parseAndThrowConfluencError(): Nothing {
+private suspend fun HttpResponse.parseAndThrowConfluenceError(): ConfluenceApiErrorException {
     val content = body<Map<String, Any?>>()
-    throw ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
+    return ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
 }
 
 private data class ConfServerPage(

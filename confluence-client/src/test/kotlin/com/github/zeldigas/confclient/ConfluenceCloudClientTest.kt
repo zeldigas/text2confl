@@ -150,44 +150,77 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
     }
 
     @Test
-    fun `Update page content`() {
+    fun `Create page content`() = runTest {
         val space = Space(458757, "docs", "docs", null, null)
-        runTest{
-            stubFor(
-                put("/api/v2/pages/1441795")
-                    .withJson("""
-                    {
-                      "id": "1441795",
-                      "status": "current",
-                      "title": "Page title",                  
-                      "body": {
-                        "representation": "storage",
-                        "value": "<p>hello world</p>"
-                      },
-                      "version": {
-                        "number": 2,
-                        "message": "msg"
-                      },
-                      "parentId": "851969",
-                      "spaceId": "458757"
-                    }
-                    """.trimIndent())
-                    .willReturn(ok().withJsonFromFile("/data/responses/api-v2/page-after-update.json"))
+
+        stubFor(
+            post("/api/v2/pages")
+                .withJsonFromFile("/data/requests/api-v2/page-create.json")
+                .willReturn(ok().withJsonFromFile("/data/responses/api-v2/page-after-create.json"))
+        )
+        client.registerSpaceDetails(space)
+
+        val result = client.createPage(
+            PageContentInput(
+                parentPage = "851969",
+                title = "created new",
+                content = "<p>hello world</p>",
+                space = "docs",
+                version = 1
+            ), PageUpdateOptions(message = "msg")
+        )
+
+
+        assertThat(result).isEqualTo(
+            ConfluencePage(
+                id = "2719745",
+                title = "created new",
+                version = PageVersionInfo(1, false, createdAt = ZonedDateTime.parse("2025-11-19T05:44:33.959Z")),
+                body = PageBody(
+                    storage = StorageFormat(
+                        "<p>hello world</p>", "storage"
+                    )
+                ),
+                parentId = "851969",
+                space = space,
+                links = mapOf(
+                    "editui" to "/pages/resumedraft.action?draftId=2719745",
+                    "webui" to "/spaces/docs/pages/2719745/created+new",
+                    "edituiv2" to "/spaces/docs/pages/edit-v2/2719745",
+                    "tinyui" to "/x/AYAp",
+                    "base" to "https://text2conf.atlassian.net/wiki"
+                )
             )
-            client.registerSpaceDetails(space)
+        )
+    }
 
-            val result = client.updatePage("1441795", PageContentInput(
+    @Test
+    fun `Update page content`() = runTest {
+        val space = Space(458757, "docs", "docs", null, null)
+        stubFor(
+            put("/api/v2/pages/1441795")
+                .withJsonFromFile("/data/requests/api-v2/page-update.json")
+                .willReturn(ok().withJsonFromFile("/data/responses/api-v2/page-after-update.json"))
+        )
+        client.registerSpaceDetails(space)
+
+        val result = client.updatePage(
+            "1441795", PageContentInput(
                 parentPage = "851969", title = "Page title", content = "<p>hello world</p>", space = "docs", version = 2
-            ), PageUpdateOptions(message = "msg"))
+            ), PageUpdateOptions(message = "msg")
+        )
 
 
-            assertThat(result).isEqualTo(ConfluencePage(
+        assertThat(result).isEqualTo(
+            ConfluencePage(
                 id = "1441795",
                 title = "Page title",
                 version = PageVersionInfo(2, false, createdAt = ZonedDateTime.parse("2025-11-19T05:44:33.959Z")),
-                body = PageBody(storage = StorageFormat(
-                    "<p>hello world</p>", "storage"
-                )),
+                body = PageBody(
+                    storage = StorageFormat(
+                        "<p>hello world</p>", "storage"
+                    )
+                ),
                 parentId = "851969",
                 space = space,
                 links = mapOf(
@@ -197,9 +230,10 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
                     "tinyui" to "/x/AwAW",
                     "base" to "https://text2conf.atlassian.net/wiki"
                 )
-            ))
-        }
+            )
+        )
     }
+
 
     @Test
     fun `Rename page`() = runTest {

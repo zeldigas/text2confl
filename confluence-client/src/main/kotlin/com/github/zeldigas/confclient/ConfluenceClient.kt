@@ -41,7 +41,6 @@ interface ConfluenceClient {
     suspend fun createPage(
         value: PageContentInput,
         updateParameters: PageUpdateOptions,
-        loadOptions: Set<PageLoadOptions> = emptySet()
     ): ConfluencePage
 
     suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage
@@ -103,8 +102,8 @@ class PageNotFoundException : RuntimeException()
 
 class TooManyPagesFound(val pages: List<ConfluencePage>) : RuntimeException()
 
-class UnknownConfluenceErrorException(val status: Int, val body: String?) :
-    RuntimeException("Unknown Confluence error: status=$status, body:\n$body")
+class UnknownConfluenceErrorException(val status: Int, val headers: Map<String, Any?>, val body: String?) :
+    RuntimeException("Unknown Confluence error: status=$status, headers=$headers, body:\n$body")
 
 class ConfluenceApiErrorException(val status: Int, val error: String, val body: Map<String, Any?>) :
     RuntimeException("Confluence API error: status=$error, body:\n$body")

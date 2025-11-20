@@ -14,8 +14,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
 
     override suspend fun createPage(
         value: PageContentInput,
-        updateParameters: PageUpdateOptions,
-        loadOptions: Set<PageLoadOptions>
+        updateParameters: PageUpdateOptions
     ): ConfluencePage {
         log.info { "(dryrun) Creating page under parent ${value.parentPage} with title ${value.title}" }
         return ConfluencePage(

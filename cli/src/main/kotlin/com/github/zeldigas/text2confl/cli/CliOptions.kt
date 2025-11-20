@@ -58,7 +58,7 @@ fun ParameterHolder.httpLoggingLevel() = option(
 
 fun ParameterHolder.httpRequestTimeout() = option(
     "--http-request-timeout",
-    help = "Http request timeout in milliseconds. Default "
+    help = "Http request timeout in milliseconds. Default - 15seconds"
 ).long()
 
 fun ParameterHolder.confluenceCloudFlag() = option(

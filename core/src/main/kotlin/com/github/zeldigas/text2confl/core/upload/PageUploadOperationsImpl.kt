@@ -212,14 +212,7 @@ internal class PageUploadOperationsImpl(
         logger.info { "Page does not exist, need to create it: ${page.title}" }
         val serverPage = client.createPage(
             PageContentInput(parentPageId, page.title, page.content.body, space),
-            PageUpdateOptions(notifyWatchers, uploadMessage),
-            loadOptions = setOf(
-                SimplePageLoadOptions.Labels,
-                SimplePageLoadOptions.Version,
-//                SimplePageLoadOptions.Attachments,
-                PagePropertyLoad(HASH_PROPERTY),
-                PagePropertyLoad(EDITOR_PROPERTY),
-            )
+            PageUpdateOptions(notifyWatchers, uploadMessage)
         )
         setPageProperties(page, serverPage)
         return PageOperationResult.Created(page, createServerPage(serverPage, parentPageId))
@@ -264,7 +257,7 @@ internal class PageUploadOperationsImpl(
 
     override suspend fun updatePageLabels(serverPage: ServerPage, content: PageContent): LabelsUpdateResult {
         val labels = serverPage.labels.map { it.label ?: it.name }
-        return if (labels != content.labels) {
+        return if (labels.toSet() != content.labels.toSet()) {
 
             val labelsToDelete = labels - content.labels
             labelsToDelete.forEach { client.deleteLabel(serverPage.id, it) }

@@ -10,6 +10,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
 import io.ktor.serialization.*
+import io.ktor.util.toMap
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -185,6 +186,26 @@ class ConfluenceCloudClient(
             }
     }
 
+    override suspend fun createPage(
+        value: PageContentInput,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage {
+        val space = resolveSpace(value.space!!)
+        val cloudPage = httpClient.post("$apiBase/pages") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                mapOf(
+                    "status" to "current",
+                    "title" to value.title,
+                    "parentId" to value.parentPage,
+                    "spaceId" to space.id.toString(),
+                    "body" to toPageBody(value)
+                )
+            )
+        }.readApiResponse<ConfCloudPage>(expectSuccess = true)
+        return toConfluencePage(cloudPage, space)
+    }
+
     override suspend fun updatePage(
         pageId: String,
         value: PageContentInput,
@@ -194,15 +215,17 @@ class ConfluenceCloudClient(
             put("id", pageId)
             put("status", "current")
             put("title", value.title)
-            put("body", mapOf(
-                "representation" to "storage",
-                "value" to value.content
-            ))
+            put("body", toPageBody(value))
             put("version", versionNode(value.version, updateParameters))
             value.parentPage?.let { put("parentId", it) }
             value.space?.let { put("spaceId", resolveSpace(it).id.toString()) }
         })
     }
+
+    private fun toPageBody(value: PageContentInput): Map<String, String> = mapOf(
+        "representation" to "storage",
+        "value" to value.content
+    )
 
     override suspend fun renamePage(
         serverPage: ConfluencePage,
@@ -352,27 +375,17 @@ class ConfluenceCloudClient(
         pageUpdateOptions.message?.let { put("message", it) }
     }
 
-    private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T {
-        if (expectSuccess && !status.isSuccess()) {
+    private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T =
+        readApiResponse(expectSuccess) {
             parseCloudErrorAndThrow()
         }
-        val contentType = contentType()
-        if (contentType != null && ContentType.Application.Json.match(contentType)) {
-            try {
-                return body<T>()
-            } catch (e: JsonConvertException) {
-                parseCloudErrorAndThrow()
-            }
-        } else {
-            throw UnknownConfluenceErrorException(status.value, bodyAsText())
-        }
-    }
 
-    private suspend fun HttpResponse.parseCloudErrorAndThrow(): Nothing {
+
+    private suspend fun HttpResponse.parseCloudErrorAndThrow(): ConfluenceApiErrorException {
         val content = body<ErrorResponse>()
         val firstError = content.errors.first()
         val msg = "${firstError.code}: ${firstError.title}"
-        throw ConfluenceApiErrorException(status.value, msg, mapOf("detail" to firstError.detail))
+        return ConfluenceApiErrorException(status.value, msg, mapOf("detail" to firstError.detail))
     }
 
     private suspend fun delete(urlString: String) {
@@ -385,21 +398,10 @@ class ConfluenceCloudClient(
         }
     }
 
-
     internal fun registerSpaceDetails(space: Space) {
         spacesCache[space.id] = space
     }
 
-//    {
-//  "errors": [
-//    {
-//      "status": 400,
-//      "code": "INVALID_REQUEST_PARAMETER",
-//      "title": "Provided value {Docs} for 'id' is not the correct type. Expected type is long.",
-//      "detail": null
-//    }
-//  ]
-//}
 }
 
 private data class ErrorResponse(val errors: List<ConfluenceError>)
