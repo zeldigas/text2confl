@@ -19,7 +19,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         log.info { "(dryrun) Creating page under parent ${value.parentPage} with title ${value.title}" }
         return ConfluencePage(
             id = UNDEFINED_ID,
-            title=value.title,
+            title = value.title,
             version = PageVersionInfo(value.version, true, ZonedDateTime.now())
         )
     }
@@ -47,7 +47,7 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         log.info { "(dryrun) Changing parent of page $pageId with title ${title} to $newParentId" }
         return ConfluencePage(
             id = pageId,
-            title=title,
+            title = title,
             version = PageVersionInfo(version, true, ZonedDateTime.now())
         )
     }

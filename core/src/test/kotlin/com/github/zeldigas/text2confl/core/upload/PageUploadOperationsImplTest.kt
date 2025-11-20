@@ -55,7 +55,7 @@ internal class PageUploadOperationsImplTest(
             every { title } returns "Page title"
             every { pageProperty(any()) } returns null
             every { labels } returns null
-            every { attachments} returns null
+            every { attachments } returns null
             every { links } returns emptyMap()
         }
         coEvery { client.createPageProperty(any(), any(), any()) } just Runs
@@ -183,7 +183,11 @@ internal class PageUploadOperationsImplTest(
             client.createPageProperty(PAGE_ID, "extra", PagePropertyInput.newProperty("value"))
         }
         coVerify {
-            client.updatePageProperty(PAGE_ID, serverPage.properties!!.getValue("contenthash"), PagePropertyInput("body-hash", PropertyVersion(4)))
+            client.updatePageProperty(
+                PAGE_ID,
+                serverPage.properties!!.getValue("contenthash"),
+                PagePropertyInput("body-hash", PropertyVersion(4))
+            )
         }
         coVerify(exactly = 0) {
             client.updatePageProperty(PAGE_ID, serverPage.properties!!.getValue("editor"), any())

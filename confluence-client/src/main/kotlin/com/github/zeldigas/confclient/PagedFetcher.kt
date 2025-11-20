@@ -1,13 +1,7 @@
 package com.github.zeldigas.confclient
 
-import com.github.zeldigas.confclient.model.Attachment
-import com.github.zeldigas.confclient.model.PageAttachments
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.http.Url
-import kotlin.collections.contains
-import kotlin.reflect.KClass
+import io.ktor.http.*
 
 private val logger = KotlinLogging.logger { }
 

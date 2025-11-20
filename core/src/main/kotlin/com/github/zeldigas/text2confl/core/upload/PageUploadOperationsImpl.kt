@@ -44,17 +44,17 @@ internal class PageUploadOperationsImpl(
         page: Page
     ) = client.getPageOrNull(
         space = space, title = page.title, loadOptions =
-        setOf(
-            SimplePageLoadOptions.Labels,
-            SimplePageLoadOptions.Version,
-            SimplePageLoadOptions.Attachments,
-            SimplePageLoadOptions.ParentId,
-            propertyExpansion(HASH_PROPERTY),
-            propertyExpansion(EDITOR_PROPERTY),
-            propertyExpansion(TENANT_PROPERTY),
-        )
-                + page.properties.keys.map { propertyExpansion(it) }
-                + pageContentChangeDetector.extraOptions
+            setOf(
+                SimplePageLoadOptions.Labels,
+                SimplePageLoadOptions.Version,
+                SimplePageLoadOptions.Attachments,
+                SimplePageLoadOptions.ParentId,
+                propertyExpansion(HASH_PROPERTY),
+                propertyExpansion(EDITOR_PROPERTY),
+                propertyExpansion(TENANT_PROPERTY),
+            )
+                    + page.properties.keys.map { propertyExpansion(it) }
+                    + pageContentChangeDetector.extraOptions
     )
 
     private suspend fun updateExistingPage(
