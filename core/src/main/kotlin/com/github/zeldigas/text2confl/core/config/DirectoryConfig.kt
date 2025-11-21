@@ -16,7 +16,6 @@ import kotlin.io.path.div
 data class DirectoryConfig(
     val server: String? = null,
     val confluenceCloud: Boolean? = null,
-    val skipSsl: Boolean = false,
     val space: String? = null,
     val defaultParentId: String? = null,
     val defaultParent: String? = null,
@@ -32,7 +31,8 @@ data class DirectoryConfig(
     val tenant: String? = null,
     val codeBlocks: CodeBlockParams = CodeBlockParams(),
     val markdown: MarkdownParams = MarkdownParams(),
-    val asciidoc: AsciidocParams = AsciidocParams()
+    val asciidoc: AsciidocParams = AsciidocParams(),
+    val client: HttpClientParams = HttpClientParams()
 ) {
     lateinit var docsDir: Path
 }
@@ -136,4 +136,10 @@ data class KrokiDiagramsParameters(
     val server: URI? = null,
     val fetch: Boolean = true,
     val defaultFormat: String? = null
+)
+
+data class HttpClientParams(
+    val skipSsl: Boolean = false,
+    val requestsPerSeconds: Int? = null,
+    val retryOnTooManyRequests: Boolean = true,
 )

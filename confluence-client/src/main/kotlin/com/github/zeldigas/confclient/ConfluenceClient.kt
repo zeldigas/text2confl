@@ -45,7 +45,11 @@ interface ConfluenceClient {
 
     suspend fun updatePage(pageId: String, value: PageContentInput, updateParameters: PageUpdateOptions): ConfluencePage
 
-    suspend fun renamePage(serverPage: ConfluencePage, newTitle: String, updateParameters: PageUpdateOptions) : ConfluencePage
+    suspend fun renamePage(
+        serverPage: ConfluencePage,
+        newTitle: String,
+        updateParameters: PageUpdateOptions
+    ): ConfluencePage
 
     suspend fun changeParent(
         pageId: String,
@@ -93,7 +97,7 @@ enum class SimplePageLoadOptions : PageLoadOptions {
 
 data class PagePropertyLoad(val name: String) : PageLoadOptions
 
-class SpaceNotFoundException(val space: String): RuntimeException()
+class SpaceNotFoundException(val space: String) : RuntimeException()
 
 class PageNotCreatedException(val title: String, val status: Int, val body: String?) :
     RuntimeException("Failed to create '$title' page: status=$status, body:\n$body")
@@ -157,7 +161,10 @@ private fun httpClientForApi(config: ConfluenceClientConfig) = HttpClient(CIO) {
             sanitizeHeader { header -> header == HttpHeaders.Authorization }
         }
     }
-}
+    if (config.rateLimit.honorTooManyRequests) {
+        configureRateLimitRetries(config)
+    }
+}.apply { limitRequestsRate(config) }
 
 fun confluenceClient(
     config: ConfluenceClientConfig

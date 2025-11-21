@@ -13,4 +13,5 @@ data class ConfluenceClientConfig(
     val httpLogLevel: LogLevel = LogLevel.NONE,
     val requestTimeout: Long? = null,
     val cloudApi: Boolean = false,
+    val rateLimit: RateLimit = RateLimit()
 )

@@ -12,10 +12,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Confluence Cloud Rest API v2 support. When uploading to cloud, it is enabled automatically. If you still need to use
   old approach (only legacy api), pass `--no-confluence-cloud` flag. This flag is supported for `export-to-md` and
   `upload` commands
+- Support for rate limiting http requests (#209). Rate limiting is supported in two ways:
+  - You can specify rps rate for sending requests
+  - Client also honors
 
 ### Changed
 
 - Improved reporting about confluence unexpected errors: now headers are included
+- `verify-ssl` parameter in `text2confl.yml` file is moved to `client.verify-ssl`
 
 ### Fixed
 

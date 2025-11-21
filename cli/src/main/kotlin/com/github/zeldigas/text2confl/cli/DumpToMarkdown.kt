@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.zeldigas.text2confl.core.ServiceProvider
+import com.github.zeldigas.text2confl.core.config.HttpClientParams
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
@@ -21,6 +22,7 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md"),
     override val confluencePassword: String? by confluencePassword()
     override val accessToken: String? by accessToken()
     override val skipSsl: Boolean? by skipSsl()
+    override val requestsPerSecond: Int? by requestsPerSecond()
     override val httpLogLevel: LogLevel by httpLoggingLevel()
     override val httpRequestTimeout: Long? by httpRequestTimeout()
     override val confluenceCloud: Boolean? by confluenceCloudFlag()
@@ -55,7 +57,8 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md"),
     }
 
     private suspend fun dumpPage() {
-        val clientConfig = httpClientConfig(confluenceUrl)
+        val clientConfig = httpClientConfig(confluenceUrl, HttpClientParams(
+        ))
 
         val client = serviceProvider.createConfluenceClient(clientConfig, false)
         val pageExporter = serviceProvider.createPageExporter(client, saveContentSource)
