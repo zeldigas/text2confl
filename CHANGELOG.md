@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- Improved error handling and reporting for Confluence API requests. Now details include request method, url and headers for all kind of confluence errors.
+
 ## 0.20.2 - 2025-11-21
 
 ### Fixed

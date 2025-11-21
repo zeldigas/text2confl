@@ -105,7 +105,7 @@ class ContentUploader(
         if (header.parent != null) return try {
             client.getPage(space, header.parent!!).id
         } catch (_: com.github.zeldigas.confclient.PageNotFoundException) {
-            throw PageNotFoundException(space, header.parent!!)
+            throw PageNotFoundException(space, header.parent!!, page.source)
         }
 
         return null
@@ -124,10 +124,14 @@ class ContentUploader(
     private suspend fun deleteOrphans(uploadedPagesByParent: Map<String, List<ServerPage>>) {
         logger.debug { "Running cleanup operation using strategy: $cleanup" }
         logger.debug { "Cleanup operation: $cleanup" }
-        coroutineScope {
-            for ((parent, children) in uploadedPagesByParent) {
-                launch { deleteOrphanedChildren(parent, children) }
+        try {
+            coroutineScope {
+                for ((parent, children) in uploadedPagesByParent) {
+                    launch { deleteOrphanedChildren(parent, children) }
+                }
             }
+        } catch (ex: Exception) {
+            throw ContentCleanupException("Failed to cleanup orphaned pages using $cleanup strategy", ex)
         }
     }
 

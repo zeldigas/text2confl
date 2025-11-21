@@ -306,7 +306,7 @@ internal class UploadTest(
                 )
             )
         }.isInstanceOf(PrintMessage::class)
-            .hasMessage("Failed to convert $tempDir: Conversion error message (cause: java.lang.RuntimeException: cause)")
+            .hasMessage("Failed to convert $tempDir: Conversion error message\n cause: java.lang.RuntimeException: cause")
     }
 
     @Test

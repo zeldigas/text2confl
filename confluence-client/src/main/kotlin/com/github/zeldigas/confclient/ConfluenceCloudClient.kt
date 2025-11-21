@@ -9,8 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
-import io.ktor.serialization.*
-import io.ktor.util.toMap
+import io.ktor.util.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -178,7 +177,7 @@ class ConfluenceCloudClient(
             PagedFetcher.Page(it.results, it.links["next"])
         }.asSequence()
             .filter { "page".equals(it.type, ignoreCase = true) }
-            .filter { "current".equals(it.status, ignoreCase = true)  }
+            .filter { "current".equals(it.status, ignoreCase = true) }
 
         return childPages.chunked(collectionsConcurrency).toList()
             .flatMap { chunk ->
@@ -388,7 +387,13 @@ class ConfluenceCloudClient(
         val content = body<ErrorResponse>()
         val firstError = content.errors.first()
         val msg = "${firstError.code}: ${firstError.title}"
-        return ConfluenceApiErrorException(status.value, msg, mapOf("detail" to firstError.detail))
+        return ConfluenceApiErrorException(
+            requestDetails(),
+            status.value,
+            headers.toMap(),
+            msg,
+            mapOf("detail" to firstError.detail)
+        )
     }
 
     private suspend fun delete(urlString: String) {

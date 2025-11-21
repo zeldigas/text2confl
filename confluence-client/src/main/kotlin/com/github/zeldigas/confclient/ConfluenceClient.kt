@@ -99,18 +99,36 @@ data class PagePropertyLoad(val name: String) : PageLoadOptions
 
 class SpaceNotFoundException(val space: String) : RuntimeException()
 
-class PageNotCreatedException(val title: String, val status: Int, val body: String?) :
-    RuntimeException("Failed to create '$title' page: status=$status, body:\n$body")
-
 class PageNotFoundException : RuntimeException()
 
 class TooManyPagesFound(val pages: List<ConfluencePage>) : RuntimeException()
 
-class UnknownConfluenceErrorException(val status: Int, val headers: Map<String, Any?>, val body: String?) :
-    RuntimeException("Unknown Confluence error: status=$status, headers=$headers, body:\n$body")
+data class RequestDetails(val method: String, val url: String)
 
-class ConfluenceApiErrorException(val status: Int, val error: String, val body: Map<String, Any?>) :
-    RuntimeException("Confluence API error: status=$error, body:\n$body")
+open class BaseConfluenceException(
+    val problemRequest: RequestDetails,
+    val status: Int,
+    val headers: Map<String, Any?>,
+    message: String
+) :
+    RuntimeException(message)
+
+class UnknownConfluenceErrorException(
+    problemRequest: RequestDetails,
+    status: Int,
+    headers: Map<String, Any?>,
+    val body: String?
+) :
+    BaseConfluenceException(problemRequest, status, headers, "Unknown Confluence error: request=$problemRequest, status=$status, headers=$headers, body:\n$body")
+
+class ConfluenceApiErrorException(
+    problemRequest: RequestDetails,
+    status: Int,
+    headers: Map<String, Any?>,
+    val error: String,
+    val body: Map<String, Any?>
+) :
+    BaseConfluenceException(problemRequest, status, headers,"Confluence API error: request=$problemRequest, status=$status, error=$error, body:\n$body")
 
 
 internal fun extractSinglePage(results: List<ConfluencePage>): ConfluencePage {

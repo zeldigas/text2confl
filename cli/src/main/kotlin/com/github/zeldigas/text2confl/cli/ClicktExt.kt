@@ -9,11 +9,15 @@ import com.github.ajalt.clikt.parameters.options.nullableFlag
 import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import com.github.ajalt.mordant.terminal.StringPrompt
 import com.github.ajalt.mordant.terminal.prompt
+import com.github.zeldigas.confclient.BaseConfluenceException
 import com.github.zeldigas.text2confl.convert.ConversionException
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.core.ContentValidationFailedException
+import com.github.zeldigas.text2confl.core.upload.ContentCleanupException
 import com.github.zeldigas.text2confl.core.upload.ContentUploadException
 import com.github.zeldigas.text2confl.core.upload.InvalidTenantException
+import com.github.zeldigas.text2confl.core.upload.PageNotFoundException
+import com.github.zeldigas.text2confl.core.upload.PageOperationException
 
 fun parameterMissing(what: String, cliOption: String, fileOption: String): Nothing {
     throw PrintMessage(
@@ -32,18 +36,30 @@ fun RawOption.optionalFlag(vararg secondaryNames: String): NullableOption<Boolea
 }
 
 fun tryHandleException(ex: Exception): Nothing {
+    fun describeErrorWithCause(ex: Exception): String = buildString {
+        append(ex.message)
+        val cause = ex.cause
+        when (cause) {
+            null -> {}
+            is BaseConfluenceException-> {
+                append("\n (cause: ${cause.message})")
+            }
+            is PageNotFoundException -> {
+                append("\n cause: Page with '${cause.title}' not found in space ${cause.space}")
+            }
+            else -> {
+                append("\n cause: ${cause}")
+            }
+        }
+    }
     when (ex) {
         is InvalidTenantException -> error(ex.message!!)
         is ConversionException -> error(ex.message!!)
-        is ContentUploadException -> error(ex.message!!)
+        is PageOperationException -> error(ex.message!!)
+        is ContentUploadException -> error(describeErrorWithCause(ex))
+        is ContentCleanupException -> error(describeErrorWithCause(ex))
         is ConversionFailedException -> {
-            val reason = buildString {
-                append(ex.message)
-                if (ex.cause != null) {
-                    append(" (cause: ${ex.cause})")
-                }
-            }
-            error("Failed to convert ${ex.file}: $reason")
+            error("Failed to convert ${ex.file}: ${describeErrorWithCause(ex)}")
         }
 
         is ContentValidationFailedException -> {

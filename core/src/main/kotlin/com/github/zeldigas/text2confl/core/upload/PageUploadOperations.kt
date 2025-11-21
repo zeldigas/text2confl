@@ -7,6 +7,7 @@ import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.Label
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
+import java.nio.file.Path
 
 const val HASH_PROPERTY = "contenthash"
 const val TENANT_PROPERTY = "t2ctenant"
@@ -66,21 +67,20 @@ sealed class AttachmentsUpdateResult {
 
 abstract class PageOperationException(message: String, cause: Exception? = null) : RuntimeException(message, cause)
 
-data class PageNotFoundException(val space: String, val title: String) :
-    PageOperationException("Page $title in space $space not found")
+data class PageNotFoundException(val space: String, val title: String, val processedFile: Path? = null) :
+    PageOperationException("Page '$title' in space '$space' not found" + (processedFile?.let { " when processing $it" } ?: ""))
 
 data class PageCycleException(val parentId: String, val title: String) :
-    PageOperationException("Can't publish page $title with parent $parentId - this is id of page itself")
+    PageOperationException("Can't publish page '$title' with parent $parentId - this is id of page itself")
 
 enum class ChangeDetector(
-    val extraData: Set<String>,
     val extraOptions: Set<PageLoadOptions>,
     val strategy: (serverPage: ConfluencePage, content: PageContent) -> Boolean
 ) {
-    HASH(emptySet(), emptySet(), { serverPage, content ->
+    HASH(emptySet(), { serverPage, content ->
         serverPage.pageProperty(HASH_PROPERTY)?.value != content.hash
     }),
-    CONTENT(setOf("body.storage"), setOf(SimplePageLoadOptions.Content), { serverPage, content ->
+    CONTENT(setOf(SimplePageLoadOptions.Content), { serverPage, content ->
         serverPage.body?.storage?.value != content.body
     })
 }

@@ -12,8 +12,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
 import io.ktor.serialization.*
+import io.ktor.util.*
 import io.ktor.util.cio.*
-import io.ktor.util.toMap
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import java.nio.file.Path
@@ -135,12 +135,8 @@ class ConfluenceClientImpl(
             }
             contentType(ContentType.Application.Json)
             setBody(toPageData(value, updateParameters))
-        }
-        return try {
-            toPageModel(response.body())
-        } catch (e: ContentConvertException) {
-            throw PageNotCreatedException(value.title, response.status.value, response.bodyAsText())
-        }
+        }.readApiResponse<ConfServerPage>(expectSuccess = true)
+        return toPageModel(response)
     }
 
     override suspend fun updatePage(
@@ -385,7 +381,13 @@ private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSucces
 
 private suspend fun HttpResponse.parseAndThrowConfluenceError(): ConfluenceApiErrorException {
     val content = body<Map<String, Any?>>()
-    return ConfluenceApiErrorException(status.value, content["error"]?.toString() ?: "", content)
+    return ConfluenceApiErrorException(
+        requestDetails(),
+        status.value,
+        headers.toMap(),
+        content["error"]?.toString() ?: "",
+        content
+    )
 }
 
 private data class ConfServerPage(

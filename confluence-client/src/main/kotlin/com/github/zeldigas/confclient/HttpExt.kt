@@ -32,5 +32,10 @@ internal suspend inline fun <reified T> HttpResponse.readApiResponse(expectSucce
 }
 
 private suspend fun HttpResponse.throwUnknownError(): Nothing {
-    throw UnknownConfluenceErrorException(status.value, headers.toMap(), bodyAsText())
+    throw UnknownConfluenceErrorException(requestDetails(), status.value, headers.toMap(), bodyAsText())
 }
+
+internal fun HttpResponse.requestDetails(): RequestDetails = RequestDetails(
+    method = this.call.request.method.value,
+    url = this.call.request.url.toString()
+)
