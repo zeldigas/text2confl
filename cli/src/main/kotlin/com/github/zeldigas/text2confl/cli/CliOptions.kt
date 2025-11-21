@@ -5,12 +5,11 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.long
-import com.github.zeldigas.confclient.ConfluenceAuth
-import com.github.zeldigas.confclient.ConfluenceClientConfig
-import com.github.zeldigas.confclient.PasswordAuth
-import com.github.zeldigas.confclient.TokenAuth
+import com.github.zeldigas.confclient.*
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import com.github.zeldigas.text2confl.core.config.HttpClientParams
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 
@@ -36,6 +35,11 @@ fun ParameterHolder.skipSsl() = option(
     help = "If ssl checks should be skipped when connecting to server"
 )
     .optionalFlag("--no-skip-ssl-verification")
+
+fun ParameterHolder.requestsPerSecond() = option(
+    "--requests-per-second",
+    help = "Activates requests rate limiting when provided. Use if requests rate is throttled by server"
+).int()
 
 fun ParameterHolder.editorVersion() = option(
     "--editor-version",
@@ -72,6 +76,7 @@ internal interface WithConfluenceServerOptions {
     val confluencePassword: String?
     val accessToken: String?
     val skipSsl: Boolean?
+    val requestsPerSecond: Int?
     val httpLogLevel: LogLevel
     val httpRequestTimeout: Long?
     val confluenceCloud: Boolean?
@@ -94,16 +99,23 @@ internal interface WithConfluenceServerOptions {
         return PasswordAuth(username, effectivePassword)
     }
 
-    fun httpClientConfig(server: Url,
-                         defaultSslSkip: Boolean = false,
-                         defaultCloudApi: Boolean? = null) = ConfluenceClientConfig(
+    fun httpClientConfig(
+        server: Url,
+        clientParams: HttpClientParams,
+        defaultCloudApi: Boolean? = null
+    ) = ConfluenceClientConfig(
         server = server,
-        skipSsl = skipSsl ?: defaultSslSkip,
+        skipSsl = skipSsl ?: clientParams.skipSsl,
         auth = confluenceAuth,
         httpLogLevel = httpLogLevel,
         requestTimeout = httpRequestTimeout,
-        cloudApi = confluenceCloud ?: defaultCloudApi ?: server.host.endsWith(".atlassian.net", ignoreCase = true)
+        cloudApi = confluenceCloud ?: defaultCloudApi ?: server.host.endsWith(".atlassian.net", ignoreCase = true),
+        rateLimit = RateLimit(
+            rps = requestsPerSecond ?: clientParams.requestsPerSeconds,
+            honorTooManyRequests = clientParams.retryOnTooManyRequests
+        )
     )
+
     fun askForSecret(prompt: String, requireConfirmation: Boolean = true): String?
 
     fun configureRequestLoggingIfEnabled() {

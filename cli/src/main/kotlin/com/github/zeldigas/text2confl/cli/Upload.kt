@@ -29,6 +29,7 @@ class Upload : CliktCommand(name = "upload"),
     override val confluencePassword: String? by confluencePassword()
     override val accessToken: String? by accessToken()
     override val skipSsl: Boolean? by skipSsl()
+    override val requestsPerSecond: Int? by requestsPerSecond()
     override val httpLogLevel: LogLevel by httpLoggingLevel()
     override val httpRequestTimeout: Long? by httpRequestTimeout()
     override val confluenceCloud: Boolean? by confluenceCloudFlag()
@@ -126,7 +127,7 @@ class Upload : CliktCommand(name = "upload"),
         val server = confluenceUrl ?: configuration.server?.let { Url(it) }
         ?: parameterMissing("Confluence url", "--confluence-url", "server")
 
-        return httpClientConfig(server, configuration.skipSsl, configuration.confluenceCloud)
+        return httpClientConfig(server, configuration.client, configuration.confluenceCloud)
     }
 
     private fun passwordAuth(username: String, password: String?): PasswordAuth {

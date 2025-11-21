@@ -1,5 +1,6 @@
 server: https://example.com
-skip-ssl: true
+client:
+  skip-ssl: true
 space: TEST
 default-parent-id: 1
 default-parent: Parent

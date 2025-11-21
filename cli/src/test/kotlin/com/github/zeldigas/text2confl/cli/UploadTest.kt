@@ -144,7 +144,7 @@ internal class UploadTest(
             serviceProvider.createConfluenceClient(
                 ConfluenceClientConfig(
                     Url(directoryConfig.server!!),
-                    directoryConfig.skipSsl,
+                    directoryConfig.client.skipSsl,
                     TokenAuth("token")
                 ),
                 true
@@ -336,7 +336,9 @@ internal class UploadTest(
     private fun sampleConfig(): DirectoryConfig {
         return DirectoryConfig(
             server = "https://test.atlassian.net/wiki",
-            skipSsl = true,
+            client = HttpClientParams(
+                skipSsl = true,
+            ),
             space = "TR",
             defaultParentId = "1234",
             removeOrphans = Cleanup.None,
