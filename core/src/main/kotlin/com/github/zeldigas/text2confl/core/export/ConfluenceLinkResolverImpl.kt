@@ -16,7 +16,7 @@ class ConfluenceLinkResolverImpl(private val client: ConfluenceClient, val space
         return cache.computeIfAbsent(Key(realSpace, title)) { (sp, ttl) ->
             runBlocking {
                 val links = client.getPage(sp, ttl).links
-                makeLink(client.confluenceBaseUrl, links.getValue("webui")).toString()
+                makeLink(client.confluenceBaseUrl, links.getValue("webui"), rootApiLink = false).toString()
             }
         }
     }
