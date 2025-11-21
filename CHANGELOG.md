@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.20.0 - 2025-11-21
+
 ### Added
 
 - Confluence Cloud Rest API v2 support. When uploading to cloud, it is enabled automatically. If you still need to use
