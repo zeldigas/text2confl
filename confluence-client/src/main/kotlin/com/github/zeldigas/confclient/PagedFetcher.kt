@@ -7,6 +7,7 @@ private val logger = KotlinLogging.logger { }
 
 class PagedFetcher<R>(
     val baseUrl: Url,
+    val rootApiLinks: Boolean,
     val loader: suspend (Url) -> R
 ) {
 
@@ -20,7 +21,7 @@ class PagedFetcher<R>(
             var current = extractor(initial)
             addAll(current.items)
             while (current.nextLink != null) {
-                val nextPage = makeLink(baseUrl, current.nextLink)
+                val nextPage = makeLink(baseUrl, current.nextLink, rootApiLinks)
                 logger.debug { "Loading next page: $nextPage" }
                 current = extractor(loader(nextPage))
                 if (current.items.isEmpty()) {

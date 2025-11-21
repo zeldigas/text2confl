@@ -168,6 +168,7 @@ class ConfluenceCloudClient(
     ): List<ConfluencePage> {
         val collectionFetcher = PagedFetcher(
             confluenceBaseUrl,
+            rootApiLinks = true,
             { httpClient.get(it).readApiResponse<AttributesCollection<PageChildItem>>() }
         )
         val search = httpClient.get("$apiBase/pages/$pageId/direct-children") {

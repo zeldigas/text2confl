@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.20.2 - 2025-11-21
+
+### Fixed
+
+- \[Confluence Cloud] Pagination over page children. For some reason this specific endpoint has links from domain root
+
 ## 0.20.1 - 2025-11-21
 
 ### Fixed

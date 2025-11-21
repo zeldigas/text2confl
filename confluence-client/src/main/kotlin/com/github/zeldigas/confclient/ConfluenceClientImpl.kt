@@ -302,7 +302,7 @@ class ConfluenceClientImpl(
     }
 
     override suspend fun fetchAllAttachments(pageAttachments: PageAttachments): List<Attachment> {
-        val fetcher = PagedFetcher(confluenceBaseUrl) {
+        val fetcher = PagedFetcher(confluenceBaseUrl, rootApiLinks = false) {
             httpClient.get(it).readApiResponse<PageAttachments>()
         }
         return fetcher.fetchAll(pageAttachments) {
@@ -347,7 +347,7 @@ class ConfluenceClientImpl(
         val downloadLink = attachment.links["download"]
             ?: throw IllegalArgumentException("No download link found: ${attachment.links}")
 
-        val response = httpClient.get(makeLink(confluenceBaseUrl, downloadLink))
+        val response = httpClient.get(makeLink(confluenceBaseUrl, downloadLink, rootApiLink = false))
 
         response.bodyAsChannel().copyAndClose(destination.toFile().writeChannel())
     }
