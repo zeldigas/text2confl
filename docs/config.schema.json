@@ -366,25 +366,25 @@
         }
       },
       "additionalProperties": false
-    }
-  },
-  "HttpClientParams": {
-    "type": "object",
-    "description": "Parameters for http client",
-    "properties": {
-      "skip-ssl": {
-        "type": "boolean",
-        "default": false,
-        "description": "Skip SSL certificate verification"
-      },
-      "requests-per-seconds": {
-        "type": "number",
-        "description": "Activates requests rate limiting when provided. Use if requests rate is throttled by server"
-      },
-      "retry-on-too-many-requests": {
-        "type": "boolean",
-        "default": true,
-        "description": "Retry requests when server returns 429 or 503 status codes"
+    },
+    "HttpClientParams": {
+      "type": "object",
+      "description": "Parameters for http client",
+      "properties": {
+        "skip-ssl": {
+          "type": "boolean",
+          "default": false,
+          "description": "Skip SSL certificate verification"
+        },
+        "requests-per-seconds": {
+          "type": "number",
+          "description": "Activates requests rate limiting when provided. Use if requests rate is throttled by server"
+        },
+        "retry-on-too-many-requests": {
+          "type": "boolean",
+          "default": true,
+          "description": "Retry requests when server returns 429 or 503 status codes"
+        }
       }
     }
   }

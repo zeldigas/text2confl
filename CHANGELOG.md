@@ -14,12 +14,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `upload` commands
 - Support for rate limiting http requests (#209). Rate limiting is supported in two ways:
   - You can specify rps rate for sending requests
-  - Client also honors
+  - Client also honors `Retry-After` header when it receives response with 429 or 503 status 
 
 ### Changed
 
 - Improved reporting about confluence unexpected errors: now headers are included
-- `verify-ssl` parameter in `text2confl.yml` file is moved to `client.verify-ssl`
+- `skip-ssl` parameter in `text2confl.yml` file is moved to `client.skip-ssl`
 
 ### Fixed
 
