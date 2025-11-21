@@ -175,9 +175,11 @@ class ConfluenceCloudClient(
         }.readApiResponse<AttributesCollection<PageChildItem>>()
         val childPages = collectionFetcher.fetchAll(search) {
             PagedFetcher.Page(it.results, it.links["next"])
-        }.filter { it.type.equals("page", ignoreCase = true) }
+        }.asSequence()
+            .filter { "page".equals(it.type, ignoreCase = true) }
+            .filter { "current".equals(it.status, ignoreCase = true)  }
 
-        return childPages.chunked(collectionsConcurrency)
+        return childPages.chunked(collectionsConcurrency).toList()
             .flatMap { chunk ->
                 coroutineScope {
                     chunk.map { async { getPageById(it.id, loadOptions ?: emptySet()) } }
@@ -473,6 +475,7 @@ private data class PageChildItem(
     val id: String,
     val type: String,
     val title: String?,
+    val status: String?,
 )
 
 private data class CloudAttachment(

@@ -7,6 +7,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.20.1 - 2025-11-21
+
+### Fixed
+
+- \[Confluence Cloud] Processing only pages with `current` status when doing cleanup after publishing
+
+## 0.20.0 - 2025-11-21
+
 ### Added
 
 - Confluence Cloud Rest API v2 support. When uploading to cloud, it is enabled automatically. If you still need to use
