@@ -296,5 +296,20 @@ module Slim::Helpers
     decoder.escapeXml(val)
   end
 
+  def confluence_text_alignment
+    case role
+    when 'text-left'
+      'text-align: left;'
+    when 'text-right'
+      'text-align: right;'
+    when 'text-center'
+      'text-align: center;'
+    when 'text-justify'
+      'text-align: justify;'
+    else
+      nil
+    end
+  end  
+
 
 end
