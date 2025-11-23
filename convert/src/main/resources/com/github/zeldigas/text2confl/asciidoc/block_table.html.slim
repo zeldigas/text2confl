@@ -1,4 +1,5 @@
-table
+- tab_width = (attr? :width) ? ("width: #{attr :tablepcwidth }%" ) : nil
+table style=tab_width
   - if title? && editor_version == 'v1'
     caption.title =captioned_title
   - unless (attr :rowcount).zero?

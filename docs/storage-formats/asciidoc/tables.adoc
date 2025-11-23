@@ -25,11 +25,12 @@ More complex tables supported too.
 
 Features supported:
 
-. link:{adocs}/tables/add-title/[Table title] (only for Confluence Server of first version of editor in Confluence Cloud)
+. link:{adocs}/tables/add-title/[Table title] (only for Confluence Server or first version of editor in Confluence Cloud)
 . link:{adocs}/tables/format-column-content/[Content formatting by column]
 . link:{adocs}/tables/format-cell-content/[Cell content formatting]
 . link:{adocs}/tables/add-header-row/[Header rows] and  link:{adocs}/tables/add-header-row/[Footer rows]
 . link:{adocs}/tables/[Rich content] including link:{adocs}/tables/[Nested tables]
+. link:{adocs}/tables/width/#fixed-width[Table fixed width]
 
 Here is example with most of this features
 

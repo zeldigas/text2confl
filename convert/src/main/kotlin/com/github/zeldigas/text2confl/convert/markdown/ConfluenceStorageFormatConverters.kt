@@ -11,6 +11,7 @@ import com.vladsch.flexmark.ext.admonition.AdmonitionBlock
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.attributes.internal.NodeAttributeRepository
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListItem
+import com.vladsch.flexmark.ext.tables.TableBlock
 import com.vladsch.flexmark.ext.toc.TocBlock
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension
@@ -132,6 +133,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             NodeRenderingHandler(AdmonitionBlock::class.java, this::render),
             NodeRenderingHandler(ConfluenceStatusNode::class.java, this::render),
             NodeRenderingHandler(ConfluenceUserNode::class.java, this::render),
+            NodeRenderingHandler(TableBlock::class.java, this::render),
         )
     }
 
@@ -414,6 +416,18 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
                 }
             }
         }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun render(node: TableBlock, context: NodeRendererContext, html: HtmlWriter) {
+        val attrs = node.attributesMap
+        if ("width" in attrs) {
+            val widthValue = attrs.getValue("width").let { if (it.endsWith("%")) it else "$it%" }
+            html.attr("style", "width: $widthValue")
+        }
+
+        html.srcPosWithEOL(node.getChars()).withAttr()
+            .tagLineIndent("table", { context.renderChildren(node) }).line()
     }
 
     @Suppress("UNUSED_PARAMETER")

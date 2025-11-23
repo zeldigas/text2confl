@@ -42,7 +42,7 @@ ____
 
 //tag::complex-table[]
 .Table title
-[cols="1h,2a"]
+[cols="1h,2a",width=75%]
 |===
 | First header as header | Second header
 
