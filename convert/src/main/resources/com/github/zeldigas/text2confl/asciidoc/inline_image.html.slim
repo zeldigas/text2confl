@@ -1,5 +1,7 @@
 = html_a_tag_if (attr? :link)
   ac:image ac:height=(attr :height) ac:width=(attr :width) ac:title=(escape_quotes(attr :title) if attr? :title) ac:alt=(escape_quotes(attr :alt) if attr :alt) ac:thumbnail=(attr :thumbnail) ac:align=(attr :align) ac:border=(attr :border) ac:class=(attr :class) ac:style=(attr :imgstyle) ac:vspace=(attr :vspace) ac:hspace=(attr :hspace) ac:queryparams=(escape_quotes(attr :queryparams) if attr :queryparams)
+    - if (editor_version == 'v2') && (attr :border)
+      ac:adf-mark key="border" size="2" color="#091e4224" /
     - if uriish? target
       ri:url ri:value=(target) /
     - else

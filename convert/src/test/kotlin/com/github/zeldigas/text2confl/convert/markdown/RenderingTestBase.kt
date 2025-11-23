@@ -28,6 +28,7 @@ internal open class RenderingTestBase {
         config: MarkdownConfiguration = MarkdownConfiguration(true, emptyList()),
         diagramMakers: DiagramMakers = DiagramMakers.NOP,
         codeBlockInExpand: Boolean = false,
+        editorVersion: EditorVersion = EditorVersion.V1
     ): String {
         val context = ConvertingContext(
             referenceProvider,
@@ -38,7 +39,7 @@ internal open class RenderingTestBase {
                 noteText = autogenText,
                 docRootLocation = "http://example.com/",
                 markdownConfiguration = config,
-                editorVersion = EditorVersion.V1,
+                editorVersion = editorVersion,
                 codeBlocksInExpand = codeBlockInExpand,
             ),
             "TEST",

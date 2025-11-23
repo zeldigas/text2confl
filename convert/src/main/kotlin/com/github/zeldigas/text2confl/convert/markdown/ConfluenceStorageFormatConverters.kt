@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.ConvertingContext
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.Xref
 import com.github.zeldigas.text2confl.convert.markdown.ext.AttributeRepositoryAware
@@ -264,6 +265,9 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             .toMap()
 
         html.openTag("ac:image", imageAttributes)
+        if (cloudEditorV2() && imageAttributes.getOrDefault("ac:border", "false").equals("true", ignoreCase = true)) {
+            html.voidTag("ac:adf-mark", mapOf("key" to "border", "size" to "2", "color" to "#091e4224"))
+        }
         if (attachmentReference in attachments) {
             html.voidTag(
                 "ri:attachment",
@@ -274,6 +278,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         }
         html.closeTag("ac:image")
     }
+
+    private fun cloudEditorV2(): Boolean = convertingContext.conversionParameters.editorVersion == EditorVersion.V2
 
     private fun render(node: Link, context: NodeRendererContext, html: HtmlWriter) {
         val url = node.url.unescape()

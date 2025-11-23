@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.convert.markdown
 
 import assertk.assertThat
 import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 
@@ -142,6 +143,31 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
             <p><ac:image ac:align="left" ac:border="true" ac:class="custom" ac:title="A Title" ac:style="font-weight=bold;" ac:alt="Alt text"><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
             <p><ac:image ac:thumbnail="true" ac:alt="Alt" ac:height="250" ac:width="100" ac:vspace="10" ac:hspace="5" ac:queryparams="effects=border-simple,blur-border,tape" ac:title="Asset"><ri:attachment ri:filename="an_attachment" /></ac:image></p>
             <p><ac:image ac:border="true" ac:alt="Alt" ac:title="Attached image"><ri:attachment ri:filename="attached" /></ac:image></p>
+        """.trimIndent(),
+        )
+    }
+
+    @Test
+    internal fun `Image border rendering in v2 editor`() {
+        val result = toHtml(
+            """                        
+            ![Alt][attached]{border=true}
+            
+            [attached]: assets/image.jpg "Attached image"
+        """.trimIndent(),
+            attachments = mapOf(
+                "attached" to Attachment(
+                    "attached",
+                    "attached",
+                    Path("assets/image.jpg")
+                )
+            ),
+            editorVersion = EditorVersion.V2
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <p><ac:image ac:border="true" ac:alt="Alt" ac:title="Attached image"><ac:adf-mark key="border" size="2" color="#091e4224" /><ri:attachment ri:filename="attached" /></ac:image></p>
         """.trimIndent(),
         )
     }
