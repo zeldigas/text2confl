@@ -236,7 +236,7 @@ class AsciidocFileConverterTest {
             })
         }.isInstanceOf(ConversionFailedException::class).all {
             hasCause(cause)
-            hasMessage("Document parsing failed")
+            hasMessage("Document parsing failed: error during file parsing")
         }
     }
 

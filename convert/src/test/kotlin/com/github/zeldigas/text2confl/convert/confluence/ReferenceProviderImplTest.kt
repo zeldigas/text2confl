@@ -49,6 +49,7 @@ internal class ReferenceProviderImplTest {
             "docs/sub/sub/a.md,../sub1/a.md,SubSub1 A",
             "docs/sub/sub/a.md,../../sub1/one.md,Sub1 Title One",
             "docs/sub/sub/a.md,../sub1/one.md,",
+            "docs/sub/sub/a.md,/absolute.png,",
         ]
     )
     @ParameterizedTest

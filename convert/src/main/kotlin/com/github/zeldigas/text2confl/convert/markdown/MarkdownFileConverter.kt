@@ -57,7 +57,7 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
                 ast
             )
         } catch (ex: Exception) {
-            throw ConversionFailedException(file, "Failed to extract attachments", ex)
+            throw ConversionFailedException(file, "Failed to extract attachments: ${ex.message}", ex)
         }
     }
 
