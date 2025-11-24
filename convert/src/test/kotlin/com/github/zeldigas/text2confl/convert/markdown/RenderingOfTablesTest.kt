@@ -9,9 +9,9 @@ internal class RenderingOfTablesTest : RenderingTestBase() {
     internal fun `Tables rendering`() {
         val result = toHtml(
             """
-            | foo | bar |
-            |-----|-----|
-            | baz | bim |
+            | foo | bar | baz | 
+            |-----|:-----:|-----:|
+            | baz | bim | abc |
             {width=75%}
         """.trimIndent()
         )
@@ -20,10 +20,10 @@ internal class RenderingOfTablesTest : RenderingTestBase() {
             """
             <table style="width: 75%">
               <thead>
-                <tr><th>foo</th><th>bar</th></tr>
+                <tr><th>foo</th><th style="text-align: center;">bar</th><th style="text-align: right;">baz</th></tr>
               </thead>
               <tbody>
-                <tr><td>baz</td><td>bim</td></tr>
+                <tr><td>baz</td><td style="text-align: center;">bim</td><td style="text-align: right;">abc</td></tr>
               </tbody>
             </table>
         """.trimIndent()

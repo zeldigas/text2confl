@@ -31,6 +31,8 @@ Features supported:
 . link:{adocs}/tables/add-header-row/[Header rows] and  link:{adocs}/tables/add-header-row/[Footer rows]
 . link:{adocs}/tables/[Rich content] including link:{adocs}/tables/[Nested tables]
 . link:{adocs}/tables/width/#fixed-width[Table fixed width]
+. link:{adocs}/tables/align-by-column/[Column alignment] (vertical alignment is supported only for Confluence Server or first version of editor in Confluence Cloud)
+. link:{adocs}/tables/adjust-column-widths/[Column width adjustment]. Note: this does not work reliably in Confluence Cloud for nested tables.
 
 Here is example with most of this features
 
@@ -44,13 +46,14 @@ include::_assets/example.adoc[tag=complex-table]
 
 === Cell background
 
-Trick with cell background is currently not supported.
-Create a feature request if you need it:
+link:https://github.com/asciidoctor/asciidoctor/issues/3476[Trick with cell background] is supported.
 
-.This will not work
 ----
-|a
-{set:cellbgcolor:#ff0000}
-|b
-{set:cellbgcolor!}
+include::_assets/example.adoc[tag=bgcolor-table]
 ----
+
+Will result in:
+
+include::_assets/example.adoc[tag=bgcolor-table]
+
+You can find more details about supported colors on link:../../user-guide/table-colors.md[dedicated page].

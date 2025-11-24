@@ -12,6 +12,8 @@ import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.attributes.internal.NodeAttributeRepository
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListItem
 import com.vladsch.flexmark.ext.tables.TableBlock
+import com.vladsch.flexmark.ext.tables.TableCell
+import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.toc.TocBlock
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension
@@ -29,6 +31,7 @@ import com.vladsch.flexmark.util.ast.TextCollectingVisitor
 import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.DataKey
 import com.vladsch.flexmark.util.data.MutableDataHolder
+import com.vladsch.flexmark.util.html.CellAlignment
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -116,6 +119,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
     private val attachments: Map<String, Attachment> = ConfluenceFormatExtension.ATTACHMENTS[options]
     private val convertingContext: ConvertingContext = MarkdownParser.CONTEXT[options]!!
     private val listOptions = ListOptions.get(options)
+    private val columnSpanEnabled = TablesExtension.COLUMN_SPANS.get(options)
     override val nodeAttributeRepository: NodeAttributeRepository = AttributesExtension.NODE_ATTRIBUTES.get(options)
 
     override fun getNodeRenderingHandlers(): Set<NodeRenderingHandler<*>> {
@@ -134,6 +138,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             NodeRenderingHandler(ConfluenceStatusNode::class.java, this::render),
             NodeRenderingHandler(ConfluenceUserNode::class.java, this::render),
             NodeRenderingHandler(TableBlock::class.java, this::render),
+            NodeRenderingHandler(TableCell::class.java, this::render),
         )
     }
 
@@ -430,6 +435,26 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             .tagLineIndent("table", { context.renderChildren(node) }).line()
     }
 
+    private fun render(node: TableCell, context: NodeRendererContext, html: HtmlWriter) {
+        val tag = if (node.isHeader) "th" else "td"
+        if (node.alignment != null) {
+            val style = when (node.alignment.cellAlignment()) {
+                CellAlignment.CENTER -> "text-align: center;"
+                CellAlignment.RIGHT -> "text-align: right;"
+                else -> null
+            }
+            style?.let { html.attr("style", it) }
+        }
+
+        if (columnSpanEnabled && node.span > 1) {
+            html.attr("colspan", node.span.toString())
+        }
+
+        html.srcPos(node.text).withAttr().tag(tag)
+        context.renderChildren(node)
+        html.tag("/$tag")
+    }
+
     @Suppress("UNUSED_PARAMETER")
     private fun render(node: TocBlock, context: NodeRendererContext, html: HtmlWriter) {
         html.tagLine("p") {
@@ -471,7 +496,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
     ) {
         html.macro("status") {
             addParameter("title", node.text)
-            addParameter("colour",
+            addParameter(
+                "colour",
                 node.color.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() })
         }
     }

@@ -1,26 +1,40 @@
 - tab_width = (attr? :width) ? ("width: #{attr :tablepcwidth }%" ) : nil
-table style=tab_width
+table.relative-table style=tab_width
   - if title? && editor_version == 'v1'
     caption.title =captioned_title
+  - autowidth = option? 'autowidth'
+  colgroup
+    - if autowidth
+      - columns.size.times do
+        col /
+    - else
+      - columns.each do |col|
+        - if col.option? 'autowidth'
+          col /
+        - else
+          col style="width: #{col.attr 'colpcwidth'}%;" /
   - unless (attr :rowcount).zero?
     - [:head, :foot, :body].reject { |tblsec| rows[tblsec].empty? }.each do |tblsec|
       *{tag: %(t#{tblsec})}
         - rows[tblsec].each do |row|
           tr
             - row.each do |cell|
+              - cell_output = ""
+              - if tblsec == :head
+                - cell_output = cell.text
+              - else
+                - case cell.style
+                - when :asciidoc
+                  - cell_output = html_tag(:div, {}, cell.content)
+                - when :verse
+                  - cell_output = html_tag(:div, {class: 'verse'}, cell.text)
+                - when :literal
+                  - cell_output = html_tag(:div, {class: 'literal'}) do
+                    - html_tag(:pre, {}, cell.text)
+                - else
+                  - cell_output = cell.content.join("")
+              - cellAttributes = table_cell_styling cell
               *{tag: (tblsec == :head || cell.style == :header ? 'th' : 'td'),
                   colspan: cell.colspan,
-                  rowspan: cell.rowspan}
-                - if tblsec == :head
-                  =cell.text
-                - else
-                  - case cell.style
-                  - when :asciidoc
-                    div =cell.content
-                  - when :verse
-                    .verse =cell.text
-                  - when :literal
-                    .literal: pre =cell.text
-                  - else
-                    - cell.content.each do |text|
-                      =text
+                  rowspan: cell.rowspan} *cellAttributes
+                = cell_output

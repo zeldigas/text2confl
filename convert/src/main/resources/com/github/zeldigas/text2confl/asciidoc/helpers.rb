@@ -279,7 +279,7 @@ module Slim::Helpers
     if document.attr? 'property_editor'
       document.attr 'property_editor'
     else
-      document.attr 't2c-editor-version'
+      document.attr 't2c-editor-version', 'v1'
     end
   end
 
@@ -309,6 +309,28 @@ module Slim::Helpers
     else
       nil
     end
+  end
+  
+  def table_cell_styling cell
+    attributes = {}
+    styles = []
+    if cell.attr('halign') != 'left'
+      styles.push("text-align: #{cell.attr 'halign'};")
+    end
+    if editor_version() == 'v1' and cell.attr('valign') != 'top'
+      styles.push("vertical-align: #{cell.attr 'valign'};")
+    end
+    unless styles.empty?
+       attributes["style"] = styles.join(' ')
+    end
+    if document.attr? 'cellbgcolor'
+      cellColor = document.attr 'cellbgcolor'
+      attributes['data-highlight-colour'] = "#{cellColor}"
+      if editor_version() == 'v1'
+        attributes['class'] = "highligh-#{cellColor}"
+      end
+    end
+    return attributes    
   end  
 
 

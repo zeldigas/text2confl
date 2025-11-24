@@ -7,6 +7,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- \[Markdown] Support for column alignment in tables. You can specify alignment per column in table header row using
+  `:` symbols. E.g. `|:--|:--:|--:|` will set left, center and right alignment for 3 columns respectively.
+- \[Markdown] Support for table width specification in percent. You can specify table width using `{width=75%}`
+  attribute under the table (percent sign is optional).
+- \[Asciidoc] Support for text alignment with `[.align-left]`, `[.align-center]` and `[.align-right]` classes.
+- \[Asciidoc] Support for the following table features:
+  - Table cell background colors (same as in Markdown)
+  - Column/column text alignment (both vertical and horizontal)
+  - Table width specification in percent
+  - Column widths
+
 ### Changed
 
 - Improved error handling and reporting for Confluence API requests. Now details include request method, url and headers for all kind of confluence errors.
@@ -15,6 +28,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - Reference resolution if path is absolute
+- Image border display in Confluence Cloud. Hardcoded border style is set now, that is default in Cloud editor
 
 ## 0.20.2 - 2025-11-21
 

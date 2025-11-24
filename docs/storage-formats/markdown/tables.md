@@ -22,7 +22,7 @@ Will produce:
 | foo                 |     bar      |               baz | 
 |---------------------|:------------:|------------------:|
 | bip                 |     bim      |              boop | 
-| I'm left by default | I'm centered | I'm aligned right | 
+| I'm left by default | I'm centered | I'm aligned right |
 
 ### Table width
 
