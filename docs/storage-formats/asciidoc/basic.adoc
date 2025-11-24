@@ -38,7 +38,7 @@ include::_assets/example.adoc[tag=style-quotation]
 
 
 [.text-right]
-== Text alignnment
+== Text alignment
 
 Text can be aligned to the left, center, or right. This works for paragraphs and headings.
 
