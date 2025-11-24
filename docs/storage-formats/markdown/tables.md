@@ -11,16 +11,34 @@ You can use tables based on [GitHub Flavored Format](https://github.github.com/g
 Markdown table:
 
 ```markdown
-| foo | bar |
-|-----|-----|
-| baz | bim |
+| foo                 |     bar      |               baz | 
+|---------------------|:------------:|------------------:|
+| bip                 |     bim      |              boop |
+| I'm left by default | I'm centered | I'm aligned right |
 ```
 
 Will produce:
 
-| foo | bar |
-|-----|-----|
-| baz | bim |
+| foo                 |     bar      |               baz | 
+|---------------------|:------------:|------------------:|
+| bip                 |     bim      |              boop | 
+| I'm left by default | I'm centered | I'm aligned right |
+
+### Table width
+
+To set table width, you can use _attributes_ under the table. Provided value is treated as width in percent, `%` is optional:
+
+```markdown
+| foo | bar |  baz | 
+|-----|:---:|-----:|
+| bip | bim | boop |
+{width=75%}
+```
+
+| foo | bar |  baz | 
+|-----|:---:|-----:|
+| bip | bim | boop |
+{width=75%}
 
 ## Complex tables
 

@@ -17,7 +17,8 @@ internal class RenderingOfBasicTextFeatures : RenderingTestBase() {
             Test block 
             **with enabled**
             hard linebreaks.
-                        
+            
+            [.text-right]
             Rubies are red, +
             Topazes are blue.
             
@@ -33,7 +34,7 @@ internal class RenderingOfBasicTextFeatures : RenderingTestBase() {
             """          
             <p>Test block <strong>with</strong> formatting and <strong>many</strong> <sup>lines</sup>.</p>
             <p>Test block<br/> <strong>with enabled</strong><br/> hard linebreaks.</p>
-            <p>Rubies are red,<br/> Topazes are blue.</p>
+            <p style="text-align: right;">Rubies are red,<br/> Topazes are blue.</p>
             <p><u>underlined text</u> and <del>strike through text</del> is supported too!</p>
             <p>Consisting of multiple paragraphs with <ac:image ac:width="100" ac:alt="Octocat"><ri:url ri:value="https://myoctocat.com/assets/images/base-octocat.svg" /></ac:image></p>
         """.trimIndent()

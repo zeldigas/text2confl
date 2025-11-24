@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.convert.asciidoc
 
 import assertk.assertThat
 import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 
@@ -129,6 +130,33 @@ internal class RenderingOfImagesTest : RenderingTestBase() {
         """.trimIndent(),
         )
     }
+
+    @Test
+    internal fun `Image border rendering in v2 editor`() {
+        val result = toHtml(
+            """                       
+            image::https://example.org/test.jpg[border=true]     
+            
+            Inline image image:https://example.org/test.jpg[border=true].
+        """.trimIndent(),
+            attachments = mapOf(
+                "attached" to Attachment(
+                    "attached",
+                    "attached",
+                    Path("assets/image.jpg")
+                )
+            ),
+            attributes = mapOf("t2c-editor-version" to "v2")
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <p><ac:image ac:alt="test" ac:border="true"><ac:adf-mark key="border" size="2" color="#091e4224" /><ri:url ri:value="https://example.org/test.jpg" /></ac:image></p>
+            <p>Inline image <ac:image ac:alt="test" ac:border="true"><ac:adf-mark key="border" size="2" color="#091e4224" /><ri:url ri:value="https://example.org/test.jpg" /></ac:image>.</p>
+        """.trimIndent(),
+        )
+    }
+
 
 }
 

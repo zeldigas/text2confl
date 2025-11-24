@@ -279,7 +279,7 @@ module Slim::Helpers
     if document.attr? 'property_editor'
       document.attr 'property_editor'
     else
-      document.attr 't2c-editor-version'
+      document.attr 't2c-editor-version', 'v1'
     end
   end
 
@@ -294,6 +294,43 @@ module Slim::Helpers
   def escape_xml_attr val
     decoder = document.attr 't2c-decoder'
     decoder.escapeXml(val)
+  end
+
+  def confluence_text_alignment
+    case role
+    when 'text-left'
+      'text-align: left;'
+    when 'text-right'
+      'text-align: right;'
+    when 'text-center'
+      'text-align: center;'
+    when 'text-justify'
+      'text-align: justify;'
+    else
+      nil
+    end
+  end
+
+  def table_cell_styling cell
+    attributes = {}
+    styles = []
+    if cell.attr('halign') != 'left'
+      styles.push("text-align: #{cell.attr 'halign'};")
+    end
+    if editor_version() == 'v1' and cell.attr('valign') != 'top'
+      styles.push("vertical-align: #{cell.attr 'valign'};")
+    end
+    unless styles.empty?
+      attributes["style"] = styles.join(' ')
+    end
+    if document.attr? 'cellbgcolor'
+      cellColor = document.attr 'cellbgcolor'
+      attributes['data-highlight-colour'] = "#{cellColor}"
+      if editor_version() == 'v1'
+        attributes['class'] = "highlight-#{cellColor}"
+      end
+    end
+    return attributes
   end
 
 

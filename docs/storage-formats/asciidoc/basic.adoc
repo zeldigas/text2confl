@@ -36,6 +36,26 @@ include::_assets/example.adoc[tag=style-quotation]
 |include::_assets/example.adoc[tag=style-quotation]
 |===
 
+
+[.text-right]
+== Text alignment
+
+Text can be aligned to the left, center, or right. This works for paragraphs and headings.
+
+[.text-center]
+To align text, use the `[.text-left]`, `[.text-center]`, or `[.text-right]` role before the paragraph or heading:
+
+[.text-left]
+----
+[.text-right]
+=== Heading aligned to the right
+
+Paragraph aligned to the right.
+
+[.text-center]
+Centered paragraph
+----
+
 == Lists
 
 Both numbered and bullet lists are supported:

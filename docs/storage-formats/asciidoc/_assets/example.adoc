@@ -42,7 +42,7 @@ ____
 
 //tag::complex-table[]
 .Table title
-[cols="1h,2a"]
+[cols="1h,2a",width=75%]
 |===
 | First header as header | Second header
 
@@ -58,17 +58,28 @@ ____
 | Column with complex content
 
 [caption=]
-[cols="2,1"]
+[cols=">.>2,^.^1a"]
 !===
 ! Col1 ! Col2
 
 ! C11
 ! C12
 
+C12 cont
+
 !===
 
 |===
 //end::complex-table[]
+
+//tag::bgcolor-table[]
+|===
+|a
+{set:cellbgcolor:#bf2600}
+|b
+{set:cellbgcolor!}
+|===
+//end::bgcolor-table[]
 
 //tag::code-block-simple[]
 [source,java]

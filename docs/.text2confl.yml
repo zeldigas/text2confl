@@ -1,5 +1,5 @@
 $schema: ./config.schema.json
-server: https://text2confl.atlassian.net/wiki
-space: Docs
+server: https://text2conf.atlassian.net/wiki
+space: docs
 docs-location: https://github.com/zeldigas/text2confl/tree/master/docs/
 title-prefix: "[text2confl] "
