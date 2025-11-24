@@ -70,7 +70,7 @@ internal class RenderingOfTablesTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """          
-            <table class="relative-table"><colgroup><col style="width: 33.3333%;" /><col style="width: 33.3333%;" /><col style="width: 33.3334%;" /></colgroup><thead><tr><th style="vertical-align: middle;">foo</th><th style="text-align: right; vertical-align: bottom;">baz</th><th style="text-align: center; vertical-align: middle;">bar</th></tr></thead><tbody><tr><td style="vertical-align: middle;" data-highlight-colour="#bf2600" class="highligh-#bf2600">a</td><td style="text-align: right; vertical-align: bottom;">b</td><td style="text-align: center; vertical-align: middle;">c</td></tr></tbody></table>
+            <table class="relative-table"><colgroup><col style="width: 33.3333%;" /><col style="width: 33.3333%;" /><col style="width: 33.3334%;" /></colgroup><thead><tr><th style="vertical-align: middle;">foo</th><th style="text-align: right; vertical-align: bottom;">baz</th><th style="text-align: center; vertical-align: middle;">bar</th></tr></thead><tbody><tr><td style="vertical-align: middle;" data-highlight-colour="#bf2600" class="highlight-#bf2600">a</td><td style="text-align: right; vertical-align: bottom;">b</td><td style="text-align: center; vertical-align: middle;">c</td></tr></tbody></table>
         """.trimIndent()
         )
     }

@@ -310,7 +310,7 @@ module Slim::Helpers
       nil
     end
   end
-  
+
   def table_cell_styling cell
     attributes = {}
     styles = []
@@ -327,11 +327,11 @@ module Slim::Helpers
       cellColor = document.attr 'cellbgcolor'
       attributes['data-highlight-colour'] = "#{cellColor}"
       if editor_version() == 'v1'
-        attributes['class'] = "highligh-#{cellColor}"
+        attributes['class'] = "highlight-#{cellColor}"
       end
     end
     return attributes    
-  end  
+  end
 
 
 end
