@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.21.0 - 2025-11-24
+
 ### Added
 
 - \[Markdown] Support for column alignment in tables. You can specify alignment per column in table header row using
