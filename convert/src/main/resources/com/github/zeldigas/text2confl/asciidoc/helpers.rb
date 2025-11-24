@@ -321,7 +321,7 @@ module Slim::Helpers
       styles.push("vertical-align: #{cell.attr 'valign'};")
     end
     unless styles.empty?
-       attributes["style"] = styles.join(' ')
+      attributes["style"] = styles.join(' ')
     end
     if document.attr? 'cellbgcolor'
       cellColor = document.attr 'cellbgcolor'
@@ -330,7 +330,7 @@ module Slim::Helpers
         attributes['class'] = "highlight-#{cellColor}"
       end
     end
-    return attributes    
+    return attributes
   end
 
 
