@@ -143,7 +143,43 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
                     )
                 ),
                 links = mapOf(
-                    "base" to "https://text2conf.atlassian.net/wiki"
+                    "base" to "https://text2conf.atlassian.net/wiki",
+                    "next" to "/wiki/api/v2/pages/1507344/attachments?limit=100&cursor=abc"
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `Fetch all attachments`() = runTest {
+        stubFor(
+            get("/api/v2/pages/123/attachments?limit=100&cursor=abc").willReturn(
+                ok().withJsonFromFile("/data/responses/api-v2/page2-attachments.json")
+            )
+        )
+
+        val firstPage = listOf<Attachment>(mockk())
+        val result = client.fetchAllAttachments(
+            PageAttachments(
+                results = firstPage,
+                links = mapOf(
+                    "base" to "https://text2conf.atlassian.net/wiki",
+                    "next" to "/api/v2/pages/123/attachments?limit=100&cursor=abc"
+                )
+            )
+        )
+
+        assertThat(result).isEqualTo(
+            listOf(
+                *firstPage.toTypedArray(),
+                Attachment(
+                    id = "att3309693",
+                    title = "test link21",
+                    metadata = mapOf("comment" to "HASH:xyz"),
+                    links = mapOf(
+                        "download" to "/download/attachments/1507344/test%20link21?version=1&modificationDate=1763629743397&cacheVersion=1&api=v2",
+                        "webui" to "/pages/viewpageattachments.action?pageId=1507344&preview=%2F1507344%2F3309693%2Ftest+link21"
+                    )
                 )
             )
         )

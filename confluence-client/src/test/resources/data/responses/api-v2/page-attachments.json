@@ -27,6 +27,7 @@
     }
   ],
   "_links": {
-    "base": "https://text2conf.atlassian.net/wiki"
+    "base": "https://text2conf.atlassian.net/wiki",
+    "next": "/wiki/api/v2/pages/1507344/attachments?limit=100&cursor=abc"
   }
 }

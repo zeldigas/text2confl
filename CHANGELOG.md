@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.21.1 - 2025-11-25
+
+### Fixed
+
+- Processing pages with large number of attachments in Confluence Cloud. Pagination was not handled properly.
+
 ## 0.21.0 - 2025-11-24
 
 ### Added

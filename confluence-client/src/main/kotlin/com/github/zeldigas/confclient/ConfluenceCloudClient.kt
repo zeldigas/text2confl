@@ -251,6 +251,15 @@ class ConfluenceCloudClient(
         delete("$apiBase/pages/$pageId")
     }
 
+    override suspend fun fetchAllAttachments(pageAttachments: PageAttachments): List<Attachment> {
+        val fetcher = PagedFetcher(confluenceBaseUrl, rootApiLinks = true) {
+            toModel(httpClient.get(it).readApiResponse<CloudPageAttachments>())
+        }
+        return fetcher.fetchAll(pageAttachments) {
+            PagedFetcher.Page(it.results, it.links["next"])
+        }
+    }
+
     override suspend fun deleteAttachment(attachmentId: String) {
         delete("$apiBase/attachments/$attachmentId")
     }
@@ -306,17 +315,19 @@ class ConfluenceCloudClient(
 
     internal suspend fun getPageAttachments(pageId: String): PageAttachments {
         val attachments = httpClient.get("$apiBase/pages/$pageId/attachments").readApiResponse<CloudPageAttachments>()
-        return PageAttachments(
-            results = attachments.results.map {
-                Attachment(
-                    it.id, it.title, metadata = mapOf(
-                        "comment" to it.comment,
-                    ), links = it.links
-                )
-            },
-            links = attachments.links
-        )
+        return toModel(attachments)
     }
+
+    private fun toModel(attachments: CloudPageAttachments): PageAttachments = PageAttachments(
+        results = attachments.results.map {
+            Attachment(
+                it.id, it.title, metadata = mapOf(
+                    "comment" to it.comment,
+                ), links = it.links
+            )
+        },
+        links = attachments.links
+    )
 
     private suspend fun resolveSpace(key: String): Space {
         val space = spacesCache.values.firstOrNull { it.key == key }
