@@ -43,7 +43,9 @@ class AsciidocParser(
         return ADOC.loadFile(file.toFile(), headerParsingOptions())
     }
 
-    private fun headerParsingOptions() = parserOptions { }
+    private fun headerParsingOptions() = parserOptions {
+        parseHeaderOnly(true)
+    }
 
     fun parseDocument(file: Path, parameters: AsciidocRenderingParameters): Document {
         return ADOC.loadFile(file.toFile(), htmlConversionOptions(createAttributes(parameters)))

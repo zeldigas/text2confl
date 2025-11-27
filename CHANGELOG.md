@@ -7,6 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.21.2 - 2025-11-26
+
+### Fixed
+
+- `asciidoctor-diagram` extensions no longer generate files in current working directory.
+
+### Changed
+
+- Dependency updates:
+  - `asciidoctor-diagram` to 3.1.0
+
 ## 0.21.1 - 2025-11-25
 
 ### Fixed
