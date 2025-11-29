@@ -82,8 +82,8 @@ class MermaidDiagramsGeneratorTest(
                 )
             )
         } returns ExecutionResult(0, "", "")
-
-        val result = generator.generate("test", Path("test.png"))
+        val options = generator.conversionOptions(emptyMap())
+        val result = generator.generate("test", Path("test.png"), options)
 
         assertThat(result).isEqualTo(ImageInfo())
     }
@@ -117,7 +117,8 @@ class MermaidDiagramsGeneratorTest(
             )
         } returns ExecutionResult(0, "", "")
 
-        val result = generator.generate("test", Path("test.svg"))
+        val options = generator.conversionOptions(emptyMap())
+        val result = generator.generate("test", Path("test.svg"), options)
 
         assertThat(result).isEqualTo(ImageInfo())
     }
@@ -139,7 +140,8 @@ class MermaidDiagramsGeneratorTest(
         } returns ExecutionResult(1, "some error", "")
 
         assertFailure {
-            generator.generate("test", Path("test.png"))
+            val options = generator.conversionOptions(emptyMap())
+            generator.generate("test", Path("test.png"), options)
         }.hasMessage("mmdc execution returned non-zero exit code: 1.\nsome error")
     }
 }

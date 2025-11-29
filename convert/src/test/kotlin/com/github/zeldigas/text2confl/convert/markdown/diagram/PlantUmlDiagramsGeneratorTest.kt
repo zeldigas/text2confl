@@ -89,8 +89,8 @@ class PlantUmlDiagramsGeneratorTest(
                 )
             )
         } returns ExecutionResult(0, "", "")
-
-        val result = generator.generate("test", Path("test.png"))
+        val options = generator.conversionOptions(emptyMap())
+        val result = generator.generate("test", Path("test.png"), options)
 
         assertThat(result).isEqualTo(ImageInfo())
     }
@@ -116,7 +116,8 @@ class PlantUmlDiagramsGeneratorTest(
             )
         } returns ExecutionResult(0, "", "")
 
-        val result = generator.generate("test", Path("test.svg"), mapOf("theme" to "custom", "format" to "svg"))
+        val options = generator.conversionOptions(mapOf("theme" to "custom", "format" to "svg"))
+        val result = generator.generate("test", Path("test.svg"), options)
 
         assertThat(result).isEqualTo(ImageInfo())
     }
@@ -138,7 +139,8 @@ class PlantUmlDiagramsGeneratorTest(
         } returns ExecutionResult(1, "", "error text")
 
         assertFailure {
-            generator.generate("test", Path("test.png"))
+            val options = generator.conversionOptions(emptyMap())
+            generator.generate("test", Path("test.png"), options)
         }.hasMessage("plantuml execution returned non-zero exit code: 1.\nerror text")
     }
 }

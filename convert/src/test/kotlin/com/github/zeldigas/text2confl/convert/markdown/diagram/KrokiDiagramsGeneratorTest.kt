@@ -48,13 +48,15 @@ class KrokiDiagramsGeneratorTest {
             true, KrokiDiagramsGenerator.DEFAULT_FORMAT,
             URI.create(runtimeInfo.httpBaseUrl)
         )
-
-        val result = generator.generate(
-            "test", dir.resolve("test.png"),
+        val options = generator.conversionOptions(
             mapOf(
                 DIAGRAM_FORMAT_ATTRIBUTE to inputLang,
                 "option_hello" to "world"
             )
+        )
+        val result = generator.generate(
+            "test", dir.resolve("test.png"),
+            options
         )
 
         assertThat(result).isEqualTo(ImageInfo())

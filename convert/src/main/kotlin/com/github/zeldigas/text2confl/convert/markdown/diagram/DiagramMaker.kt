@@ -1,8 +1,11 @@
 package com.github.zeldigas.text2confl.convert.markdown.diagram
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.toBase64
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -26,6 +29,9 @@ class DiagramMakersImpl(private val baseDir: Path, private val generators: List<
     }
 }
 
+private val CACHE_FILE_MAPPER = jacksonObjectMapper()
+private val logger = KotlinLogging.logger {  }
+
 class DiagramMaker(
     internal val baseDir: Path,
     internal val lang: String,
@@ -39,11 +45,61 @@ class DiagramMaker(
         if (!generatedFileLocation.parent.exists()) {
             Files.createDirectories(generatedFileLocation.parent)
         }
+        val conversionOptions = generator.conversionOptions(attributes + mapOf("lang" to lang))
+        val cacheState = checkDiagramCache(generatedFileLocation, script, conversionOptions)
+        return if (cacheState is Cached) {
+            logger.debug { "Found cached diagram $generatedFileLocation, reusing it" }
+            generatedFileLocation.attachment(name) to cacheState.imageInfo
+        } else {
+            logger.debug { "Cache state for ${generatedFileLocation}: $cacheState, generating diagram" }
+            val result = generator.generate(script, generatedFileLocation, conversionOptions)
+            saveCache(result, generatedFileLocation, conversionOptions, script)
 
-        val result = generator.generate(script, generatedFileLocation, attributes + mapOf("lang" to lang))
-
-        return Attachment(name, "_generated_diagram_${name}", generatedFileLocation) to result
+            generatedFileLocation.attachment(name) to result
+        }
     }
+
+    private fun checkDiagramCache(
+        generatedFileLocation: Path,
+        script: String,
+        conversionOptions: Map<String, String>
+    ):CacheState {
+        val cacheFile = cacheFile(generatedFileLocation)
+        if (cacheFile.exists()) {
+            val cacheData = try {
+                CACHE_FILE_MAPPER.readValue<DiagramCacheInfo>(cacheFile.toFile())
+            } catch (_: Exception) {
+                return Missing()
+            }
+            val checksum = script.contentHash
+            return if (checksum != cacheData.checksum || conversionOptions != cacheData.conversionOptions) {
+                NotMatch(checksum)
+            } else {
+                Cached(cacheData.imageInfo)
+            }
+        } else {
+            return Missing()
+        }
+    }
+
+    private fun saveCache(
+        result: ImageInfo,
+        generatedFileLocation: Path,
+        conversionOptions: Map<String, String>,
+        script: String
+    ) {
+        val cacheFile = cacheFile(generatedFileLocation)
+        CACHE_FILE_MAPPER.writeValue(cacheFile.toFile(), DiagramCacheInfo(
+            result, conversionOptions, script.contentHash
+        ))
+    }
+
+    private fun cacheFile(generatedFileLocation: Path): Path =
+        generatedFileLocation.parent / "${generatedFileLocation.fileName}.cache"
+
+    private fun Path.attachment(
+        name: String
+    ): Attachment = Attachment(name, "_generated_diagram_${name}", this)
 
     private val String.contentHash: String
         get() {
@@ -63,3 +119,19 @@ fun createDiagramMakers(config: DiagramsConfiguration): DiagramMakers {
         loadAvailableGenerators(config)
     )
 }
+
+sealed class CacheState
+
+data class Cached(val imageInfo: ImageInfo) : CacheState() {}
+data class NotMatch(val newChecksum: String) : CacheState() {}
+class Missing() : CacheState() {
+    override fun toString(): String {
+        return "Missing"
+    }
+}
+
+data class DiagramCacheInfo(
+    val imageInfo: ImageInfo,
+    val conversionOptions: Map<String, Any>,
+    val checksum: String,
+    ) : CacheState()

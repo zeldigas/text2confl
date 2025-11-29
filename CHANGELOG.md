@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Genarated diagrams in markdown files are now cached. If content and conversion options are not changed, diagrams will
+  not be regenerated
+
 ### Changed
 
 - New attachments now uploading in small batches to reduce potential timeouts

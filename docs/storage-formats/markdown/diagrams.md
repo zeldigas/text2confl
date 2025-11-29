@@ -43,6 +43,14 @@ markdown:
 | `base-dir` | Base directory to store diagrams. Relative path is resolved from directory with `.text2confl.yml` | `.diagrams`   |
 | `temp-dir` | Use random temporary directory instead of `base-dir`                                              | `false`       |
 
+## Caching
+
+Generated diagrams are cached to avoid sequential regenerations. If diagram script or provided conversion attributes
+are changed, it will be regenerated.
+
+Right now there is no option to force diagrams regeneration, but removing directory with diagrams or particular
+`*.cache` file in `base-dir`.
+
 ## Formats
 
 ### PlantUML
@@ -127,11 +135,12 @@ graph TD;
 </td><td>
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+graph TD
+;
+    A --> B;
+    A --> C;
+    B --> D;
+    C --> D;
 ```
 
 {target=mermaid-sample}

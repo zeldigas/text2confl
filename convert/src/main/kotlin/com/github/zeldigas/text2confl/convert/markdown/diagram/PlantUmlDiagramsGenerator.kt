@@ -15,6 +15,7 @@ class PlantUmlDiagramsGenerator(
         const val DEFAULT_COMMAND = "plantuml"
         val SUPPORTED_LANGS = setOf("plantuml", "puml")
         val SUPPORTED_FORMATS = setOf("svg", "png", "eps")
+        val SUPPORTED_ATTRIBUTES = setOf("theme")
         const val DEFAULT_FORMAT = "png"
         private val log = KotlinLogging.logger { }
     }
@@ -29,12 +30,19 @@ class PlantUmlDiagramsGenerator(
     override val supportedFileFormats: Set<String>
         get() = SUPPORTED_FORMATS
 
-    override fun generate(source: String, target: Path, attributes: Map<String, String>): ImageInfo {
+    override fun conversionOptions(attributes: Map<String, String>): Map<String, String> {
+        return buildMap {
+            put("format", resolveFormat(attributes))
+            putAll(attributes.filterKeys { it in SUPPORTED_ATTRIBUTES })
+        }
+    }
+
+    override fun generate(source: String, target: Path, conversionOptions: Map<String, String>): ImageInfo {
         val executable = cmd(command) {
             flag("-pipe")
-            flag("-t${resolveFormat(attributes)}")
+            flag("-t${conversionOptions["format"]}")
 
-            attributes["theme"]?.let { opt("-theme", it) }
+            conversionOptions["theme"]?.let { opt("-theme", it) }
 
             stdin(source)
             outputFile = target

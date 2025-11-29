@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown.diagram
 
 import com.github.zeldigas.text2confl.convert.markdown.MermaidDiagramsConfiguration
+import com.github.zeldigas.text2confl.convert.markdown.diagram.PlantUmlDiagramsGenerator.Companion.SUPPORTED_ATTRIBUTES
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 
@@ -38,13 +39,22 @@ class MermaidDiagramsGenerator(
 
     override fun supports(lang: String): Boolean = SUPPORTED_LANGUAGES.contains(lang)
 
-    override fun generate(source: String, target: Path, attributes: Map<String, String>): ImageInfo {
+    override fun conversionOptions(attributes: Map<String, String>): Map<String, String> {
+        return buildMap {
+            put("format", resolveFormat(attributes))
+            configFile?.let { put("configFile", it) }
+            cssFile?.let { put("cssFile", it) }
+            effectivePuppeeterConfig()?.let { put("puppeterConfig", it) }
+        }
+    }
+
+    override fun generate(source: String, target: Path, conversionOptions: Map<String, String>): ImageInfo {
         val executable = cmd(command) {
             opt("--output", target.toString())
-            opt("--outputFormat", resolveFormat(attributes))
-            configFile?.let { opt("--configFile", it) }
-            cssFile?.let { opt("--cssFile", it) }
-            effectivePuppeeterConfig()?.let { opt("--puppeteerConfigFile", it) }
+            opt("--outputFormat", conversionOptions.getValue("format"))
+            conversionOptions["configFile"]?.let {opt("--configFile", it) }
+            conversionOptions["cssFile"]?.let {opt("--cssFile", it) }
+            conversionOptions["puppeterConfig"]?.let {opt("--puppeteerConfigFile", it) }
             flag("--quiet")
 
             stdin(source)

@@ -58,8 +58,19 @@ class KrokiDiagramsGenerator(
     override val supportedFileFormats: Set<String>
         get() = SUPPORTED_FORMATS
 
-    override fun generate(source: String, target: Path, attributes: Map<String, String>): ImageInfo {
-        val request = createRequest(source, attributes)
+    override fun conversionOptions(attributes: Map<String, String>): Map<String, String> {
+        return buildMap {
+            put("type", attributes.getValue(DIAGRAM_FORMAT_ATTRIBUTE).let { internalNaming[it] ?: it })
+            put("format", resolveFormat(attributes))
+            putAll(attributes.asSequence()
+                .filter { (k, _) -> k.startsWith("option_") }
+                .map { (k, v) -> k.substringAfter("option_") to v }
+                .toMap())
+        }
+    }
+
+    override fun generate(source: String, target: Path, conversionOptions: Map<String, String>): ImageInfo {
+        val request = createRequest(source, conversionOptions)
         runBlocking {
             val result = client.post(server.toURL()) {
                 contentType(ContentType.Application.Json)
@@ -73,15 +84,12 @@ class KrokiDiagramsGenerator(
         return ImageInfo()
     }
 
-    private fun createRequest(source: String, attributes: Map<String, String>) =
+    private fun createRequest(source: String, conversionOptions: Map<String, String>) =
         KrokiDiagramRequest(
             source = source,
-            type = attributes.getValue(DIAGRAM_FORMAT_ATTRIBUTE).let { internalNaming[it] ?: it },
-            format = resolveFormat(attributes),
-            options = attributes.asSequence()
-                .filter { (k, _) -> k.startsWith("option_") }
-                .map { (k, v) -> k.substringAfter("option_") to v }
-                .toMap()
+            type = conversionOptions.getValue("type"),
+            format = conversionOptions.getValue("format"),
+            options = conversionOptions - listOf("type", "format")
         )
 
     override fun supports(lang: String): Boolean {

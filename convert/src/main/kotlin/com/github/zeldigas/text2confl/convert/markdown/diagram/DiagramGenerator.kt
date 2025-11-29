@@ -1,5 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown.diagram
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import java.nio.file.Path
 
@@ -7,7 +9,9 @@ const val DIAGRAM_FORMAT_ATTRIBUTE = "lang"
 
 interface DiagramGenerator {
 
-    fun generate(source: String, target: Path, attributes: Map<String, String> = emptyMap()): ImageInfo
+    fun conversionOptions(attributes: Map<String, String>): Map<String, String> = attributes
+
+    fun generate(source: String, target: Path, conversionOptions: Map<String, String>): ImageInfo
 
     fun name(baseName: String, attributes: Map<String, String> = emptyMap()): String =
         "$baseName.${resolveFormat(attributes)}"
@@ -31,11 +35,13 @@ fun DiagramGenerator.resolveFormat(attributes: Map<String, String>): String {
     return resultingFormat
 }
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class ImageInfo(
     val height: Int? = null,
     val width: Int? = null,
     val title: String? = null
 ) {
+    @get:JsonIgnore
     val attributes: Map<String, String>
         get() = buildMap {
             height?.let { put("height", "$it") }
