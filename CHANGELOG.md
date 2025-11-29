@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- New attachments now uploading in small batches to reduce potential timeouts
+
 ## 0.21.2 - 2025-11-26
 
 ### Fixed
@@ -16,7 +20,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Dependency updates:
-  - `asciidoctor-diagram` to 3.1.0
+    - `asciidoctor-diagram` to 3.1.0
 
 ## 0.21.1 - 2025-11-25
 
@@ -34,14 +38,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   attribute under the table (percent sign is optional).
 - \[Asciidoc] Support for text alignment with `[.text-left]`, `[.text-center]` and `[.text-right]` classes.
 - \[Asciidoc] Support for the following table features:
-  - Table cell background colors (same as in Markdown)
-  - Column/column text alignment (both vertical and horizontal)
-  - Table width specification in percent
-  - Column widths
+    - Table cell background colors (same as in Markdown)
+    - Column/column text alignment (both vertical and horizontal)
+    - Table width specification in percent
+    - Column widths
 
 ### Changed
 
-- Improved error handling and reporting for Confluence API requests. Now details include request method, url and headers for all kind of confluence errors.
+- Improved error handling and reporting for Confluence API requests. Now details include request method, url and headers
+  for all kind of confluence errors.
 - Improved error details for converison failures - now reason is included in printed error
 
 ### Fixed
@@ -69,8 +74,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   old approach (only legacy api), pass `--no-confluence-cloud` flag. This flag is supported for `export-to-md` and
   `upload` commands
 - Support for rate limiting http requests (#209). Rate limiting is supported in two ways:
-  - You can specify rps rate for sending requests
-  - Client also honors `Retry-After` header when it receives response with 429 or 503 status 
+    - You can specify rps rate for sending requests
+    - Client also honors `Retry-After` header when it receives response with 429 or 503 status
 
 ### Changed
 

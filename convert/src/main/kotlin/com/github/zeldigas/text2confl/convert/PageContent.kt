@@ -11,6 +11,7 @@ import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamException
 import javax.xml.stream.events.StartElement
 import javax.xml.stream.events.XMLEvent
+import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 
 
@@ -85,6 +86,9 @@ data class Attachment(
         }
         toBase64(md.digest())
     }
+
+    val fileSize
+        get() = resourceLocation.fileSize()
 }
 
 data class PageContent(

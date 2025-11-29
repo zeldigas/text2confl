@@ -104,7 +104,7 @@ internal class DryRunClientTest(
             dryRunClient.updateAttachment(
                 "123",
                 "111",
-                PageAttachmentInput("test", Path("test.txt"), "comment", "text/plain")
+                PageAttachmentInput("test", Path("test.txt"), 10L,"comment", "text/plain")
             )
         }
         assertThat(result).isEqualTo(Attachment("111", "test", emptyMap()))
@@ -114,7 +114,7 @@ internal class DryRunClientTest(
             dryRunClient.addAttachments(
                 "123",
                 listOf(
-                    PageAttachmentInput("test", Path("test.txt"), "comment", "text/plain")
+                    PageAttachmentInput("test", Path("test.txt"), 10L,"comment", "text/plain")
                 )
             )
         }

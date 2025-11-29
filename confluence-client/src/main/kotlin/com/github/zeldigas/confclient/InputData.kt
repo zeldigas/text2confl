@@ -25,6 +25,7 @@ data class PageUpdateOptions(val notifyWatchers: Boolean = true, val message: St
 data class PageAttachmentInput(
     val name: String,
     val content: Path,
+    val fileSize: Long,
     val comment: String?,
     val contentType: String? = null
 )

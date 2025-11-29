@@ -23,6 +23,7 @@ internal class PageUploadOperationsImpl(
 ) : PageUploadOperations {
 
     companion object {
+        private const val MB: Long = 1024 * 1024
         private val logger = KotlinLogging.logger { }
     }
 
@@ -275,12 +276,12 @@ internal class PageUploadOperationsImpl(
         if (serverPage.attachments.isEmpty() && content.attachments.isEmpty()) return AttachmentsUpdateResult.NotChanged
 
         val serverAttachments =
-            serverPage.attachments.map {
+            serverPage.attachments.associate {
                 it.title to ServerAttachment(
                     it,
                     it.metadata.attachmentHash
                 )
-            }.toMap()
+            }
         val new = content.attachments.filter { it.attachmentName !in serverAttachments }
         val reUpload =
             content.attachments.filter { it.attachmentName in serverAttachments && serverAttachments[it.attachmentName]?.hash != it.hash }
@@ -288,14 +289,11 @@ internal class PageUploadOperationsImpl(
             serverAttachments.filter { (name, _) -> content.attachments.none { it.attachmentName == name } }
 
         logger.info { "To upload: $new, to reupload=$reUpload, toDrop: $extraAttachments" }
-
-        coroutineScope {
-            if (new.isNotEmpty()) {
-                launch {
-                    client.addAttachments(
-                        serverPage.id,
-                        new.map { it.toAttachmentInput() })
-                }
+        if (new.isNotEmpty()) {
+            groupInBatches(new).forEach { batch ->
+                client.addAttachments(
+                    serverPage.id,
+                    batch.map { it.toAttachmentInput() })
             }
         }
         reUpload.forEach {
@@ -310,6 +308,25 @@ internal class PageUploadOperationsImpl(
             AttachmentsUpdateResult.NotChanged
         } else {
             AttachmentsUpdateResult.Updated(new, reUpload, extraAttachments.values.map { it.attachment })
+        }
+    }
+
+    private fun groupInBatches(attachments: List<com.github.zeldigas.text2confl.convert.Attachment>,
+                               maxItems:Int = 5, maxSizeInBatch: Long = 2 * MB):
+            Sequence<List<com.github.zeldigas.text2confl.convert.Attachment>> = sequence {
+        var batch = mutableListOf<com.github.zeldigas.text2confl.convert.Attachment>()
+        var batchContentSize = 0L
+        attachments.forEach { attachment ->
+            batch.add(attachment)
+            batchContentSize += attachment.fileSize
+            if (batch.size >= maxItems || batchContentSize >= maxSizeInBatch) {
+                yield(batch)
+                batch = mutableListOf()
+                batchContentSize = 0
+            }
+        }
+        if (batch.isNotEmpty()) {
+            yield(batch)
         }
     }
 
@@ -356,7 +373,7 @@ private val Map<String, Any?>.attachmentHash: String?
     }
 
 private fun com.github.zeldigas.text2confl.convert.Attachment.toAttachmentInput(): PageAttachmentInput =
-    PageAttachmentInput(attachmentName, resourceLocation, "HASH:${hash}", resolveContentType(resourceLocation))
+    PageAttachmentInput(attachmentName, resourceLocation, fileSize, "HASH:${hash}", resolveContentType(resourceLocation))
 
 private fun resolveContentType(file: Path): String? = CONTENT_TYPES[file.extension.lowercase().trim()]
 

@@ -534,12 +534,13 @@ internal class PageUploadOperationsImplTest(
         coEvery { client.updateAttachment(any(), any(), any()) } returns mockk()
         coEvery { client.addAttachments(any(), any()) } returns mockk()
 
+        val largeSize = 2L * (1024 * 1024) + 1L
         val localAttachments = listOf(
-            pageAttachment("one", "aaa", "test.txt"),
-            pageAttachment("two", "1234", "test.jpg"),
-            pageAttachment("three", "456", "test.docx"),
-            pageAttachment("five", "ccc", "test.png"),
-            pageAttachment("six", "ddd", "test.unknown")
+            pageAttachment("one", "aaa", "test.txt", 10L),
+            pageAttachment("two", "1234", "test.jpg", 512311L),
+            pageAttachment("three", "456", "test.docx", 1000L),
+            pageAttachment("five", "ccc", "test.png", largeSize),
+            pageAttachment("six", "ddd", "test.unknown", 10L)
         )
         val serverAttachments = listOf(
             serverAttachment("one", "unrelated"),
@@ -569,37 +570,43 @@ internal class PageUploadOperationsImplTest(
             )
         )
 
-        coVerifyAll {
-            client.deleteAttachment("id_four")
+        coVerifySequence {
+            client.addAttachments(
+                PAGE_ID, listOf(
+                    PageAttachmentInput("five", Path("test.png"),largeSize, "HASH:ccc", "image/png"),
+                )
+            )
+            client.addAttachments(
+                PAGE_ID, listOf(
+                    PageAttachmentInput("six", Path("test.unknown"), 10L, "HASH:ddd", null)
+                )
+            )
             client.updateAttachment(
                 PAGE_ID,
                 "id_one",
-                PageAttachmentInput("one", Path("test.txt"), "HASH:aaa", "text/plain")
+                PageAttachmentInput("one", Path("test.txt"), 10L, "HASH:aaa", "text/plain")
             )
             client.updateAttachment(
                 PAGE_ID,
                 "id_two",
-                PageAttachmentInput("two", Path("test.jpg"), "HASH:1234", "image/jpeg")
+                PageAttachmentInput("two", Path("test.jpg"), 512311L, "HASH:1234", "image/jpeg")
             )
-            client.addAttachments(
-                PAGE_ID, listOf(
-                    PageAttachmentInput("five", Path("test.png"), "HASH:ccc", "image/png"),
-                    PageAttachmentInput("six", Path("test.unknown"), "HASH:ddd", null)
-                )
-            )
+            client.deleteAttachment("id_four")
         }
     }
 
     private fun pageAttachment(
         name: String,
         attachmentHash: String,
-        fileName: String
+        fileName: String,
+        size:Long
     ): com.github.zeldigas.text2confl.convert.Attachment {
         return mockk {
             every { attachmentName } returns name
             every { linkName } returns name
             every { hash } returns attachmentHash
             every { resourceLocation } returns Path(fileName)
+            every { fileSize } returns size
         }
     }
 

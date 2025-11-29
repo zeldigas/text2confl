@@ -352,7 +352,7 @@ class ConfluenceClientImpl(
         append("comment", attachment.comment ?: "")
         append(
             "file",
-            InputProvider(attachment.content.fileSize()) { attachment.content.toFile().inputStream().asInput() },
+            InputProvider(attachment.fileSize) { attachment.content.toFile().inputStream().asInput() },
             Headers.build {
                 attachment.contentType?.let { append(HttpHeaders.ContentType, it) }
                 append(HttpHeaders.ContentDisposition, "filename=${attachment.name}")
