@@ -12,7 +12,7 @@
     <artifactId>convert</artifactId>
 
     <properties>
-        <flexmark.version>0.64.4</flexmark.version>
+        <flexmark.version>0.64.8</flexmark.version>
         <asciidoctorj.version>3.0.1</asciidoctorj.version>
         <asciidoctorj-diagram.version>3.1.0</asciidoctorj-diagram.version>
     </properties>
