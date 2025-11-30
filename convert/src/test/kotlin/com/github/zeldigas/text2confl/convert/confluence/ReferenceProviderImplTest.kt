@@ -10,6 +10,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolute
+import kotlin.io.path.div
+import kotlin.text.ifEmpty
 
 internal class ReferenceProviderImplTest {
 
@@ -57,6 +60,22 @@ internal class ReferenceProviderImplTest {
         val result = providerImpl.resolveReference(Path(document), linkPath)
 
         assertThat(result).isEqualTo(expectedTitle?.ifEmpty { null }?.let { Xref(it, null) })
+    }
+
+    @Test
+    fun `Absolute url to docs`() {
+        val basePath = Path("docs").absolute()
+        val provider = ReferenceProviderImpl(
+            basePath, mapOf(
+                doc("${basePath}/one.md", "Title One"),
+                doc("${basePath}/two.md", "Title Two"),
+                doc("${basePath}/sub/one.md", "Sub Title One"),
+            )
+        )
+
+        val result = provider.resolveReference(basePath / "sub" / "doc.md", "../sub/one.md")
+
+        assertThat(result).isEqualTo(Xref("Sub Title One", null))
     }
 
     @Test

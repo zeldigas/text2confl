@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.22.1 - 2025-11-30
+
+### Fixed
+
+- Cross-references resolution when docs dir is passed as absolute path. This problem was introduced in version 0.21.0
+
 ## 0.22.0 - 2025-11-29
 
 ### Added

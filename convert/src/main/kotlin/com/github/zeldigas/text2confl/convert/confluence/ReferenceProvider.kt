@@ -61,7 +61,15 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
         val anchor = parts.getOrNull(1)
 
         val resolvedReference = source.resolveSibling(ref)
-        val targetPath = if (resolvedReference.isAbsolute) resolvedReference else resolvedReference.relativeTo(basePath)
+        val targetPath = try {
+            resolvedReference.relativeTo(basePath)
+        } catch (e: IllegalArgumentException) {
+            if (resolvedReference.isAbsolute) {
+                resolvedReference
+            } else {
+                throw IllegalStateException("failed to resolve $resolvedReference relative to $basePath", e)
+            }
+        }
 
         val document = normalizedDocs[targetPath.normalize()]?.title ?: return null
         return Xref(document, anchor)
