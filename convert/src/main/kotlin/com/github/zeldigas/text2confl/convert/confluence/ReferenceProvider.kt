@@ -4,6 +4,8 @@ import com.github.zeldigas.text2confl.convert.PageHeader
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.net.URLDecoder
 import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.relativeTo
 
 interface ReferenceProvider {
@@ -60,7 +62,7 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
         val ref = parts[0]
         val anchor = parts.getOrNull(1)
 
-        val resolvedReference = source.resolveSibling(ref)
+        val resolvedReference = resolveRefToSource(source, ref)
         val targetPath = try {
             resolvedReference.relativeTo(basePath)
         } catch (e: IllegalArgumentException) {
@@ -73,6 +75,17 @@ class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, Pag
 
         val document = normalizedDocs[targetPath.normalize()]?.title ?: return null
         return Xref(document, anchor)
+    }
+
+    private fun resolveRefToSource(source: Path, ref: String): Path {
+        val refPath = Path(ref)
+        return if (refPath.isAbsolute) {
+            source.resolveSibling(
+                refPath.normalize().relativeTo(source.parent.normalize().absolute())
+            )
+        } else {
+            source.resolveSibling(ref)
+        }
     }
 
     override fun pathFromDocsRoot(source: Path): Path {

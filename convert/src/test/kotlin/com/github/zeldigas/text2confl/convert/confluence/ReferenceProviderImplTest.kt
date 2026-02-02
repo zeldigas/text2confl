@@ -12,7 +12,6 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.div
-import kotlin.text.ifEmpty
 
 internal class ReferenceProviderImplTest {
 
@@ -103,9 +102,18 @@ internal class ReferenceProviderImplTest {
         ]
     )
     @ParameterizedTest
-    fun `Links of varios kinds are filtered out`(link:String) {
+    fun `Links of varios kinds are filtered out`(link: String) {
         val result = providerImpl.resolveReference(Path("docs/one.md"), link)
 
         assertThat(result).isNull()
+    }
+
+    @Test
+    fun `Resolution of absolute-format path for relative one`() {
+        val ref = (Path("docs").absolute() / "sub" / ".." / "one.md").toString()
+
+        val result = providerImpl.resolveReference(Path("docs/sub/sub-doc.md"), ref)
+
+        assertThat(result).isEqualTo(Xref("Title One", null))
     }
 }

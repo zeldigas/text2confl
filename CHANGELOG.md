@@ -7,6 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.22.2 - 2026-02-02
+
+### Fixed
+
+- Cross-references resolution when ref-link is absolute (#295)
+
+### Changed
+
+- Dependency updates:
+  - PlantUML to 1.2026.1
+
 ## 0.22.1 - 2025-11-30
 
 ### Fixed
@@ -60,7 +71,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Improved error handling and reporting for Confluence API requests. Now details include request method, url and headers
   for all kind of confluence errors.
-- Improved error details for converison failures - now reason is included in printed error
+- Improved error details for conversion failures - now reason is included in printed error
 
 ### Fixed
 
