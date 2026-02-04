@@ -47,6 +47,37 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
         )
     }
 
+    @Test
+    internal fun `Github style admonitions without new line`(){
+        val result = toHtml(
+            """
+            > Regular block
+            > quote
+                
+            > [!TIP]
+            > Test block **with** formatting
+            > 1. and
+            > 2. lists 
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <blockquote>
+              <p>Regular block quote</p>
+            </blockquote>
+            <ac:structured-macro ac:name="tip"><ac:rich-text-body>
+            <p>Test block <strong>with</strong> formatting</p>
+            <ol>
+              <li>and</li>
+              <li>lists</li>
+            </ol>
+            </ac:rich-text-body></ac:structured-macro>
+        """.trimIndent()
+        )
+    }
+
+
     @ValueSource(strings = ["tip", "note", "warning", "info", "expand"])
     @ParameterizedTest
     internal fun `Confluence supported admonitions`(type: String) {

@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.23.1 - 2026-02-05
+
+### Fixed
+
+- \[Markdown] GitHub-style admonitions does not require new line anymore between marker and text (#270)
+
 ## 0.23.0 - 2026-02-04
 
 ### Added

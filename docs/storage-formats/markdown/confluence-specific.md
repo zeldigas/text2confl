@@ -8,14 +8,22 @@ labels: supported-format,markdown
 
 ## Admonitions
 
-Admonitions are supported via [custom extension](https://github.com/vsch/flexmark-java/wiki/Admonition-Extension) format
-and rendered as information panels as they called in Confluence Cloud or _note_, _warning_, _info_, _tip_ blocks in
-Server edition. Note that expand functionality (block that starts with `???`) is not supported because Confluence can't
-configure expand for these macros (and wrapping them into separate expand section seems too much).
+Admonitions are supported via two formats:
+
+1. [Custom extension](https://github.com/vsch/flexmark-java/wiki/Admonition-Extension) format
+2. [Github-style admonitions](https://docs.github.com/es/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts)
+   format
+
+Both formats are rendered as information panels as they called in Confluence Cloud or _note_, _warning_, _info_, _tip_
+blocks in Server edition.
+
+> [!NOTE]
+> Note that expand functionality (block that starts with `???`) is not supported because Confluence can't
+> configure expand for these macros (and wrapping them into separate expand section seems too much)
 
 <table>
 <thead>
-<tr><th>Markdown</th><th>Confluence</th></tr>
+<tr><th>Markdown expand format</th><th>Confluence</th></tr>
 </thead>
 <tbody><tr>
 <td>
@@ -83,6 +91,73 @@ configure expand for these macros (and wrapping them into separate expand sectio
 !!! info
 
     Information message
+
+</td>
+</tr>
+</tbody></table>
+
+<table>
+<thead>
+<tr><th>Markdown GitHub format</th><th>Confluence</th></tr>
+</thead>
+<tbody><tr>
+<td>
+
+```markdown
+> [!NOTE]
+> A note to yourself
+```
+
+</td><td>
+
+> [!NOTE]
+> A note to yourself
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+> [!TIP]
+> Some tips and tricks with `rich` ~formatting~
+```
+
+</td><td>
+
+> [!TIP]
+> Some tips and tricks with `rich` ~formatting~
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+> [!CAUTION]
+> Description of pitfalls that your user
+> 
+> Should know about
+```
+
+</td><td>
+
+> [!CAUTION]
+> Description of pitfalls that your user
+>
+> Should know about
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+> [!IMPORTANT]
+> Information message
+```
+
+</td><td>
+
+> [!IMPORTANT]
+> Information message
 
 </td>
 </tr>
@@ -202,8 +277,8 @@ Arbitrary markdown here
 </tr>
 </tbody></table>
 
-This syntax format is great for large chunks of content that you want to put inside expand block, as it does not add "
-code-like" indentation allowing you to get benefits from your text editor highlight.
+This syntax format is great for large chunks of content that you want to put inside expand block, as it does not add 
+"code-like" indentation allowing you to get benefits from your text editor highlight.
 
 **Important:** Only single-level expand is supported right now with this format, so you can't nest expand inside expand.
 

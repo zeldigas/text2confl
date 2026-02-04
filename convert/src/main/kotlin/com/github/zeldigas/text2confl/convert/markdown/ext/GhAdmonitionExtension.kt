@@ -1,6 +1,7 @@
 package com.github.zeldigas.text2confl.convert.markdown.ext
 
 import com.vladsch.flexmark.ast.BlockQuote
+import com.vladsch.flexmark.ast.LinkRef
 import com.vladsch.flexmark.ast.Paragraph
 import com.vladsch.flexmark.ext.admonition.AdmonitionBlock
 import com.vladsch.flexmark.parser.Parser
@@ -11,7 +12,6 @@ import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.ast.NodeTracker
 import com.vladsch.flexmark.util.data.MutableDataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
-import java.util.regex.Pattern
 
 class GitHubAdmonitionExtension : Parser.ParserExtension {
     override fun parserOptions(options: MutableDataHolder?) {
@@ -36,19 +36,28 @@ internal class GhAdmonitionParser internal constructor(document: Document) : Nod
     override fun process(state: NodeTracker, node: Node) {
         if (node !is BlockQuote) return
 
-        val first = node.firstChild
+        val firstParagraph = node.firstChild as? Paragraph ?: return
 
-        if (first !is Paragraph) return
+        val admonitionRef = firstParagraph.firstChild as? LinkRef ?: return
 
-        val matcher = ADMONITION_START.matcher(first.contentChars.trim())
+        if (admonitionRef.text.isNotEmpty) return
 
-        if (!matcher.matches()) return
+        val matcher = ADMONITION_REF.matchEntire(admonitionRef.reference) ?: return
 
-        val admonitionType = mapGitHubTypeToAdmonitionType(matcher.group(1))
+        val admonitionType = mapGitHubTypeToAdmonitionType(matcher.groups[1]!!.value)
 
         val admonition = AdmonitionBlock()
         admonition.info = BasedSequence.of(admonitionType)
-        node.children.drop(1).forEach {
+
+        admonitionRef.unlink()
+
+        firstParagraph.children.takeWhile { it.chars.isBlank }.forEach { it.unlink() }
+
+        if (!firstParagraph.hasChildren()) {
+            firstParagraph.unlink()
+        }
+
+        node.children.forEach {
             admonition.appendChild(it)
         }
         node.replaceWith(admonition, state)
@@ -64,7 +73,6 @@ internal class GhAdmonitionParser internal constructor(document: Document) : Nod
 
 
     companion object {
-        private val ADMONITION_START: Pattern =
-            Pattern.compile("^\\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)]\\s*$")
+        private val ADMONITION_REF = "!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)".toRegex()
     }
 }
