@@ -36,6 +36,7 @@ internal class ListItemsNormalizer(document: Document) : NodePostProcessor() {
     override fun process(state: NodeTracker, node: Node) {
         if (editorVersion != EditorVersion.V2 || node !is ListItem) return
         if (!node.hasOrMoreChildren(2)) return
+        // force set all list items to loose for editor version v2 with more than 2 children
         node.isTight = false
     }
 }

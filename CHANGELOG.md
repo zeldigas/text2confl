@@ -11,6 +11,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - \[Markdown] support for GitHub-style admonitions (#270)
 
+### Fixed
+
+- \[Markdown] fixed extra line in complex lists (#298)
+
 ## 0.22.3 - 2026-02-02
 
 ### Fixed
