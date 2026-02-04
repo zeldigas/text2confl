@@ -3,12 +3,10 @@ package com.github.zeldigas.text2confl.convert.markdown
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
 import com.github.zeldigas.text2confl.convert.ConvertingContext
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramMakers
 import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramsExtension
-import com.github.zeldigas.text2confl.convert.markdown.ext.GitHubAdmonitionExtension
-import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAdmonitionExtension
-import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAttributesExtension
-import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleMacroExtension
+import com.github.zeldigas.text2confl.convert.markdown.ext.*
 import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.emoji.EmojiExtension
@@ -70,7 +68,8 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
                     DiagramsExtension(),
                     ConfluenceFormatExtension(),
                     DetailsExtension(),
-                    GitHubAdmonitionExtension()
+                    GitHubAdmonitionExtension(),
+                    ListItemsNormalizerExtension()
                 ) + extraExtensions(parserConfig, config)
             )
         }
@@ -125,7 +124,11 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
             parserOptions.toMutable()
                 .set(ATTACHMENTS_REGISTRY, attachmentsRegistry)
                 .set(CONTEXT, context)
-                .set(DOCUMENT_LOCATION, location)
+                .set(DOCUMENT_LOCATION, location).apply {
+                    if (context.conversionParameters.editorVersion == EditorVersion.V2) {
+                        set(Parser.LISTS_AUTO_LOOSE, false)
+                    }
+                }
         ).build()
     }
 
