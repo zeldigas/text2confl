@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- \[Markdown] support for GitHub-style admonitions (#270)
+
 ## 0.22.3 - 2026-02-02
 
 ### Fixed

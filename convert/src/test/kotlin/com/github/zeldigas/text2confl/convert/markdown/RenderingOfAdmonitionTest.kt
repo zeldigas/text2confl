@@ -3,9 +3,49 @@ package com.github.zeldigas.text2confl.convert.markdown
 import assertk.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
 internal class RenderingOfAdmonitionTest : RenderingTestBase() {
+
+    @CsvSource(
+        value = ["CAUTION,warning",
+                "TIP,tip",
+                "IMPORTANT,info",
+                "WARNING,warning",
+                "NOTE,note",
+                ],
+    )
+    @ParameterizedTest
+    internal fun `Github style admonitions`(ghType: String, parsedType: String){
+        val result = toHtml(
+            """
+            > Regular block
+            > quote
+                
+            > [!$ghType]
+            > 
+            > Test block **with** formatting
+            > 1. and
+            > 2. lists 
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <blockquote>
+              <p>Regular block quote</p>
+            </blockquote>
+            <ac:structured-macro ac:name="$parsedType"><ac:rich-text-body>
+            <p>Test block <strong>with</strong> formatting</p>
+            <ol>
+              <li>and</li>
+              <li>lists</li>
+            </ol>
+            </ac:rich-text-body></ac:structured-macro>
+        """.trimIndent()
+        )
+    }
 
     @ValueSource(strings = ["tip", "note", "warning", "info", "expand"])
     @ParameterizedTest

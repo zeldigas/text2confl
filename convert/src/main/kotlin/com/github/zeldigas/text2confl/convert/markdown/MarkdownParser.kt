@@ -5,6 +5,7 @@ import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
 import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramMakers
 import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramsExtension
+import com.github.zeldigas.text2confl.convert.markdown.ext.GitHubAdmonitionExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAdmonitionExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleAttributesExtension
 import com.github.zeldigas.text2confl.convert.markdown.ext.SimpleMacroExtension
@@ -68,7 +69,8 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
                     SimpleMacroExtension(),
                     DiagramsExtension(),
                     ConfluenceFormatExtension(),
-                    DetailsExtension()
+                    DetailsExtension(),
+                    GitHubAdmonitionExtension()
                 ) + extraExtensions(parserConfig, config)
             )
         }
