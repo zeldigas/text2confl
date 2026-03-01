@@ -197,4 +197,30 @@ internal class UniversalConverterTest(
             }
         }
     }
+
+    @Test
+    fun `Autofix of invalid content`(@TempDir dir: Path) {
+        val src = dir.resolve("test.t")
+        Files.createFile(src)
+        val convertedContent = PageContent(
+            PageHeader("test", emptyMap()),
+            "<p>This is a <code><strong></code> weird <code></strong></code> bold thing.</p>\n <br>",
+            emptyList()
+        )
+        every { fileConverter.convert(src, any()) } returns convertedContent
+        val autoFixingConverter = UniversalConverter(
+            "TEST", conversionParameters.copy(autoFixContentTags = true), mapOf(
+                "t" to fileConverter
+            ), FileNameBasedDetector
+        )
+        val result = autoFixingConverter.convertFile(src)
+
+        assertThat(result).isEqualTo(
+            Page(
+                convertedContent.copy(
+                    body = "<p>This is a <code><strong></strong></code><strong> weird <code></code></strong> bold thing.</p>\n <br />"
+                ), src, emptyList()
+            )
+        )
+    }
 }

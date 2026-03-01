@@ -45,6 +45,7 @@ class ServiceProviderImpl : ServiceProvider {
                 editorVersion = config.editorVersion,
                 codeBlocksInExpand = config.codeBlockParams.collapseWithExpand
                     ?: (config.editorVersion == EditorVersion.V2),
+                autoFixContentTags = config.autoFixContentTags
             )
         )
     }

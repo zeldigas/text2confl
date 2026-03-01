@@ -63,6 +63,7 @@ class Upload : CliktCommand(name = "upload"),
     private val dryRun: Boolean by option("--dry", help = "Enables dry run simulation of documents upload")
         .flag("--no-dry")
     override val editorVersion: EditorVersion? by editorVersion()
+    override val autoFixContent: Boolean? by autoFixContentFlag()
     private val docs: File by docsLocation()
 
     private val serviceProvider: ServiceProvider by requireObject()
@@ -82,7 +83,12 @@ class Upload : CliktCommand(name = "upload"),
         val directoryStoredParams = readDirectoryConfig(docs.toPath())
         val uploadConfig = createUploadConfig(directoryStoredParams)
         val clientConfig = createClientConfig(directoryStoredParams)
-        val conversionConfig = createConversionConfig(directoryStoredParams, editorVersion, clientConfig.server)
+        val conversionConfig = createConversionConfig(
+            directoryStoredParams,
+            editorVersion,
+            clientConfig.server,
+            autoFixContent
+        )
         val converter = serviceProvider.createConverter(uploadConfig.space, conversionConfig)
         val pagesToPublish = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))

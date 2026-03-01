@@ -17,7 +17,7 @@ internal class ConverterConfigTest {
         assertThat(
             ConverterConfig(
                 "Pre ", " - Post", EditorVersion.V1, null, null, null,
-                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
+                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration(), autoFixContentTags = false
             ).titleConverter(Path(""), "test")
         )
             .isEqualTo("Pre test - Post")
@@ -28,7 +28,7 @@ internal class ConverterConfigTest {
         assertThat(
             ConverterConfig(
                 "", "", EditorVersion.V1, null, null, null,
-                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
+                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration(), autoFixContentTags = false
             ).languageMapper.supportedLanguages
         )
             .isEqualTo(CONFLUENCE_SERVER_LANGUAGES)
@@ -39,7 +39,7 @@ internal class ConverterConfigTest {
         assertThat(
             ConverterConfig(
                 "", "", EditorVersion.V2, null, null, null,
-                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
+                CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration(), autoFixContentTags = false
             ).languageMapper.supportedLanguages
         )
             .isEqualTo(CONFLUENCE_CLOUD_LANGUAGES)

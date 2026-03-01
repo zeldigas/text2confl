@@ -35,6 +35,7 @@ class Convert : CliktCommand(name = "convert"),
     private val validate by option("--validate").flag("--no-validate", default = true)
         .help("Perform validation of converted files for correctness")
     override val editorVersion: EditorVersion? by editorVersion()
+    override val autoFixContent: Boolean? by autoFixContentFlag()
 
     private val serviceProvider: ServiceProvider by requireObject()
 
@@ -43,7 +44,12 @@ class Convert : CliktCommand(name = "convert"),
     override fun run() {
         val directoryConfig = readDirectoryConfig(docs.toPath())
         val conversionConfig =
-            createConversionConfig(directoryConfig, editorVersion, directoryConfig.server?.let { Url(it) })
+            createConversionConfig(
+                directoryConfig,
+                editorVersion,
+                directoryConfig.server?.let { Url(it) },
+                autoFixContent
+            )
         val space = spaceKey ?: directoryConfig.space ?: "AAA"
         val converter = serviceProvider.createConverter(space, conversionConfig)
         try {

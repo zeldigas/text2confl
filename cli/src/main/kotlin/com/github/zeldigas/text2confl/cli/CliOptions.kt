@@ -46,6 +46,8 @@ fun ParameterHolder.editorVersion() = option(
     help = "Version of editor and page renderer on server. Autodected if not specified"
 ).enum<EditorVersion> { it.name.lowercase() }
 
+fun ParameterHolder.autoFixContentFlag() = option("--auto-fix-content", help = "Auto-fix content").optionalFlag()
+
 fun ParameterHolder.confluenceSpace() = option(
     "--space", envvar = "CONFLUENCE_SPACE",
     help = "Destination Confluence space"
@@ -128,4 +130,5 @@ internal interface WithConfluenceServerOptions {
 internal interface WithConversionOptions {
     val spaceKey: String?
     val editorVersion: EditorVersion?
+    val autoFixContent: Boolean?
 }

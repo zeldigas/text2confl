@@ -44,7 +44,8 @@ internal class ServiceProviderImplTest {
                 "root/", null,
                 CodeBlockParams(),
                 MarkdownConfiguration(),
-                AsciidoctorConfiguration()
+                AsciidoctorConfiguration(),
+                autoFixContentTags = false
             ),
             uploadOperationTracker
         )
@@ -98,7 +99,8 @@ internal class ServiceProviderImplTest {
                 "TEST", ConverterConfig(
                     "pre", "post", EditorVersion.V1,
                     null, "http://example.org/", "custom text",
-                    CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
+                    CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration(),
+                    autoFixContentTags = false
                 )
             )
 
