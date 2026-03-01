@@ -136,13 +136,6 @@ class Upload : CliktCommand(name = "upload"),
         return httpClientConfig(server, configuration.client, configuration.confluenceCloud)
     }
 
-    private fun passwordAuth(username: String, password: String?): PasswordAuth {
-        val effectivePassword = password
-            ?: promptForSecret("Enter password: ", requireConfirmation = true)
-            ?: throw PrintMessage("Password can't be null")
-        return PasswordAuth(username, effectivePassword)
-    }
-
     override fun askForSecret(prompt: String, requireConfirmation: Boolean): String? =
         promptForSecret(prompt, requireConfirmation = requireConfirmation)
 

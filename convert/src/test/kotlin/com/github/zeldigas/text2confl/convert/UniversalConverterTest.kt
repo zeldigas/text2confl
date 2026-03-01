@@ -4,6 +4,7 @@ import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.*
+import assertk.assertions.isSameInstanceAs
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidocFileConverter
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
@@ -187,7 +188,7 @@ internal class UniversalConverterTest(
             val result = universalConverter("TEST", conversionParameters)
 
             assertThat(result).isInstanceOf(UniversalConverter::class).all {
-                prop(UniversalConverter::conversionParameters).isSameAs(conversionParameters)
+                prop(UniversalConverter::conversionParameters).isSameInstanceAs(conversionParameters)
                 prop(UniversalConverter::space).isEqualTo("TEST")
                 prop(UniversalConverter::converters).all {
                     hasSize(2)
