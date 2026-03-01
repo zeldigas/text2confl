@@ -11,6 +11,8 @@ import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.relativeTo
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
 interface Converter {
 
@@ -43,6 +45,7 @@ data class ConversionParameters(
     val asciidoctorConfiguration: AsciidoctorConfiguration = AsciidoctorConfiguration(),
     val editorVersion: EditorVersion,
     val codeBlocksInExpand: Boolean = false,
+    val autoFixContentTags: Boolean = false
 )
 
 fun universalConverter(
@@ -131,11 +134,27 @@ internal class UniversalConverter(
 
     private fun performConversion(file: Path, context: ConvertingContext): PageContent {
         val convert = converterFor(file)
-        return try {
+        val content = try {
             convert.convert(file, context)
         } catch(e: Exception) {
             throw ConversionException("Failed to convert $file: ${e.message}", e)
         }
+        return if (conversionParameters.autoFixContentTags) {
+            val validation = content.validate()
+            if (validation is Validation.Invalid) {
+                content.copy(body = fixContent(content))
+            } else {
+                content
+            }
+        } else {
+            content
+        }
+    }
+
+    private fun fixContent(content: PageContent): String {
+        return Jsoup.parseBodyFragment(content.body).apply {
+            outputSettings().prettyPrint(false).syntax(Document.OutputSettings.Syntax.xml)
+        }.body().html()
     }
 
     private fun File.supported() = isFile && !name.startsWith("_") && extension.lowercase() in converters

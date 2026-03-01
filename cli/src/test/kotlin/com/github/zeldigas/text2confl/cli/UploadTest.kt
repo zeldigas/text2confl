@@ -100,7 +100,8 @@ internal class UploadTest(
         val expectedConverterConfig = ConverterConfig(
             "", "", EditorVersion.V2, null, null, null,
             CodeBlockParams(), MarkdownConfiguration(diagrams = DiagramsConfiguration(tempDir / ".diagrams")),
-            AsciidoctorConfiguration(libsToLoad = listOf("asciidoctor-diagram"), workdir = tempDir / ".asciidoc")
+            AsciidoctorConfiguration(libsToLoad = listOf("asciidoctor-diagram"), workdir = tempDir / ".asciidoc"),
+            autoFixContentTags = false
         )
         verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
         verify {
@@ -136,7 +137,8 @@ internal class UploadTest(
                 "--message", "custom upload message",
                 "--docs", tempDir.toString(),
                 "--dry",
-                "--no-confluence-cloud"
+                "--no-confluence-cloud",
+                "--auto-fix-content",
             )
         )
 
@@ -156,7 +158,8 @@ internal class UploadTest(
             "http://example.com/", null,
             directoryConfig.codeBlocks,
             directoryConfig.markdown.toConfig(directoryConfig.docsDir),
-            directoryConfig.asciidoc.toConfig(directoryConfig.docsDir)
+            directoryConfig.asciidoc.toConfig(directoryConfig.docsDir),
+            autoFixContentTags = true
         )
         verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
         verify {

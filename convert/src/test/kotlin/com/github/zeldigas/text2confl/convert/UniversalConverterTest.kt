@@ -4,6 +4,7 @@ import assertk.all
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.*
+import assertk.assertions.isSameInstanceAs
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidocFileConverter
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
@@ -187,7 +188,7 @@ internal class UniversalConverterTest(
             val result = universalConverter("TEST", conversionParameters)
 
             assertThat(result).isInstanceOf(UniversalConverter::class).all {
-                prop(UniversalConverter::conversionParameters).isSameAs(conversionParameters)
+                prop(UniversalConverter::conversionParameters).isSameInstanceAs(conversionParameters)
                 prop(UniversalConverter::space).isEqualTo("TEST")
                 prop(UniversalConverter::converters).all {
                     hasSize(2)
@@ -196,5 +197,31 @@ internal class UniversalConverterTest(
                 }
             }
         }
+    }
+
+    @Test
+    fun `Autofix of invalid content`(@TempDir dir: Path) {
+        val src = dir.resolve("test.t")
+        Files.createFile(src)
+        val convertedContent = PageContent(
+            PageHeader("test", emptyMap()),
+            "<p>This is a <code><strong></code> weird <code></strong></code> bold thing.</p>\n <br>",
+            emptyList()
+        )
+        every { fileConverter.convert(src, any()) } returns convertedContent
+        val autoFixingConverter = UniversalConverter(
+            "TEST", conversionParameters.copy(autoFixContentTags = true), mapOf(
+                "t" to fileConverter
+            ), FileNameBasedDetector
+        )
+        val result = autoFixingConverter.convertFile(src)
+
+        assertThat(result).isEqualTo(
+            Page(
+                convertedContent.copy(
+                    body = "<p>This is a <code><strong></strong></code><strong> weird <code></code></strong> bold thing.</p>\n <br />"
+                ), src, emptyList()
+            )
+        )
     }
 }

@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.core
 import assertk.all
 import assertk.assertThat
 import assertk.assertions.*
+import assertk.assertions.isSameInstanceAs
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.TokenAuth
@@ -44,7 +45,8 @@ internal class ServiceProviderImplTest {
                 "root/", null,
                 CodeBlockParams(),
                 MarkdownConfiguration(),
-                AsciidoctorConfiguration()
+                AsciidoctorConfiguration(),
+                autoFixContentTags = false
             ),
             uploadOperationTracker
         )
@@ -98,7 +100,8 @@ internal class ServiceProviderImplTest {
                 "TEST", ConverterConfig(
                     "pre", "post", EditorVersion.V1,
                     null, "http://example.org/", "custom text",
-                    CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration()
+                    CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration(),
+                    autoFixContentTags = false
                 )
             )
 
@@ -121,7 +124,7 @@ internal class ServiceProviderImplTest {
 
         val result = provider.createPageExporter(client, true)
 
-        assertThat(result.client).isSameAs(client)
+        assertThat(result.client).isSameInstanceAs(client)
         assertThat(result.saveContentSource).isTrue()
     }
 }
