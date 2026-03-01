@@ -35,6 +35,7 @@ import com.vladsch.flexmark.util.html.CellAlignment
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlin.math.roundToInt
 
 
 internal class ConfluenceFormatExtension : HtmlRendererExtension, Parser.ParserExtension {
@@ -91,6 +92,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
     companion object {
         private val logger = KotlinLogging.logger { }
 
+        private const val WIDTH_ATTR = "width"
+        private const val TABLE_WIDTH_NARROW = 760
+        private const val TABLE_WIDTH_WIDE = 1800
+
         val ALLOWED_TOC_ATTRIBUTES =
             setOf("maxLevel", "minLevel", "include", "exclude", "style", "class", "separator", "type", "outline")
         private val OPTIONS_ITEM_REGEX = """(?<key>\w+)=((?<value>[^\s"]+)|"(?<quotedvalue>[^"]+?)")""".toRegex()
@@ -114,6 +119,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
     }
 
     private val sourcePath = MarkdownParser.DOCUMENT_LOCATION[options]!!
+    private val pageAttributes = MarkdownParser.DOCUMENT_ATTRIBUTES[options]
     private val referenceRepository = Parser.REFERENCES.get(options)
     private val recheckUndefinedReferences = HtmlRenderer.RECHECK_UNDEFINED_REFERENCES.get(options)
     private val attachments: Map<String, Attachment> = ConfluenceFormatExtension.ATTACHMENTS[options]
@@ -426,9 +432,32 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
     @Suppress("UNUSED_PARAMETER")
     private fun render(node: TableBlock, context: NodeRendererContext, html: HtmlWriter) {
         val attrs = node.attributesMap
-        if ("width" in attrs) {
-            val widthValue = attrs.getValue("width").let { if (it.endsWith("%")) it else "$it%" }
-            html.attr("style", "width: $widthValue")
+        if (cloudEditorV2()) {
+            val wideLayout = pageAttributes.get("property_content-appearance-published") == "full-width"
+            fun tableLayout(narrowValue: String): String = when {
+                wideLayout && attrs["align"] == "center" -> "center"
+                wideLayout -> "align-start"
+                else -> narrowValue
+            }
+            if (WIDTH_ATTR in attrs) {
+                val baseWidth = TABLE_WIDTH_WIDE
+                val widthPercent = attrs["width"]!!.trim().let {
+                    val raw = if (it.endsWith("%")) it.dropLast(1) else it
+                    raw.toDouble()
+                }
+                val widthValue = (baseWidth * widthPercent / 100.0).roundToInt()
+                html.attr("data-table-width", widthValue.toString())
+                html.attr("data-layout", tableLayout("center"))
+            } else {
+                val baseWidth = if (wideLayout) TABLE_WIDTH_WIDE else TABLE_WIDTH_NARROW
+                html.attr("data-table-width", baseWidth.toString())
+                html.attr("data-layout", tableLayout("default"))
+            }
+        } else {
+            if (WIDTH_ATTR in attrs) {
+                val widthValue = attrs.getValue(WIDTH_ATTR).let { if (it.endsWith("%")) it else "$it%" }
+                html.attr("style", "width: $widthValue")
+            }
         }
 
         html.srcPosWithEOL(node.getChars()).withAttr()

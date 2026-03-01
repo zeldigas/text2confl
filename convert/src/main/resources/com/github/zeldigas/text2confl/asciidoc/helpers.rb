@@ -333,5 +333,48 @@ module Slim::Helpers
     return attributes
   end
 
+  # method for editor v2 pages, returns page width settings
+  def page_layout
+    document.attr 'property_content-appearance-published', 'default'
+  end
+
+  TABLE_WIDTH_NARROW = 760
+  TABLE_WIDTH_WIDE = 1800
+
+  # Returns integer target width in pixels for the table when using editor v2.
+  # - returns nil for editor v1 (v1 doesn't use pixel table width for colgroup)
+  # - uses page layout (full-width -> wide) to pick base width
+  # - when a custom table width is present (attr :width) interprets attr(:tablepcwidth)
+  #   as percentage (e.g. 50) and calculates pixels as base * percent/100
+  def table_target_width
+    return nil unless editor_version() == 'v2'
+
+    if attr? :width
+      pc = attr(:tablepcwidth).to_f
+      return (TABLE_WIDTH_WIDE * (pc / 100.0)).to_i
+    end
+
+    layout = page_layout() == 'full-width' ? 'wide' : 'narrow'
+    (layout == 'wide' ? TABLE_WIDTH_WIDE : TABLE_WIDTH_NARROW)
+  end
+
+  def table_attributes
+    def table_layout layout, narrow_value
+      layout == 'wide' ? (role == 'center' ? 'center' : 'align-start') : narrow_value
+    end
+    if editor_version() == 'v1'
+        return {:class => 'relative-table', :style => (attr?(:width) ? "width: #{attr :tablepcwidth}%" : nil) }
+    elsif editor_version() == 'v2'
+        layout = page_layout() == 'full-width' ? 'wide' : 'narrow'
+        pxl_width = table_target_width
+        if attr? :width
+            return {'data-table-width' => pxl_width, 'data-layout' => table_layout(layout, 'center')}
+        else
+            return {'data-table-width' => pxl_width, 'data-layout' => table_layout(layout, 'default')}
+        end
+    end
+
+  end
+
 
 end

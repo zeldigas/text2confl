@@ -7,11 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Proper table width support in Confluence Cloud for both AsciiDoc and Markdown (#280). If you are interested in
+  internals, read more in [internal technical docs](./docs/contribution/table-width.md)
+
 ## 0.24.0 - 2026-03-01
 
 ### Added
 
-- Problems with content structure (tags misalignments, not closed tags) can be automatically fixed by settings `auto-fix-content-tags: true` in configuration or usign `--auto-fix-content` cli flag (#182)
+- Problems with content structure (tags misalignments, not closed tags) can be automatically fixed by settings
+  `auto-fix-content-tags: true` in configuration or usign `--auto-fix-content` cli flag (#182)
 
 ## 0.23.1 - 2026-02-05
 
@@ -33,8 +39,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- PlantUML rolled back to 1.2025.10 due to issue with 1.2026 support (see https://github.com/asciidoctor/asciidoctor-diagram/issues/505)
-
+- PlantUML rolled back to 1.2025.10 due to issue with 1.2026 support (
+  see https://github.com/asciidoctor/asciidoctor-diagram/issues/505)
 
 ## 0.22.2 - 2026-02-02
 
@@ -45,7 +51,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Dependency updates:
-  - PlantUML to 1.2026.1
+    - PlantUML to 1.2026.1
 
 ## 0.22.1 - 2025-11-30
 

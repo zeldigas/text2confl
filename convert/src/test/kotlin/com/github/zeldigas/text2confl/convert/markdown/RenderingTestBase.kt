@@ -28,7 +28,8 @@ internal open class RenderingTestBase {
         config: MarkdownConfiguration = MarkdownConfiguration(true, emptyList()),
         diagramMakers: DiagramMakers = DiagramMakers.NOP,
         codeBlockInExpand: Boolean = false,
-        editorVersion: EditorVersion = EditorVersion.V1
+        editorVersion: EditorVersion = EditorVersion.V1,
+        pageAttributes: Map<String, Any?> = emptyMap()
     ): String {
         val context = ConvertingContext(
             referenceProvider,
@@ -49,7 +50,7 @@ internal open class RenderingTestBase {
         val ast = parser.parseString(src, context, attachmentsRegistry, Path("src.md"))
 
         val htmlRenderer = parser.htmlRenderer(
-            Path("src.md"), attachmentsRegistry.collectedAttachments + attachments, context
+            Path("src.md"), attachmentsRegistry.collectedAttachments + attachments, pageAttributes, context
         )
 
         return htmlRenderer.render(ast)

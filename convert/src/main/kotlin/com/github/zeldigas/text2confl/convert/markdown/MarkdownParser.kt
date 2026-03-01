@@ -24,6 +24,7 @@ import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Document
 import com.vladsch.flexmark.util.ast.KeepType
 import com.vladsch.flexmark.util.data.DataHolder
+import com.vladsch.flexmark.util.data.DataKey
 import com.vladsch.flexmark.util.data.MutableDataSet
 import com.vladsch.flexmark.util.data.NullableDataKey
 import com.vladsch.flexmark.util.misc.Extension
@@ -36,6 +37,7 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
         val PARSE_OPTIONS = NullableDataKey<MarkdownConfiguration>("T2C_CONFIG")
         val CONTEXT = NullableDataKey<ConvertingContext>("T2C_CONVERTING_CONTEXT", null)
         val DOCUMENT_LOCATION = NullableDataKey<Path>("T2C_DOCUMENT_LOCATION", null)
+        val DOCUMENT_ATTRIBUTES = DataKey<Map<String,Any?>>("T2C_DOCUMENT_ATTRIBUTES", emptyMap())
         val ATTACHMENTS_REGISTRY = NullableDataKey<AttachmentsRegistry>("T2C_ATTACHMENTS_REGISTRY", null)
     }
 
@@ -141,10 +143,16 @@ internal class MarkdownParser(config: MarkdownConfiguration, diagramMakers: Diag
         return createParser(context, attachmentsRegistry, location).parse(document)
     }
 
-    fun htmlRenderer(location: Path, attachments: Map<String, Attachment>, context: ConvertingContext): HtmlRenderer {
+    fun htmlRenderer(
+        location: Path,
+        attachments: Map<String, Attachment>,
+        attributes: Map<String, Any?>,
+        context: ConvertingContext
+    ): HtmlRenderer {
         return HtmlRenderer.builder(
             parserOptions.toMutable()
                 .set(DOCUMENT_LOCATION, location)
+                .set(DOCUMENT_ATTRIBUTES, attributes)
                 .set(ConfluenceFormatExtension.ATTACHMENTS, attachments)
                 .set(CONTEXT, context)
                 .toImmutable()

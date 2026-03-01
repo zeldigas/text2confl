@@ -1,7 +1,7 @@
 = AsciiDoc - tables
 :labels: supported-format,asciidoc
 :adocs: https://docs.asciidoctor.org/asciidoc/latest
-:property_editor: v1
+:property_content-appearance-published: default
 
 AsciiDoc tables converted to Confluence tables.
 
