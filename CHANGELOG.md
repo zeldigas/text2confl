@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.25.0 - 2026-03-01
+
 ### Added
 
 - Proper table width support in Confluence Cloud for both AsciiDoc and Markdown (#280). If you are interested in
