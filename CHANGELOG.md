@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.24.0 - 2026-03-01
+
+### Added
+
+- Problems with content structure (tags misalignments, not closed tags) can be automatically fixed by settings `auto-fix-content-tags: true` in configuration or usign `--auto-fix-content` cli flag (#182)
+
 ## 0.23.1 - 2026-02-05
 
 ### Fixed
