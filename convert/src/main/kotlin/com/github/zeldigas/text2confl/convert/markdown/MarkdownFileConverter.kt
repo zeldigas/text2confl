@@ -30,7 +30,10 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
 
         collectAttachments(file, context, ast, attachmentsRegistry)
 
-        val generator = parser.htmlRenderer(file, attachmentsRegistry.collectedAttachments, context)
+        val generator = parser.htmlRenderer(file,
+            attachmentsRegistry.collectedAttachments,
+            header.attributes,
+            context)
         return PageContent(
             header,
             generator.render(ast),

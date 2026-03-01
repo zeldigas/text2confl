@@ -335,7 +335,7 @@ module Slim::Helpers
 
   # method for editor v2 pages, returns page width settings
   def page_layout
-    document.attr 'property_content_appearance_published', 'default'
+    document.attr 'property_content-appearance-published', 'default'
   end
 
   TABLE_WIDTH_NARROW = 760
@@ -349,15 +349,13 @@ module Slim::Helpers
   def table_target_width
     return nil unless editor_version() == 'v2'
 
-    layout = page_layout() == 'full-width' ? 'wide' : 'narrow'
-    base = (layout == 'wide' ? TABLE_WIDTH_WIDE : TABLE_WIDTH_NARROW)
-
     if attr? :width
       pc = attr(:tablepcwidth).to_f
-      return (base * (pc / 100.0)).to_i
+      return (TABLE_WIDTH_WIDE * (pc / 100.0)).to_i
     end
 
-    base
+    layout = page_layout() == 'full-width' ? 'wide' : 'narrow'
+    (layout == 'wide' ? TABLE_WIDTH_WIDE : TABLE_WIDTH_NARROW)
   end
 
   def table_attributes
@@ -372,7 +370,6 @@ module Slim::Helpers
         if attr? :width
             return {'data-table-width' => pxl_width, 'data-layout' => table_layout(layout, 'center')}
         else
-            pxl_width = layout == 'wide' ? TABLE_WIDTH_WIDE : TABLE_WIDTH_NARROW
             return {'data-table-width' => pxl_width, 'data-layout' => table_layout(layout, 'default')}
         end
     end

@@ -2,6 +2,8 @@ package com.github.zeldigas.text2confl.convert.asciidoc
 
 import assertk.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 internal class RenderingOfTablesTest : RenderingTestBase() {
 
@@ -100,12 +102,22 @@ internal class RenderingOfTablesTest : RenderingTestBase() {
         )
     }
 
-    @Test
-    fun `Tables width parameters in v2 editor`() {
+    @CsvSource(
+        value = [
+            "full-width;width=75%;1350;align-start;122.7;245.5",
+            "full-width;width=75%,role=center;1350;center;122.7;245.5",
+            "default;width=75%;1350;center;122.7;245.5",
+            "full-width;abc=1;1800;align-start;163.6;327.3",
+            "default;abc=1;760;default;69.1;138.2",
+        ], delimiter = ';'
+    )
+    @ParameterizedTest
+    fun `Tables width parameters in v2 editor`(prop: String, attrs: String, width: String, layout: String,
+                                               smallCol: String, wideCol: String)  {
         val result = toHtml(
             """
-            :property_content_appearance_published: full-width
-            [.center,cols="1,2a,2l,2m,2s,2e",width=75%]
+            :property_content-appearance-published: $prop
+            [cols="1,2a,2l,2m,2s,2e",$attrs]
             |===
             
             | regular | asciidoc styled | literal | monospaced | strong | emphasized
@@ -115,10 +127,10 @@ internal class RenderingOfTablesTest : RenderingTestBase() {
         )
 
         assertThat(result).isEqualToConfluenceFormat(
-            """<table data-table-width="1350" data-layout="center"><colgroup>"""
-                    + """<col style="width: 122.7px;" /><col style="width: 245.5px;" />"""
-                    + """<col style="width: 245.5px;" /><col style="width: 245.5px;" />"""
-                    + """<col style="width: 245.5px;" /><col style="width: 245.5px;" /></colgroup>"""
+            """<table data-table-width="$width" data-layout="$layout"><colgroup>"""
+                    + """<col style="width: ${smallCol}px;" /><col style="width: ${wideCol}px;" />"""
+                    + """<col style="width: ${wideCol}px;" /><col style="width: ${wideCol}px;" />"""
+                    + """<col style="width: ${wideCol}px;" /><col style="width: ${wideCol}px;" /></colgroup>"""
                     + """<tbody><tr><td>regular</td><td><div><p>asciidoc styled</p></div></td><td><div class="literal"><pre> literal</pre></div></td>"""
                     + """<td><code>monospaced</code></td><td><strong>strong</strong></td><td><em>emphasized</em></td></tr></tbody></table>"""
         )

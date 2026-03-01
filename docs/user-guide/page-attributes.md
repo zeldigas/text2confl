@@ -122,7 +122,7 @@ property_complex: { "first": one, "flag": false }
 
 * Confluence Cloud 
   * `editor` property holds the version of editor (v1 or v2)
-  * `content_appearance_published` property set to `full-width` makes page to take full width of screen
+  * `content-appearance-published` property set to `full-width` makes page to take full width of screen
 * [BobSwift Numbered Heading plugin][page_numbering_plugin] [uses properties](https://bobswift.atlassian.net/wiki/spaces/NH/pages/2585657347/Page+properties)
   to enable page numbering on specific pages in Confluence Server.
 
