@@ -95,8 +95,32 @@ internal class RenderingOfTablesTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """          
-            <table class="relative-table"><colgroup><col style="width: 33.3333%;" /><col style="width: 33.3333%;" /><col style="width: 33.3334%;" /></colgroup><thead><tr><th>foo</th><th style="text-align: right;">baz</th><th style="text-align: center;">bar</th></tr></thead><tbody><tr><td data-highlight-colour="#bf2600">a</td><td style="text-align: right;">b</td><td style="text-align: center;">c</td></tr></tbody></table>
+            <table data-table-width="760" data-layout="default"><colgroup><col style="width: 253.3px;" /><col style="width: 253.3px;" /><col style="width: 253.3px;" /></colgroup><thead><tr><th>foo</th><th style="text-align: right;">baz</th><th style="text-align: center;">bar</th></tr></thead><tbody><tr><td data-highlight-colour="#bf2600">a</td><td style="text-align: right;">b</td><td style="text-align: center;">c</td></tr></tbody></table>
         """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Tables width parameters in v2 editor`() {
+        val result = toHtml(
+            """
+            :property_content_appearance_published: full-width
+            [.center,cols="1,2a,2l,2m,2s,2e",width=75%]
+            |===
+            
+            | regular | asciidoc styled | literal | monospaced | strong | emphasized
+            
+            |===
+        """.trimIndent(), attributes = mapOf("t2c-editor-version" to "v2")
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """<table data-table-width="1350" data-layout="center"><colgroup>"""
+                    + """<col style="width: 122.7px;" /><col style="width: 245.5px;" />"""
+                    + """<col style="width: 245.5px;" /><col style="width: 245.5px;" />"""
+                    + """<col style="width: 245.5px;" /><col style="width: 245.5px;" /></colgroup>"""
+                    + """<tbody><tr><td>regular</td><td><div><p>asciidoc styled</p></div></td><td><div class="literal"><pre> literal</pre></div></td>"""
+                    + """<td><code>monospaced</code></td><td><strong>strong</strong></td><td><em>emphasized</em></td></tr></tbody></table>"""
         )
     }
 
