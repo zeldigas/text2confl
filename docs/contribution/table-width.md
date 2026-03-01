@@ -20,7 +20,7 @@ Column width are specified in regular `colgroup/col` elements but using exact va
 
 That gives us the following steps to identify parameters for table and columns:
 
-1. Check width mode - wide or narrow - by checking page attribute `property-content_appearance_published`. If it is set
+1. Check width mode - wide or narrow - by checking page attribute `property-content-appearance-published`. If it is set
    to `full-width`, then we are in wide mode. If attribute is missing or has different value, we are in narrow mode.
 
    This will give us base width for table - either `1800` or `760` when no custom width is set.
