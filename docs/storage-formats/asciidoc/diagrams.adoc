@@ -96,16 +96,8 @@ include::_assets/example.adoc[tag=diagram]
 | AsciiDoc | Confluence
 
 |`+plantuml::_assets/test.puml[target=test,format=png]+`
-| plantuml::{docdir}/_assets/test.puml[target=test,format=png]
+| plantuml::_assets/test.puml[target=test,format=png]
 |===
-
-[WARNING]
-.asciidoctor-kroki file imports
-====
-Until link:https://github.com/asciidoctor/asciidoctor-kroki/issues/446[file resolution issue] is not fixed, Kroki extension will fail to resolve files properly when you use relative paths.
-
-There is a workaround for this - add `+{docdir}+` to macro target: `+plantuml::{docdir}/_assets/test.puml[target=test,format=png]+`
-====
 
 == Location where diagrams are generated
 

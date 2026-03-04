@@ -18,7 +18,7 @@
     </description>
 
     <properties>
-        <kroki.version>0.10.0<!--renovate dependency=asciidoctor-kroki --></kroki.version>
+        <kroki.version>0.10.2<!--renovate dependency=asciidoctor-kroki --></kroki.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
