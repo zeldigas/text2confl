@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.25.1 - 2026-03-04
+
 ### Fixed
 
 - \[Asciidoc] File resolutions for Kroki block macros (by updating 0.10.2). [Details](https://github.com/asciidoctor/asciidoctor-kroki/pull/446)
