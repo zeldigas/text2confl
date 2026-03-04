@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- Updated plantuml to 1.2026.2
+
 ## 0.25.1 - 2026-03-04
 
 ### Fixed

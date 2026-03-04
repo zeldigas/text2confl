@@ -6,6 +6,7 @@ import ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.filter.Filter
 import ch.qos.logback.core.spi.FilterReply
+import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 import org.slf4j.LoggerFactory
 
 
