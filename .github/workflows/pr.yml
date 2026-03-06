@@ -21,7 +21,7 @@ jobs:
         run: mvn --batch-mode verify
       - run: mkdir dist && cp cli/target/*.tar.gz dist
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build docker image
