@@ -17,7 +17,7 @@ Use a virtual page as a placeholder when:
   formatting like multi-column layouts or custom macros)
 - You want your file tree to mirror the Confluence page hierarchy without fully managing every intermediate page
 - Your team shares a space with other teams ([multi-tenancy](../explanation/multi-tenancy-model.md)) and you need to
-  place pages under a hierarchy node owned by another tenant — define the foreign page as virtual so text2confl
+  place pages under a hierarchy node owned by another tenant - define the foreign page as virtual so text2confl
   navigates to it without attempting to modify it
 
 ## Create a virtual page

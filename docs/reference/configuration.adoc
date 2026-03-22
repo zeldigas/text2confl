@@ -133,7 +133,7 @@ When enabled, converted HTML is normalized before validation and further process
 | code-blocks.default-language
 |
 |
-| Default language for code block highlighting. Empty by default — Confluence will select type
+| Default language for code block highlighting. Empty by default - Confluence will select type
 
 | code-blocks.extra-mapping
 |
@@ -191,7 +191,7 @@ markdown:
 
 | auto-links
 | `true`
-| Enables link:{flex_links}[auto links] — conversion of plain links into active links
+| Enables link:{flex_links}[auto links] - conversion of plain links into active links
 
 | tables.column-spans
 | `true`
@@ -219,7 +219,7 @@ markdown:
 
 | diagrams
 | `true`
-| Section that controls diagram generation. See link:{md_diagrams}[Markdown — diagrams]
+| Section that controls diagram generation. See link:{md_diagrams}[Markdown - diagrams]
 
 | any-macro
 | `true` if `enabled-macros` is empty, `false` otherwise
@@ -253,8 +253,8 @@ asciidoc:
 | `Diagrams`
 | How to generate diagrams:
 
-* `Diagrams` — activates `asciidoctor-diagrams`
-* `Kroki` — relies on `asciidoctor-kroki`
+* `Diagrams` - activates `asciidoctor-diagrams`
+* `Kroki` - relies on `asciidoctor-kroki`
 
 | kroki.server
 | not specified

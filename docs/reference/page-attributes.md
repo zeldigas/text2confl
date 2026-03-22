@@ -11,7 +11,7 @@ to control page metadata in Confluence (title, labels, parent, properties, and m
 
 ## Syntax
 
-**Markdown** — YAML front matter block at the very beginning of the file, before any content:
+**Markdown** - YAML front matter block at the very beginning of the file, before any content:
 
 ```markdown
 ---
@@ -22,7 +22,7 @@ labels: docs, team-a
 Page content starts here.
 ```
 
-**AsciiDoc** — document attributes using the `:key: value` syntax, in the document header (before the first blank
+**AsciiDoc** - document attributes using the `:key: value` syntax, in the document header (before the first blank
 line). Attributes can appear before or after the document title, but the preferred placement is after it:
 
 ```asciidoc

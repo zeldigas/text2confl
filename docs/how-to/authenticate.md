@@ -41,7 +41,7 @@ text2confl upload --docs . --user yourname --password yourpassword
 
 ## Storing credentials persistently
 
-**On a developer machine** — store credentials in a properties file so you don't have to type them on every run.
+**On a developer machine** - store credentials in a properties file so you don't have to type them on every run.
 text2confl checks these locations in order:
 
 1. `$XDG_CONFIG_HOME/text2confl/config.properties` (defaults to `~/.config/text2confl/config.properties`)
@@ -52,7 +52,7 @@ upload.user=your@email.com
 upload.password=YOUR_API_TOKEN
 ```
 
-**In CI/CD** — use environment variables:
+**In CI/CD** - use environment variables:
 
 | CLI argument     | Environment variable      |
 |------------------|---------------------------|

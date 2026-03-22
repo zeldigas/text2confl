@@ -68,7 +68,7 @@ Consider two teams publishing docs to the same space:
 │       └── API reference   ← owned by Team B (tenant: team-b)
 ```
 
-Team B cannot modify "Team A section" — it belongs to Team A's tenant. But Team B can still place their pages
+Team B cannot modify "Team A section" - it belongs to Team A's tenant. But Team B can still place their pages
 under it by defining "Team A section" and "Team B subsection" as virtual pages in their file tree:
 
 ```text {title="Team B file tree"}
