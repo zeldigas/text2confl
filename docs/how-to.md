@@ -1,6 +1,7 @@
 # How-to guides
 
-How-to guides are goal-oriented instructions for practitioners. Each guide solves a specific, real-world task. They assume you already have a working text2confl setup - see [Getting started](./tutorials/getting-started.md) if you don't.
+How-to guides are goal-oriented instructions for practitioners. Each guide solves a specific, real-world task. They
+assume you already have a working text2confl setup - see [Getting started](./tutorials/getting-started.md) if you don't.
 
 ## Setup and authentication
 
@@ -9,9 +10,12 @@ How-to guides are goal-oriented instructions for practitioners. Each guide solve
 
 ## Uploading documents
 
-- [Upload docs to Confluence](./how-to/upload-docs.md)
 - [Upload a single page ad-hoc](./how-to/upload-adhoc.md)
 - [Export a Confluence page to Markdown](./how-to/export-to-markdown.md)
+
+## Troubleshooting
+
+- [Troubleshoot conversion output](./how-to/troubleshoot-conversion.md)
 
 ## Document structure
 

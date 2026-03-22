@@ -6,7 +6,7 @@ This guide shows how to run text2confl using the official Docker image. This is 
 
 The official image is `zeldigas/text2confl`. Tags:
 - `zeldigas/text2confl:latest` - latest release from `master`
-- `zeldigas/text2confl:0.3.0` - a specific version
+- `zeldigas/text2confl:0.25.2` - a specific version
 
 ## Basic usage
 
@@ -47,4 +47,4 @@ docker run --rm -it \
 ## See also
 
 - [Authenticate with Confluence](./authenticate.md) - credential options
-- [Upload docs to Confluence](./upload-docs.md) - upload command options
+- [Troubleshoot conversion output](./troubleshoot-conversion.md) - inspect converted output locally

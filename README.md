@@ -32,7 +32,7 @@ Please :star: **star this repo** — it helps other people discover the tool and
 **Doing a specific task?** See the how-to guides:
 
 - :lock: [Authenticate with Confluence](docs/how-to/authenticate.md)
-- :arrow_up: [Upload docs](docs/how-to/upload-docs.md) · [Ad-hoc upload](docs/how-to/upload-adhoc.md) · [Run with Docker](docs/how-to/run-with-docker.md)
+- :arrow_up: [Ad-hoc upload](docs/how-to/upload-adhoc.md) · [Run with Docker](docs/how-to/run-with-docker.md)
 - :arrow_down: [Export a Confluence page to Markdown](docs/how-to/export-to-markdown.md)
 - :file_folder: [Use virtual pages](docs/how-to/use-virtual-pages.md) · [Manage orphaned pages](docs/how-to/manage-orphaned-pages.md)
 - :office: [Configure multi-tenancy](docs/how-to/configure-multi-tenancy.md)

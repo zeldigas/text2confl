@@ -25,7 +25,7 @@ In such situation, you might consider putting all pages in flat structure and sp
 Markdown's front matter block), but this is really not that good, because you drift your files structure from you wiki
 page structure.
 
-For such scenarios, text2confl supports special page attribute that makes it treating page as "virtual": `_virtual_`.
+For such scenarios, text2confl supports a special page attribute that makes it treat a page as "virtual": `_virtual_`.
 Virtual pages are treated as regular pages in scanned file tree, but their content is kept unmanaged. Only location (
 parent page) is tracked for such pages.
 
@@ -47,3 +47,34 @@ title: Parent page
 _virtual_: true
 ---
 ```
+
+## Virtual pages in multi-tenant spaces
+
+Virtual pages are also the solution when multiple teams share the same Confluence space under a
+[multi-tenancy](./multi-tenancy-model.md) setup and their page hierarchies overlap.
+
+Consider two teams publishing docs to the same space:
+
+```text
+├── Team A section          ← owned by Team A (tenant: team-a)
+│   ├── Guide X
+│   ├── Guide Y
+│   └── Team B subsection   ← Team B wants to publish here
+│       ├── Service docs    ← owned by Team B (tenant: team-b)
+│       └── API reference   ← owned by Team B (tenant: team-b)
+```
+
+Team B cannot modify "Team A section" — it belongs to Team A's tenant. But Team B can still place their pages
+under it by defining "Team A section" and "Team B subsection" as virtual pages in their file tree:
+
+```text {title="Team B file tree"}
+├── team-a-section.md           ← virtual (not owned, not modified)
+├── team-a-section/
+│   ├── team-b-subsection.md    ← virtual or managed by Team B
+│   └── team-b-subsection/
+│       ├── service-docs.md
+│       └── api-reference.md
+```
+
+text2confl will navigate to the correct place in the hierarchy without attempting to update pages owned by another
+tenant.

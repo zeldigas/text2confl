@@ -1,6 +1,7 @@
 # Export a Confluence page to Markdown
 
-This guide shows how to use the `export-to-md` command to download an existing Confluence page as a Markdown file. This is useful for bootstrapping a docs-as-code migration from content already in Confluence.
+This guide shows how to use the `export-to-md` command to download an existing Confluence page as a Markdown file. This
+is useful for bootstrapping a docs-as-code migration from content already in Confluence.
 
 ## Export by page ID
 
@@ -31,7 +32,7 @@ text2confl export-to-md \
 
 ## Save attachments
 
-Use `--assets-dir` to specify a subdirectory (relative to `--dest`) where page attachments will be saved:
+By default, page attachments are saved to `--dest`. Use `--assets-dir` to save them to a subdirectory instead (relative to `--dest`):
 
 ```shell
 text2confl export-to-md \
@@ -44,7 +45,8 @@ text2confl export-to-md \
 
 ## Also save the raw Confluence Storage Format
 
-Pass `--dump-also-storage-format` to save the original Confluence XML alongside the Markdown output. Useful for debugging conversion issues:
+Pass `--dump-also-storage-format` to save the original Confluence XML alongside the Markdown output. Useful for
+debugging conversion issues:
 
 ```shell
 text2confl export-to-md \
@@ -57,7 +59,8 @@ text2confl export-to-md \
 
 ## Authentication
 
-`export-to-md` accepts the same authentication flags as the `upload` command. See [Authenticate with Confluence](./authenticate.md) for all options, including environment variables.
+`export-to-md` accepts the same authentication flags as the `upload` command.
+See [Authenticate with Confluence](./authenticate.md) for all options, including environment variables.
 
 ## See also
 

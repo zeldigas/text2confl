@@ -64,6 +64,8 @@ $T2C upload --docs . \
 
 text2confl will scan the directory, convert `hello-world.md` to Confluence Storage Format, and publish it as a new page in your space.
 
+TIP: Add `--dry` to preview what would be uploaded without making any changes to Confluence.
+
 '''
 
 include::_step-result.adoc[]

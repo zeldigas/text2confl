@@ -1,6 +1,7 @@
 # Use virtual pages for sparse page trees
 
-This guide shows how to use virtual pages to organize your files when you don't want to manage all Confluence pages as code, or when your managed pages are scattered across multiple locations in the space hierarchy.
+This guide shows how to use virtual pages to organize your files when you don't want to manage all Confluence pages as
+code, or when your managed pages are scattered across multiple locations in the space hierarchy.
 
 For conceptual background, see [Virtual pages](../explanation/virtual-pages.md).
 
@@ -8,8 +9,12 @@ For conceptual background, see [Virtual pages](../explanation/virtual-pages.md).
 
 Use a virtual page as a placeholder when:
 
-- A parent page exists in Confluence but you don't want text2confl to manage its content (e.g. it uses complex formatting like multi-column layouts or custom macros)
+- A parent page exists in Confluence but you don't want text2confl to manage its content (e.g. it uses complex
+  formatting like multi-column layouts or custom macros)
 - You want your file tree to mirror the Confluence page hierarchy without fully managing every intermediate page
+- Your team shares a space with other teams ([multi-tenancy](../explanation/multi-tenancy-model.md)) and you need to
+  place pages under a hierarchy node owned by another tenant — define the foreign page as virtual so text2confl
+  navigates to it without attempting to modify it
 
 ## Create a virtual page
 
@@ -29,11 +34,13 @@ Or in AsciiDoc:
 :_virtual_: true
 ```
 
-text2confl will use this file to determine the page's position in the hierarchy, but will not modify the page's content in Confluence.
+text2confl will use this file to determine the page's position in the hierarchy, but will not modify the page's content
+in Confluence.
 
 ## Example: sparse page tree
 
-Suppose you have managed pages under `Parent page` and `Another page`, but `Parent page` already exists in Confluence with custom formatting you want to keep:
+Suppose you have managed pages under `Parent page` and `Another page`, but `Parent page` already exists in Confluence
+with custom formatting you want to keep:
 
 ```text
 ├── another-page.md
@@ -56,8 +63,8 @@ text2confl will place `page-a.md` and `page-b.md` as children of `Parent page` w
 
 ## Important constraints
 
-- Virtual pages are never associated with a tenant in multi-tenant setups - they can coexist across teams.
 - Virtual pages are excluded from orphan cleanup.
+- For the multi-tenancy cross-team scenario, see [Virtual pages](../explanation/virtual-pages.md).
 
 ## See also
 
