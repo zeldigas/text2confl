@@ -7,7 +7,7 @@ labels: reference
 **Confluence Cloud** allows to specify any color by adding attribute `data-highlight-colour="#ffbbcc"` to cell,
 where `ffbbcc` is desired color.
 
-**Confluence Server** only support preselected list of cell backgrounds and in addition to `data-highlight-colour`
+**Confluence Server** only supports preselected list of cell backgrounds and in addition to `data-highlight-colour`
 attribute you need to put `class="highlight-#c0b6f2"`, where `c0b6f2` is one of predefined colors.
 
 Supported color codes in Server 7.x:
