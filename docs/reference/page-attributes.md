@@ -47,8 +47,8 @@ property_nl_avisi_nh: { "isEnabled": true }
 Document title (name) can be defined in the following ways (from top priority to bottom):
 
 1. `title` attribute
-2. first level heading at the top of document. If it is used, heading will be removed from resulting document to avoid
-   duplication (if not done by underlying format automatically)
+2. first-level heading at the top of document. If it is used, heading will be removed from resulting document to avoid
+   duplication (unless the underlying format handles this automatically)
 3. name of file
 
 ### Example 1 - title will be taken from *yaml front matter*
@@ -115,7 +115,7 @@ Document content
 It is possible to specify a custom parent for any page using `parent` or `parentId`.
 
 Attribute `parentId` should contain id of parent page and attribute `parent` should contain parent page title. When
-specified both, `parentId` is used and `parent` will be ignored.
+both are specified, `parentId` takes precedence and `parent` is ignored.
 
 Example - Markdown document with custom parent `Custom Parent Page`. Such document will be uploaded under this page if
 it exists. When custom parent does not exist, upload procedure fails.
@@ -129,7 +129,7 @@ Document content
 
 ### Page properties
 
-Page properties is set of special key-value pairs in Confluence. Confluence and plugins use them to configure page
+Page properties are a set of special key-value pairs in Confluence. Confluence and plugins use them to configure page
 behavior.
 
 Properties can be of the following types: string, boolean, list of strings, object (json)
@@ -138,7 +138,7 @@ Properties can be of the following types: string, boolean, list of strings, obje
 
 Attribute patterns to be properties:
 
-* every attribute `property_<property_name>` is taken into account.
+* Every attribute named `property_<property_name>` is treated as a page property.
 
 Example:
 
@@ -153,7 +153,7 @@ property_complex: { "first": one, "flag": false }
 
 * Confluence Cloud 
   * `editor` property holds the version of editor (v1 or v2)
-  * `content-appearance-published` property set to `full-width` makes page to take full width of screen
+  * `content-appearance-published` property set to `full-width` makes the page take the full screen width
 * [appfire Numbered Heading plugin][page_numbering_plugin] [uses properties](https://appfire.atlassian.net/wiki/spaces/NH/pages/72680028/Page+properties)
   to enable page numbering on specific pages in Confluence Server.
 

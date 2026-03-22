@@ -6,7 +6,7 @@ labels: contributing
 
 ## Confluence cloud format
 
-Confluence cloud has completely different approach to table and column width handling.
+Confluence Cloud has a completely different approach to table and column width handling.
 
 On `table` level you need to define 2 attributes that control width and positioning:
 
@@ -19,7 +19,7 @@ On `table` level you need to define 2 attributes that control width and position
 
 There are 2 main width values - `1800` for table that takes full width and `760` for narrow mode.
 
-Column width are specified in regular `colgroup/col` elements but using exact values in pixels -
+Column widths are specified in regular `colgroup/col` elements but using exact values in pixels -
 `<col style="width: 147.0px;" />`.
 
 That gives us the following steps to identify parameters for table and columns:
@@ -40,5 +40,5 @@ That gives us the following steps to identify parameters for table and columns:
     - if alignment is customized, use `align-start` for left alignment and `center` for center alignment in wide mode.
       In narrow mode alignment is always `center`.
 
-Based on ratio between default width in narrow and wide modes, percentage value to set table width explicitly to width
-it takes in narrow mode by default is `42` (760 / 1800 * 100).
+Based on the ratio between default widths in narrow and wide modes, the percentage value that sets the table width to
+match its narrow-mode default is `42` (760 / 1800 * 100).

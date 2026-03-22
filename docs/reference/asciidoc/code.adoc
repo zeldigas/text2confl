@@ -53,10 +53,10 @@ With attributes, you can customize code block element.
 
 You can find details about supported languages and other code block attributes on separate page: xref:../code-blocks.adoc[Code highlight]
 
-Supported AsciiDoc link:[native attributes]:
+Supported AsciiDoc native attributes:
 
-- `languge` is to controll highlight
-- `%linenums` to enable linenumbers
+- `language` controls highlighting
+- `%linenums` to enable line numbers
 - `start` to set start line for numbering
 
 Other attributes are Confluence specific.

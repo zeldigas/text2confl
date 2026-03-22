@@ -12,7 +12,7 @@ Links of different types supported:
 |----------------------------------------------|------------------------------------------------------------|----------------------------------------------------------|
 | External                                     | `[name of the link](http://example.org)`                   | [name of the link](http://example.org)                   |
 | External as [link reference][link_ref_guide] | `[name of the link][external]`                             | [name of the link][external]                             |
-| Link to another page                         | `[linkg to page](../markdown.md)`                          | [linkg to page](../markdown.md)                          |
+| Link to another page                         | `[link to page](../markdown.md)`                           | [link to page](../markdown.md)                           |
 | Link to another page with anchor             | `[anchors inside page](../markdown.md#supported-features)` | [anchors inside page](../markdown.md#supported-features) |
 | Anchor on same page                          | `[anchor inside current page](#images)`                    | [anchor inside current page](#images)                    |
 

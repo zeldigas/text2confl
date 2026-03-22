@@ -4,14 +4,14 @@ labels: explanation
 
 # Virtual pages
 
-If you don't plan to manage all your wiki pages as code, then there is a big chance for you to face with the following
+If you don't plan to manage all your wiki pages as code, then there is a big chance for you to face the following
 challenge - you have pages that you want to store as code, but they can be in various places of your space tree.
 
 Consider the following example:
 
 * there is a number of pages under some parent
 * parent page uses pretty complex formatting -
-  multiples column pages with complex macros and other stuff so it does not make sense (or ever possible) to mange it as
+  multi-column pages with complex macros and other stuff so it does not make sense (or is even possible) to manage it as
   code
 * child pages are simple or for any other reason fit well in idea of managing them as text files and sync with
   text2confl.
@@ -26,7 +26,7 @@ It can look like this, where `(managed)` marks pages that we want to manage with
 ```
 
 In such situation, you might consider putting all pages in flat structure and specifying `parent` attribute (e.g. in
-Markdown's front matter block), but this is really not that good, because you drift your files structure from you wiki
+Markdown's front matter block), but this is really not that good, because your file structure drifts away from your wiki
 page structure.
 
 For such scenarios, text2confl supports a special page attribute that makes it treat a page as "virtual": `_virtual_`.

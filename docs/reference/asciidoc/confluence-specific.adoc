@@ -36,7 +36,7 @@ TIP: If you need this date to be rendered by regular Asciidoc processors in addi
 Confluence has a lot of https://confluence.atlassian.com/doc/macros-139387.html[_macros_] - special gadgets that can add extra features to your confluence page.
 While some of them has comprehensive configuration or can embed text content (like expand block), a lot of macros are as simple as macro keyword and a number of options that helps you configure behavior.
 
-*text2confl* introduce adds custom _asciidoc macro_ that helps you to insert any Confluence macro that does not require complex parameters in simple way: `+confl_macro:MACRONAME[key1=value1 key2=value2]+`.
+*text2confl* adds a custom _asciidoc macro_ that helps you to insert any Confluence macro that does not require complex parameters in simple way: `+confl_macro:MACRONAME[key1=value1 key2=value2]+`.
 
 Values can be unquoted if they don't contain spaces, or you can put value in quotes if you have spaces -
 `+confl_macro:MYMACRo[width=100 searchQuery="project in (A,B,C)"]+`.

@@ -106,7 +106,7 @@ markdown:
 | name             | description                                                                                                                                                                                                                                     | default value |
 |------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
 | `enabled`        | Enable PlantUML diagrams support                                                                                                                                                                                                                | `true`        |
-| `executable`     | Command name to invoke for plantuml. There is no support for invoking a jar with `java -jar`, so you need to have a wrapper script that will do it and pass all arguments down. Relative path is resolved from directory with `.text2confl.yml` | `platuml`     |
+| `executable`     | Command name to invoke for plantuml. There is no support for invoking a jar with `java -jar`, so you need to have a wrapper script that will do it and pass all arguments down. Relative path is resolved from directory with `.text2confl.yml` | `plantuml`    |
 | `default-format` | Format to use for generated images. Available options: `svg`, `png`                                                                                                                                                                             | `png`         |
 
 ### Mermaid
@@ -157,7 +157,7 @@ Supported code-block attributes:
 
 !!! warning
 
-    mermaid generates non-reprodicible svg files, they contains unique identifer that is always different.
+    mermaid generates non-reproducible svg files, they contain a unique identifier that is always different.
     This will force attachment to be always reuploaded
 
 #### Generator configuration
@@ -178,7 +178,7 @@ markdown:
 | `default-format`   | Format to use for generated images. Available options: `svg`, `png`                                                              | `png`                                        |
 | `config-file`      | Mermaid configuration file to pass for every diagram invocation. Relative path is resolved from directory with `.text2confl.yml` |                                              |
 | `css-file`         | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `.text2confl.yml`                      |                                              |
-| `puppeeter-config` | Mermaid css file to pass for every diagram. Relative path is resolved from directory with `.text2confl.yml`                      | Value of `T2C_PUPPEETER_CONFIG` env variable |
+| `puppeeter-config` | Puppeteer configuration file to pass to the mermaid CLI. Relative path is resolved from directory with `.text2confl.yml`          | Value of `T2C_PUPPEETER_CONFIG` env variable |
 
 ### Kroki
 
