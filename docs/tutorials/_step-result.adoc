@@ -1,0 +1,5 @@
+== Step 7 - See the result
+
+Open your Confluence space. You should see a new page titled *"Hello from text2confl"* with the content you wrote.
+
+At the top of the page, text2confl adds a note pointing to the source file in version control (using the `docs-location` you configured).

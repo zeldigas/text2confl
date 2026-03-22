@@ -53,7 +53,7 @@
     },
     "modification-check": {
       "type": "string",
-      "enum": ["hash", "timestamp", "none"],
+      "enum": ["hash", "content"],
       "default": "hash",
       "description": "Method to detect page modifications"
     },

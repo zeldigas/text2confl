@@ -1,0 +1,6 @@
+== What's next
+
+* *Add more pages* - create more `.md` files and subdirectories; the directory structure becomes the Confluence page hierarchy
+* *Stop passing credentials on every run* - store them in an environment variable or config file: xref:../how-to/authenticate.md[Authenticate with Confluence]
+* *Run in CI/CD* - xref:../how-to/run-with-docker.md[Run with Docker]
+* *Browse supported syntax* - xref:../reference/markdown.md[Markdown reference], xref:../reference/asciidoc.adoc[AsciiDoc reference]

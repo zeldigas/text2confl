@@ -1,0 +1,84 @@
+= First upload to Confluence Cloud
+:keywords: tutorial,confluence-cloud
+
+In this tutorial you will publish your first Markdown page to Confluence Cloud using text2confl.
+
+*What you need before starting:*
+
+* A Confluence Cloud site (e.g. `https://yoursite.atlassian.net/wiki`)
+* Permission to create pages in at least one space
+* A terminal on macOS, Linux, or WSL
+
+'''
+
+include::_step-download.adoc[]
+
+'''
+
+== Step 2 - Get a Confluence API token
+
+Go to link:https://id.atlassian.com/manage-profile/security/api-tokens[Atlassian account security settings] and create an API token. Save it - you won't be able to see it again.
+
+Your credentials for text2confl are:
+
+* *username* - your Atlassian account email
+* *password* - the API token you just created
+
+'''
+
+include::_step-create-dir.adoc[]
+
+'''
+
+== Step 4 - Create a configuration file
+
+First, create a page in your Confluence space that will act as the parent for your uploaded docs (e.g. title it *"My Docs"*). Open that page and copy its ID from the URL - it is the number after `/pages/`:
+
+----
+https://yoursite.atlassian.net/wiki/spaces/MYSPACE/pages/123456789/My+Docs
+                                                              ^^^^^^^^^
+----
+
+Then create `.text2confl.yml` in your docs directory:
+
+[source,yaml]
+----
+server: https://yoursite.atlassian.net/wiki
+space: MYSPACE
+default-parent-id: 123456789
+docs-location: https://github.com/yourorg/yourrepo/tree/main/my-docs/
+----
+
+Replace:
+
+* `yoursite` with your Atlassian site name
+* `MYSPACE` with the space key where you want to publish (visible in the Confluence space URL, e.g. `\https://yoursite.atlassian.net/wiki/spaces/MYSPACE/...`)
+* `123456789` with the page ID you copied
+* `docs-location` with the URL where your docs live in version control (used to add a source link to each published page)
+
+'''
+
+include::_step-create-page.adoc[]
+
+'''
+
+== Step 6 - Upload to Confluence
+
+[source,shell]
+----
+$T2C upload --docs . \
+  --user your@email.com \
+  --password YOUR_API_TOKEN
+----
+
+text2confl will scan the directory, convert `hello-world.md` to Confluence Storage Format, and publish it as a new page in your space.
+
+TIP: Add `--dry` to preview what would be uploaded without making any changes to Confluence.
+
+'''
+
+include::_step-result.adoc[]
+
+'''
+
+include::_whats-next.adoc[]

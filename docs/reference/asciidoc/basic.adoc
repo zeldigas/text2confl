@@ -1,0 +1,99 @@
+= AsciiDoc - Basics
+:keywords: supported-format,asciidoc,reference
+:toc:
+
+== Text styling
+
+All basic styling features are supported &mdash; text can be:
+
+[cols="a,a"]
+|===
+| AsciiDoc | Confluence
+
+| `+*bold*+` | *bold*
+| `+_italic_+` | _italic_
+| `+[line-through]#strikethrough#+` | [line-through]#strikethrough#
+| `+With ^super^ and ~under~+` | With ^super^ and ~under~
+
+|
+----
+include::_assets/example.adoc[tag=style-complex]
+----
+|include::_assets/example.adoc[tag=style-complex]
+|===
+
+You can also use quotation blocks:
+
+[cols="a,a"]
+|===
+| AsciiDoc | Confluence
+
+|
+----
+include::_assets/example.adoc[tag=style-quotation]
+----
+|include::_assets/example.adoc[tag=style-quotation]
+|===
+
+
+[.text-right]
+== Text alignment
+
+Text can be aligned to the left, center, or right. This works for paragraphs and headings.
+
+[.text-center]
+To align text, use the `[.text-left]`, `[.text-center]`, or `[.text-right]` role before the paragraph or heading:
+
+[.text-left]
+----
+[.text-right]
+=== Heading aligned to the right
+
+Paragraph aligned to the right.
+
+[.text-center]
+Centered paragraph
+----
+
+== Lists
+
+Both numbered and bullet lists are supported:
+
+[cols="a,a"]
+|===
+| AsciiDoc | Confluence
+
+|
+----
+include::_assets/example.adoc[tag=style-list]
+----
+|include::_assets/example.adoc[tag=style-list]
+|===
+
+Simple task lists are supported too, but due to limitations of Confluence no mixed items are supported.
+
+This will work:
+
+[cols="a,a"]
+|===
+| AsciiDoc | Confluence
+
+|
+----
+include::_assets/example.adoc[tag=style-tasklist-ok]
+----
+|include::_assets/example.adoc[tag=style-tasklist-ok]
+|===
+
+But this will not work:
+
+[cols="a,a"]
+|===
+| AsciiDoc | Confluence
+
+|
+----
+include::_assets/example.adoc[tag=style-tasklist-bad]
+----
+|include::_assets/example.adoc[tag=style-tasklist-bad]
+|===

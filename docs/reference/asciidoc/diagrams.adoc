@@ -1,0 +1,115 @@
+= AsciiDoc - Diagrams
+:keywords: supported-format,asciidoc,reference
+:toc: preamble
+
+*text2confl* supports two asciidoc-native diagrams extensions:
+
+. link:https://docs.asciidoctor.org/diagram-extension/latest/[`asciidoctor-diagram` extension].
+. link:https://github.com/asciidoctor/asciidoctor-kroki[`asciidoctor-kroki` extension].
+
+Approach for diagrams generation is controlled by
+
+[source,yaml]
+----
+asciidoc:
+  diagrams: Diagrams / Kroki / None
+----
+
+== Using `asciidoctor-diagram`
+
+`asciidoctor-diagram` support is enabled by default.
+
+That means that you have access to dozens of diagram formats as long as tools that can generate them is available on machine where *text2confl* works.
+
+NOTE: *text2confl* Docker image by default contains only `plantuml`.
+If you need any other diagram type, you can create derivative image with it.
+
+List of supported diagrams and macro names: https://docs.asciidoctor.org/diagram-extension/latest/diagram_types/a2s/
+
+Generated diagrams are attached to page like a regular files.
+
+== Using `asciidoctor-kroki`
+
+`asciidoctor-kroki` support can be enabled by explicitly setting diagram provider via `.text2confl.yml` file:
+
+[source,yaml]
+----
+asciidoc:
+  diagrams: Kroki
+  kroki:
+    server: ... # <1>
+    format: png # <2>
+    fetch: true/false # <3>
+----
+
+<1> `server` specifies custom Kroki server
+<2> `format` set's default format for generated diagrams
+<3> `fetch` setting to `false` will put a links to Kroki server instead of attaching diagram files to page
+
+Generated diagrams are attached to page like a regular files or put as an image links to Kroki server.
+
+You can find details about available options in xref:../configuration.adoc#asciidoc-configuration-options[configuration reference]
+
+List of supported diagrams and macro names: https://github.com/asciidoctor/asciidoctor-kroki/?tab=readme-ov-file#supported-diagram-types
+
+=== Additional customizations for Kroki
+
+You can customize kroki extension via `asciidoc.attributes` section in config with all link:https://github.com/asciidoctor/asciidoctor-kroki/?tab=readme-ov-file#configuration[supported attributes]:
+
+[source,yaml]
+----
+asciidoc:
+  attributes:
+----
+
+== Disabling diagram extensions
+
+You can disable diagrams support by setting `asciidoc.diagrams` to `None`.
+
+This can be useful for specific scenarios such as registering your custom diagrams extension that clashes with standard ones.
+
+== Adding diagrams to page
+
+With both link:https://docs.asciidoctor.org/diagram-extension/latest/blocks/[asciidoctor-diagram] and link:https://github.com/asciidoctor/asciidoctor-kroki/?tab=readme-ov-file#usage[asciidoctor-kroki], diagrams can be either put inline similar to code block or included from file using per diagram type macro.
+
+With block or macro attributes, you can control name of generated file, file format and diagram-specific features.
+
+Some attributes such as diagram file format can be convenient to configure not on page, but in `.text2confl.yml` file.
+
+=== Inlined
+
+[cols="a,a"]
+|===
+| AsciiDoc | Confluence
+
+|
+----
+include::_assets/example.adoc[tag=diagram]
+----
+| include::_assets/example.adoc[tag=diagram]
+|===
+
+=== Imported from file
+
+[cols="a,a"]
+|===
+| AsciiDoc | Confluence
+
+|`+plantuml::_assets/test.puml[target=test,format=png]+`
+| plantuml::_assets/test.puml[target=test,format=png]
+|===
+
+== Location where diagrams are generated
+
+By default, generated diagrams are saved in `.asciidoc` directory under documents root.
+
+This is configurable with the following parameters in `.text2confl.yml` file
+
+[source,yaml]
+----
+asciidoc:
+  attributes:
+    baseDir: .asciidoc
+----
+
+You can find details about available options in xref:../configuration.adoc#asciidoc-configuration-options[configuration reference]
