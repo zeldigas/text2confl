@@ -26,7 +26,7 @@ text2confl uses a different library for each format:
 
 - **AsciiDoc** is parsed by [AsciidoctorJ](https://github.com/asciidoctor/asciidoctorj), the Java wrapper around
   Asciidoctor. text2confl hooks into the conversion pipeline via custom Asciidoctor templates (written in Slim) that
-  emit Confluence Storage Format XML instead of HTML.
+  emit Confluence Storage Format (CSF) XML instead of HTML.
 
 The difference in approach matters: Markdown goes through flexmark's AST → custom visitor → CSF XML. AsciiDoc goes
 through Asciidoctor's full processing pipeline → custom backend templates → CSF XML. This means the two formats have
