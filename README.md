@@ -47,35 +47,34 @@ a read-only showcase, please open an issue.
 
 ## Documentation
 
-Start here:
+**New to text2confl?** Start with the tutorial:
 
-- **User guide:** :book: [User guide](docs/user-guide.md)
-- **Configuration reference:** :gear: [Configuration reference](docs/configuration-reference.md)
+- :rocket: [Getting started](docs/tutorials/getting-started.md) — publish your first page in minutes
 
-Deep dives / feature docs:
+**Doing a specific task?** See the how-to guides:
 
-- **Storage formats:**
-  - :mag: [Overview](docs/storage-formats.md)
-  - :memo: [Markdown](docs/storage-formats/markdown.md)
-  - :scroll: [AsciiDoc](docs/storage-formats/asciidoc.adoc)
-- **Working with attributes:**
-  - :page_facing_up: [Page attributes](docs/user-guide/page-attributes.md)
-  - :framed_picture: [Image attributes](docs/user-guide/image-attributes.md)
-  - :pushpin: [Table of contents (ToC) attributes](docs/user-guide/toc-attributes.md)
-- **Content tweaks:**
-  - :wrench: [Auto-fix content](docs/user-guide/auto-fix-content.md)
-  - :computer: [Code blocks](docs/user-guide/code-blocks.md)
-  - :art: [Table colors](docs/user-guide/table-colors.md)
-  - :straight_ruler: [Table width](docs/contribution/table-width.md)
-- **Advanced usage:**
-  - :file_folder: [Virtual pages](docs/user-guide/virtual-pages.md)
-  - :office: [Multitenant setups](docs/user-guide/multitenant.md)
-  - :broom: [Pages cleanup](docs/user-guide/pages-cleanup.md)
+- :lock: [Authenticate with Confluence](docs/how-to/authenticate.md)
+- :arrow_up: [Upload docs](docs/how-to/upload-docs.md) · [Ad-hoc upload](docs/how-to/upload-adhoc.md) · [Run with Docker](docs/how-to/run-with-docker.md)
+- :arrow_down: [Export a Confluence page to Markdown](docs/how-to/export-to-markdown.md)
+- :file_folder: [Use virtual pages](docs/how-to/use-virtual-pages.md) · [Manage orphaned pages](docs/how-to/manage-orphaned-pages.md)
+- :office: [Configure multi-tenancy](docs/how-to/configure-multi-tenancy.md)
+
+**Looking up options?** See the reference:
+
+- :gear: [Configuration reference](docs/reference/configuration.md)
+- :memo: [Markdown syntax](docs/reference/markdown.md) · :scroll: [AsciiDoc syntax](docs/reference/asciidoc.adoc)
+- :page_facing_up: [Page attributes](docs/reference/page-attributes.md) · [Image attributes](docs/reference/image-attributes.md) · [Code blocks](docs/reference/code-blocks.md)
+
+**Want to understand how it works?** See the explanations:
+
+- :mag: [How publishing works](docs/explanation/how-publishing-works.md)
+- :books: [Storage formats](docs/explanation/storage-formats.md) — Markdown vs AsciiDoc
+- :brain: [Change detection strategies](docs/explanation/change-detection.md)
 
 Contributing:
 
 - :handshake: [Contributing guide](CONTRIBUTING.md)
-- :construction: [Contribution notes](docs/contribution.md)
+- :construction: [Contribution notes](docs/contributing.md)
 
 ## Who’s using text2confl
 

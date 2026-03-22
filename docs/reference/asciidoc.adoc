@@ -52,8 +52,4 @@ On subpages, you will find details about various formatting aspects with focus o
 . xref:./asciidoc/includes.adoc[] - about including pages
 . xref:./asciidoc/confluence-specific.adoc[] - details about Confluence specific goodies, such as macros support (table of contents, status text, others)
 
-How to read subpages:
-
-. Page is organized in sections with 2 column mode: on the left you see an asciidoc raw text and on the right - formatted result.
-  This approach helps you to immediately see result and how to achieve it.
-. You can also open the source file of page itself and compare it with rendered published version
+Each subpage is organized in sections showing AsciiDoc source alongside the rendered Confluence output.

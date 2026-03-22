@@ -37,18 +37,11 @@ On subpages, you will find details about various formatting aspects:
 1. [](./markdown/basic.md) - about text styling, working with lists
 2. [](./markdown/tables.md) - details of working with tables
 3. [](./markdown/links-images.md) - using links (cross links and external), attaching images and other files
-4. [](./markdown/code.md) -
-5. [](./markdown/diagrams.md) - support for diagrmas defined as text
-6. [](./markdown/confluence-specific.md) - details about Confluence specific goodies, such as macros support (table of
-   contents, status text, others)
+4. [](./markdown/code.md) - code inline and blocks
+5. [](./markdown/diagrams.md) - support for diagrams defined as text
+6. [](./markdown/confluence-specific.md) - details about Confluence specific features: macros, status, admonitions
 
-How to read subpages:
-
-1. Open rendered version of markdown file or uploaded page in Confluence (recommended)
-2. Open raw markdown file side by side with rendered
-3. When reading rendered page, find relevant part of raw page to understand how to write in Markdown
-
-!!! note "A note about attriubtes"
+!!! note "A note about attributes"
 
     Multiple subpages refer to _attributes_ of code blocks, images and other elements. This is a
     custom [markdown extension](https://github.com/vsch/flexmark-java/wiki/Attributes-Extension) that helps to add
