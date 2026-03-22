@@ -26,23 +26,26 @@ Will produce:
 
 ### Table width
 
-To set table width, you can use _attributes_ under the table. Provided value is treated as width in percent, `%` is optional:
+To set table width, you can use _attributes_ under the table. Provided value is treated as width in percent, `%` is
+optional:
 
 ```markdown
 | foo | bar |  baz | 
 |-----|:---:|-----:|
 | bip | bim | boop |
+
 {width=75%}
 ```
 
 | foo | bar |  baz | 
 |-----|:---:|-----:|
 | bip | bim | boop |
+
 {width=75%}
 
 ## Complex tables
 
-For complex cases (e.g. when you need multiline cells or complex content) you can just regular
+For complex cases (e.g. when you need multiline cells or complex content) you can use just regular HTML
 tables (`<table>...</table>`):
 
 Html table:
