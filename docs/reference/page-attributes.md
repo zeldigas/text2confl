@@ -1,11 +1,44 @@
 # Page attributes
 
-Every document can have _attributes_ associated with it. This page describes attributes that are special for
-**text2confl** and treated by it in specific way.
+Page attributes are key-value metadata attached to a document. text2confl reads them before conversion and uses them
+to control page metadata in Confluence (title, labels, parent, properties, and more).
 
 [TOC]
 
-## Document title
+## Syntax
+
+**Markdown** — YAML front matter block at the very beginning of the file, before any content:
+
+```markdown
+---
+title: My page
+labels: docs, team-a
+---
+
+Page content starts here.
+```
+
+**AsciiDoc** — document attributes using the `:key: value` syntax, in the document header (before the first blank
+line). Attributes can appear before or after the document title, but the preferred placement is after it:
+
+```asciidoc
+= My page
+:labels: docs,team-a
+
+Page content starts here.
+```
+
+Attribute values enclosed in `{}` or `[]` are treated as JSON, which allows setting complex page properties:
+
+```markdown
+---
+property_nl_avisi_nh: { "isEnabled": true }
+---
+```
+
+## Supported attributes
+
+### Document title
 
 Document title (name) can be defined in the following ways (from top priority to bottom):
 
@@ -13,10 +46,6 @@ Document title (name) can be defined in the following ways (from top priority to
 2. first level heading at the top of document. If it is used, heading will be removed from resulting document to avoid
    duplication (if not done by underlying format automatically)
 3. name of file
-
-Recommended approach is to use first level heading as it provides also good-looking content outside of
-Confluence. Usage of `title` attribute also fine, especially if you prefer to hide as much Confluence-specific things
-from content as possible.
 
 ### Example 1 - title will be taken from *yaml front matter*
 
@@ -63,10 +92,10 @@ Document content
 
 Resulting title - `my-page`
 
-## Page labels
+### Page labels
 
-Confluence page labels can be set by `labels` attribute. Attribute can be specified as comma-separated string or a list
-of strings (if file format supports this).
+Confluence page labels can be set by the `labels` attribute (or `keywords` in AsciiDoc). The value can be a
+comma-separated string or a list of strings (if the file format supports this).
 
 Example - Markdown document that will have 3 labels (`one`, `two`, `three`):
 
@@ -77,11 +106,9 @@ labels: one, two, three
 Document content
 ```
 
-## Custom parent
+### Custom parent
 
-It is possible to specify custom parent for every page using `parent` or `parentId`. While it's not restricted on every
-level, it makes sense to use this only for top level pages for configuring
-location of subtree (root page and all its children).
+It is possible to specify a custom parent for any page using `parent` or `parentId`.
 
 Attribute `parentId` should contain id of parent page and attribute `parent` should contain parent page title. When
 specified both, `parentId` is used and `parent` will be ignored.
@@ -96,7 +123,7 @@ parent: Custom Parent Page
 Document content
 ```
 
-## Page properties
+### Page properties
 
 Page properties is set of special key-value pairs in Confluence. Confluence and plugins use them to configure page
 behavior.
@@ -123,16 +150,24 @@ property_complex: { "first": one, "flag": false }
 * Confluence Cloud 
   * `editor` property holds the version of editor (v1 or v2)
   * `content-appearance-published` property set to `full-width` makes page to take full width of screen
-* [BobSwift Numbered Heading plugin][page_numbering_plugin] [uses properties](https://bobswift.atlassian.net/wiki/spaces/NH/pages/2585657347/Page+properties)
+* [appfire Numbered Heading plugin][page_numbering_plugin] [uses properties](https://appfire.atlassian.net/wiki/spaces/NH/pages/72680028/Page+properties)
   to enable page numbering on specific pages in Confluence Server.
 
 ### Limitations
 
 Confluence Server does not support properties with dashes, trying to set such property will cause request to fail.
 
-## Virtual pages
+### Virtual pages
 
-Special attribute `_virtual_` allows you to define _virtual pages_ in tree structure. Read more
-on [dedicated page](../explanation/virtual-pages.md).
+The `_virtual_` boolean attribute marks a page as a hierarchy placeholder. text2confl uses the file to determine the
+page's position in the page tree but does not modify the page's content in Confluence.
 
-[page_numbering_plugin]: https://bobswift.atlassian.net/wiki/spaces/NH/overview
+```markdown
+---
+_virtual_: true
+---
+```
+
+See [Virtual pages](../explanation/virtual-pages.md) for background and use cases.
+
+[page_numbering_plugin]: https://appfire.atlassian.net/wiki/spaces/NH/overview
