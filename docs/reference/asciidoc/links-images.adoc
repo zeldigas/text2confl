@@ -36,7 +36,7 @@ Images support attributes that you can use to customize their alignment and widt
 |image:./_assets/asciidoctor-logo.svg[asciidoc logo,200]
 |===
 
-You can find details about supported attributes on link:../../user-guide/image-attributes.md[page "Controlling images representation"].
+You can find details about supported attributes on link:../image-attributes.md[page "Controlling images representation"].
 
 AsciiDoc link:https://docs.asciidoctor.org/asciidoc/latest/macros/image-ref/[native attributes] that are supported: `alt`, `width`, `height`, `link`, `align`
 

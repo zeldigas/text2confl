@@ -133,6 +133,6 @@ Confluence Server does not support properties with dashes, trying to set such pr
 ## Virtual pages
 
 Special attribute `_virtual_` allows you to define _virtual pages_ in tree structure. Read more
-on [dedicated page](./virtual-pages.md).
+on [dedicated page](../explanation/virtual-pages.md).
 
 [page_numbering_plugin]: https://bobswift.atlassian.net/wiki/spaces/NH/overview

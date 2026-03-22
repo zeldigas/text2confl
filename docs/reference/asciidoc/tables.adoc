@@ -56,4 +56,4 @@ Will result in:
 
 include::_assets/example.adoc[tag=bgcolor-table]
 
-You can find more details about supported colors on link:../../user-guide/table-colors.md[dedicated page].
+You can find more details about supported colors on link:../table-colors.md[dedicated page].

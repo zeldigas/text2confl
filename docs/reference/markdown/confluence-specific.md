@@ -169,7 +169,7 @@ Table of contents is supported
 via [custom extension](https://github.com/vsch/flexmark-java/wiki/Table-of-Contents-Extension) that can be put in any
 document location by special `[TOC]` reference put on separate line.
 
-[Supported attributes](../../user-guide/toc-attributes.md) can be passed as key value inside `TOC`.
+[Supported attributes](../toc-attributes.md) can be passed as key value inside `TOC`.
 
 Example of limiting levels in table of contents: `[TOC maxLevel=2]`
 
@@ -306,7 +306,7 @@ down the road. Values can be unquoted if they don't contain spaces, or you can p
     and unique per jira server integration.
 
 By default, any `MACRONAME` is supported, but if you want to limit usage, you can explicitly set what macros are enabled
-with this notation. More details on this in [configuration reference](../../configuration-reference.md)
+with this notation. More details on this in [configuration reference](../configuration.md)
 
 Some examples:
 

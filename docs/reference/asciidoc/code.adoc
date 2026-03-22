@@ -51,7 +51,7 @@ Callouts in xml and similar markup supported too:
 
 With attributes, you can customize code block element.
 
-You can find details about supported languages and other code block attributes on separate page: xref:../../user-guide/code-blocks.md[Code highlight]
+You can find details about supported languages and other code block attributes on separate page: xref:../code-blocks.md[Code highlight]
 
 Supported AsciiDoc link:[native attributes]:
 

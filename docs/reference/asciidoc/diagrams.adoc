@@ -48,7 +48,7 @@ asciidoc:
 
 Generated diagrams are attached to page like a regular files or put as an image links to Kroki server.
 
-You can find details about available options in xref:../../configuration-reference.md#asciidoc-configuration-options[configuration reference]
+You can find details about available options in xref:../configuration.md#asciidoc-configuration-options[configuration reference]
 
 List of supported diagrams and macro names: https://github.com/asciidoctor/asciidoctor-kroki/?tab=readme-ov-file#supported-diagram-types
 
@@ -112,4 +112,4 @@ asciidoc:
     baseDir: .asciidoc
 ----
 
-You can find details about available options in xref:../../configuration-reference.md#asciidoc-configuration-options[configuration reference]
+You can find details about available options in xref:../configuration.md#asciidoc-configuration-options[configuration reference]

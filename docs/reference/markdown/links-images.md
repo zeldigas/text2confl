@@ -31,7 +31,7 @@ alignment and width/height.
 | Attached  | `![markdown logo](./markdown.png){width=200}`                      | ![markdown logo](./markdown.png){width=200}                      |
 
 You can find details about supported attributes
-on [page "Controlling images representation"](../../user-guide/image-attributes.md)
+on [page "Controlling images representation"](../image-attributes.md)
 
 ## Page attachments
 

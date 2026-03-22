@@ -97,4 +97,4 @@ that you might need to put in table
 
 ### Cell background
 
-It is possible to set background for cell via special attribute on cell: [Table cell coloring](../../user-guide/table-colors.md)
+It is possible to set background for cell via special attribute on cell: [Table cell coloring](../table-colors.md)

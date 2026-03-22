@@ -107,5 +107,5 @@ println("Same here!")
 </td></tr></tbody></table>
 
 You can find details about supported languages and other code block attributes on separate
-page: [Code highlight](../../user-guide/code-blocks.md)
+page: [Code highlight](../code-blocks.md)
 

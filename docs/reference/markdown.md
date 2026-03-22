@@ -12,7 +12,7 @@ Every Markdown document corresponds to separate Confluence page.
 
 Document can contain *YAML Front Matter* block at the very beginning - section in YAML format where various metadata can
 be defined like custom title for page, page labels and properties. You can read about supported attributes
-on [dedicated page](../user-guide/page-attributes.md).
+on [dedicated page](./page-attributes.md).
 
 If attribute value is enclosed in `{}` or in `[]`, then value is treated as JSON and parsed. This approach allows to set
 complex properties on page.

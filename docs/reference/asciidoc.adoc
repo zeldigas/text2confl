@@ -10,7 +10,7 @@
 Every AsciiDoc document corresponds to separate Confluence page.
 
 link:{link-attrs}[AsciiDoc page attributes] can be used to set various Confluence page metadata like custom title for page, page labels and properties.
-You can read about supported attributes on link:../user-guide/page-attributes.md[dedicated page].
+You can read about supported attributes on link:./page-attributes.md[dedicated page].
 
 If attribute value is enclosed in `{}` or in `[]`, then value is treated as JSON and parsed.
 This approach allows to set complex properties on page.
@@ -29,7 +29,7 @@ Document content
 
 === Supported attributes
 
-You can read more about attributes that are special for text2confl on xref:../user-guide/page-attributes.md[on dedicated page].
+You can read more about attributes that are special for text2confl on xref:./page-attributes.md[on dedicated page].
 
 In addition to them, the following attributes native for AsciiDoc are supported:
 

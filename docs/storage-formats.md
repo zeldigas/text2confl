@@ -15,7 +15,7 @@ text2confl uses [flexmark](https://github.com/vsch/flexmark-java) library for pa
 basic markdown features, some widely used extensions like tables and codeblocks are supported as well as some special
 features that are useful for Confluence.
 
-You can find information about supported features [on separate page](storage-formats/markdown.md).
+You can find information about supported features [on separate page](reference/markdown.md).
 
 ## AsciiDoc
 
@@ -28,4 +28,4 @@ You can find information about supported features [on separate page](storage-for
 
 text2confl uses [asciidoctorj](https://github.com/asciidoctor/asciidoctorj) library for parsing asciidoc files. Many asciidoc features are supported and mapped to Confluence elements.
 
-You can find information about supported features [on separate page](storage-formats/asciidoc.adoc).
+You can find information about supported features [on separate page](reference/asciidoc.adoc).
