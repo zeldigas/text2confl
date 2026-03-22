@@ -1,7 +1,3 @@
----
-title: Export a Confluence page to Markdown
----
-
 # Export a Confluence page to Markdown
 
 This guide shows how to use the `export-to-md` command to download an existing Confluence page as a Markdown file. This is useful for bootstrapping a docs-as-code migration from content already in Confluence.

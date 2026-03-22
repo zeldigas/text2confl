@@ -1,7 +1,3 @@
----
-title: Explanation
----
-
 # Explanation
 
 Explanation pages provide conceptual background and deeper understanding of how and why text2confl works the way it does. Read these when you want to build a mental model or understand the reasoning behind a feature.

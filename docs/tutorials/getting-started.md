@@ -1,7 +1,3 @@
----
-title: Getting started
----
-
 # Getting started
 
 In this tutorial, you will publish your first Markdown page to Confluence using text2confl. By the end, you will have a working setup you can build on.

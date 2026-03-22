@@ -1,7 +1,3 @@
----
-title: How-to guides
----
-
 # How-to guides
 
 How-to guides are goal-oriented instructions for practitioners. Each guide solves a specific, real-world task. They assume you already have a working text2confl setup — see [Getting started](./tutorials/getting-started.md) if you don't.

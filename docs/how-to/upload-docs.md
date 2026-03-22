@@ -1,7 +1,3 @@
----
-title: Upload docs to Confluence
----
-
 # Upload docs to Confluence
 
 This guide shows how to upload a documentation directory to Confluence.

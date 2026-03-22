@@ -1,7 +1,3 @@
----
-title: Enable auto-fix for HTML content
----
-
 # Enable auto-fix for HTML content
 
 This guide shows how to enable automatic fixing of invalid HTML in converted content.

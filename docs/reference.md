@@ -1,7 +1,3 @@
----
-title: Reference
----
-
 # Reference
 
 Reference material provides accurate, neutral technical descriptions of text2confl's features and options. Use these pages when you need to look something up while working.

@@ -1,7 +1,3 @@
----
-title: Manage orphaned pages
----
-
 # Manage orphaned pages
 
 When you remove a document from your docs directory, the corresponding Confluence page is no longer part of the uploaded tree. text2confl calls these **orphaned pages** and can clean them up automatically.

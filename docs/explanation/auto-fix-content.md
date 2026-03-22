@@ -1,7 +1,3 @@
----
-title: Content auto-fix
----
-
 # Content auto-fix
 
 Confluence expects page content to be valid, well-formed XML in Confluence Storage Format. However, Markdown and AsciiDoc converters may produce HTML that browsers accept but is not valid XML — for example, misnested tags or unclosed elements. When text2confl encounters such content during validation, it rejects the page and fails the upload.

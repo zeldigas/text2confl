@@ -1,7 +1,3 @@
----
-title: Tutorials
----
-
 # Tutorials
 
 Tutorials are hands-on, guided walkthroughs designed to teach you text2confl by doing. Follow these if you are new to the tool.

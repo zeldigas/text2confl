@@ -1,7 +1,3 @@
----
-title: Run with Docker
----
-
 # Run with Docker
 
 This guide shows how to run text2confl using the official Docker image. This is the recommended approach for CI/CD pipelines.

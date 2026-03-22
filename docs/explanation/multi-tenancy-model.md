@@ -1,7 +1,3 @@
----
-title: Multi-tenancy model
----
-
 # Multi-tenancy model
 
 ## The problem

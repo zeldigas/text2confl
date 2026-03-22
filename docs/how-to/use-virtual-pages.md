@@ -1,7 +1,3 @@
----
-title: Use virtual pages for sparse page trees
----
-
 # Use virtual pages for sparse page trees
 
 This guide shows how to use virtual pages to organize your files when you don't want to manage all Confluence pages as code, or when your managed pages are scattered across multiple locations in the space hierarchy.
