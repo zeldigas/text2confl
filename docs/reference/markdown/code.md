@@ -2,7 +2,7 @@
 labels: supported-format,markdown
 ---
 
-# Markdown - code blocks
+# Markdown - Code blocks
 
 ## Inline code
 

@@ -1,7 +1,6 @@
+= AsciiDoc - Basics
 :keywords: supported-format, asciidoc
 :toc:
-
-= AsciiDoc - basics
 
 == Text styling
 

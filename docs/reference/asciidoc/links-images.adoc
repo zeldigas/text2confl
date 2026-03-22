@@ -1,4 +1,4 @@
-= AsciiDoc - links, images and other attachments
+= AsciiDoc - Links, images and other attachments
 :keywords: supported-format,asciidoc
 :toc:
 
@@ -11,8 +11,8 @@ Links of different types supported
 | Link type | AsciiDoc | Result
 
 |External | `+https://example.org[external]+` | https://example.org[external]
-|Cross-link to another page | `+xref:../../storage-formats.md[storage formats]+` | xref:../../storage-formats.md[storage formats]
-|Cross-link to anchor on another page | `+xref:../../storage-formats.md#markdown[anchors inside page]+` | xref:../../storage-formats.md#markdown[anchors inside page]
+|Cross-link to another page | `+xref:../markdown.md[Markdown]+` | xref:../markdown.md[Markdown]
+|Cross-link to anchor on another page | `+xref:../markdown.md#sSupported-features[anchors inside page]+` | xref:../markdown.md#sSupported-features[anchors inside page]
 |Link to file with supported format works same as `xref`
 | `+link:../../storage-formats.md#markdown[same as previous table row]+`
 | link:../../storage-formats.md#markdown[same as previous table row]

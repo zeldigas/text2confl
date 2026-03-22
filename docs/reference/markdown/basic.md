@@ -2,7 +2,7 @@
 labels: supported-format,markdown
 ---
 
-# Markdown - basics
+# Markdown - Basics
 
 [TOC]
 

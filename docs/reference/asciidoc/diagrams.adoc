@@ -1,4 +1,4 @@
-= AsciiDoc - diagrams
+= AsciiDoc - Diagrams
 :keywords: supported-format,asciidoc
 :toc: preamble
 

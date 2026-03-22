@@ -2,7 +2,7 @@
 labels: supported-format,markdown
 ---
 
-# Markdown - tables
+# Markdown - Tables
 
 ## Simple tables
 

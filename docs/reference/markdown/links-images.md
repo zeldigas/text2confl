@@ -2,7 +2,7 @@
 labels: supported-format,markdown
 ---
 
-# Markdown - links, images and other attachments
+# Markdown - Links, images and other attachments
 
 ## Links
 
@@ -12,8 +12,8 @@ Links of different types supported:
 |----------------------------------------------|------------------------------------------------------------|----------------------------------------------------------|
 | External                                     | `[name of the link](http://example.org)`                   | [name of the link](http://example.org)                   |
 | External as [link reference][link_ref_guide] | `[name of the link][external]`                             | [name of the link][external]                             |
-| Link to another page                         | `[linkg to page](../../storage-formats.md)`                | [link to page](../../storage-formats.md)                 |
-| Link to another page with anchor             | `[anchors inside page](../../storage-formats.md#markdown)` | [anchors inside page](../../storage-formats.md#markdown) |
+| Link to another page                         | `[linkg to page](../markdown.md)`                          | [linkg to page](../markdown.md)                          |
+| Link to another page with anchor             | `[anchors inside page](../markdown.md#supported-features)` | [anchors inside page](../markdown.md#supported-features) |
 | Anchor on same page                          | `[anchor inside current page](#images)`                    | [anchor inside current page](#images)                    |
 
 [external]: https://example.org

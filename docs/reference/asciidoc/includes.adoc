@@ -1,4 +1,4 @@
-= Includes
+= AsciiDoc - Includes
 :keywords: supported-format,asciidoc
 :adocs:https://docs.asciidoctor.org/asciidoc/latest/directives/include/
 :included_path: _assets/

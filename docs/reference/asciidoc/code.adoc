@@ -1,4 +1,4 @@
-= AsciiDoc - code blocks
+= AsciiDoc - Code blocks
 :keywords: supported-format,asciidoc
 :toc:
 

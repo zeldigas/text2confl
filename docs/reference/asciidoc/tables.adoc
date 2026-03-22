@@ -1,4 +1,4 @@
-= AsciiDoc - tables
+= AsciiDoc - Tables
 :keywords: supported-format,asciidoc
 :adocs: https://docs.asciidoctor.org/asciidoc/latest
 :property_content-appearance-published: default

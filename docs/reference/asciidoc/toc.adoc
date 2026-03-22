@@ -1,4 +1,4 @@
-= Table of Contents
+= AsciiDoc - Table of Contents
 :keywords: supported-format,asciidoc
 :toc: macro
 

@@ -2,7 +2,7 @@
 labels: supported-format,markdown
 ---
 
-# Markdown - diagrams
+# Markdown - Diagrams
 
 **text2confl** supports a number of text diagram formats to be embedded in Confluence page as code blocks:
 
