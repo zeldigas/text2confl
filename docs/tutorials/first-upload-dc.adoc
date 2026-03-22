@@ -1,0 +1,73 @@
+= First upload to Confluence Data Center / Server
+:keywords: tutorial,confluence-dc
+
+In this tutorial you will publish your first Markdown page to Confluence Data Center or Server using text2confl.
+
+*What you need before starting:*
+
+* A Confluence Data Center or Server instance
+* Permission to create pages in at least one space
+* A terminal on macOS, Linux, or WSL
+
+'''
+
+include::_step-download.adoc[]
+
+'''
+
+== Step 2 — Get a personal access token
+
+In Confluence, go to your profile → *Personal Access Tokens* and create a new token. Save it — you won't be able to see it again.
+
+See the link:https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html[official guide] if you can't find the setting.
+
+'''
+
+include::_step-create-dir.adoc[]
+
+'''
+
+== Step 4 — Create a configuration file
+
+First, create a page in your Confluence space that will act as the parent for your uploaded docs (e.g. title it *"My Docs"*). Note the exact title — you will use it in the config.
+
+Then create `.text2confl.yml` in your docs directory:
+
+[source,yaml]
+----
+server: https://confluence.yourcompany.org
+space: MYSPACE
+default-parent: My Docs
+docs-location: https://github.com/yourorg/yourrepo/tree/main/my-docs/
+----
+
+Replace:
+
+* `https://confluence.yourcompany.org` with your Confluence server URL
+* `MYSPACE` with the space key where you want to publish (visible in the Confluence space URL, e.g. `\https://confluence.yourcompany.org/display/MYSPACE/...`)
+* `My Docs` with the title of the parent page you created
+* `docs-location` with the URL where your docs live in version control (used to add a source link to each published page)
+
+'''
+
+include::_step-create-page.adoc[]
+
+'''
+
+== Step 6 — Upload to Confluence
+
+[source,shell]
+----
+$T2C upload --docs . \
+  --access-token YOUR_PERSONAL_ACCESS_TOKEN
+----
+
+text2confl will scan the directory, convert `hello-world.md` to Confluence Storage Format, and publish it as a new page in your space.
+
+'''
+
+include::_step-result.adoc[]
+
+'''
+
+include::_whats-next.adoc[]

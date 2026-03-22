@@ -1,0 +1,7 @@
+== Step 3 — Create your documentation directory
+
+[source,shell]
+----
+mkdir my-docs
+cd my-docs
+----

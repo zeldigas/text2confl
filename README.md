@@ -22,34 +22,12 @@ Please :star: **star this repo** — it helps other people discover the tool and
 - Tries to provide **good feature coverage** for the chosen markup language, mapped to Confluence capabilities
 - Supports **extensibility/customization** (e.g., adding macros) so you don’t need to fork for common needs
 
-## Quick start
-
-If you want to quickly see how `text2confl` works, you can upload the documentation of this repository to your own Confluence.
-Pick a space and a parent page under which the pages will be created:
-
-```shell
-# from the root of the checked out text2confl repo
-text2confl upload --docs ./docs \
-  --confluence-url https://wiki.example.org \
-  --user bob \
-  --password secret_password \
-  --space DOCS \
-  --parent "Text2Confl test"
-```
-
-Example resulting page tree:
-
-![](docs/text2confl-page-tree.png)
-
-**Note on a public docs showcase:** At the moment there is no public Confluence demo because Confluence Cloud free tier
-doesn’t allow publishing spaces/pages to non-members. If you’d like to sponsor a public demo space or provide access for
-a read-only showcase, please open an issue.
-
 ## Documentation
 
-**New to text2confl?** Start with the tutorial:
+**New to text2confl?** Start with the first upload guide for your deployment:
 
-- :rocket: [Getting started](docs/tutorials/getting-started.md) — publish your first page in minutes
+- :rocket: [Confluence Cloud](docs/tutorials/first-upload-cloud.adoc) — `yoursite.atlassian.net`
+- :rocket: [Confluence Data Center / Server](docs/tutorials/first-upload-dc.adoc) — self-hosted
 
 **Doing a specific task?** See the how-to guides:
 
@@ -75,6 +53,29 @@ Contributing:
 
 - :handshake: [Contributing guide](CONTRIBUTING.md)
 - :construction: [Contribution notes](docs/contributing.md)
+
+## Try it with this repo’s docs
+
+You can publish text2confl’s own documentation to your Confluence to see the tool in action.
+Pick a space and a parent page under which the pages will be created:
+
+```shell
+# from the root of the checked out text2confl repo
+text2confl upload --docs ./docs \
+  --confluence-url https://wiki.example.org \
+  --user bob \
+  --password secret_password \
+  --space DOCS \
+  --parent "Text2Confl test"
+```
+
+Example resulting page tree:
+
+![](docs/text2confl-page-tree.png)
+
+**Note on a public docs showcase:** At the moment there is no public Confluence demo because Confluence Cloud free tier
+doesn’t allow publishing spaces/pages to non-members. If you’d like to sponsor a public demo space or provide access for
+a read-only showcase, please open an issue.
 
 ## Who’s using text2confl
 

@@ -1,0 +1,14 @@
+== Step 5 — Create your first page
+
+[source,shell]
+----
+cat > hello-world.md << 'EOF'
+# Hello from text2confl
+
+This page was published automatically using [text2confl](https://github.com/zeldigas/text2confl).
+
+## What is text2confl?
+
+text2confl converts Markdown and AsciiDoc files into Confluence pages. You write docs as plain text files, commit them to version control, and text2confl keeps your Confluence space in sync.
+EOF
+----
