@@ -23,7 +23,7 @@ line). Attributes can appear before or after the document title, but the preferr
 
 ```asciidoc
 = My page
-:labels: docs,team-a
+:keywords: docs,team-a
 
 Page content starts here.
 ```

@@ -1,5 +1,5 @@
 = AsciiDoc - links, images and other attachments
-:labels: supported-format,asciidoc
+:keywords: supported-format,asciidoc
 :toc:
 
 == Links

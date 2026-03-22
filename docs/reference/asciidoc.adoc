@@ -1,4 +1,4 @@
-:labels: supported-format,asciidoc
+:keywords: supported-format,asciidoc
 :toc:
 
 :link-attrs: https://docs.asciidoctor.org/asciidoc/latest/attributes/document-attributes-ref/
@@ -20,7 +20,7 @@ Example document with 4 _attributes_: `title`, `labels` and 2 properties - `simp
 [source,asciidoc,title"Page with front matter"]
 ----
 :title: hello
-:labels: docs,intro
+:keywords: docs,intro
 :property_simple: custom_value
 :property_nl_avisi_nh: \{ "isEnabled": true }
 

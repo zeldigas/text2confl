@@ -1,5 +1,5 @@
 = AsciiDoc - tables
-:labels: supported-format,asciidoc
+:keywords: supported-format,asciidoc
 :adocs: https://docs.asciidoctor.org/asciidoc/latest
 :property_content-appearance-published: default
 
