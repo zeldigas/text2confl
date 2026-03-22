@@ -1,3 +1,7 @@
+---
+labels: reference
+---
+
 # Reference
 
 Reference material provides accurate, neutral technical descriptions of text2confl's features and options. Use these

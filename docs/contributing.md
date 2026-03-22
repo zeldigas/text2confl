@@ -1,3 +1,7 @@
+---
+labels: contributing
+---
+
 # Contributing to codebase
 
 # Adding support for Confluence formatting features

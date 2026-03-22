@@ -1,3 +1,7 @@
+---
+labels: reference
+---
+
 # Table of Contents attributes
 
 You can control representation of table of contents

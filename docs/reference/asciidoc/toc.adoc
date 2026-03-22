@@ -1,5 +1,5 @@
 = AsciiDoc - Table of Contents
-:keywords: supported-format,asciidoc
+:keywords: supported-format,asciidoc,reference
 :toc: macro
 
 AsciiDoc link:https://docs.asciidoctor.org/asciidoc/latest/toc/[table of contents (TOC)] are converted to the table of contents macro of Confluence.

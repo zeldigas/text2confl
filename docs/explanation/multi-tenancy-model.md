@@ -1,3 +1,7 @@
+---
+labels: explanation
+---
+
 # Multi-tenancy model
 
 ## The problem

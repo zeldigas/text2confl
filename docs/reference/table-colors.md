@@ -1,3 +1,7 @@
+---
+labels: reference
+---
+
 # Table cells supported colors
 
 **Confluence Cloud** allows to specify any color by adding attribute `data-highlight-colour="#ffbbcc"` to cell,

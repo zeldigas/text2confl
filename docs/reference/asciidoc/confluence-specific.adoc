@@ -1,5 +1,5 @@
 = AsciiDoc - Confluence specific features
-:keywords: supported-format,asciidoc
+:keywords: supported-format,asciidoc,reference
 :toc: preamble
 :adocs_pass: https://docs.asciidoctor.org/asciidoc/latest/pass/pass-macro/
 

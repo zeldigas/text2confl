@@ -1,5 +1,5 @@
 = AsciiDoc - Admonitions
-:keywords: supported-format,asciidoc
+:keywords: supported-format,asciidoc,reference
 
 AsciiDoc's admonitions converted to note, tip, warning and info blocks.
 

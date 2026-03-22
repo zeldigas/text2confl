@@ -1,3 +1,7 @@
+---
+labels: explanation
+---
+
 # Virtual pages
 
 If you don't plan to manage all your wiki pages as code, then there is a big chance for you to face with the following

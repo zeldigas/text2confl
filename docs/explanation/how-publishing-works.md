@@ -1,3 +1,7 @@
+---
+labels: explanation
+---
+
 # How publishing works
 
 This page explains the internal pipeline text2confl follows when you run `upload` or `convert`. Understanding it helps

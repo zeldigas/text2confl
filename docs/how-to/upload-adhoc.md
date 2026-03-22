@@ -1,3 +1,7 @@
+---
+labels: how-to
+---
+
 # Upload a single page ad-hoc
 
 This guide shows how to upload documents without creating a `.text2confl.yml` configuration file - useful for quick

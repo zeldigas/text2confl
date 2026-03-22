@@ -1,4 +1,4 @@
-:keywords: supported-format,asciidoc
+:keywords: supported-format,asciidoc,reference
 :toc:
 
 :link-attrs: https://docs.asciidoctor.org/asciidoc/latest/attributes/document-attributes-ref/

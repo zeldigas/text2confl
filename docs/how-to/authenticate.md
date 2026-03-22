@@ -1,3 +1,7 @@
+---
+labels: how-to
+---
+
 # Authenticate with Confluence
 
 This guide shows how to provide credentials to text2confl for connecting to your Confluence instance.

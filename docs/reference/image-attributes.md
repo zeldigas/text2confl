@@ -1,3 +1,7 @@
+---
+labels: reference
+---
+
 # Controlling images representation
 
 Confluence supports the following attributes that can help customize th

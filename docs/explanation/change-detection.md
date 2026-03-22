@@ -1,3 +1,7 @@
+---
+labels: explanation
+---
+
 # Change detection strategies
 
 text2confl avoids unnecessary uploads by checking whether a page has changed before sending it to Confluence. Two

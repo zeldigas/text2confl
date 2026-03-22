@@ -1,3 +1,7 @@
+---
+labels: explanation
+---
+
 # Storage formats
 
 text2confl supports two source formats: **Markdown** and **AsciiDoc**. You can use either format, or mix both formats

@@ -1,3 +1,7 @@
+---
+labels: how-to
+---
+
 # Configure multi-tenancy
 
 This guide shows how to configure multi-tenancy when multiple teams share the same Confluence space and manage pages

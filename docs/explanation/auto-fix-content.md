@@ -1,3 +1,7 @@
+---
+labels: explanation
+---
+
 # Content auto-fix
 
 Confluence expects page content to be valid, well-formed XML in Confluence Storage Format. However, Markdown and

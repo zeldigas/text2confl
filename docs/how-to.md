@@ -1,3 +1,7 @@
+---
+labels: how-to
+---
+
 # How-to guides
 
 How-to guides are goal-oriented instructions for practitioners. Each guide solves a specific, real-world task. They

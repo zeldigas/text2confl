@@ -1,5 +1,5 @@
 = AsciiDoc - Includes
-:keywords: supported-format,asciidoc
+:keywords: supported-format,asciidoc,reference
 :adocs:https://docs.asciidoctor.org/asciidoc/latest/directives/include/
 :included_path: _assets/
 

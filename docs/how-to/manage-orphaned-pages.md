@@ -1,3 +1,7 @@
+---
+labels: how-to
+---
+
 # Manage orphaned pages
 
 When you remove a document from your docs directory, the corresponding Confluence page is no longer part of the uploaded

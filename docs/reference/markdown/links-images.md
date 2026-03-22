@@ -1,5 +1,5 @@
 ---
-labels: supported-format,markdown
+labels: supported-format,markdown,reference
 ---
 
 # Markdown - Links, images and other attachments

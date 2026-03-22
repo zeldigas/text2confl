@@ -1,3 +1,7 @@
+---
+labels: how-to
+---
+
 # Use virtual pages for sparse page trees
 
 This guide shows how to use virtual pages to organize your files when you don't want to manage all Confluence pages as

@@ -1,3 +1,7 @@
+---
+labels: reference
+---
+
 # Page attributes
 
 Page attributes are key-value metadata attached to a document. text2confl reads them before conversion and uses them

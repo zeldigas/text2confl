@@ -1,3 +1,7 @@
+---
+labels: contributing
+---
+
 # Table details in confluence storage format
 
 ## Confluence cloud format

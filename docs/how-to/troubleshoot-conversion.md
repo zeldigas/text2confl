@@ -1,3 +1,7 @@
+---
+labels: how-to
+---
+
 # Troubleshoot conversion output
 
 If a published page looks wrong in Confluence, use the `convert` command to inspect the generated
