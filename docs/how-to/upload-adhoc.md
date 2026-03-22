@@ -1,6 +1,6 @@
 # Upload a single page ad-hoc
 
-This guide shows how to upload documents without creating a `.text2confl.yml` configuration file — useful for quick one-off uploads.
+This guide shows how to upload documents without creating a `.text2confl.yml` configuration file - useful for quick one-off uploads.
 
 ## Upload a directory
 
@@ -29,5 +29,5 @@ text2confl upload --docs ./my-file.md \
 
 ## See also
 
-- [Authenticate with Confluence](./authenticate.md) — credential options including environment variables
-- [Configuration reference](../reference/configuration.md) — full list of upload options
+- [Authenticate with Confluence](./authenticate.md) - credential options including environment variables
+- [Configuration reference](../reference/configuration.md) - full list of upload options

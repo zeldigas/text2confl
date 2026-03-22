@@ -8,7 +8,7 @@ The two formats exist for different reasons and serve different communities:
 
 **Markdown** is the dominant format in software documentation today. It has a simple syntax, widespread tooling support (editors, linters, preview plugins), and is the default format on GitHub, GitLab, and most static site generators. If your team is already writing READMEs and wikis in Markdown, it requires no learning curve.
 
-**AsciiDoc** is a more expressive format designed for technical documentation. It has native support for complex structures like cross-references, includes, callouts, admonitions, and fine-grained table control — features that require extensions or workarounds in Markdown. If your documentation has high complexity requirements (large multi-file documents, precise layout control, structured publishing), AsciiDoc is the better fit.
+**AsciiDoc** is a more expressive format designed for technical documentation. It has native support for complex structures like cross-references, includes, callouts, admonitions, and fine-grained table control - features that require extensions or workarounds in Markdown. If your documentation has high complexity requirements (large multi-file documents, precise layout control, structured publishing), AsciiDoc is the better fit.
 
 ## Under the hood
 
@@ -40,5 +40,5 @@ You can use both formats in the same documentation tree. text2confl detects the 
 
 ## See also
 
-- [Markdown reference](../reference/markdown.md) — supported Markdown syntax and features
-- [AsciiDoc reference](../reference/asciidoc.adoc) — supported AsciiDoc syntax and features
+- [Markdown reference](../reference/markdown.md) - supported Markdown syntax and features
+- [AsciiDoc reference](../reference/asciidoc.adoc) - supported AsciiDoc syntax and features

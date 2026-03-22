@@ -1,12 +1,12 @@
 # Content auto-fix
 
-Confluence expects page content to be valid, well-formed XML in Confluence Storage Format. However, Markdown and AsciiDoc converters may produce HTML that browsers accept but is not valid XML — for example, misnested tags or unclosed elements. When text2confl encounters such content during validation, it rejects the page and fails the upload.
+Confluence expects page content to be valid, well-formed XML in Confluence Storage Format. However, Markdown and AsciiDoc converters may produce HTML that browsers accept but is not valid XML - for example, misnested tags or unclosed elements. When text2confl encounters such content during validation, it rejects the page and fails the upload.
 
 ## Why this happens
 
-The root cause is the gap between HTML parsing (lenient) and XML parsing (strict). Browser HTML parsers are deliberately tolerant — they recover from malformed markup. XML parsers are not. Confluence Storage Format is XML, so the same content that renders correctly in a browser can fail strict XML validation.
+The root cause is the gap between HTML parsing (lenient) and XML parsing (strict). Browser HTML parsers are deliberately tolerant - they recover from malformed markup. XML parsers are not. Confluence Storage Format is XML, so the same content that renders correctly in a browser can fail strict XML validation.
 
-Markdown and AsciiDoc rendering libraries are typically tested against browser rendering, not XML validity. Some edge cases — especially raw HTML snippets embedded in Markdown, or certain Asciidoctor output — can produce structurally invalid markup that passes rendering tests but breaks XML validation. [Issue #182](https://github.com/zeldigas/text2confl/issues/182) is an example of this with Asciidoctor.
+Markdown and AsciiDoc rendering libraries are typically tested against browser rendering, not XML validity. Some edge cases - especially raw HTML snippets embedded in Markdown, or certain Asciidoctor output - can produce structurally invalid markup that passes rendering tests but breaks XML validation. [Issue #182](https://github.com/zeldigas/text2confl/issues/182) is an example of this with Asciidoctor.
 
 ## How the auto-fix feature works
 
@@ -27,4 +27,4 @@ Keep it disabled when:
 
 ## See also
 
-- [Enable auto-fix for HTML content](../how-to/enable-auto-fix.md) — steps to turn it on
+- [Enable auto-fix for HTML content](../how-to/enable-auto-fix.md) - steps to turn it on

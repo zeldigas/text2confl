@@ -10,7 +10,7 @@ There are three cleanup modes, controlled by the `remove-orphans` configuration 
 |------|-------------|-------------|
 | Delete managed pages (default) | `managed` | Removes only pages that were uploaded by text2confl (marked as "managed") |
 | Delete all orphaned pages | `all` | Removes any page under the upload root that is not part of the current document tree |
-| Do nothing | `none` | Leaves orphaned pages in place — no cleanup |
+| Do nothing | `none` | Leaves orphaned pages in place - no cleanup |
 
 ## What is a managed page?
 
@@ -31,7 +31,7 @@ remove-orphans: managed   # default
 Or on the command line:
 
 ```shell
-# Delete only managed orphans (default behavior — explicit)
+# Delete only managed orphans (default behavior - explicit)
 text2confl upload --docs . --remove-orphans managed
 
 # Delete all orphaned pages under the upload root
@@ -49,4 +49,4 @@ See [Configure multi-tenancy](./configure-multi-tenancy.md) for details.
 
 ## See also
 
-- [Configuration reference](../reference/configuration.md) — `remove-orphans` option
+- [Configuration reference](../reference/configuration.md) - `remove-orphans` option

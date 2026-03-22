@@ -6,8 +6,8 @@ This guide shows how to provide credentials to text2confl for connecting to your
 
 text2confl supports two methods:
 
-1. **Access token** — pass `--access-token` alone (no username needed)
-2. **Username + password** — pass `--user` and `--password`. If `--user` is provided but `--password` is omitted, text2confl prompts for it interactively.
+1. **Access token** - pass `--access-token` alone (no username needed)
+2. **Username + password** - pass `--user` and `--password`. If `--user` is provided but `--password` is omitted, text2confl prompts for it interactively.
 
 ## Getting credentials
 

@@ -4,19 +4,19 @@ Reference material provides accurate, neutral technical descriptions of text2con
 
 ## Configuration
 
-- [Configuration options](./reference/configuration.md) — all `.text2confl.yml` settings, CLI flags, and environment variables
+- [Configuration options](./reference/configuration.md) - all `.text2confl.yml` settings, CLI flags, and environment variables
 
 ## Page attributes and metadata
 
-- [Page attributes](./reference/page-attributes.md) — title, labels, parent, page properties
-- [Image attributes](./reference/image-attributes.md) — image size, alignment, border, thumbnail
-- [Table of contents attributes](./reference/toc-attributes.md) — TOC customization parameters
-- [Code block attributes](./reference/code-blocks.md) — language support, line numbers, themes
-- [Table cell colors](./reference/table-colors.md) — supported background color values
+- [Page attributes](./reference/page-attributes.md) - title, labels, parent, page properties
+- [Image attributes](./reference/image-attributes.md) - image size, alignment, border, thumbnail
+- [Table of contents attributes](./reference/toc-attributes.md) - TOC customization parameters
+- [Code block attributes](./reference/code-blocks.md) - language support, line numbers, themes
+- [Table cell colors](./reference/table-colors.md) - supported background color values
 
 ## Markdown syntax reference
 
-- [Markdown overview](./reference/markdown.md) — document structure, YAML front matter
+- [Markdown overview](./reference/markdown.md) - document structure, YAML front matter
   - [Basic formatting](./reference/markdown/basic.md)
   - [Tables](./reference/markdown/tables.md)
   - [Links and images](./reference/markdown/links-images.md)
@@ -26,7 +26,7 @@ Reference material provides accurate, neutral technical descriptions of text2con
 
 ## AsciiDoc syntax reference
 
-- [AsciiDoc overview](./reference/asciidoc.adoc) — document structure, page attributes
+- [AsciiDoc overview](./reference/asciidoc.adoc) - document structure, page attributes
   - [Basic formatting](./reference/asciidoc/basic.adoc)
   - [Tables](./reference/asciidoc/tables.adoc)
   - [Links and images](./reference/asciidoc/links-images.adoc)

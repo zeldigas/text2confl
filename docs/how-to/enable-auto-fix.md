@@ -24,4 +24,4 @@ text2confl upload --docs . --auto-fix-content
 
 ## See also
 
-- [Content auto-fix](../explanation/auto-fix-content.md) — when to enable it and the tradeoffs
+- [Content auto-fix](../explanation/auto-fix-content.md) - when to enable it and the tradeoffs

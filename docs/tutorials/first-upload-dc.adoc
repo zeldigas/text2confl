@@ -15,9 +15,9 @@ include::_step-download.adoc[]
 
 '''
 
-== Step 2 — Get a personal access token
+== Step 2 - Get a personal access token
 
-In Confluence, go to your profile → *Personal Access Tokens* and create a new token. Save it — you won't be able to see it again.
+In Confluence, go to your profile → *Personal Access Tokens* and create a new token. Save it - you won't be able to see it again.
 
 See the link:https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html[official guide] if you can't find the setting.
 
@@ -27,9 +27,9 @@ include::_step-create-dir.adoc[]
 
 '''
 
-== Step 4 — Create a configuration file
+== Step 4 - Create a configuration file
 
-First, create a page in your Confluence space that will act as the parent for your uploaded docs (e.g. title it *"My Docs"*). Note the exact title — you will use it in the config.
+First, create a page in your Confluence space that will act as the parent for your uploaded docs (e.g. title it *"My Docs"*). Note the exact title - you will use it in the config.
 
 Then create `.text2confl.yml` in your docs directory:
 
@@ -54,7 +54,7 @@ include::_step-create-page.adoc[]
 
 '''
 
-== Step 6 — Upload to Confluence
+== Step 6 - Upload to Confluence
 
 [source,shell]
 ----

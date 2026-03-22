@@ -56,10 +56,10 @@ text2confl will place `page-a.md` and `page-b.md` as children of `Parent page` w
 
 ## Important constraints
 
-- Virtual pages are never associated with a tenant in multi-tenant setups — they can coexist across teams.
+- Virtual pages are never associated with a tenant in multi-tenant setups - they can coexist across teams.
 - Virtual pages are excluded from orphan cleanup.
 
 ## See also
 
-- [Virtual pages](../explanation/virtual-pages.md) — conceptual explanation
-- [Page attributes](../reference/page-attributes.md) — full list of supported page attributes including `_virtual_`
+- [Virtual pages](../explanation/virtual-pages.md) - conceptual explanation
+- [Page attributes](../reference/page-attributes.md) - full list of supported page attributes including `_virtual_`

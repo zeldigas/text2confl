@@ -30,6 +30,6 @@ This is useful for inspecting the output or for integrations where you handle th
 
 ## See also
 
-- [Run with Docker](./run-with-docker.md) — run text2confl in containers and CI/CD pipelines
-- [Upload a single page ad-hoc](./upload-adhoc.md) — upload without a config file
-- [Configuration reference](../reference/configuration.md) — all upload command options
+- [Run with Docker](./run-with-docker.md) - run text2confl in containers and CI/CD pipelines
+- [Upload a single page ad-hoc](./upload-adhoc.md) - upload without a config file
+- [Configuration reference](../reference/configuration.md) - all upload command options

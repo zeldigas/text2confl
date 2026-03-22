@@ -15,14 +15,14 @@ include::_step-download.adoc[]
 
 '''
 
-== Step 2 — Get a Confluence API token
+== Step 2 - Get a Confluence API token
 
-Go to link:https://id.atlassian.com/manage-profile/security/api-tokens[Atlassian account security settings] and create an API token. Save it — you won't be able to see it again.
+Go to link:https://id.atlassian.com/manage-profile/security/api-tokens[Atlassian account security settings] and create an API token. Save it - you won't be able to see it again.
 
 Your credentials for text2confl are:
 
-* *username* — your Atlassian account email
-* *password* — the API token you just created
+* *username* - your Atlassian account email
+* *password* - the API token you just created
 
 '''
 
@@ -30,9 +30,9 @@ include::_step-create-dir.adoc[]
 
 '''
 
-== Step 4 — Create a configuration file
+== Step 4 - Create a configuration file
 
-First, create a page in your Confluence space that will act as the parent for your uploaded docs (e.g. title it *"My Docs"*). Open that page and copy its ID from the URL — it is the number after `/pages/`:
+First, create a page in your Confluence space that will act as the parent for your uploaded docs (e.g. title it *"My Docs"*). Open that page and copy its ID from the URL - it is the number after `/pages/`:
 
 ----
 https://yoursite.atlassian.net/wiki/spaces/MYSPACE/pages/123456789/My+Docs
@@ -62,7 +62,7 @@ include::_step-create-page.adoc[]
 
 '''
 
-== Step 6 — Upload to Confluence
+== Step 6 - Upload to Confluence
 
 [source,shell]
 ----

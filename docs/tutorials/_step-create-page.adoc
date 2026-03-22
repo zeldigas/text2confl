@@ -1,4 +1,4 @@
-== Step 5 — Create your first page
+== Step 5 - Create your first page
 
 [source,shell]
 ----

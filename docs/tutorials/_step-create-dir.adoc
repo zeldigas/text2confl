@@ -1,4 +1,4 @@
-== Step 3 — Create your documentation directory
+== Step 3 - Create your documentation directory
 
 [source,shell]
 ----

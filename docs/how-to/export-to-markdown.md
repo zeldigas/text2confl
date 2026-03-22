@@ -62,4 +62,4 @@ text2confl export-to-md \
 ## See also
 
 - [Authenticate with Confluence](./authenticate.md)
-- [Getting started](../tutorials/getting-started.md) — set up a full docs-as-code project after exporting your pages
+- [Getting started](../tutorials/getting-started.md) - set up a full docs-as-code project after exporting your pages

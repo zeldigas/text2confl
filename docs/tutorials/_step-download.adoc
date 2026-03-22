@@ -1,4 +1,4 @@
-== Step 1 — Download text2confl
+== Step 1 - Download text2confl
 
 Go to the link:https://github.com/zeldigas/text2confl/releases[releases page] and download the latest archive for your platform. Extract it and define a variable pointing to the binary:
 

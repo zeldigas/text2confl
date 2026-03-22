@@ -1,4 +1,4 @@
-== Step 7 — See the result
+== Step 7 - See the result
 
 Open your Confluence space. You should see a new page titled *"Hello from text2confl"* with the content you wrote.
 
