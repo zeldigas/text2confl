@@ -53,4 +53,4 @@ See [Configure multi-tenancy](./configure-multi-tenancy.md) for details.
 
 ## See also
 
-- [Configuration reference](../reference/configuration.md) - `remove-orphans` option
+- [Configuration reference](../reference/configuration.adoc) - `remove-orphans` option

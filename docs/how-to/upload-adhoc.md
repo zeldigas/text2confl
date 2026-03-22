@@ -31,4 +31,4 @@ text2confl upload --docs ./my-file.md \
 ## See also
 
 - [Authenticate with Confluence](./authenticate.md) - credential options including environment variables
-- [Configuration reference](../reference/configuration.md) - full list of upload options
+- [Configuration reference](../reference/configuration.adoc) - full list of upload options

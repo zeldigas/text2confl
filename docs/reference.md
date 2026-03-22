@@ -5,7 +5,7 @@ pages when you need to look something up while working.
 
 ## Configuration
 
-- [Configuration options](./reference/configuration.md) - all `.text2confl.yml` settings, CLI flags, and environment
+- [Configuration options](./reference/configuration.adoc) - all `.text2confl.yml` settings, CLI flags, and environment
   variables
 
 ## Page attributes and metadata
@@ -13,7 +13,7 @@ pages when you need to look something up while working.
 - [Page attributes](./reference/page-attributes.md) - title, labels, parent, page properties
 - [Image attributes](./reference/image-attributes.md) - image size, alignment, border, thumbnail
 - [Table of contents attributes](./reference/toc-attributes.md) - TOC customization parameters
-- [Code block attributes](./reference/code-blocks.md) - language support, line numbers, themes
+- [Code block attributes](./reference/code-blocks.adoc) - language support, line numbers, themes
 - [Table cell colors](./reference/table-colors.md) - supported background color values
 
 ## Markdown syntax reference

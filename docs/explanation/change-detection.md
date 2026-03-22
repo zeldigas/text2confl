@@ -56,4 +56,4 @@ text2confl upload --docs . --check-modification content
 
 ## See also
 
-- [Configuration reference](../reference/configuration.md) - `modification-check` option
+- [Configuration reference](../reference/configuration.adoc) - `modification-check` option

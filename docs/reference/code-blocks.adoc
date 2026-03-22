@@ -1,0 +1,91 @@
+:labels: reference
+:toc:
+
+= Code highlight
+
+*text2confl* is familiar with different lists of supported language highlights in Confluence Server/Data Center and
+Cloud, so it will keep the language tag if Confluence supports it and remove it when it does not.
+See xref:#language-tags[Language tags] below for the full list.
+
+== Code block attributes
+
+[cols="2,5a,1,2a",options="header"]
+|===
+| Attribute | Description | Confluence Server | Confluence Cloud
+
+| `title`
+| Title for the code block
+| ✅
+| ✅
+
+| `collapse`
+| Controls whether the code block is collapsed by default. Allowed values: `true`, `false`
+| ✅
+| WARNING: Only if editor v1 is forcibly set
+
+| `linenumbers`
+| Controls whether line numbers are displayed. Allowed values: `true`, `false`
+| ✅
+| WARNING: Only if editor v1 is forcibly set
+
+| `firstline`
+| Sets the starting line number
+| ✅
+| WARNING: Only if editor v1 is forcibly set
+
+| `theme`
+| Sets the code block theme. See link:https://confluence.atlassian.com/doc/code-block-macro-139390.html[Confluence docs] for valid values
+| ✅
+| WARNING: Only if editor v1 is forcibly set
+|===
+
+[[language-tags]]
+== Language tags
+
+=== Confluence Server
+
+Supported languages: `actionscript3`, `applescript`, `bash`, `c#`, `coldfusion`, `cpp`, `css`, `delphi`, `diff`,
+`erl`, `groovy`, `java`, `jfx`, `js`, `perl`, `php`, `powershell`, `py`, `ruby`, `sass`, `scala`, `sql`, `text`,
+`vb`, `xml`, `yml`.
+
+Extra aliases for compatibility with IDE or widely used language tags not supported in Confluence:
+
+[cols="1,1",options="header"]
+|===
+| Language tag | Confluence language
+
+| `shell` | `bash`
+| `zsh` | `bash`
+| `sh` | `bash`
+| `dockerfile` | `bash`
+| `javascript` | `js`
+| `json` | `js`
+| `yaml` | `yml`
+| `html` | `xml`
+|===
+
+Any language not in the list is mapped to `java`.
+
+=== Confluence Cloud
+
+Supported languages: `abap`, `actionscript3`, `ada`, `applescript`, `arduino`, `autoit`, `bash`, `c`, `c#`,
+`clojure`, `coffeescript`, `coldfusion`, `cpp`, `css`, `cuda`, `d`, `dart`, `diff`, `elixir`, `erl`, `fortran`,
+`foxpro`, `go`, `graphql`, `groovy`, `haskell`, `haxe`, `html`, `java`, `javafx`, `js`, `json`, `jsx`, `julia`,
+`kotlin`, `livescript`, `lua`, `mathematica`, `matlab`, `objective-c`, `objective-j`, `ocaml`, `octave`, `pas`,
+`perl`, `php`, `powershell`, `prolog`, `puppet`, `py`, `qbs`, `r`, `racket`, `restructuredtext`, `ruby`, `rust`,
+`sass`, `scala`, `scheme`, `smalltalk`, `splunk-spl`, `sql`, `standardlm`, `swift`, `tcl`, `tex`, `text`, `tsx`,
+`typescript`, `vala`, `vb`, `vbnet`, `verilog`, `vhdl`, `xml`, `xquery`, `yaml`.
+
+Extra aliases for compatibility with IDE or widely used language tags not supported in Confluence:
+
+[cols="1,1",options="header"]
+|===
+| Language tag | Confluence language
+
+| `shell` | `bash`
+| `zsh` | `bash`
+| `sh` | `bash`
+| `dockerfile` | `bash`
+| `javascript` | `js`
+| `yaml` | `yml`
+|===

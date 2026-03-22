@@ -30,4 +30,4 @@ output that looks correct locally but renders differently in Confluence.
 
 ## See also
 
-- [Configuration reference](../reference/configuration.md) - `convert` command options and output directory setting
+- [Configuration reference](../reference/configuration.adoc) - `convert` command options and output directory setting
