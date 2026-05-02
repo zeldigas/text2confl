@@ -39,9 +39,9 @@ Please :star: **star this repo** — it helps other people discover the tool and
 
 **Looking up options?** See the reference:
 
-- :gear: [Configuration reference](docs/reference/configuration.md)
+- :gear: [Configuration reference](docs/reference/configuration.adoc)
 - :memo: [Markdown syntax](docs/reference/markdown.md) · :scroll: [AsciiDoc syntax](docs/reference/asciidoc.adoc)
-- :page_facing_up: [Page attributes](docs/reference/page-attributes.md) · [Image attributes](docs/reference/image-attributes.md) · [Code blocks](docs/reference/code-blocks.md)
+- :page_facing_up: [Page attributes](docs/reference/page-attributes.md) · [Image attributes](docs/reference/image-attributes.md) · [Code blocks](docs/reference/code-blocks.adoc)
 
 **Want to understand how it works?** See the explanations:
 
