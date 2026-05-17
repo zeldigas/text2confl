@@ -133,15 +133,22 @@ class ConfluenceCloudClient(
         name: String,
         value: PagePropertyInput
     ) {
-        return httpClient.post("$apiBase/pages/$pageId/properties") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                mapOf(
-                    "key" to name,
-                    "value" to value.value
+        try {
+            return httpClient.post("$apiBase/pages/$pageId/properties") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    mapOf(
+                        "key" to name,
+                        "value" to value.value
+                    )
                 )
-            )
-        }.readApiResponse(expectSuccess = true)
+            }.readApiResponse(expectSuccess = true)
+        } catch (e: ConfluenceApiErrorException) {
+            if (e.status == HttpStatusCode.Conflict.value) {
+                throw PropertyAlreadyExists(name)
+            }
+            throw e
+        }
     }
 
     override suspend fun updatePageProperty(

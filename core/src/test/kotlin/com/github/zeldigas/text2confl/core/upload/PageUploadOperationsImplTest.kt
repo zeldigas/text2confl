@@ -50,14 +50,8 @@ internal class PageUploadOperationsImplTest(
             client.createPage(
                 any(), any()
             )
-        } returns mockk {
-            every { id } returns "new_id"
-            every { title } returns "Page title"
-            every { pageProperty(any()) } returns null
-            every { labels } returns null
-            every { attachments } returns null
-            every { links } returns emptyMap()
-        }
+        } returns newConflPage()
+
         coEvery { client.createPageProperty(any(), any(), any()) } just Runs
 
         val localPage = mockk<Page> {
@@ -101,6 +95,56 @@ internal class PageUploadOperationsImplTest(
         } else {
             coVerify { client.createPageProperty("new_id", "t2ctenant", PagePropertyInput.newProperty(tenant)) }
         }
+    }
+
+    @Test
+    internal fun `Creation of new page with properties conflict`() {
+        coEvery {
+            client.getPageOrNull(any(), any(), any())
+        } returns null
+
+        coEvery {
+            client.createPage(
+                any(), any()
+            )
+        } returns newConflPage()
+        coEvery { client.createPageProperty(any(), any(), any()) } just Runs
+        coEvery { client.createPageProperty(any(), "hello", any()) } throws PropertyAlreadyExists("hello")
+        coEvery { client.updatePageProperty(any(),
+            PageProperty("47", "hello", "computed", PropertyVersion(1)),
+            PagePropertyInput("world", PropertyVersion(2))) } just Runs
+        val loadedPage = newConflPage()
+        every { loadedPage.pageProperty("contenthash") } returns PageProperty("1", "contenthash", "body-hash", PropertyVersion(1))
+        every { loadedPage.pageProperty("editor") } returns PageProperty("2", "editor", "v2", PropertyVersion(1))
+        every { loadedPage.pageProperty("hello") } returns PageProperty("47", "hello", "computed", PropertyVersion(1))
+        coEvery { client.getPageById(any(), match { it.any { opt -> opt is PagePropertyLoad } }) } returns loadedPage
+
+        val localPage = mockk<Page> {
+            every { title } returns "Page title"
+            every { content } returns mockk {
+                every { body } returns "body"
+                every { hash } returns "body-hash"
+            }
+            every { properties } returns mapOf(
+                "hello" to "world"
+            )
+        }
+        val result = runBlocking {
+            uploadOperations(
+                "create-page",
+                false,
+                tenant = null).createOrUpdatePageContent(localPage, "TEST", "parentId")
+        }
+
+        assertThat(result).isEqualTo(
+            PageOperationResult.Created(
+                localPage,
+                ServerPage("new_id", "Page title", "parentId", emptyList(), emptyList())
+            )
+        )
+        coVerify { client.updatePageProperty("new_id", PageProperty("47", "hello", "computed",
+            PropertyVersion(1)),
+            PagePropertyInput("world", PropertyVersion(2)),) }
     }
 
     @ValueSource(strings = ["", "value"])
@@ -811,4 +855,13 @@ internal class PageUploadOperationsImplTest(
         }.isInstanceOf(PageCycleException::class)
             .isEqualTo(PageCycleException("parentId", "Page title"))
     }
+}
+
+private fun newConflPage(): ConfluencePage = mockk {
+    every { id } returns "new_id"
+    every { title } returns "Page title"
+    every { pageProperty(any()) } returns null
+    every { labels } returns null
+    every { attachments } returns null
+    every { links } returns emptyMap()
 }

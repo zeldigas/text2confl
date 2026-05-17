@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Fixed
+
+- Failure on page property set for created page (#334)
+
 ## 0.25.2 - 2026-03-06
 
 ### Fixed

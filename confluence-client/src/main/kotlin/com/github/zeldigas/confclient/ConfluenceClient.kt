@@ -103,6 +103,8 @@ class PageNotFoundException : RuntimeException()
 
 class TooManyPagesFound(val pages: List<ConfluencePage>) : RuntimeException()
 
+class PropertyAlreadyExists(val propertyName: String): RuntimeException()
+
 data class RequestDetails(val method: String, val url: String)
 
 open class BaseConfluenceException(

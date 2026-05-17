@@ -215,7 +215,15 @@ internal class PageUploadOperationsImpl(
             PageContentInput(parentPageId, page.title, page.content.body, space),
             PageUpdateOptions(notifyWatchers, uploadMessage)
         )
-        setPageProperties(page, serverPage)
+        try {
+            setPageProperties(page, serverPage)
+        } catch (e: PropertyAlreadyExists) {
+            logger.debug { "Detected already existing property: ${e.propertyName}. Will refetch the page and try again" }
+            setPageProperties(
+                page,
+                client.getPageById(serverPage.id, page.properties.keys.map { PagePropertyLoad(it) }.toSet())
+            )
+        }
         return PageOperationResult.Created(page, createServerPage(serverPage, parentPageId))
     }
 
@@ -311,8 +319,10 @@ internal class PageUploadOperationsImpl(
         }
     }
 
-    private fun groupInBatches(attachments: List<com.github.zeldigas.text2confl.convert.Attachment>,
-                               maxItems:Int = 5, maxSizeInBatch: Long = 2 * MB):
+    private fun groupInBatches(
+        attachments: List<com.github.zeldigas.text2confl.convert.Attachment>,
+        maxItems: Int = 5, maxSizeInBatch: Long = 2 * MB
+    ):
             Sequence<List<com.github.zeldigas.text2confl.convert.Attachment>> = sequence {
         var batch = mutableListOf<com.github.zeldigas.text2confl.convert.Attachment>()
         var batchContentSize = 0L
@@ -373,7 +383,13 @@ private val Map<String, Any?>.attachmentHash: String?
     }
 
 private fun com.github.zeldigas.text2confl.convert.Attachment.toAttachmentInput(): PageAttachmentInput =
-    PageAttachmentInput(attachmentName, resourceLocation, fileSize, "HASH:${hash}", resolveContentType(resourceLocation))
+    PageAttachmentInput(
+        attachmentName,
+        resourceLocation,
+        fileSize,
+        "HASH:${hash}",
+        resolveContentType(resourceLocation)
+    )
 
 private fun resolveContentType(file: Path): String? = CONTENT_TYPES[file.extension.lowercase().trim()]
 
