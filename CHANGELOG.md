@@ -7,9 +7,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.25.3 - 2026-03-06
+
 ### Fixed
 
 - Failure on page property set for created page (#334)
+
+### Changed
+
+- Updated plantuml to 1.2026.3 (should fix format of generated svg for Confluence
+  see https://github.com/plantuml/plantuml/issues/2583)
 
 ## 0.25.2 - 2026-03-06
 
@@ -25,7 +32,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- \[Asciidoc] File resolutions for Kroki block macros (by updating 0.10.2). [Details](https://github.com/asciidoctor/asciidoctor-kroki/pull/446)
+- \[Asciidoc] File resolutions for Kroki block macros (by updating
+  0.10.2). [Details](https://github.com/asciidoctor/asciidoctor-kroki/pull/446)
 
 ## 0.25.0 - 2026-03-01
 
