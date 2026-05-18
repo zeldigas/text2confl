@@ -222,8 +222,9 @@ fun confluenceClientV2(
         }
         call
     }
-    val baseUrl = URLBuilder(config.server).appendPathSegments("api", "v2").build().toString()
+    val v2BaseUrl = URLBuilder(config.server).appendPathSegments("api", "v2").build().toString()
+    val v1BaseUrl = URLBuilder(config.server).appendPathSegments("rest", "api").build().toString()
     return ConfluenceCloudClient(
-        config.server, baseUrl, client, confluenceClientV1(config, client)
+        config.server, v2BaseUrl, v1BaseUrl, client, confluenceClientV1(config, client)
     )
 }

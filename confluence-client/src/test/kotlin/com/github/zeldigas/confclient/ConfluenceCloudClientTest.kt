@@ -2,6 +2,7 @@ package com.github.zeldigas.confclient
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
@@ -297,5 +298,45 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
                 )
             )
         )
+    }
+
+    @Test
+    fun `Find user id by email - user found`() = runTest {
+        stubFor(
+            get(urlPathEqualTo("/rest/api/search/user"))
+                .withQueryParam("cql", equalTo("user=zeldigas"))
+                .willReturn(ok().withJsonFromFile("/data/responses/api-v1/user-search.json"))
+        )
+
+        val result = client.findUserIdByEmail("zeldigas@example.com")
+
+        assertThat(result).isEqualTo("bbbbbb:aaaaaaaa-cccc-aaaa-ffff-123411111111")
+    }
+
+    @Test
+    fun `Find user id by email - no results`() = runTest {
+        stubFor(
+            get(urlPathEqualTo("/rest/api/search/user"))
+                .withQueryParam("cql", equalTo("user=unknown"))
+                .willReturn(ok().withBody("""{"results":[],"start":0,"limit":25,"size":0,"totalSize":0}""")
+                    .withHeader("Content-Type", "application/json"))
+        )
+
+        val result = client.findUserIdByEmail("unknown@example.com")
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun `Find user id by email - email mismatch in results`() = runTest {
+        stubFor(
+            get(urlPathEqualTo("/rest/api/search/user"))
+                .withQueryParam("cql", equalTo("user=zeldigas"))
+                .willReturn(ok().withJsonFromFile("/data/responses/api-v1/user-search.json"))
+        )
+
+        val result = client.findUserIdByEmail("zeldigas@other.com")
+
+        assertThat(result).isNull()
     }
 }
