@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- List of languages for Confluence Cloud updated to actual:
+  - Added: `dockerfile`, `gherkin`, `handlebars`, `hcl`, `lisp`, `markdown`, `nginx`, `protobuf`, `toml`
+  - Language aliases also updated
+
 ## 0.25.3 - 2026-03-06
 
 ### Fixed
