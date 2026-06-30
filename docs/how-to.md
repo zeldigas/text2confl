@@ -10,6 +10,7 @@ assume you already have a working text2confl setup - see [Getting started](./tut
 ## Setup and authentication
 
 - [Authenticate with Confluence](./how-to/authenticate.md)
+- [Authenticate with Confluence Cloud using OAuth 2.0 scoped tokens](./how-to/authenticate-with-scoped-tokens.md)
 - [Run text2confl with Docker](./how-to/run-with-docker.md)
 
 ## Uploading documents
@@ -21,6 +22,7 @@ assume you already have a working text2confl setup - see [Getting started](./tut
 ## Troubleshooting
 
 - [Troubleshoot conversion output](./how-to/troubleshoot-conversion.md)
+- [Diagnose Confluence access with doctor confluence](./how-to/troubleshoot-with-doctor.md)
 
 ## Document structure
 

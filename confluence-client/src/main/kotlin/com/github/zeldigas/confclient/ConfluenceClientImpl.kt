@@ -379,15 +379,24 @@ class ConfluenceClientImpl(
 private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T =
     readApiResponse(expectSuccess) { parseAndThrowConfluenceError() }
 
-private suspend fun HttpResponse.parseAndThrowConfluenceError(): ConfluenceApiErrorException {
+private suspend fun HttpResponse.parseAndThrowConfluenceError(): BaseConfluenceException {
     val content = body<Map<String, Any?>>()
-    return ConfluenceApiErrorException(
-        requestDetails(),
-        status.value,
-        headers.toMap(),
-        content["error"]?.toString() ?: "",
-        content
-    )
+    return if (status.value in listOf(401, 403)) {
+        ConfluenceAuthorizationException(
+            requestDetails(),
+            status.value,
+            headers.toMap(),
+            content["message"]?.toString() ?: ""
+        )
+    } else {
+        ConfluenceApiErrorException(
+            requestDetails(),
+            status.value,
+            headers.toMap(),
+            content["error"]?.toString() ?: "",
+            content
+        )
+    }
 }
 
 private data class ConfServerPage(

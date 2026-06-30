@@ -105,7 +105,11 @@ class TooManyPagesFound(val pages: List<ConfluencePage>) : RuntimeException()
 
 class PropertyAlreadyExists(val propertyName: String): RuntimeException()
 
-data class RequestDetails(val method: String, val url: String)
+data class RequestDetails(val method: String, val url: String) {
+    override fun toString(): String {
+        return "$method $url"
+    }
+}
 
 open class BaseConfluenceException(
     val problemRequest: RequestDetails,
@@ -132,6 +136,12 @@ class ConfluenceApiErrorException(
 ) :
     BaseConfluenceException(problemRequest, status, headers,"Confluence API error: request=$problemRequest, status=$status, error=$error, body:\n$body")
 
+class ConfluenceAuthorizationException(
+    problemRequest: RequestDetails,
+    status: Int,
+    headers: Map<String, Any?>,
+    val error: String
+) : BaseConfluenceException(problemRequest, status, headers, error)
 
 internal fun extractSinglePage(results: List<ConfluencePage>): ConfluencePage {
     if (results.isEmpty()) {

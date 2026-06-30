@@ -10,6 +10,7 @@ import com.github.ajalt.mordant.terminal.ConfirmationPrompt
 import com.github.ajalt.mordant.terminal.StringPrompt
 import com.github.ajalt.mordant.terminal.prompt
 import com.github.zeldigas.confclient.BaseConfluenceException
+import com.github.zeldigas.confclient.ConfluenceAuthorizationException
 import com.github.zeldigas.text2confl.convert.ConversionException
 import com.github.zeldigas.text2confl.convert.ConversionFailedException
 import com.github.zeldigas.text2confl.core.ContentValidationFailedException
@@ -65,6 +66,9 @@ fun tryHandleException(ex: Exception): Nothing {
         is ContentValidationFailedException -> {
             val issues = ex.errors.mapIndexed { index, error -> "${index + 1}. $error" }.joinToString(separator = "\n")
             error("Some pages content is invalid:\n${issues}")
+        }
+        is ConfluenceAuthorizationException -> {
+            error("No access when making ${ex.problemRequest}. Reason: ${ex.status} - ${ex.message}")
         }
 
         else -> throw ex
