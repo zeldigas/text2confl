@@ -9,6 +9,7 @@ import com.github.zeldigas.text2confl.core.ServiceProviderImpl
 import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 
 class ConfluencePublisher : CliktCommand() {
+    override fun aliases() = mapOf("dr" to listOf("doctor"))
 
     init {
         context {
@@ -39,5 +40,6 @@ fun main(args: Array<String>) {
         .subcommands(Convert())
         .subcommands(Upload())
         .subcommands(DumpToMarkdown())
+        .subcommands(Doctor().subcommands(DoctorConfluence()))
         .main(args)
 }

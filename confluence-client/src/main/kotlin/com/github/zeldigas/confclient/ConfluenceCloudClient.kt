@@ -401,17 +401,27 @@ class ConfluenceCloudClient(
         }
 
 
-    private suspend fun HttpResponse.parseCloudErrorAndThrow(): ConfluenceApiErrorException {
-        val content = body<ErrorResponse>()
-        val firstError = content.errors.first()
-        val msg = "${firstError.code}: ${firstError.title}"
-        return ConfluenceApiErrorException(
-            requestDetails(),
-            status.value,
-            headers.toMap(),
-            msg,
-            mapOf("detail" to firstError.detail)
-        )
+    private suspend fun HttpResponse.parseCloudErrorAndThrow(): BaseConfluenceException {
+        return if (status.value in listOf(401, 403)) {
+            val content = body<Map<String, Any?>>()
+            ConfluenceAuthorizationException(
+                requestDetails(),
+                status.value,
+                headers.toMap(),
+                content["message"]?.toString() ?: ""
+            )
+        } else {
+            val content = body<ErrorResponse>()
+            val firstError = content.errors.first()
+            val msg = "${firstError.code}: ${firstError.title}"
+            ConfluenceApiErrorException(
+                requestDetails(),
+                status.value,
+                headers.toMap(),
+                msg,
+                mapOf("detail" to firstError.detail)
+            )
+        }
     }
 
     private suspend fun delete(urlString: String) {

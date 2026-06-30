@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- `doctor confluence` command (`dr confl`) — runs API checks against your Confluence instance to verify
+  connectivity, authentication, space access, and permissions for every operation text2confl requires
+- Support for Confluence Cloud scoped OAuth tokens via the `https://api.atlassian.com/ex/confluence/<cloudId>`
+  server URL; when a permission check fails, error hints name the exact missing scope
+
 ### Changed
 
 - List of languages for Confluence Cloud updated to actual:

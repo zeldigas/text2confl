@@ -1,0 +1,112 @@
+= First upload to Confluence Cloud with scoped tokens
+:keywords: tutorial,confluence-cloud
+
+In this tutorial you will publish your first Markdown page to Confluence Cloud using text2confl with a scoped API token. Scoped tokens let you restrict exactly which permissions the token grants — a safer alternative to a classic all-access API token.
+
+*What you need before starting:*
+
+* A Confluence Cloud site
+* Permission to create pages in at least one space
+* A terminal on macOS, Linux, or WSL
+
+'''
+
+include::_step-download.adoc[]
+
+'''
+
+== Step 2 - Get your Cloud ID and create a scoped token
+
+First, find your Cloud ID by calling the Atlassian tenant info endpoint:
+
+[source,shell]
+----
+curl https://<yoursite>.atlassian.net/_edge/tenant_info
+----
+
+The response looks like:
+
+[source,json]
+----
+{"cloudId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","siteUrl":"https://yoursite.atlassian.net"}
+----
+
+Copy the `cloudId` value — you will need it in the next step.
+
+Next, go to link:https://id.atlassian.com/manage-profile/security/api-tokens[Atlassian account security settings] and create a new API token. When creating the token, select *"Scoped"* and grant it the following scopes:
+
+|===
+|Category |Scope
+
+|Read |`read:space:confluence`
+|Read |`read:page:confluence`
+|Read |`read:hierarchical-content:confluence`
+|Read |`read:attachment:confluence`
+|Read |`read:label:confluence`
+|Write |`write:page:confluence`
+|Write |`write:label:confluence`
+|Write |`write:confluence-file`
+|Delete |`delete:page:confluence`
+|Delete |`delete:attachment:confluence`
+|===
+
+Save the generated token — you will need it in step 6.
+
+'''
+
+include::_step-create-dir.adoc[]
+
+'''
+
+== Step 4 - Create a configuration file
+
+First, create a page in your Confluence space that will act as the parent for your uploaded docs (e.g. title it *"My Docs"*). Open that page and copy its ID from the URL - it is the number after `/pages/`:
+
+----
+https://yoursite.atlassian.net/wiki/spaces/MYSPACE/pages/123456789/My+Docs
+                                                          ^^^^^^^^^
+----
+
+Then create `.text2confl.yml` in your docs directory:
+
+[source,yaml]
+----
+server: https://api.atlassian.com/ex/confluence/<cloudId>
+space: MYSPACE
+default-parent-id: 123456789
+docs-location: https://github.com/yourorg/yourrepo/tree/main/my-docs/
+----
+
+Replace:
+
+* `<cloudId>` with the Cloud ID from step 2 (no angle brackets)
+* `MYSPACE` with the space key where you want to publish
+* `123456789` with the page ID you copied
+* `docs-location` with the URL where your docs live in version control
+
+NOTE: The server URL uses `api.atlassian.com` (not your site URL) and has no `/wiki` suffix. text2confl automatically detects this format and uses the appropriate API.
+
+'''
+
+include::_step-create-page.adoc[]
+
+'''
+
+== Step 6 - Upload to Confluence
+
+[source,shell]
+----
+$T2C upload --docs . --access-token YOUR_SCOPED_TOKEN
+----
+
+No username is needed — the token authenticates on its own.
+
+TIP: Add `--dry` to preview what would be uploaded without making any changes to Confluence.
+
+'''
+
+include::_step-result.adoc[]
+
+'''
+
+include::_whats-next.adoc[]

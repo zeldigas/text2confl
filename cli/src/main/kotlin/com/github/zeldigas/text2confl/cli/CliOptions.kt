@@ -111,7 +111,7 @@ internal interface WithConfluenceServerOptions {
         auth = confluenceAuth,
         httpLogLevel = httpLogLevel,
         requestTimeout = httpRequestTimeout,
-        cloudApi = confluenceCloud ?: defaultCloudApi ?: server.host.endsWith(".atlassian.net", ignoreCase = true),
+        cloudApi = confluenceCloud ?: defaultCloudApi ?: (server.host.endsWith(".atlassian.net", ignoreCase = true) || server.host.equals("api.atlassian.com", ignoreCase = true)),
         rateLimit = RateLimit(
             rps = requestsPerSecond ?: clientParams.requestsPerSeconds,
             honorTooManyRequests = clientParams.retryOnTooManyRequests
