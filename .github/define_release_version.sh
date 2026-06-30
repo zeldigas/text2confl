@@ -20,7 +20,7 @@ echo "Version: $version"
 echo "RELEASE_VERSION=$version" >> $GITHUB_ENV
 if [[ -z "$version" ]]; then
 echo "RELEASE_VERSION_SUFFIX=" >> $GITHUB_ENV
-echo "RELEASE_DOCKER_TAG=latest" >> $GITHUB_ENV
+echo "RELEASE_DOCKER_TAG=edge" >> $GITHUB_ENV
 else
 echo "RELEASE_VERSION_SUFFIX=-$version" >> $GITHUB_ENV
 echo "RELEASE_DOCKER_TAG=$version" >> $GITHUB_ENV

@@ -55,7 +55,9 @@ jobs:
           context: ./cli
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USER }}/text2confl:${{env.RELEASE_DOCKER_TAG}}
+          tags: |
+            ${{ secrets.DOCKER_HUB_USER }}/text2confl:${{env.RELEASE_DOCKER_TAG}}
+            ${{ env.RELEASE_DOCKER_TAG != 'edge' && format('{0}/text2confl:latest', secrets.DOCKER_HUB_USER) || '' }}
           build-args: |
             VERSION=${{env.RELEASE_VERSION_SUFFIX}}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USER }}/text2confl:buildcache
