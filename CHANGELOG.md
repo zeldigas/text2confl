@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.26.0 - 2026-06-30
+
 ### Added
 
 - `doctor confluence` command (`dr confl`) — runs API checks against your Confluence instance to verify
