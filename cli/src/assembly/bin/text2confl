@@ -7,7 +7,19 @@ SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-java -cp "$SCRIPTPATH/app/*:$SCRIPTPATH/lib/*" ${JAVA_OPTS:-} \
+# On Cygwin/MSYS/Git Bash, java is a native Windows binary, so it needs a
+# Windows-style path and a ';' classpath separator instead of ':'
+case "$(uname -s)" in
+  CYGWIN*|MINGW*|MSYS*)
+    SCRIPTPATH=$(cygpath -w "$SCRIPTPATH")
+    CLASSPATH="$SCRIPTPATH\\app\\*;$SCRIPTPATH\\lib\\*"
+    ;;
+  *)
+    CLASSPATH="$SCRIPTPATH/app/*:$SCRIPTPATH/lib/*"
+    ;;
+esac
+
+java -cp "$CLASSPATH" ${JAVA_OPTS:-} \
   --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED \
   com.github.zeldigas.text2confl.cli.MainKt "$@"
 
