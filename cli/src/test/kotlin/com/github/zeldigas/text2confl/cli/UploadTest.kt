@@ -101,7 +101,7 @@ internal class UploadTest(
             "", "", EditorVersion.V2, null, null, null,
             CodeBlockParams(), MarkdownConfiguration(diagrams = DiagramsConfiguration(tempDir / ".diagrams")),
             AsciidoctorConfiguration(libsToLoad = listOf("asciidoctor-diagram"), workdir = tempDir / ".asciidoc"),
-            autoFixContentTags = false
+            autoFixContentTags = false, filesToIgnore = emptyList()
         )
         verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
         verify {
@@ -159,7 +159,8 @@ internal class UploadTest(
             directoryConfig.codeBlocks,
             directoryConfig.markdown.toConfig(directoryConfig.docsDir),
             directoryConfig.asciidoc.toConfig(directoryConfig.docsDir),
-            autoFixContentTags = true
+            autoFixContentTags = true,
+            emptyList()
         )
         verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
         verify {
