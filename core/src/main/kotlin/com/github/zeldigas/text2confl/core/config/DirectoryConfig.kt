@@ -33,7 +33,8 @@ data class DirectoryConfig(
     val codeBlocks: CodeBlockParams = CodeBlockParams(),
     val markdown: MarkdownParams = MarkdownParams(),
     val asciidoc: AsciidocParams = AsciidocParams(),
-    val client: HttpClientParams = HttpClientParams()
+    val client: HttpClientParams = HttpClientParams(),
+    val additionalFilesToIgnore: List<String> = emptyList(),
 ) {
     lateinit var docsDir: Path
 }

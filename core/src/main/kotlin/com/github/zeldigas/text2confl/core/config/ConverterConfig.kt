@@ -1,6 +1,8 @@
 package com.github.zeldigas.text2confl.core.config
 
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import com.github.zeldigas.text2confl.convert.ExactFileMatcher
+import com.github.zeldigas.text2confl.convert.FileMatcher
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMappers
@@ -19,6 +21,7 @@ data class ConverterConfig(
     val markdownConfig: MarkdownConfiguration,
     val asciidocConfig: AsciidoctorConfiguration,
     val autoFixContentTags: Boolean,
+    val filesToIgnore: List<FileMatcher>
 ) {
     val languageMapper: LanguageMapper
         get() = when (editorVersion) {
@@ -49,7 +52,8 @@ fun createConversionConfig(
         codeBlockParams = directoryConfig.codeBlocks,
         markdownConfig = directoryConfig.markdown.toConfig(directoryConfig.docsDir),
         asciidocConfig = directoryConfig.asciidoc.toConfig(directoryConfig.docsDir),
-        autoFixContentTags = effectiveAutoFixContent
+        autoFixContentTags = effectiveAutoFixContent,
+        filesToIgnore = directoryConfig.additionalFilesToIgnore.map { ExactFileMatcher(it, true) }
     )
 }
 

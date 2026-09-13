@@ -28,6 +28,7 @@ assume you already have a working text2confl setup - see [Getting started](./tut
 
 - [Use virtual pages for sparse page trees](./how-to/use-virtual-pages.md)
 - [Manage orphaned pages](./how-to/manage-orphaned-pages.md)
+- [Ignore specific files from being published](./how-to/ignore-files.md)
 
 ## Advanced configuration
 

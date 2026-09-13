@@ -8,6 +8,7 @@ import com.github.zeldigas.text2confl.convert.ConversionParameters
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.DEFAULT_AUTOGEN_BANNER
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import com.github.zeldigas.text2confl.convert.ExactFileMatcher
 import com.github.zeldigas.text2confl.convert.universalConverter
 import com.github.zeldigas.text2confl.core.config.ConverterConfig
 import com.github.zeldigas.text2confl.core.config.UploadConfig
@@ -45,7 +46,8 @@ class ServiceProviderImpl : ServiceProvider {
                 editorVersion = config.editorVersion,
                 codeBlocksInExpand = config.codeBlockParams.collapseWithExpand
                     ?: (config.editorVersion == EditorVersion.V2),
-                autoFixContentTags = config.autoFixContentTags
+                autoFixContentTags = config.autoFixContentTags,
+                filesToIgnore = config.filesToIgnore
             )
         )
     }

@@ -74,6 +74,14 @@
       "default": false,
       "description": "Whether to automatically fix converted content to make tag properly ordered"
     },
+    "additional-files-to-ignore": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "List of filenames (matched case-insensitively) to ignore in addition to files prefixed with `_`"
+    },
     "tenant": {
       "type": "string",
       "description": "Tenant identifier for multi-tenant setups"

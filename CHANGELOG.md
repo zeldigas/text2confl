@@ -7,20 +7,28 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.27.0 - 2026-09-13
+
+### Added
+
+- `additional-files-to-ignore` parameter in configuration files. It allows you to define list of file names that must be
+  ignored in addition to predefined `_` prefixed files. You can use this feature to ignore some technical files, such as
+  `CLAUDE.md` and `AGENTS.md`. Every list item represent a filename that is matched ignoring case.
+
 ## 0.26.0 - 2026-06-30
 
 ### Added
 
-- `doctor confluence` command (`dr confl`) — runs API checks against your Confluence instance to verify
-  connectivity, authentication, space access, and permissions for every operation text2confl requires
+- `doctor confluence` command (`dr confl`) — runs API checks against your Confluence instance to verify connectivity,
+  authentication, space access, and permissions for every operation text2confl requires
 - Support for Confluence Cloud scoped OAuth tokens via the `https://api.atlassian.com/ex/confluence/<cloudId>`
   server URL; when a permission check fails, error hints name the exact missing scope
 
 ### Changed
 
 - List of languages for Confluence Cloud updated to actual:
-  - Added: `dockerfile`, `gherkin`, `handlebars`, `hcl`, `lisp`, `markdown`, `nginx`, `protobuf`, `toml`
-  - Language aliases also updated
+    - Added: `dockerfile`, `gherkin`, `handlebars`, `hcl`, `lisp`, `markdown`, `nginx`, `protobuf`, `toml`
+    - Language aliases also updated
 
 ## 0.25.3 - 2026-03-06
 
@@ -84,8 +92,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- PlantUML rolled back to 1.2025.10 due to issue with 1.2026 support (
-  see https://github.com/asciidoctor/asciidoctor-diagram/issues/505)
+- PlantUML rolled back to 1.2025.10 due to issue with 1.2026 support
+  (see https://github.com/asciidoctor/asciidoctor-diagram/issues/505)
 
 ## 0.22.2 - 2026-02-02
 
@@ -217,8 +225,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Rolled back to plantuml 1.2025.2 due to issues with
-  1.2025.3 (https://github.com/asciidoctor/asciidoctor-diagram/issues/484)
+- Rolled back to plantuml 1.2025.2 due to issues with 1.2025.3
+  (https://github.com/asciidoctor/asciidoctor-diagram/issues/484)
 
 ## 0.17.2 - 2025-06-18
 
@@ -271,8 +279,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- handling of links with spaces for both Markdown and AsciiDoc. Such links need to be specified urlencoded (
-  e.g. `dir%20with%20space/my-doc.md` for file in `dir with space` directory) and now file is properly resolved. (#83)
+- handling of links with spaces for both Markdown and AsciiDoc. Such links need to be specified urlencoded (e.g.
+  `dir%20with%20space/my-doc.md` for file in `dir with space` directory) and now file is properly resolved. (#83)
 - \[AsciiDoc] `xrefstyle` attribute is taken into account for references (#136)
 
 ## 0.15.1 - 2024-01-02
@@ -295,8 +303,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - in `upload` and `export-to-md` commands you can enable logging of http requests/responses and configure request
   timeout
-- configuration file can be named as `text2confl.yml` or `text2confl.yaml` in addition to dot-prefixed
-  names (`.text2confl.yml`, `.text2confl.yaml`).
+- configuration file can be named as `text2confl.yml` or `text2confl.yaml` in addition to dot-prefixed names
+  (`.text2confl.yml`, `.text2confl.yaml`).
 - `-v` option can be passed to enable verbose logging. Repeat up to three times to get more details in logs.
 - `upload` command now print well-formatted summary of uploaded pages
 
@@ -472,8 +480,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-* \[Markdown] Support for any Confluence macros with simple key-value parameters. Ref with
-  format `[MACRONAME param1=value1]`
+* \[Markdown] Support for any Confluence macros with simple key-value parameters. Ref with format
+  `[MACRONAME param1=value1]`
   will insert `macroname` macros with one parameter `param1` (#20).
 
 ## 0.4.2 - 2022-03-26

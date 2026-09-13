@@ -6,13 +6,13 @@ import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.relativeTo
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 
 interface Converter {
 
@@ -45,8 +45,19 @@ data class ConversionParameters(
     val asciidoctorConfiguration: AsciidoctorConfiguration = AsciidoctorConfiguration(),
     val editorVersion: EditorVersion,
     val codeBlocksInExpand: Boolean = false,
-    val autoFixContentTags: Boolean = false
+    val autoFixContentTags: Boolean = false,
+    val filesToIgnore: List<FileMatcher> = emptyList(),
 )
+
+sealed interface FileMatcher {
+    fun matches(f: File): Boolean
+}
+
+class ExactFileMatcher(val name: String, val ignoreCase: Boolean) : FileMatcher {
+    override fun matches(f: File): Boolean {
+        return name.equals(f.name, ignoreCase = ignoreCase)
+    }
+}
 
 fun universalConverter(
     space: String,
@@ -111,7 +122,8 @@ internal class UniversalConverter(
     private fun scanDocuments(dir: Path): Map<Path, PageHeader> {
         val headers = mutableMapOf<Path, PageHeader>()
         val context = HeaderReadingContext(conversionParameters.titleConverter)
-        pagesDetector.scanDirectoryRecursively(dir,
+        pagesDetector.scanDirectoryRecursively(
+            dir,
             filter = { it.supported() },
             converter = { file ->
                 headers[file] = converterFor(file).readHeader(file, context)
@@ -122,7 +134,8 @@ internal class UniversalConverter(
     }
 
     private fun convertFilesInDirectory(dir: Path, context: ConvertingContext): List<Page> =
-        pagesDetector.scanDirectoryRecursively(dir,
+        pagesDetector.scanDirectoryRecursively(
+            dir,
             filter = { it.supported() },
             converter = { file -> performConversion(file, context) },
             assembler = { file, content, children -> Page(content, file, children) }
@@ -136,7 +149,7 @@ internal class UniversalConverter(
         val convert = converterFor(file)
         val content = try {
             convert.convert(file, context)
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             throw ConversionException("Failed to convert $file: ${e.message}", e)
         }
         return if (conversionParameters.autoFixContentTags) {
@@ -157,6 +170,10 @@ internal class UniversalConverter(
         }.body().html()
     }
 
-    private fun File.supported() = isFile && !name.startsWith("_") && extension.lowercase() in converters
+    private fun File.supported() = isFile
+            && !name.startsWith("_")
+            && conversionParameters.filesToIgnore.none { matcher -> matcher.matches(this) }
+            && extension.lowercase() in converters
+
     private fun Path.supported() = toFile().supported()
 }
