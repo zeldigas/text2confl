@@ -169,6 +169,12 @@ class ConfluenceCloudClient(
         }.readApiResponse(expectSuccess = true)
     }
 
+    override suspend fun getUserByKey(userKey: String): User {
+        return httpClient.get("$legacyApiBase/user") {
+            parameter("accountId", userKey)
+        }.readApiResponse(expectSuccess = true)
+    }
+
     override suspend fun findChildPages(
         pageId: String,
         loadOptions: Set<PageLoadOptions>?

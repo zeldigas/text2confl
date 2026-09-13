@@ -12,7 +12,7 @@ class ConfluenceUserResolverImpl(private val client: ConfluenceClient) : Conflue
         return cache.computeIfAbsent(userKey) { key ->
             runBlocking {
                 val user = client.getUserByKey(key)
-                user.username
+                user.username ?: user.email
             }
         }
     }
