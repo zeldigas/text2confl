@@ -37,7 +37,8 @@ internal class UniversalConverterTest(
     private val conversionParameters = ConversionParameters(
         languageMapper, titleConverter,
         markdownConfiguration = MarkdownConfiguration(true, emptyList()),
-        editorVersion = EditorVersion.V1
+        editorVersion = EditorVersion.V1,
+        filesToIgnore = listOf(ExactFileMatcher("agents.t", true))
     )
     private val converter = UniversalConverter(
         "TEST", conversionParameters, mapOf(
@@ -121,6 +122,7 @@ internal class UniversalConverterTest(
             dir,
             "one.t",
             "_two.t",
+            "AGENTS.t",
             "three.t",
             "three/foo.t",
             "three/bar.md",

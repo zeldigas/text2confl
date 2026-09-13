@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.io.path.Path
+import kotlin.time.Duration.Companion.milliseconds
 
 @ExtendWith(MockKExtension::class)
 internal class ContentUploaderTest(
@@ -62,7 +63,7 @@ internal class ContentUploaderTest(
 
         registry.forEach { (page, delayTime) ->
             coEvery { uploadOperations.createOrUpdatePageContent(page, "TEST", any()) } coAnswers {
-                delay(delayTime)
+                delay(delayTime.milliseconds)
                 PageOperationResult.Created(page, mockk {
                     every { id } returns "$delayTime"
                 })
@@ -106,13 +107,13 @@ internal class ContentUploaderTest(
         } returns PageOperationResult.NotModified(fastPage, fastServerPage)
 
         coEvery { uploadOperations.createOrUpdatePageContent(failedPage, any(), any()) } coAnswers {
-            delay(100)
+            delay(100.milliseconds)
             throw RuntimeException("Upload failed")
         }
 
         val slowServerPage = ServerPage("slowId", "Slow page", "id", emptyList(), emptyList())
         coEvery { uploadOperations.createOrUpdatePageContent(slowPage, "TEST", "id") } coAnswers {
-            delay(20000)
+            delay(20000.milliseconds)
             PageOperationResult.Created(slowPage, slowServerPage)
         }
 

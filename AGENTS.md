@@ -98,4 +98,4 @@ mvn test
 
 Docs live in `docs/` and follow the **Diataxis** four-quadrant model (tutorials, how-to, explanation, reference). Both Markdown (`.md`) and AsciiDoc (`.adoc`) files coexist in the same docs set.
 
-See [`docs/internal/documentation-guide.md`](docs/internal/documentation-guide.md) for the full documentation maintenance guide.
+See [`docs/internal/documentation-guide.md`](docs/internal/documentation-guide.md) for the full documentation maintenance guide, `docs/AGENTS.md` for the quick version, and `docs/reference/markdown/AGENTS.md` / `docs/reference/asciidoc/AGENTS.md` for the source/rendered-output pattern used in the format-specific syntax references.

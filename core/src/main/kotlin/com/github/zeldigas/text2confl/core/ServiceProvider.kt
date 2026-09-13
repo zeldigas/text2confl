@@ -4,11 +4,7 @@ import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.confclient.confluenceClientV2
-import com.github.zeldigas.text2confl.convert.ConversionParameters
-import com.github.zeldigas.text2confl.convert.Converter
-import com.github.zeldigas.text2confl.convert.DEFAULT_AUTOGEN_BANNER
-import com.github.zeldigas.text2confl.convert.EditorVersion
-import com.github.zeldigas.text2confl.convert.universalConverter
+import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.core.config.ConverterConfig
 import com.github.zeldigas.text2confl.core.config.UploadConfig
 import com.github.zeldigas.text2confl.core.export.PageExporter
@@ -45,7 +41,8 @@ class ServiceProviderImpl : ServiceProvider {
                 editorVersion = config.editorVersion,
                 codeBlocksInExpand = config.codeBlockParams.collapseWithExpand
                     ?: (config.editorVersion == EditorVersion.V2),
-                autoFixContentTags = config.autoFixContentTags
+                autoFixContentTags = config.autoFixContentTags,
+                filesToIgnore = config.filesToIgnore
             )
         )
     }

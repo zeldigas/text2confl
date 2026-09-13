@@ -46,7 +46,8 @@ internal class ServiceProviderImplTest {
                 CodeBlockParams(),
                 MarkdownConfiguration(),
                 AsciidoctorConfiguration(),
-                autoFixContentTags = false
+                autoFixContentTags = false,
+                filesToIgnore = emptyList()
             ),
             uploadOperationTracker
         )
@@ -101,7 +102,8 @@ internal class ServiceProviderImplTest {
                     "pre", "post", EditorVersion.V1,
                     null, "http://example.org/", "custom text",
                     CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration(),
-                    autoFixContentTags = false
+                    autoFixContentTags = false,
+                    filesToIgnore = emptyList()
                 )
             )
 
