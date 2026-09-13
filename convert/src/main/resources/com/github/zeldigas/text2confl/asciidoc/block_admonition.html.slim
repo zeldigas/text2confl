@@ -10,12 +10,37 @@
 - when 'important'
     - confluence_admonition = 'warning'
 
-ac:structured-macro ac:name=confluence_admonition
-  - if title?
-    ac:parameter ac:name="title"
-      =title
-  ac:rich-text-body
-    =line_break
-    =content
-    =line_break
+- body = content
 
+- if (attr :name) == 'note' && editor_version == 'v2'
+  ac:adf-extension
+    ac:adf-node type="panel"
+      ac:adf-attribute key="panel-type" note
+      ac:adf-content
+        - if title?
+          p
+            strong
+              =title
+        = body
+        = line_break
+    ac:adf-fallback
+      div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"
+        div class="panelContent" style="background-color: rgb(234,230,255);"
+          - if title?
+            p
+              strong
+                =title
+          = body
+          = line_break
+- else
+  ac:structured-macro ac:name=confluence_admonition
+    - if title? && editor_version != 'v2'
+      ac:parameter ac:name="title"
+        =title
+    ac:rich-text-body
+      - if title? && editor_version == 'v2'
+        p
+          strong
+            =title
+      = body
+      = line_break

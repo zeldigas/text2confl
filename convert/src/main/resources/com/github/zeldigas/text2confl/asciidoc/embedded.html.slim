@@ -1,9 +1,22 @@
 - if attr? "t2c-add-auto-text", true
-  p
-    ac:structured-macro ac:name="note"
-      ac:rich-text-body
-        p
-          == (attr "t2c-auto-text")
+  - if editor_version == 'v2'
+    ac:adf-extension
+      ac:adf-node type="panel"
+        ac:adf-attribute key="panel-type" note
+        ac:adf-content
+          p
+            == (attr "t2c-auto-text")
+      ac:adf-fallback
+        div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"
+          div class="panelContent" style="background-color: rgb(234,230,255);"
+            p
+              == (attr "t2c-auto-text")
+  - else
+    p
+      ac:structured-macro ac:name="note"
+        ac:rich-text-body
+          p
+            == (attr "t2c-auto-text")
   = line_break
 
 - if (attr? :toc) && (attr? 'toc-placement', 'auto')
