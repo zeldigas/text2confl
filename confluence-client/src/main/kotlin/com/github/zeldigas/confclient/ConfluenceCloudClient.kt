@@ -453,13 +453,13 @@ private data class ConfCloudPage(
     val properties: AttributesCollection<CloudPageProperty>? = null,
     val labels: AttributesCollection<CloudPageLabel>? = null,
     val body: PageBody? = null,
-    @JsonProperty("_links")
+    @param:JsonProperty("_links")
     val links: Map<String, String> = emptyMap(),
     val spaceId: Int
 )
 
 private data class AttributesCollection<T>(
-    val results: List<T>, val meta: OptionalFieldMeta?, @JsonProperty("_links") val links: Map<String, String>
+    val results: List<T>, val meta: OptionalFieldMeta?, @param:JsonProperty("_links") val links: Map<String, String>
 )
 
 private data class CloudPageVersion(
@@ -498,11 +498,11 @@ private data class CloudVersion(
 private data class CloudPageAttachments(
     val results: List<CloudAttachment>,
     val meta: OptionalFieldMeta?,
-    @JsonProperty("_links") val links: Map<String, String>
+    @param:JsonProperty("_links") val links: Map<String, String>
 )
 
 private data class ConfCloudPageSearchResult(
-    val results: List<ConfCloudPage>, @JsonProperty("_links") val links: Map<String, String>
+    val results: List<ConfCloudPage>, @param:JsonProperty("_links") val links: Map<String, String>
 )
 
 private data class PageChildItem(
@@ -516,6 +516,6 @@ private data class CloudAttachment(
     val id: String,
     val title: String,
     val comment: String?,
-    @JsonProperty("_links")
+    @param:JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
 )

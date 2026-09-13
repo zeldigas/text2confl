@@ -11,13 +11,11 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
-import io.ktor.serialization.*
 import io.ktor.util.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.streams.*
 import java.nio.file.Path
-import kotlin.io.path.fileSize
 
 class ConfluenceClientImpl(
     override val confluenceBaseUrl: Url,
@@ -44,9 +42,9 @@ class ConfluenceClientImpl(
     override suspend fun getPage(
         space: String,
         title: String,
-        expansions: Set<PageLoadOptions>
+        loadOptions: Set<PageLoadOptions>
     ): ConfluencePage {
-        val results = findPages(space, title, expansions = toExpansions(expansions).toSet())
+        val results = findPages(space, title, expansions = toExpansions(loadOptions).toSet())
 
         return extractSinglePage(results)
     }
@@ -410,7 +408,7 @@ private data class ConfServerPage(
     val children: PageChildren? = null,
     val ancestors: List<ConfServerPage>? = null,
     val space: Space? = null,
-    @JsonProperty("_links")
+    @param:JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
 ) {
     fun pageProperty(name: String): PageProperty? {

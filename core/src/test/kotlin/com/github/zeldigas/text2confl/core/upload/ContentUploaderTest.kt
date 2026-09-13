@@ -24,9 +24,9 @@ import kotlin.io.path.Path
 
 @ExtendWith(MockKExtension::class)
 internal class ContentUploaderTest(
-    @MockK private val uploadOperations: PageUploadOperations,
-    @MockK private val confluenceClient: ConfluenceClient,
-    @MockK(relaxed = true) private val tracker: UploadOperationTracker,
+    @param:MockK private val uploadOperations: PageUploadOperations,
+    @param:MockK private val confluenceClient: ConfluenceClient,
+    @param:MockK(relaxed = true) private val tracker: UploadOperationTracker,
 ) {
 
     @BeforeEach

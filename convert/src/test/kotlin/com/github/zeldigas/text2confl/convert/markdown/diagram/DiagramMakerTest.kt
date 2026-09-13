@@ -22,7 +22,7 @@ private const val CONTENT_HASH = "19fbdde16ffae3f59a48c6b3b40d6796af35bc12da9bc8
 
 @ExtendWith(MockKExtension::class)
 class DiagramMakerTest(
-    @MockK private val generator: DiagramGenerator
+    @param:MockK private val generator: DiagramGenerator
 ) {
 
     @Test

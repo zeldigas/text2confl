@@ -26,7 +26,7 @@ private const val PAGE_ID = "id"
 
 @ExtendWith(MockKExtension::class)
 internal class PageUploadOperationsImplTest(
-    @MockK private val client: ConfluenceClient
+    @param:MockK private val client: ConfluenceClient
 ) {
 
     @ValueSource(strings = ["", "value"])

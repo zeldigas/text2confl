@@ -25,7 +25,7 @@ private val noOpReporter = object : DoctorReporter {
 
 @ExtendWith(MockKExtension::class)
 internal class DoctorRunnerTest(
-    @MockK private val client: ConfluenceClient
+    @param:MockK private val client: ConfluenceClient
 ) {
     private val space = "TEST"
     private val parentId = "parent-123"

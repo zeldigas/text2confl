@@ -16,7 +16,7 @@ import kotlin.io.path.Path
 
 @ExtendWith(MockKExtension::class)
 class MermaidDiagramsGeneratorTest(
-    @MockK val commandExecutor: CommandExecutor
+    @param:MockK val commandExecutor: CommandExecutor
 ) {
 
     @Test

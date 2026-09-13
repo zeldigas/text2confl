@@ -18,7 +18,7 @@ import kotlin.io.path.Path
 
 @ExtendWith(MockKExtension::class)
 class PlantUmlDiagramsGeneratorTest(
-    @MockK val commandExecutor: CommandExecutor
+    @param:MockK val commandExecutor: CommandExecutor
 ) {
 
     @ValueSource(strings = ["puml", "plantuml"])

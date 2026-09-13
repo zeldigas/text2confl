@@ -17,7 +17,7 @@ import kotlin.io.path.readText
 
 @ExtendWith(MockKExtension::class)
 class PageExporterTest(
-    @MockK val client: ConfluenceClient
+    @param:MockK val client: ConfluenceClient
 ) {
 
     val exporter = PageExporter(client, true)

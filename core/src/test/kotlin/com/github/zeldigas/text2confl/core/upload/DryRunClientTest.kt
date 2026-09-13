@@ -25,7 +25,7 @@ import kotlin.io.path.Path
 
 @ExtendWith(MockKExtension::class)
 internal class DryRunClientTest(
-    @MockK val confluenceClient: ConfluenceClient
+    @param:MockK val confluenceClient: ConfluenceClient
 ) {
     val dryRunClient = DryRunClient(confluenceClient)
 

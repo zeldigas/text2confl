@@ -29,8 +29,8 @@ import kotlin.io.path.createFile
 
 @ExtendWith(MockKExtension::class)
 internal class UniversalConverterTest(
-    @MockK private val languageMapper: LanguageMapper,
-    @MockK private val fileConverter: FileConverter
+    @param:MockK private val languageMapper: LanguageMapper,
+    @param:MockK private val fileConverter: FileConverter
 ) {
 
     private val titleConverter: (Path, String) -> String = { _, t -> "Prefixed: $t" }

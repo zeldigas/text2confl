@@ -15,8 +15,8 @@ import java.nio.file.Path
 
 @ExtendWith(MockKExtension::class)
 class DiagramMakersTest(
-    @MockK val generator1: DiagramGenerator,
-    @MockK val generator2: DiagramGenerator
+    @param:MockK val generator1: DiagramGenerator,
+    @param:MockK val generator2: DiagramGenerator
 ) {
 
     val makers = DiagramMakersImpl(Path.of("."), listOf(generator1, generator2))
