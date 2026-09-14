@@ -132,6 +132,11 @@
                 <version>3.13.2</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>com.sksamuel.aedile</groupId>
+                <artifactId>aedile-core</artifactId>
+                <version>3.0.4</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

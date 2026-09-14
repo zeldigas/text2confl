@@ -19,6 +19,7 @@ import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.core.ContentValidationFailedException
@@ -27,6 +28,7 @@ import com.github.zeldigas.text2confl.core.ServiceProvider
 import com.github.zeldigas.text2confl.core.config.*
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
 import com.github.zeldigas.text2confl.core.upload.ContentUploader
+import com.github.zeldigas.text2confl.core.users.ServerUserResolver
 import io.ktor.http.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -45,13 +47,13 @@ internal class UploadTest(
     @param:MockK private val contentUploader: ContentUploader,
     @param:MockK private val confluenceClient: ConfluenceClient,
     @param:MockK private val contentValidator: ContentValidator,
-    @param:MockK private val converter: Converter
+    @param:MockK private val converter: Converter,
 ) {
     private val command = Upload()
 
     @BeforeEach
     internal fun setUp() {
-        every { serviceProvider.createConverter(any(), any()) } returns converter
+        every { serviceProvider.createConverter(any(), any(), any()) } returns converter
         every { serviceProvider.createConfluenceClient(any(), any()) } returns confluenceClient
         every { serviceProvider.createUploader(confluenceClient, any(), any(), any()) } returns contentUploader
         every { serviceProvider.createContentValidator() } returns contentValidator
@@ -103,7 +105,7 @@ internal class UploadTest(
             AsciidoctorConfiguration(libsToLoad = listOf("asciidoctor-diagram"), workdir = tempDir / ".asciidoc"),
             autoFixContentTags = false, filesToIgnore = emptyList()
         )
-        verify { serviceProvider.createConverter("TR", expectedConverterConfig) }
+        verify { serviceProvider.createConverter("TR", expectedConverterConfig, any(ServerUserResolver::class)) }
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(
@@ -162,7 +164,7 @@ internal class UploadTest(
             autoFixContentTags = true,
             emptyList()
         )
-        verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig) }
+        verify { serviceProvider.createConverter(directoryConfig.space!!, converterConfig, any(ServerUserResolver::class)) }
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(

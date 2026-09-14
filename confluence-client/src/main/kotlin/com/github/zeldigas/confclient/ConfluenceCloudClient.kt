@@ -20,10 +20,11 @@ import java.util.concurrent.ConcurrentMap
 class ConfluenceCloudClient(
     override val confluenceBaseUrl: Url,
     private val apiBase: String,
+    private val legacyApiBase: String,
     private val httpClient: HttpClient,
     private val fallbackClient: ConfluenceClient,
     private val collectionsConcurrency: Int = 5,
-) : ConfluenceClient by fallbackClient {
+) : ConfluenceClient by fallbackClient, ConfluenceUserSearchClient {
 
     private val spacesCache: ConcurrentMap<Int, Space> = ConcurrentHashMap()
 
@@ -165,6 +166,12 @@ class ConfluenceCloudClient(
                     "version" to value.version
                 )
             )
+        }.readApiResponse(expectSuccess = true)
+    }
+
+    override suspend fun getUserByKey(userKey: String): User {
+        return httpClient.get("$legacyApiBase/user") {
+            parameter("accountId", userKey)
         }.readApiResponse(expectSuccess = true)
     }
 
@@ -387,6 +394,14 @@ class ConfluenceCloudClient(
         }
     }
 
+    override suspend fun findUserIdByEmail(email: String): String? {
+        val username = email.substringBefore('@')
+        val result = httpClient.get("$legacyApiBase/search/user") {
+            parameter("cql", "user=$username")
+        }.readApiResponse<UserSearchResult>()
+        return result.results.firstOrNull { it.user.email == email }?.user?.accountId
+    }
+
     private fun versionNode(
         version: Int,
         pageUpdateOptions: PageUpdateOptions
@@ -519,3 +534,9 @@ private data class CloudAttachment(
     @param:JsonProperty("_links")
     val links: Map<String, String> = emptyMap()
 )
+
+private data class UserSearchResult(val results: List<UserSearchEntry>)
+
+private data class UserSearchEntry(val user: UserSearchUser)
+
+private data class UserSearchUser(val accountId: String, val email: String)

@@ -7,13 +7,16 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
-import com.github.zeldigas.confclient.PasswordAuth
+import com.github.zeldigas.confclient.ConfluenceUserSearchClient
 import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.EditorVersion
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.core.ServiceProvider
 import com.github.zeldigas.text2confl.core.config.*
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
 import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
+import com.github.zeldigas.text2confl.core.users.CloudUserResolver
+import com.github.zeldigas.text2confl.core.users.ServerUserResolver
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
@@ -89,7 +92,8 @@ class Upload : CliktCommand(name = "upload"),
             clientConfig.server,
             autoFixContent
         )
-        val converter = serviceProvider.createConverter(uploadConfig.space, conversionConfig)
+        val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
+        val converter = serviceProvider.createConverter(uploadConfig.space, conversionConfig, createUserResolver(confluenceClient))
         val pagesToPublish = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {
@@ -97,13 +101,20 @@ class Upload : CliktCommand(name = "upload"),
         }
         val contentValidator = serviceProvider.createContentValidator()
         contentValidator.validate(pagesToPublish)
-        val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
         val contentUploader = serviceProvider.createUploader(confluenceClient, uploadConfig, conversionConfig, operationsTracker(clientConfig.server))
         withContext(Dispatchers.Default) {
             contentValidator.checkNoClashWithParent(publishUnder, pagesToPublish)
             contentUploader.uploadPages(pages = pagesToPublish, uploadConfig.space, publishUnder.id)
+        }
+    }
+
+    private fun createUserResolver(confluenceClient: ConfluenceClient): UserResolver {
+        return if (confluenceClient is ConfluenceUserSearchClient) {
+            CloudUserResolver(confluenceClient)
+        } else {
+            ServerUserResolver()
         }
     }
 

@@ -5,6 +5,7 @@ import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.confclient.confluenceClientV2
 import com.github.zeldigas.text2confl.convert.*
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.core.config.ConverterConfig
 import com.github.zeldigas.text2confl.core.config.UploadConfig
 import com.github.zeldigas.text2confl.core.export.PageExporter
@@ -13,7 +14,7 @@ import com.github.zeldigas.text2confl.core.upload.DryRunClient
 import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
 
 interface ServiceProvider {
-    fun createConverter(space: String, config: ConverterConfig): Converter
+    fun createConverter(space: String, config: ConverterConfig, userResolver: UserResolver): Converter
     fun createConfluenceClient(clientConfig: ConfluenceClientConfig, dryRun: Boolean): ConfluenceClient
     fun createUploader(
         client: ConfluenceClient,
@@ -27,7 +28,7 @@ interface ServiceProvider {
 }
 
 class ServiceProviderImpl : ServiceProvider {
-    override fun createConverter(space: String, config: ConverterConfig): Converter {
+    override fun createConverter(space: String, config: ConverterConfig, userResolver: UserResolver): Converter {
         return universalConverter(
             space = space,
             ConversionParameters(
@@ -43,7 +44,8 @@ class ServiceProviderImpl : ServiceProvider {
                     ?: (config.editorVersion == EditorVersion.V2),
                 autoFixContentTags = config.autoFixContentTags,
                 filesToIgnore = config.filesToIgnore
-            )
+            ),
+            userResolver
         )
     }
 
