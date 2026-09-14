@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.zeldigas.confclient.ConfluenceUserSearchClient
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.sksamuel.aedile.core.asLoadingCache
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
 import java.time.Instant
@@ -50,16 +54,26 @@ class CloudUserResolver(
         knownUsers.forEach { (k, v) -> cache[k] = UserValue.Found(v) }
     }
 
-    override suspend fun resolveUser(email: String): String? {
+    override suspend fun resolveUser(email: String): UserResolver.UserReference? {
         val result = cache.get(email)
-        return if (result is UserValue.Found) result.user else null
+        return if (result is UserValue.Found) user(result) else null
     }
 
-    override suspend fun resolveUsers(users: List<String>): Map<String, String> = coroutineScope {
-        users.map { email -> async { email to resolveUser(email) } }
-            .awaitAll()
-            .mapNotNull { (email, id) -> id?.let { email to it } }
+    private fun user(result: UserValue.Found): UserResolver.UserReference = UserResolver.UserReference(
+        UserResolver.UserIdFormat.ACCOUNT_ID, result.user
+    )
+
+    override suspend fun resolveUsers(users: List<String>): Map<String, UserResolver.UserReference> = coroutineScope {
+        cache.getAll(users)
+            .mapNotNull { (email, resolved) -> if (resolved is UserValue.Found) email to user(resolved) else null }
             .toMap()
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    override fun registerReferencedUsers(email: List<String>) {
+        GlobalScope.launch {
+            resolveUsers(email)
+        }
     }
 
     suspend fun cachedUsers(): Map<String, String> = cache.asMap()

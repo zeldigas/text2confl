@@ -8,6 +8,7 @@ import assertk.assertions.isSameInstanceAs
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidocFileConverter
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
 import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramMakersImpl
@@ -30,7 +31,8 @@ import kotlin.io.path.createFile
 @ExtendWith(MockKExtension::class)
 internal class UniversalConverterTest(
     @param:MockK private val languageMapper: LanguageMapper,
-    @param:MockK private val fileConverter: FileConverter
+    @param:MockK private val fileConverter: FileConverter,
+    @param:MockK private val userResolver: UserResolver
 ) {
 
     private val titleConverter: (Path, String) -> String = { _, t -> "Prefixed: $t" }
@@ -43,7 +45,7 @@ internal class UniversalConverterTest(
     private val converter = UniversalConverter(
         "TEST", conversionParameters, mapOf(
             "t" to fileConverter
-        ), FileNameBasedDetector
+        ), FileNameBasedDetector, userResolver
     )
 
     @Test
@@ -65,7 +67,7 @@ internal class UniversalConverterTest(
         verify {
             fileConverter.convert(
                 src,
-                ConvertingContext(ReferenceProvider.singleFile(), conversionParameters, "TEST")
+                ConvertingContext(ReferenceProvider.singleFile(), userResolver, conversionParameters, "TEST")
             )
         }
     }
@@ -163,8 +165,7 @@ internal class UniversalConverterTest(
                             docAndHeader(dir.resolve("three.t")),
                             docAndHeader(dir.resolve("three/foo.t")),
                         )
-                    ),
-                    conversionParameters, "TEST"
+                    ), userResolver, conversionParameters, "TEST"
                 )
             )
         }
@@ -187,7 +188,7 @@ internal class UniversalConverterTest(
         mockkStatic(::createDiagramMakers) {
             every { createDiagramMakers(any()) } returns DiagramMakersImpl(Paths.get("."), emptyList())
 
-            val result = universalConverter("TEST", conversionParameters)
+            val result = universalConverter("TEST", conversionParameters, userResolver)
 
             assertThat(result).isInstanceOf(UniversalConverter::class).all {
                 prop(UniversalConverter::conversionParameters).isSameInstanceAs(conversionParameters)
@@ -214,7 +215,7 @@ internal class UniversalConverterTest(
         val autoFixingConverter = UniversalConverter(
             "TEST", conversionParameters.copy(autoFixContentTags = true), mapOf(
                 "t" to fileConverter
-            ), FileNameBasedDetector
+            ), FileNameBasedDetector, userResolver
         )
         val result = autoFixingConverter.convertFile(src)
 

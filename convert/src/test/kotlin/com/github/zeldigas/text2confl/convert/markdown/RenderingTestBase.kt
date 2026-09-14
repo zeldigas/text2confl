@@ -6,6 +6,7 @@ import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapperImpl
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import com.github.zeldigas.text2confl.convert.confluence.TestUserResolver
 import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramMakers
 import kotlin.io.path.Path
 
@@ -32,7 +33,7 @@ internal open class RenderingTestBase {
         pageAttributes: Map<String, Any?> = emptyMap()
     ): String {
         val context = ConvertingContext(
-            referenceProvider,
+            referenceProvider, TestUserResolver,
             ConversionParameters(
                 languageMapper ?: this.languageMapper,
                 { _, title -> title },

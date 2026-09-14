@@ -2,6 +2,7 @@ package com.github.zeldigas.text2confl.convert
 
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import java.nio.file.Path
 
 interface FileConverter {
@@ -21,6 +22,7 @@ data class HeaderReadingContext(
 
 data class ConvertingContext(
     val referenceProvider: ReferenceProvider,
+    val userResolver: UserResolver,
     val conversionParameters: ConversionParameters,
     val targetSpace: String
 ) {

@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.github.zeldigas.confclient.ConfluenceUserSearchClient
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -24,7 +25,7 @@ class CloudUserResolverTest(
         val resolver = CloudUserResolver(client)
         coEvery { client.findUserIdByEmail("user@example.com") } returns "acc-123"
 
-        assertThat(resolver.resolveUser("user@example.com")).isEqualTo("acc-123")
+        assertThat(resolver.resolveUser("user@example.com")).isEqualTo(UserResolver.UserReference(UserResolver.UserIdFormat.ACCOUNT_ID, "acc-123"))
     }
 
     @Test
@@ -55,7 +56,10 @@ class CloudUserResolverTest(
 
         val result = resolver.resolveUsers(listOf("a@example.com", "b@example.com", "c@example.com"))
 
-        assertThat(result).isEqualTo(mapOf("a@example.com" to "acc-a", "c@example.com" to "acc-c"))
+        assertThat(result).isEqualTo(mapOf(
+            "a@example.com" to UserResolver.UserReference(UserResolver.UserIdFormat.ACCOUNT_ID, "acc-a"),
+            "c@example.com" to UserResolver.UserReference(UserResolver.UserIdFormat.ACCOUNT_ID, "acc-c")
+        ))
     }
 
     @Test
@@ -65,7 +69,7 @@ class CloudUserResolverTest(
 
         val results = (1..5).map { async { resolver.resolveUser("user@example.com") } }.awaitAll()
 
-        assertThat(results.distinct()).isEqualTo(listOf("acc-123"))
+        assertThat(results.distinct()).isEqualTo(listOf(UserResolver.UserReference(UserResolver.UserIdFormat.ACCOUNT_ID, "acc-123")))
         coVerify(exactly = 1) { client.findUserIdByEmail("user@example.com") }
     }
 
@@ -73,7 +77,7 @@ class CloudUserResolverTest(
     fun `known users are returned without calling client`() = runTest {
         val resolver = CloudUserResolver(client, knownUsers = mapOf("known@example.com" to "acc-known"))
 
-        assertThat(resolver.resolveUser("known@example.com")).isEqualTo("acc-known")
+        assertThat(resolver.resolveUser("known@example.com")).isEqualTo(UserResolver.UserReference(UserResolver.UserIdFormat.ACCOUNT_ID, "acc-known"))
 
         coVerify(exactly = 0) { client.findUserIdByEmail(any()) }
     }

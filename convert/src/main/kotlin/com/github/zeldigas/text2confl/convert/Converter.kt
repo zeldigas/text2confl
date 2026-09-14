@@ -4,6 +4,7 @@ import com.github.zeldigas.text2confl.convert.asciidoc.AsciidocFileConverter
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownFileConverter
 import org.jsoup.Jsoup
@@ -61,13 +62,15 @@ class ExactFileMatcher(val name: String, val ignoreCase: Boolean) : FileMatcher 
 
 fun universalConverter(
     space: String,
-    parameters: ConversionParameters
+    parameters: ConversionParameters,
+    userResolver: UserResolver
 ): Converter {
     return UniversalConverter(
         space, parameters, mapOf(
             "md" to MarkdownFileConverter(parameters.markdownConfiguration),
             "adoc" to AsciidocFileConverter(parameters.asciidoctorConfiguration)
-        ), FileNameBasedDetector
+        ), FileNameBasedDetector,
+        userResolver
     )
 }
 
@@ -76,6 +79,7 @@ internal class UniversalConverter(
     val conversionParameters: ConversionParameters,
     val converters: Map<String, FileConverter>,
     val pagesDetector: PagesDetector,
+    val userResolver: UserResolver
 ) : Converter {
 
     override fun convertFile(file: Path): Page {
@@ -84,7 +88,7 @@ internal class UniversalConverter(
         }
 
         return Page(
-            performConversion(file, ConvertingContext(ReferenceProvider.singleFile(), conversionParameters, space)),
+            performConversion(file, ConvertingContext(ReferenceProvider.singleFile(), userResolver, conversionParameters, space)),
             file,
             emptyList()
         )
@@ -97,7 +101,7 @@ internal class UniversalConverter(
 
         return convertFilesInDirectory(
             dir,
-            ConvertingContext(ReferenceProvider.fromDocuments(dir, documents), conversionParameters, space)
+            ConvertingContext(ReferenceProvider.fromDocuments(dir, documents), userResolver, conversionParameters, space)
         )
     }
 
