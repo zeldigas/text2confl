@@ -7,13 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-## 0.27.0 - 2026-09-13
+## 0.27.0 - 2026-09-16
 
 ### Added
 
 - `additional-files-to-ignore` parameter in configuration files. It allows you to define list of file names that must be
   ignored in addition to predefined `_` prefixed files. You can use this feature to ignore some technical files, such as
   `CLAUDE.md` and `AGENTS.md`. Every list item represent a filename that is matched ignoring case.
+
+### Fixed
+
+- Spaces with large IDs support (exceeding $2^{32}$). Thanks to @romenrg
 
 ## 0.26.0 - 2026-06-30
 
