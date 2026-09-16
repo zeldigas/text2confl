@@ -36,6 +36,19 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
     }
 
     @Test
+    fun `Space load with id exceeding Int MAX_VALUE`() = runTest {
+        stubFor(
+            get("/api/v2/spaces?keys=LS").willReturn(
+                ok().withJsonFromFile("/data/responses/api-v2/spaces-large-id.json")
+            )
+        )
+
+        val result = client.describeSpace("LS", includeHome = false)
+
+        assertThat(result).isEqualTo(Space(id = 4643979279L, "LS", "Large Space", "98581", null))
+    }
+
+    @Test
     fun `Space load by key with homepage`() = runTest {
         stubFor(
             get("/api/v2/spaces?keys=Docs").willReturn(

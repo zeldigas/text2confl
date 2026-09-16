@@ -25,7 +25,7 @@ class ConfluenceCloudClient(
     private val collectionsConcurrency: Int = 5,
 ) : ConfluenceClient by fallbackClient {
 
-    private val spacesCache: ConcurrentMap<Int, Space> = ConcurrentHashMap()
+    private val spacesCache: ConcurrentMap<Long, Space> = ConcurrentHashMap()
 
     companion object {
         private const val PAGE_SIZE = 100
@@ -50,7 +50,7 @@ class ConfluenceCloudClient(
         }
     }
 
-    private suspend fun getSpaceById(id: Int): Space = httpClient.get("$apiBase/spaces/$id").readApiResponse<Space>()
+    private suspend fun getSpaceById(id: Long): Space = httpClient.get("$apiBase/spaces/$id").readApiResponse<Space>()
 
     override suspend fun getPage(
         space: String,
@@ -455,7 +455,7 @@ private data class ConfCloudPage(
     val body: PageBody? = null,
     @param:JsonProperty("_links")
     val links: Map<String, String> = emptyMap(),
-    val spaceId: Int
+    val spaceId: Long
 )
 
 private data class AttributesCollection<T>(
