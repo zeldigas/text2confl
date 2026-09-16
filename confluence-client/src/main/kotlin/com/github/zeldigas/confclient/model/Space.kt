@@ -1,7 +1,7 @@
 package com.github.zeldigas.confclient.model
 
 data class Space(
-    val id: Int,
+    val id: Long,
     val key: String,
     val name: String,
     val homepageId: String?,
