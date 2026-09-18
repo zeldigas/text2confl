@@ -20,6 +20,6 @@
       li
         - if is_checklist && (item.attr? :checkbox)
           = (item.attr? 'checked') ? "[X] " : "[ ] "
-        =item.text
+        =adjusted_item_text(item)
         - if item.blocks?
           =item.content

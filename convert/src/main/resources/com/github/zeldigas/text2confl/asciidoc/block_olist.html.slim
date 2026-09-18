@@ -4,6 +4,6 @@
 ol
   - items.each do |item|
     li
-      =item.text
+      =adjusted_item_text(item)
       - if item.blocks?
         =item.content

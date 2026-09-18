@@ -287,6 +287,10 @@ module Slim::Helpers
     content.gsub(Asciidoctor::LF, ' ')
   end
 
+  def adjusted_item_text(item)
+    item.text.gsub(Asciidoctor::LF, ' ')
+  end
+
   def escape_quotes val
     val.gsub(/"/, '&quot;'.freeze)
   end
