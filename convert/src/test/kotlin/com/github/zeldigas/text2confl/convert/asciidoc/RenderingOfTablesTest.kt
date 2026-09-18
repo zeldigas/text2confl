@@ -158,6 +158,47 @@ internal class RenderingOfTablesTest : RenderingTestBase() {
     }
 
     @Test
+    fun `Table with wrapped header cell`() {
+        val result = toHtml(
+            """
+            [options="header"]
+            |===
+            |Column 1
+            header text |Column 2
+
+            |body1 |body2
+            |===
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <table class="relative-table"><colgroup><col style="width: 50%;" /><col style="width: 50%;" /></colgroup><thead><tr><th>Column 1 header text</th><th>Column 2</th></tr></thead><tbody><tr><td>body1</td><td>body2</td></tr></tbody></table>
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Table with wrapped plain body cell`() {
+        val result = toHtml(
+            """
+            |===
+            |h1 |h2
+
+            | some
+            content no style |hello
+            |===
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <table class="relative-table"><colgroup><col style="width: 50%;" /><col style="width: 50%;" /></colgroup><thead><tr><th>h1</th><th>h2</th></tr></thead><tbody><tr><td>some content no style</td><td>hello</td></tr></tbody></table>
+        """.trimIndent()
+        )
+    }
+
+    @Test
     fun `Complex table rendering`() {
         val result = toHtml(
             """

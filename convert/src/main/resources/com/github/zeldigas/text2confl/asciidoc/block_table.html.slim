@@ -30,7 +30,7 @@ table *table_tag_attrs
             - row.each do |cell|
               - cell_output = ""
               - if tblsec == :head
-                - cell_output = cell.text
+                - cell_output = strip_line_breaks(cell.text)
               - else
                 - case cell.style
                 - when :asciidoc
@@ -41,7 +41,7 @@ table *table_tag_attrs
                   - cell_output = html_tag(:div, {class: 'literal'}) do
                     - html_tag(:pre, {}, cell.text)
                 - else
-                  - cell_output = cell.content.join("")
+                  - cell_output = cell.content.map { |para| strip_line_breaks(para) }.join("")
               - cellAttributes = table_cell_styling cell
               *{tag: (tblsec == :head || cell.style == :header ? 'th' : 'td'),
                   colspan: cell.colspan,
