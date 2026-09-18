@@ -62,6 +62,7 @@ class AsciidocParser(
         "t2c-space" to parameters.space,
         "t2c-decoder" to Converter,
         "t2c-code-in-expand" to parameters.codeBlocksInExpand,
+        "t2c-user-resolver" to parameters.userResolver,
         "idseparator" to "-",
         "idprefix" to ""
     ) + config.attributes + parameters.extraAttrs
@@ -89,6 +90,7 @@ data class AsciidocRenderingParameters(
     val includeAutoText: Boolean,
     val space: String,
     val attachmentsCollector: AsciidocAttachmentCollector,
+    val userResolver: AsciidocUserResolver,
     val codeBlocksInExpand: Boolean,
     val extraAttrs: Map<String, Any?> = emptyMap(),
 )

@@ -8,6 +8,7 @@ import com.github.zeldigas.text2confl.convert.AttachmentsRegistry
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapperImpl
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import com.github.zeldigas.text2confl.convert.confluence.TestUserResolver
 import kotlin.io.path.Path
 
 internal open class RenderingTestBase {
@@ -35,6 +36,7 @@ internal open class RenderingTestBase {
         parser: AsciidocParser = DEFAULT_PARSER,
         attachmentsCollector: AsciidocAttachmentCollector? = null,
         referenceProvider: AsciidocReferenceProvider? = null,
+        userResolver: AsciidocUserResolver? = null,
         codeBlocksInExpand: Boolean = false,
         attributes: Map<String, Any?> = emptyMap(),
     ): String {
@@ -61,6 +63,7 @@ internal open class RenderingTestBase {
                 addAutogenHeader,
                 "TEST",
                 effectiveCollector,
+                userResolver ?: AsciidocUserResolver(TestUserResolver),
                 codeBlocksInExpand,
                 extraAttrs = attributes,
             )
