@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.27.1 - 2026-09-18
+
 ### Fixed
 
 - Removed explicit line breaks in list item content
