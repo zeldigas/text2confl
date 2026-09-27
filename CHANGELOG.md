@@ -7,18 +7,33 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-## 0.27.0
+### Added
+
+- \[export-to-md] now supports `note` panel from Confluence cloud (without customizations for now)
+
+### Fixed
+
+- \[export-to-md] for pages with user references (#338)
+
+
+## 0.27.1 - 2026-09-18
+
+### Fixed
+
+- Removed explicit line breaks in list item content
+- Removed explicit line breaks in table cells
+
+## 0.27.0 - 2026-09-16
 
 ### Added
 
 - `additional-files-to-ignore` parameter in configuration files. It allows you to define list of file names that must be
   ignored in addition to predefined `_` prefixed files. You can use this feature to ignore some technical files, such as
   `CLAUDE.md` and `AGENTS.md`. Every list item represent a filename that is matched ignoring case.
-- \[export-to-md] now supports `note` panel from Confluence cloud (without customizations for now)
 
 ### Fixed
 
-- \[export-to-md] for pages with user references (#338)
+- Spaces with large IDs support (exceeding $2^{32}$). Thanks to @romenrg
 
 ## 0.26.0 - 2026-06-30
 

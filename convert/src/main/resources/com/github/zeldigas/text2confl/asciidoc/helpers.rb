@@ -283,8 +283,8 @@ module Slim::Helpers
     end
   end
 
-  def adjusted_paragraph_content
-    content.gsub(Asciidoctor::LF, ' ')
+  def strip_line_breaks(text)
+    text.gsub(Asciidoctor::LF, ' ')
   end
 
   def escape_quotes val
