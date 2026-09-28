@@ -6,6 +6,7 @@ import assertk.assertions.*
 import assertk.assertions.isSameInstanceAs
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
+import com.github.zeldigas.confclient.ConfluenceCloudClient
 import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.text2confl.convert.ConversionParameters
@@ -90,6 +91,19 @@ internal class ServiceProviderImplTest {
             }, true)
 
             assertThat(result).isInstanceOf(DryRunClient::class)
+        }
+    }
+
+    @Test
+    internal fun `Confluence dry client creation for cloud`(@MockK client: ConfluenceCloudClient) {
+        mockkStatic(::confluenceClient) {
+            every { confluenceClient(any()) } returns client
+
+            val result = provider.createConfluenceClient(mockk {
+                every { cloudApi } returns false
+            }, true)
+
+            assertThat(result).isInstanceOf(DryRunCloudClient::class)
         }
     }
 

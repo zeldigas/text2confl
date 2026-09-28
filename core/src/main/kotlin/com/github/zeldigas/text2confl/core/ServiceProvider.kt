@@ -2,6 +2,9 @@ package com.github.zeldigas.text2confl.core
 
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
+import com.github.zeldigas.confclient.ConfluenceClientImpl
+import com.github.zeldigas.confclient.ConfluenceCloudClient
+import com.github.zeldigas.confclient.ConfluenceUserSearchClient
 import com.github.zeldigas.confclient.confluenceClient
 import com.github.zeldigas.confclient.confluenceClientV2
 import com.github.zeldigas.text2confl.convert.*
@@ -11,6 +14,7 @@ import com.github.zeldigas.text2confl.core.config.UploadConfig
 import com.github.zeldigas.text2confl.core.export.PageExporter
 import com.github.zeldigas.text2confl.core.upload.ContentUploader
 import com.github.zeldigas.text2confl.core.upload.DryRunClient
+import com.github.zeldigas.text2confl.core.upload.DryRunCloudClient
 import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
 
 interface ServiceProvider {
@@ -49,7 +53,13 @@ class ServiceProviderImpl : ServiceProvider {
 
     override fun createConfluenceClient(clientConfig: ConfluenceClientConfig, dryRun: Boolean): ConfluenceClient {
         val client = if (clientConfig.cloudApi) confluenceClientV2(clientConfig) else confluenceClient(clientConfig)
-        return if (dryRun) DryRunClient(client) else client
+        return if (dryRun && client is ConfluenceCloudClient){
+            DryRunCloudClient(client)
+        } else if (dryRun) {
+            DryRunClient(client)
+        } else {
+            client
+        }
     }
 
     override fun createUploader(

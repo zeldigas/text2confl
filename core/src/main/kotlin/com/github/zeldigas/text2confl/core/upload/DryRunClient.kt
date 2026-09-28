@@ -5,7 +5,7 @@ import com.github.zeldigas.confclient.model.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.time.ZonedDateTime
 
-class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient by realClient {
+open class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient by realClient {
 
     companion object {
         private val log = KotlinLogging.logger {}
@@ -130,3 +130,5 @@ class DryRunClient(private val realClient: ConfluenceClient) : ConfluenceClient 
         log.info { "(dryrun) Deleting attachment $attachmentId" }
     }
 }
+
+class DryRunCloudClient(realClient: ConfluenceCloudClient) : DryRunClient(realClient), ConfluenceUserSearchClient by realClient

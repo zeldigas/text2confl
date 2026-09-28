@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.28.2 - 2026-09-28
+
+### Fixed
+
+- Dry run uploads now properly uses cloud user resolution just like real upload
+
 ## 0.28.1 - 2026-09-28
 
 ### Fixed
