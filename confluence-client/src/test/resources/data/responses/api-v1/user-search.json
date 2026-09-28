@@ -1,0 +1,22 @@
+{
+  "results": [
+    {
+      "user": {
+        "type": "known",
+        "accountId": "bbbbbb:aaaaaaaa-cccc-aaaa-ffff-123411111111",
+        "accountType": "atlassian",
+        "email": "zeldigas@example.com",
+        "publicName": "zeldigas",
+        "displayName": "Dmitry Pavlov",
+        "isExternalCollaborator": false
+      },
+      "title": "Dmitry Pavlov",
+      "entityType": "user"
+    }
+  ],
+  "start": 0,
+  "limit": 25,
+  "size": 1,
+  "totalSize": 1,
+  "cqlQuery": "user = zeldigas"
+}

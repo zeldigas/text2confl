@@ -4,6 +4,7 @@ import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.ConvertingContext
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.convert.confluence.Xref
 import com.github.zeldigas.text2confl.convert.markdown.ext.AttributeRepositoryAware
 import com.vladsch.flexmark.ast.*
@@ -35,6 +36,7 @@ import com.vladsch.flexmark.util.html.CellAlignment
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.Escaping
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
 
 
@@ -173,20 +175,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
 
     private fun render(node: FencedCodeBlock, context: NodeRendererContext, html: HtmlWriter) {
         html.line()
-        if (convertingContext.conversionParameters.codeBlocksInExpand && "true" == node.attributesMap["collapse"]) {
-            html.tag("ac:structured-macro", mapOf("ac:name" to "expand")) {
-                node.attributesMap["title"]?.let {
-                    html.addParameter("title", it)
-                }
-                html.tag("ac:rich-text-body") {
-                    html.line()
-                    generateCodeBlock(node, context, html)
-                    html.line()
-                }
-            }
-        } else {
-            generateCodeBlock(node, context, html)
-        }
+        generateCodeBlock(node, context, html)
     }
 
     private fun generateCodeBlock(node: FencedCodeBlock, context: NodeRendererContext, html: HtmlWriter) {
@@ -536,8 +525,17 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         @Suppress("UNUSED_PARAMETER") context: NodeRendererContext,
         html: HtmlWriter
     ) {
-        html.tag("ac:link") {
-            html.voidTag("ri:user", mapOf("ri:username" to node.text))
+        var userRef = runBlocking { convertingContext.userResolver.resolveUser(node.text.toString()) }
+        if (userRef == null) {
+            html.append(node.text)
+        } else {
+            html.tag("ac:link") {
+                val attr = when(userRef.format) {
+                    UserResolver.UserIdFormat.ACCOUNT_ID -> "ri:account-id"
+                    UserResolver.UserIdFormat.USERNAME -> "ri:username"
+                }
+                html.voidTag("ri:user", mapOf(attr to userRef.value))
+            }
         }
     }
 

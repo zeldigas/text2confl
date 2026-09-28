@@ -102,6 +102,16 @@ See xref:#modifications-check-strategies[Modifications check strategies] below
 |
 | Tenant id for uploaded pages. See xref:../how-to/configure-multi-tenancy.md[page about multi-tenancy]
 
+| t2c-dir
+| `--t2c-dir`
+|
+| Directory for text2confl work files. Default is `.text2confl`, relative path is resolved from docs root directory.
+
+Currently used to cache results of user resolution in Confluence Cloud (`users.json`), so that mentioned users are not
+looked up on every upload. Content of this directory is not meant to be committed, consider adding it to `.gitignore`.
+
+NOTE: CLI option is available only for `upload` command
+
 | docs-location
 |
 |
@@ -146,12 +156,6 @@ Matching is case-insensitive. Useful for excluding technical files such as `CLAU
 |
 |
 | Custom language mapping for code blocks. Key is the language tag in the document, value is the Confluence language tag
-
-| code-blocks.collapse-with-expand
-|
-|
-| Wrap code blocks in an expand macro. Useful for Confluence Cloud where code blocks lack a native collapse feature.
-Enabled by default for v2 editor if not specified explicitly
 
 | markdown
 |

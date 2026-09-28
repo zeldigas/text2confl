@@ -15,6 +15,7 @@ import com.github.zeldigas.text2confl.core.ServiceProvider
 import com.github.zeldigas.text2confl.core.config.createConversionConfig
 import com.github.zeldigas.text2confl.core.config.readDirectoryConfig
 import com.github.zeldigas.text2confl.core.export.sanitizeTitle
+import com.github.zeldigas.text2confl.core.users.ServerUserResolver
 import io.ktor.http.*
 import java.io.File
 import java.nio.file.Path
@@ -51,7 +52,7 @@ class Convert : CliktCommand(name = "convert"),
                 autoFixContent
             )
         val space = spaceKey ?: directoryConfig.space ?: "AAA"
-        val converter = serviceProvider.createConverter(space, conversionConfig)
+        val converter = serviceProvider.createConverter(space, conversionConfig, ServerUserResolver())
         try {
             val result = tryConvert(converter)
             if (validate) {

@@ -15,14 +15,28 @@ To insert it, use custom macro `+status:$color[$text_of_status]+`, where `$color
 
 NOTE: Only limited colors are supported, and you need to properly specify one of the following allowed values: `grey` , `red`, `green`, `purple`, `blue`.
 
-== Mentioning user macro (Confluence Server only)
+== Mentioning user macro
 
-You can mention user using `+user:username[]+` macro, where `username` is your login in Confluence.
-If you use email to log in, use it in macro: for example login \jsmith@example.org should be used as `+user:jsmith@example.org+[]`.
+You can mention user using `+user:reference[]+` macro. What should be used as a reference depends on Confluence edition:
 
-Unfortunately due to absence of human-readable usernames in Cloud edition this will work only on Server/Datacenter where human-readable usernames are still supported.
+[cols="1,1,2",options="header"]
+|===
+| Confluence edition | Reference | Example
 
-If you still need to mention user in Cloud, consider using <<raw-confluence-formatting,raw confluence markdown>>
+| Server/Data Center
+| Username (login)
+| `+user:jsmith[]+`, or `+user:jsmith@example.org[]+` if you use email to log in
+
+| Cloud
+| User email
+| `+user:jsmith@example.org[]+`
+|===
+
+In Confluence Cloud users don't have human-readable usernames, so during `upload` *text2confl* looks up the account id of the user by email.
+If the user can't be found (e.g. email is not visible to the account used for upload because of user's profile visibility settings, or a scoped token lacks `read:content-details:confluence` scope), a warning is logged, the reference is rendered as plain text and no mention is created.
+Resolved users are cached in the text2confl work directory (see `t2c-dir` in xref:../configuration.adoc[configuration reference]), so users are not looked up again on subsequent uploads.
+
+NOTE: Resolution of users happens only during `upload`. The `convert` command does not connect to Confluence and always renders references as usernames.
 
 == Putting date
 

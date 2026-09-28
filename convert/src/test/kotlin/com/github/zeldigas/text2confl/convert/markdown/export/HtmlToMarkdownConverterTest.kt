@@ -26,6 +26,7 @@ class HtmlToMarkdownConverterTest {
             "tables",
             "confluence-specific",
             "user-refs",
+            "confluence-cloud",
         ]
     )
     @ParameterizedTest

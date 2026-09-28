@@ -84,6 +84,11 @@ Asciidoctor's default HTML output templates and emit CSF XML directly. Diagrams 
 Both paths produce a `PageContent` object containing the CSF XML body and a list of attachments (files to be uploaded
 alongside the page).
 
+User mentions are resolved during conversion. For Confluence Server/Data Center, the reference is used as a username
+as is. For Confluence Cloud (on `upload` only), the email in the reference is looked up via Confluence API to get the
+account id. Resolved users are cached in the text2confl work directory (`.text2confl/users.json` by default), so only
+new users trigger API calls on subsequent runs.
+
 ## Step 4 - Optional: auto-fix
 
 If `auto-fix-content-tags: true` is configured, text2confl runs the converted body through [Jsoup](https://jsoup.org/)
@@ -92,7 +97,7 @@ XML. See [Content auto-fix](./auto-fix-content.md) for the tradeoffs.
 
 ## Step 5 - XML validation
 
-text2confl validates the CSF XML before any network calls. This catches converter bugs and malformed raw HTML snippets
+text2confl validates the CSF XML before any page-related network calls. This catches converter bugs and malformed raw HTML snippets
 early, giving a clear error message pointing to the problematic file rather than a cryptic Confluence API error.
 
 ## Step 6 - Change detection

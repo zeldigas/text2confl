@@ -6,6 +6,7 @@ import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapper
 import com.github.zeldigas.text2confl.convert.confluence.LanguageMapperImpl
 import com.github.zeldigas.text2confl.convert.confluence.ReferenceProvider
+import com.github.zeldigas.text2confl.convert.confluence.TestUserResolver
 import com.github.zeldigas.text2confl.convert.markdown.diagram.DiagramMakers
 import kotlin.io.path.Path
 
@@ -27,12 +28,11 @@ internal open class RenderingTestBase {
         autogenText: String = "Generated for __doc-root____file__",
         config: MarkdownConfiguration = MarkdownConfiguration(true, emptyList()),
         diagramMakers: DiagramMakers = DiagramMakers.NOP,
-        codeBlockInExpand: Boolean = false,
         editorVersion: EditorVersion = EditorVersion.V1,
         pageAttributes: Map<String, Any?> = emptyMap()
     ): String {
         val context = ConvertingContext(
-            referenceProvider,
+            referenceProvider, TestUserResolver,
             ConversionParameters(
                 languageMapper ?: this.languageMapper,
                 { _, title -> title },
@@ -41,7 +41,6 @@ internal open class RenderingTestBase {
                 docRootLocation = "http://example.com/",
                 markdownConfiguration = config,
                 editorVersion = editorVersion,
-                codeBlocksInExpand = codeBlockInExpand,
             ),
             "TEST",
         )

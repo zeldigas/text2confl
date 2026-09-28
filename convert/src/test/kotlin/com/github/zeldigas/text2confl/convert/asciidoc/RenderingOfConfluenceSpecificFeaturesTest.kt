@@ -1,9 +1,19 @@
 package com.github.zeldigas.text2confl.convert.asciidoc
 
 import assertk.assertThat
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
+
+    private val unresolvedUserResolver = AsciidocUserResolver(object : UserResolver {
+        override suspend fun resolveUser(email: String): UserResolver.UserReference? = null
+        override suspend fun resolveUsers(users: List<String>): Map<String, UserResolver.UserReference> =
+            emptyMap()
+        override fun registerReferencedUsers(email: List<String>) {}
+    })
 
     @Test
     internal fun `Confluence status macro`() {
@@ -53,6 +63,44 @@ internal class RenderingOfConfluenceSpecificFeaturesTest : RenderingTestBase() {
             <p>Hello <ac:link><ri:user ri:username="user@example.com" /></ac:link>-.</p>
             <p>Hello @..</p>
         """.trimIndent()
+        )
+    }
+
+    @CsvSource(
+        value = [
+            "unknown-user;unknown-user",
+            "unknown@example.com;unknown@example.com",
+        ], delimiter = ';'
+    )
+    @ParameterizedTest
+    internal fun `Confluence user macro renders literal text when user is not resolved`(target: String, expected: String) {
+        val result = toHtml(
+            "Hello user:$target[].",
+            userResolver = unresolvedUserResolver
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            "<p>Hello $expected.</p>"
+        )
+    }
+
+    @Test
+    internal fun `Confluence user macro renders account id reference`() {
+        val resolver = object : UserResolver {
+            override suspend fun resolveUser(email: String) =
+                UserResolver.UserReference(UserResolver.UserIdFormat.ACCOUNT_ID, "acc-123")
+            override suspend fun resolveUsers(users: List<String>): Map<String, UserResolver.UserReference> =
+                emptyMap()
+            override fun registerReferencedUsers(email: List<String>) {}
+        }
+
+        val result = toHtml(
+            "Hello user:someone[].",
+            userResolver = AsciidocUserResolver(resolver)
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """<p>Hello <ac:link><ri:user ri:account-id="acc-123" /></ac:link>.</p>"""
         )
     }
 

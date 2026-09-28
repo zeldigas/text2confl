@@ -24,6 +24,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
 
     override fun getHtmlNodeRendererHandlers(): Set<HtmlNodeRendererHandler<*>> {
         return setOf(
+            HtmlNodeRendererHandler("ac:adf-extension", Element::class.java, this::processAdfMacro),
             HtmlNodeRendererHandler("ac:structured-macro", Element::class.java, this::processMacro),
             HtmlNodeRendererHandler("ac:task-list", Element::class.java, this::processTaskList),
             HtmlNodeRendererHandler("ac:link", Element::class.java, this::processLink),
@@ -45,6 +46,17 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
 
     private fun processBold(element: Element, context: HtmlNodeConverterContext, writer: HtmlMarkdownWriter) {
         context.wrapTextNodes(element, "**", false)
+    }
+
+    private fun processAdfMacro(
+        element: Element,
+        context: HtmlNodeConverterContext,
+        out: HtmlMarkdownWriter
+    ) {
+        val extension = element.getElementsByTag("ac:adf-node").first() ?: return
+        when(extension.attr("type")) {
+            "panel" -> generateAdmonitionFromCloud(element, extension, context, out)
+        }
     }
 
     private fun processMacro(
@@ -110,11 +122,39 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
     }
 
     fun generateAdmonition(element: Element, context: HtmlNodeConverterContext, out: HtmlMarkdownWriter) {
+        val type = element.attr("ac:name")
+        val attributes = macroParameters(element)
+        val content = element.childNodes().filterIsInstance<Element>().first { it.tagName() == "ac:rich-text-body" }
         if (element.previousElementSibling() != null) {
             out.blankLine()
         }
-        out.append("!!! ").append(element.attr("ac:name"))
-        val attributes = macroParameters(element)
+        generateAdmonition(out, context, type, attributes, content)
+    }
+
+    private fun generateAdmonitionFromCloud(
+        adfRoot: Element,
+        extensionRoot: Element,
+        context: HtmlNodeConverterContext,
+        out: HtmlMarkdownWriter
+    ) {
+        if (adfRoot.previousElementSibling() != null) {
+            out.blankLine()
+        }
+        val attributes = adfMacroParameters(extensionRoot)
+        val type = attributes.getValue("panel-type")
+        val content = extensionRoot.getElementsByTag("ac:adf-content").first()!!
+        if (adfRoot.previousElementSibling() != null) {
+            out.blankLine()
+        }
+        generateAdmonition(out, context, type, attributes, content)
+    }
+
+    fun generateAdmonition(out: HtmlMarkdownWriter,
+                           context: HtmlNodeConverterContext,
+                           type: String,
+                           attributes: Map<String, String>,
+                           content: Element) {
+        out.append("!!! ").append(type)
         if ("title" in attributes) {
             out.append(" \"")
             out.append(context.escapeSpecialChars(attributes["title"]!!))
@@ -124,7 +164,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         out.pushPrefix()
         out.addPrefix("    ")
         context.renderChildren(
-            element.childNodes().filterIsInstance<Element>().first { it.tagName() == "ac:rich-text-body" }, true, null
+            content, true, null
         )
         out.popPrefix()
     }
@@ -132,6 +172,10 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
     private fun macroParameters(element: Element) =
         element.childNodes().filterIsInstance<Element>().filter { it.tagName() == "ac:parameter" }
             .map { it.attr("ac:name") to it.ownText() }.toMap()
+
+    private fun adfMacroParameters(element: Element) =
+        element.childNodes().filterIsInstance<Element>().filter { it.tagName() == "ac:adf-attribute" }
+            .map { it.attr("key") to it.ownText() }.toMap()
 
     private fun generateAttributes(out: HtmlMarkdownWriter, attributes: Map<String, String>) {
         var counter = attributes.size
@@ -218,7 +262,9 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
     }
 
     private fun processUserReference(element: Element, context: HtmlNodeConverterContext, writer: HtmlMarkdownWriter) {
-        val key = element.attr("ri:userkey") ?: return
+        val key = element.attr("ri:userkey").ifEmpty {
+            element.attr("ri:account-id").ifEmpty { null }
+        } ?: return
         val username = userResolver.resolve(key) ?: return
 
         writer.append('@')

@@ -29,11 +29,14 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
         val (header, ast) = parseToHeaderAndBody(file, context, attachmentsRegistry)
 
         collectAttachments(file, context, ast, attachmentsRegistry)
+        resolveUsers(ast, context)
 
-        val generator = parser.htmlRenderer(file,
+        val generator = parser.htmlRenderer(
+            file,
             attachmentsRegistry.collectedAttachments,
             header.attributes,
-            context)
+            context
+        )
         return PageContent(
             header,
             generator.render(ast),
@@ -62,6 +65,12 @@ internal class MarkdownFileConverter(private val parser: MarkdownParser) : FileC
         } catch (ex: Exception) {
             throw ConversionFailedException(file, "Failed to extract attachments: ${ex.message}", ex)
         }
+    }
+
+    private fun resolveUsers(ast: Document, context: ConvertingContext) {
+        context.userResolver.registerReferencedUsers(
+            MarkdownUserReferencesCollector().findUsers(ast)
+        )
     }
 
     private fun parseToHeaderAndBody(

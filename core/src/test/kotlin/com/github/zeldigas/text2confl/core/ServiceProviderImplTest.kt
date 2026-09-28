@@ -12,6 +12,7 @@ import com.github.zeldigas.text2confl.convert.ConversionParameters
 import com.github.zeldigas.text2confl.convert.Converter
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
+import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.convert.universalConverter
 import com.github.zeldigas.text2confl.core.config.Cleanup
@@ -93,24 +94,25 @@ internal class ServiceProviderImplTest {
     }
 
     @Test
-    internal fun `Converter creation`(@MockK converter: Converter) {
+    internal fun `Converter creation`(@MockK converter: Converter, @MockK userResolver: UserResolver) {
         mockkStatic(::universalConverter) {
-            every { universalConverter("TEST", any()) } returns converter
+            every { universalConverter("TEST", any(), any()) } returns converter
 
             val result = provider.createConverter(
-                "TEST", ConverterConfig(
+                "TEST",
+                ConverterConfig(
                     "pre", "post", EditorVersion.V1,
                     null, "http://example.org/", "custom text",
                     CodeBlockParams(), MarkdownConfiguration(), AsciidoctorConfiguration(),
                     autoFixContentTags = false,
                     filesToIgnore = emptyList()
-                )
+                ), userResolver
             )
 
             assertThat(result).isEqualTo(converter)
 
             val configSlot = slot<ConversionParameters>()
-            verify { universalConverter("TEST", capture(configSlot)) }
+            verify { universalConverter("TEST", capture(configSlot), userResolver) }
 
             assertThat(configSlot.captured).all {
                 prop(ConversionParameters::titleConverter).transform { it(Path("."), "Test") }.isEqualTo("preTestpost")

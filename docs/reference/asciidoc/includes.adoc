@@ -10,7 +10,7 @@ link:{adocs}[Include functionality] of AsciiDoc is supported as expected - inclu
 If you don't want to publish included page on its own, prefix it with `+_+` symbol, e.g. `+_included_page.adoc+`, because *text2confl* ignores files prefixed with `+_+`
 ====
 
-=== Example
+== Example
 
 If you have a file
 [source,asciidoc,subs="none"]

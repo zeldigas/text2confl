@@ -32,6 +32,13 @@ text2confl convert --file my-page.md --editor-version v1
 The editor version affects table rendering, list item markup, and image attributes - so a mismatch can produce
 output that looks correct locally but renders differently in Confluence.
 
+## User mentions
+
+`convert` does not connect to Confluence, so user mentions are always rendered with `ri:username`, as used by
+Confluence Server/Data Center. During `upload` to Confluence Cloud, the same mentions are resolved to account ids by
+email, and mentions of users that can't be found are rendered as plain text. See
+[Mentioning user](../reference/markdown/confluence-specific.md#mentioning-user) for details.
+
 ## See also
 
 - [Configuration reference](../reference/configuration.adoc) - `convert` command options and output directory setting

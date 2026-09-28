@@ -1,14 +1,5 @@
 - if style == 'source'
-  - if (attr? :collapse, 'true') and (document.attr? 't2c-code-in-expand')
-    ac:structured-macro ac:name="expand"
-      - if title?
-        ac:parameter ac:name="title" #{title}
-      ac:rich-text-body
-        = line_break
-        include _code_block.html
-        = line_break
-  - else
-    include _code_block.html
+  include _code_block.html
 - else
   ac:structured-macro ac:name="noformat"
     - if title?

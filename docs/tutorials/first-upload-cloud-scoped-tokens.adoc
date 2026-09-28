@@ -43,6 +43,7 @@ Next, go to link:https://id.atlassian.com/manage-profile/security/api-tokens[Atl
 |Read |`read:hierarchical-content:confluence`
 |Read |`read:attachment:confluence`
 |Read |`read:label:confluence`
+|Read |`read:content-details:confluence`
 |Write |`write:page:confluence`
 |Write |`write:label:confluence`
 |Write |`write:confluence-file`

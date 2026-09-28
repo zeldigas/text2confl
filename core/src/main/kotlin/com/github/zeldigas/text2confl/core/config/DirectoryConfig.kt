@@ -10,6 +10,8 @@ import kotlin.io.path.Path
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.div
 
+const val DEFAULT_T2C_DIR = ".text2confl"
+
 /**
  * Holder of data that can be put to `.text2confl.yml` configuration file that is located in root directory of directory structure
  */
@@ -35,14 +37,18 @@ data class DirectoryConfig(
     val asciidoc: AsciidocParams = AsciidocParams(),
     val client: HttpClientParams = HttpClientParams(),
     val additionalFilesToIgnore: List<String> = emptyList(),
+    val t2cDir: String? = null
 ) {
     lateinit var docsDir: Path
+
+    fun resolveText2ConflDir(location: Path? = null): Path {
+        return docsDir.resolve(location ?: Path(t2cDir ?: DEFAULT_T2C_DIR))
+    }
 }
 
 data class CodeBlockParams(
     val defaultLanguage: String? = null,
     val extraMapping: Map<String, String> = emptyMap(),
-    val collapseWithExpand: Boolean? = null
 )
 
 data class MarkdownParams(
