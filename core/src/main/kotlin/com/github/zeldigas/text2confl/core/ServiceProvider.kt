@@ -40,8 +40,6 @@ class ServiceProviderImpl : ServiceProvider {
                 markdownConfiguration = config.markdownConfig,
                 asciidoctorConfiguration = config.asciidocConfig,
                 editorVersion = config.editorVersion,
-                codeBlocksInExpand = config.codeBlockParams.collapseWithExpand
-                    ?: (config.editorVersion == EditorVersion.V2),
                 autoFixContentTags = config.autoFixContentTags,
                 filesToIgnore = config.filesToIgnore
             ),

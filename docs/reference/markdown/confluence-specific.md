@@ -189,12 +189,29 @@ Note that only limited colors are supported, and you need to properly specify on
 values: `grey`
 , `red`, `green`, `purple`, `blue`.
 
-## Mentioning user (Confluence Server only)
+## Mentioning user
 
-You can mention user using `@username` format just like you can do on GitHub or in WYSIWYG Confluence editor.
-Unfortunately due to absence of human-readable usernames in Cloud edition this will work only on Server/Datacenter where
-human-readable usernames are still supported. If you still need to mention user in Cloud, consider
-using [raw Confluence markdown](#adding-raw-confluence-formatting)
+You can mention user using `@username` format just like you can do on GitHub or in WYSIWYG Confluence editor. If
+the reference contains characters other than letters, digits, `.`, `_` and `-` (e.g. it is an email), wrap it in
+double quotes: `@"jsmith@example.org"`.
+
+What should be used as a reference depends on Confluence edition:
+
+| Confluence edition | Reference         | Example                                   |
+|--------------------|-------------------|-------------------------------------------|
+| Server/Data Center | Username (login)  | `@jsmith` or `@"jsmith@example.org"`      |
+| Cloud              | User email        | `@"jsmith@example.org"`                   |
+
+In Confluence Cloud users don't have human-readable usernames, so during `upload` *text2confl* looks up the account
+id of the user by email. If the user can't be found (e.g. email is not visible to the account used for upload
+because of user's profile visibility settings, or a scoped token lacks `read:content-details:confluence` scope), a
+warning is logged, the reference is rendered as plain text and no mention is created.
+Resolved users are cached in the text2confl work directory (see `t2c-dir` in
+[configuration reference](../configuration.adoc)), so users are not looked up again on subsequent uploads.
+
+> [!NOTE]
+> Resolution of users happens only during `upload`. The `convert` command does not connect to Confluence and always
+> renders references as usernames.
 
 ## Putting date
 

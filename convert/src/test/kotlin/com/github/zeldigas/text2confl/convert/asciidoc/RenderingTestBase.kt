@@ -37,7 +37,6 @@ internal open class RenderingTestBase {
         attachmentsCollector: AsciidocAttachmentCollector? = null,
         referenceProvider: AsciidocReferenceProvider? = null,
         userResolver: AsciidocUserResolver? = null,
-        codeBlocksInExpand: Boolean = false,
         attributes: Map<String, Any?> = emptyMap(),
     ): String {
         val defaultSource = Path("./test.adoc")
@@ -64,7 +63,6 @@ internal open class RenderingTestBase {
                 "TEST",
                 effectiveCollector,
                 userResolver ?: AsciidocUserResolver(TestUserResolver),
-                codeBlocksInExpand,
                 extraAttrs = attributes,
             )
         )

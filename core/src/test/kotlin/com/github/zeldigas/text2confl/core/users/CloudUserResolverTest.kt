@@ -3,7 +3,9 @@ package com.github.zeldigas.text2confl.core.users
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import com.github.zeldigas.confclient.ConfluenceAuthorizationException
 import com.github.zeldigas.confclient.ConfluenceUserSearchClient
+import com.github.zeldigas.confclient.RequestDetails
 import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -34,6 +36,17 @@ class CloudUserResolverTest(
         coEvery { client.findUserIdByEmail("missing@example.com") } returns null
 
         assertThat(resolver.resolveUser("missing@example.com")).isNull()
+    }
+
+    @Test
+    fun `resolveUser returns null when not authorized to search users`() = runTest {
+        val resolver = CloudUserResolver(client)
+        coEvery { client.findUserIdByEmail("user@example.com") } throws ConfluenceAuthorizationException(
+            RequestDetails("GET", "/rest/api/search/user"), 401, emptyMap(), "Unauthorized; scope does not match"
+        )
+
+        assertThat(resolver.resolveUser("user@example.com")).isNull()
+        assertThat(resolver.cachedUsers()).isEqualTo(emptyMap())
     }
 
     @Test

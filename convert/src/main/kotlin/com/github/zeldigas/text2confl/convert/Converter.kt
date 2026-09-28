@@ -45,7 +45,6 @@ data class ConversionParameters(
     val markdownConfiguration: MarkdownConfiguration = MarkdownConfiguration(),
     val asciidoctorConfiguration: AsciidoctorConfiguration = AsciidoctorConfiguration(),
     val editorVersion: EditorVersion,
-    val codeBlocksInExpand: Boolean = false,
     val autoFixContentTags: Boolean = false,
     val filesToIgnore: List<FileMatcher> = emptyList(),
 )

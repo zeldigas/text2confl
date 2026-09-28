@@ -6,4 +6,5 @@ target
 .asciidoctor
 .asciidoc
 .diagrams
+.text2confl
 out

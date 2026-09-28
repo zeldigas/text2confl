@@ -12,10 +12,10 @@ Links of different types supported
 
 |External | `+https://example.org[external]+` | https://example.org[external]
 |Cross-link to another page | `+xref:../markdown.md[Markdown]+` | xref:../markdown.md[Markdown]
-|Cross-link to anchor on another page | `+xref:../markdown.md#sSupported-features[anchors inside page]+` | xref:../markdown.md#sSupported-features[anchors inside page]
+|Cross-link to anchor on another page | `+xref:../markdown.md#supported-features[anchors inside page]+` | xref:../markdown.md#supported-features[anchors inside page]
 |Link to file with supported format works same as `xref`
-| `+link:../../storage-formats.md#markdown[same as previous table row]+`
-| link:../../storage-formats.md#markdown[same as previous table row]
+| `+link:../markdown.md#supported-features[same as previous table row]+`
+| link:../markdown.md#supported-features[same as previous table row]
 |===
 
 == Images

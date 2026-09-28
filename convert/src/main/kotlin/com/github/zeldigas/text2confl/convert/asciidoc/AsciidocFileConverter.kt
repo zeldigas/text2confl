@@ -78,7 +78,6 @@ class AsciidocFileConverter(private val asciidocParser: AsciidocParser, private 
             context.targetSpace,
             AsciidocAttachmentCollector(file, AttachmentCollector(context.referenceProvider, registry), workdir),
             AsciidocUserResolver(context.userResolver),
-            codeBlocksInExpand = context.conversionParameters.codeBlocksInExpand,
             extraAttrs = mapOf(
                 "outdir" to workdir.toString(),
                 "imagesoutdir" to workdir.toString(),

@@ -9,12 +9,25 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- \[export-to-md] now supports `note` panel from Confluence cloud (without customizations for now)
+- User mentions in Confluence Cloud. Use user's email as a reference: `@"someuser@example.com"` in Markdown or
+  `user:someuser@example.com[]` in AsciiDoc. During `upload` email is resolved to the Cloud account id; if user can't
+  be found (e.g. email is hidden by profile visibility settings), reference is rendered as plain text.
+  Scoped tokens need `read:content-details:confluence` scope for this.
+- `t2c-dir` configuration parameter and `--t2c-dir` option of `upload` command - directory for text2confl work files
+  (`.text2confl` in docs root by default). Currently used to cache resolved Confluence Cloud users (`users.json`), so
+  consider adding it to `.gitignore`.
+- \[export-to-md] now supports `note` panel from Confluence Cloud (without customizations for now)
 
 ### Fixed
 
-- \[export-to-md] for pages with user references (#338)
+- \[export-to-md] export of pages with user references (#338), including Confluence Cloud references by account id
+  (scoped tokens need `read:content-details:confluence` scope)
 
+### Removed
+
+- `code-blocks.collapse-with-expand` configuration (introduced in 0.19.0 to address #268), since Confluence Cloud now
+  properly supports collapsible code blocks (#362). Code blocks with `collapse=true` are no longer wrapped in expand
+  macro and use native collapse of code block instead. The parameter is ignored if still present in configuration.
 
 ## 0.27.1 - 2026-09-18
 

@@ -1,10 +1,14 @@
 package com.github.zeldigas.text2confl.cli
 
 import PrintingUploadOperationsTracker
-import com.github.ajalt.clikt.core.*
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
+import com.github.ajalt.clikt.parameters.types.file
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.ConfluenceClientConfig
 import com.github.zeldigas.confclient.ConfluenceUserSearchClient
@@ -15,14 +19,18 @@ import com.github.zeldigas.text2confl.core.ServiceProvider
 import com.github.zeldigas.text2confl.core.config.*
 import com.github.zeldigas.text2confl.core.upload.ChangeDetector
 import com.github.zeldigas.text2confl.core.upload.UploadOperationTracker
-import com.github.zeldigas.text2confl.core.users.CloudUserResolver
 import com.github.zeldigas.text2confl.core.users.ServerUserResolver
+import com.github.zeldigas.text2confl.core.users.createFromStoredData
+import com.github.zeldigas.text2confl.core.users.persistResolvedUsers
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.div
 
 class Upload : CliktCommand(name = "upload"),
     WithConversionOptions, WithConfluenceServerOptions {
@@ -65,9 +73,12 @@ class Upload : CliktCommand(name = "upload"),
     ).optionalFlag("--no-notify-watchers")
     private val dryRun: Boolean by option("--dry", help = "Enables dry run simulation of documents upload")
         .flag("--no-dry")
+    private val t2cDir: File? by option("--t2c-dir", help = "Path to directory with t2c work files")
+        .file(canBeFile = false)
     override val editorVersion: EditorVersion? by editorVersion()
     override val autoFixContent: Boolean? by autoFixContentFlag()
     private val docs: File by docsLocation()
+    private val postProcessActions: MutableList<() -> Unit> = mutableListOf()
 
     private val serviceProvider: ServiceProvider by requireObject()
 
@@ -79,11 +90,14 @@ class Upload : CliktCommand(name = "upload"),
             tryUpload()
         } catch (ex: Exception) {
             tryHandleException(ex)
+        } finally {
+            runPostProcessActions()
         }
     }
 
     private suspend fun tryUpload() {
         val directoryStoredParams = readDirectoryConfig(docs.toPath())
+        val t2cWorkDir = directoryStoredParams.resolveText2ConflDir(t2cDir?.toPath())
         val uploadConfig = createUploadConfig(directoryStoredParams)
         val clientConfig = createClientConfig(directoryStoredParams)
         val conversionConfig = createConversionConfig(
@@ -93,7 +107,11 @@ class Upload : CliktCommand(name = "upload"),
             autoFixContent
         )
         val confluenceClient = serviceProvider.createConfluenceClient(clientConfig, dryRun)
-        val converter = serviceProvider.createConverter(uploadConfig.space, conversionConfig, createUserResolver(confluenceClient))
+        val converter = serviceProvider.createConverter(
+            uploadConfig.space,
+            conversionConfig,
+            createUserResolver(confluenceClient, t2cWorkDir)
+        )
         val pagesToPublish = if (docs.isFile) {
             listOf(converter.convertFile(docs.toPath()))
         } else {
@@ -103,16 +121,26 @@ class Upload : CliktCommand(name = "upload"),
         contentValidator.validate(pagesToPublish)
         val publishUnder = resolveParent(confluenceClient, uploadConfig, directoryStoredParams)
 
-        val contentUploader = serviceProvider.createUploader(confluenceClient, uploadConfig, conversionConfig, operationsTracker(clientConfig.server))
+        val contentUploader = serviceProvider.createUploader(
+            confluenceClient,
+            uploadConfig,
+            conversionConfig,
+            operationsTracker(clientConfig.server)
+        )
         withContext(Dispatchers.Default) {
             contentValidator.checkNoClashWithParent(publishUnder, pagesToPublish)
             contentUploader.uploadPages(pages = pagesToPublish, uploadConfig.space, publishUnder.id)
         }
     }
 
-    private fun createUserResolver(confluenceClient: ConfluenceClient): UserResolver {
+    private fun createUserResolver(confluenceClient: ConfluenceClient, t2cWorkDir: Path): UserResolver {
+        val userCache = t2cWorkDir / "users.json"
         return if (confluenceClient is ConfluenceUserSearchClient) {
-            CloudUserResolver(confluenceClient)
+            val resolver = createFromStoredData(confluenceClient, userCache)
+            postProcessActions.add {
+                persistResolvedUsers(resolver, userCache)
+            }
+            resolver
         } else {
             ServerUserResolver()
         }
@@ -161,5 +189,19 @@ class Upload : CliktCommand(name = "upload"),
         if (anyTitle != null) return confluenceClient.getPage(uploadConfig.space, anyTitle)
 
         return confluenceClient.describeSpace(uploadConfig.space).homepage!!
+    }
+
+    private fun runPostProcessActions() {
+        for (action in postProcessActions) {
+            try {
+                action()
+            } catch (ex: Exception) {
+                logger.warn(ex) { "Failed to invoke post process action" }
+            }
+        }
+    }
+
+    private companion object {
+        val logger = KotlinLogging.logger { }
     }
 }

@@ -28,7 +28,6 @@ internal open class RenderingTestBase {
         autogenText: String = "Generated for __doc-root____file__",
         config: MarkdownConfiguration = MarkdownConfiguration(true, emptyList()),
         diagramMakers: DiagramMakers = DiagramMakers.NOP,
-        codeBlockInExpand: Boolean = false,
         editorVersion: EditorVersion = EditorVersion.V1,
         pageAttributes: Map<String, Any?> = emptyMap()
     ): String {
@@ -42,7 +41,6 @@ internal open class RenderingTestBase {
                 docRootLocation = "http://example.com/",
                 markdownConfiguration = config,
                 editorVersion = editorVersion,
-                codeBlocksInExpand = codeBlockInExpand,
             ),
             "TEST",
         )

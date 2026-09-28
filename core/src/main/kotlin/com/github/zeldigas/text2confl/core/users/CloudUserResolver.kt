@@ -2,41 +2,56 @@ package com.github.zeldigas.text2confl.core.users
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.zeldigas.confclient.ConfluenceAuthorizationException
 import com.github.zeldigas.confclient.ConfluenceUserSearchClient
 import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.sksamuel.aedile.core.asLoadingCache
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.*
 import java.nio.file.Path
 import java.time.Instant
-import kotlin.io.path.inputStream
-import kotlin.io.path.outputStream
+import kotlin.io.path.*
 
 private val MAPPER = jacksonObjectMapper()
     .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .registerModule(JavaTimeModule())
 
 fun createFromStoredData(
     client: ConfluenceUserSearchClient,
     fileWithCache: Path
 ): CloudUserResolver {
-    val data = fileWithCache.inputStream().use {
-        MAPPER.readValue(it, ResolvedUsers::class.java)
+    if (fileWithCache.exists()) {
+        val data = loadUsersOrEmpty(fileWithCache)
+        return CloudUserResolver(client, data?.users ?: emptyMap())
+    } else {
+        return CloudUserResolver(client)
     }
-    return CloudUserResolver(client, data.users)
 }
 
 fun persistResolvedUsers(users: CloudUserResolver, destination: Path) {
     val usersData = runBlocking { users.cachedUsers() }
+    if (!destination.parent.exists()) {
+        destination.parent.createDirectories()
+    }
+    val storedUsers = loadUsersOrEmpty(destination)
+    if (storedUsers != null && storedUsers.users == usersData) return
     destination.outputStream().use {
         MAPPER.writeValue(it, ResolvedUsers(usersData, Instant.now()))
+    }
+}
+
+private fun loadUsersOrEmpty(fileWithCache: Path): ResolvedUsers? {
+    return try {
+        fileWithCache.inputStream().use {
+            MAPPER.readValue(it, ResolvedUsers::class.java)
+        }
+    } catch (_: Exception) {
+        fileWithCache.deleteExisting()
+        null
     }
 }
 
@@ -47,7 +62,12 @@ class CloudUserResolver(
 
     private val cache = Caffeine.newBuilder()
         .asLoadingCache { email: String ->
-            client.findUserIdByEmail(email)?.let { UserValue.Found(it) } ?: UserValue.Missing
+            try {
+                client.findUserIdByEmail(email)?.let { UserValue.Found(it) } ?: UserValue.Missing
+            } catch (e: ConfluenceAuthorizationException) {
+                logger.warn(e) { "Not enough permissions to resolve user: $email" }
+                UserValue.Missing
+            }
         }
 
     init {
@@ -84,6 +104,10 @@ class CloudUserResolver(
     sealed class UserValue {
         object Missing : UserValue()
         data class Found(val user: String) : UserValue()
+    }
+
+    private companion object {
+        val logger = KotlinLogging.logger { }
     }
 }
 

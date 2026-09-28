@@ -175,20 +175,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
 
     private fun render(node: FencedCodeBlock, context: NodeRendererContext, html: HtmlWriter) {
         html.line()
-        if (convertingContext.conversionParameters.codeBlocksInExpand && "true" == node.attributesMap["collapse"]) {
-            html.tag("ac:structured-macro", mapOf("ac:name" to "expand")) {
-                node.attributesMap["title"]?.let {
-                    html.addParameter("title", it)
-                }
-                html.tag("ac:rich-text-body") {
-                    html.line()
-                    generateCodeBlock(node, context, html)
-                    html.line()
-                }
-            }
-        } else {
-            generateCodeBlock(node, context, html)
-        }
+        generateCodeBlock(node, context, html)
     }
 
     private fun generateCodeBlock(node: FencedCodeBlock, context: NodeRendererContext, html: HtmlWriter) {

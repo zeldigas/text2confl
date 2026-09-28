@@ -64,6 +64,7 @@ used for classic API tokens. Create a new token and select **Scoped** when promp
 | Read     | `read:hierarchical-content:confluence` |
 | Read     | `read:attachment:confluence`           |
 | Read     | `read:label:confluence`                |
+| Read     | `read:content-details:confluence`      |
 | Write    | `write:page:confluence`                |
 | Write    | `write:label:confluence`               |
 | Write    | `write:confluence-file`                |
@@ -81,6 +82,10 @@ Save the generated access token.
 
 > **Note:** `write:page:confluence` covers page property operations — no separate property scope is needed.
 `write:confluence-file` is a classic scope (no granular equivalent) and covers attachment uploads.
+`read:content-details:confluence` is needed to resolve users: by email for
+[user mentions](../reference/markdown/confluence-specific.md#mentioning-user) during upload, and by account id during
+[export to Markdown](./export-to-markdown.md). Without it, text2confl logs a warning, renders user mentions as plain text
+on upload and skips them on export.
 
 ## Step 4: Pass the access token
 

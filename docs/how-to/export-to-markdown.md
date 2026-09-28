@@ -61,6 +61,18 @@ text2confl export-to-md \
   --dump-also-storage-format
 ```
 
+## What gets converted
+
+Most of the regular formatting is converted to standard Markdown. Some Confluence-specific elements are converted to
+text2confl [Markdown extensions](../reference/markdown/confluence-specific.md):
+
+- **User mentions** are exported as `@username` for Confluence Server/Data Center and as `@"email"` for Confluence
+  Cloud. In Cloud the email is available only if user's profile visibility settings allow it for the account used for
+  export; otherwise the mention is skipped. Scoped tokens need `read:content-details:confluence` scope to look up
+  users; without it a warning is logged and mentions are skipped.
+- **Info, note, tip, warning panels** are exported as admonitions (`!!! note`). This also works for panels created in
+  Confluence Cloud editor, but panel customizations (custom colors, icons) are not preserved.
+
 ## Authentication
 
 `export-to-md` accepts the same authentication flags as the `upload` command.

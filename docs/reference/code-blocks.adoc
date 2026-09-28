@@ -21,7 +21,7 @@ See xref:#language-tags[Language tags] below for the full list.
 | `collapse`
 | Controls whether the code block is collapsed by default. Allowed values: `true`, `false`
 | ✅
-| WARNING: Only if editor v1 is forcibly set
+| ✅
 
 | `linenumbers`
 | Controls whether line numbers are displayed. Allowed values: `true`, `false`
