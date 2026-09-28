@@ -1,0 +1,10 @@
+{
+  "statusCode": 400,
+  "data": {
+    "authorized": true,
+    "valid": true,
+    "errors": [],
+    "successful": true
+  },
+  "message": "com.atlassian.confluence.api.service.exceptions.api.BadRequestException: Could not parse cql : "
+}

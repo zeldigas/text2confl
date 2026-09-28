@@ -375,9 +375,9 @@ class ConfluenceClientImpl(
 }
 
 private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T =
-    readApiResponse(expectSuccess) { parseAndThrowConfluenceError() }
+    readApiResponse(expectSuccess) { parseAndThrowConfluenceV1Error() }
 
-private suspend fun HttpResponse.parseAndThrowConfluenceError(): BaseConfluenceException {
+internal suspend fun HttpResponse.parseAndThrowConfluenceV1Error(): BaseConfluenceException {
     val content = body<Map<String, Any?>>()
     return if (status.value in listOf(401, 403)) {
         ConfluenceAuthorizationException(

@@ -5,23 +5,12 @@
         "type": "known",
         "accountId": "bbbbbb:aaaaaaaa-cccc-aaaa-ffff-123411111111",
         "accountType": "atlassian",
-        "email": "zeldigas@example.com",
+        "email": "some-zeldigas@example.com",
         "publicName": "zeldigas",
         "displayName": "Dmitry Pavlov",
         "isExternalCollaborator": false
       },
       "title": "Dmitry Pavlov",
-      "entityType": "user"
-    },
-    {
-      "user": {
-        "type": "known",
-        "accountId": "bbbbbb:aaaaaaaa-cccc-aaaa-ffff-1234111111231",
-        "accountType": "atlassian",
-        "publicName": "zeldigas-something",
-        "isExternalCollaborator": false
-      },
-      "title": "Dmitry Pavlov test",
       "entityType": "user"
     }
   ],

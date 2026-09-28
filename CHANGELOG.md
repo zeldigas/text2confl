@@ -7,6 +7,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.28.1 - 2026-09-28
+
+### Fixed
+
+- Fixed creation of `.text2confl` directory creation when it does not exists
+- Proper support for user resolution - email is optional in confluence cloud
+- Proper support for user emails with dashes - cql does not support it, so search workaround is required
+
 ## 0.28.0 - 2026-09-28
 
 ### Added

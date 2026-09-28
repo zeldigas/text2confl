@@ -10,8 +10,11 @@ import com.github.zeldigas.confclient.model.*
 import io.ktor.http.*
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.ZonedDateTime
 
 @WireMockTest
@@ -352,4 +355,31 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
 
         assertThat(result).isNull()
     }
+
+    @Test
+    fun `Find user id by email - email with dashes`() = runTest {
+        stubFor(
+            get(urlPathEqualTo("/rest/api/search/user"))
+                .withQueryParam("cql", equalTo("user=zeldigas"))
+                .willReturn(ok().withJsonFromFile("/data/responses/api-v1/user-search-dashed.json"))
+        )
+
+        val result = client.findUserIdByEmail("some-zeldigas@example.com")
+
+        assertThat(result).isEqualTo("bbbbbb:aaaaaaaa-cccc-aaaa-ffff-123411111111")
+    }
+
+    @Test
+    fun `Find user id by email - invalid cql`() = runTest {
+        stubFor(
+            get(urlPathEqualTo("/rest/api/search/user"))
+                .willReturn(badRequest().withJsonFromFile("/data/responses/api-v1/user-search-bad-cql.json"))
+        )
+
+        assertThrows(ConfluenceApiErrorException::class.java) {
+            runBlocking { client.findUserIdByEmail("strange-data") }
+        }
+    }
+
+
 }

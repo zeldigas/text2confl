@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.zeldigas.confclient.ConfluenceApiErrorException
 import com.github.zeldigas.confclient.ConfluenceAuthorizationException
 import com.github.zeldigas.confclient.ConfluenceUserSearchClient
 import com.github.zeldigas.text2confl.convert.confluence.UserResolver
@@ -39,6 +40,7 @@ fun persistResolvedUsers(users: CloudUserResolver, destination: Path) {
     }
     val storedUsers = loadUsersOrEmpty(destination)
     if (storedUsers != null && storedUsers.users == usersData) return
+    if (!destination.parent.exists()) destination.parent.createDirectories()
     destination.outputStream().use {
         MAPPER.writeValue(it, ResolvedUsers(usersData, Instant.now()))
     }
@@ -50,7 +52,7 @@ private fun loadUsersOrEmpty(fileWithCache: Path): ResolvedUsers? {
             MAPPER.readValue(it, ResolvedUsers::class.java)
         }
     } catch (_: Exception) {
-        fileWithCache.deleteExisting()
+        fileWithCache.deleteIfExists()
         null
     }
 }
@@ -66,6 +68,9 @@ class CloudUserResolver(
                 client.findUserIdByEmail(email)?.let { UserValue.Found(it) } ?: UserValue.Missing
             } catch (e: ConfluenceAuthorizationException) {
                 logger.warn(e) { "Not enough permissions to resolve user: $email" }
+                UserValue.Missing
+            } catch (e: ConfluenceApiErrorException) {
+                logger.warn(e) { "Failed to resolve user: $email" }
                 UserValue.Missing
             }
         }

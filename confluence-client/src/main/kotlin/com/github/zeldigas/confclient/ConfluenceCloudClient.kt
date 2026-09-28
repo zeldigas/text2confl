@@ -172,7 +172,7 @@ class ConfluenceCloudClient(
     override suspend fun getUserByKey(userKey: String): User {
         return httpClient.get("$legacyApiBase/user") {
             parameter("accountId", userKey)
-        }.readApiResponse(expectSuccess = true)
+        }.readApiResponse(expectSuccess = true, legacyErrorFormat = true)
     }
 
     override suspend fun findChildPages(
@@ -395,10 +395,16 @@ class ConfluenceCloudClient(
     }
 
     override suspend fun findUserIdByEmail(email: String): String? {
-        val username = email.substringBefore('@')
+        val username = email.substringBefore('@').let { addr ->
+            if ("-" in addr) {
+                addr.split("-").maxBy { it.length }
+            } else {
+                addr
+            }
+        }
         val result = httpClient.get("$legacyApiBase/search/user") {
             parameter("cql", "user=$username")
-        }.readApiResponse<UserSearchResult>()
+        }.readApiResponse<UserSearchResult>(legacyErrorFormat = true)
         return result.results.firstOrNull { it.user.email == email }?.user?.accountId
     }
 
@@ -410,9 +416,13 @@ class ConfluenceCloudClient(
         pageUpdateOptions.message?.let { put("message", it) }
     }
 
-    private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false): T =
+    private suspend inline fun <reified T> HttpResponse.readApiResponse(expectSuccess: Boolean = false, legacyErrorFormat: Boolean = false): T =
         readApiResponse(expectSuccess) {
-            parseCloudErrorAndThrow()
+            if (legacyErrorFormat) {
+                parseAndThrowConfluenceV1Error()
+            } else {
+                parseCloudErrorAndThrow()
+            }
         }
 
 
@@ -539,4 +549,4 @@ private data class UserSearchResult(val results: List<UserSearchEntry>)
 
 private data class UserSearchEntry(val user: UserSearchUser)
 
-private data class UserSearchUser(val accountId: String, val email: String)
+private data class UserSearchUser(val accountId: String, val email: String?)
