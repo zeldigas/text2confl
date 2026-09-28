@@ -15,6 +15,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Proper support for user resolution - email is optional in confluence cloud
 - Proper support for user emails with dashes - cql does not support it, so search workaround is required
 
+### Changed
+
+- Docker image uses Java 25
+- Project build requires Java 25
+
 ## 0.28.0 - 2026-09-28
 
 ### Added
