@@ -19,7 +19,13 @@ case "$(uname -s)" in
     ;;
 esac
 
-java -cp "$CLASSPATH" ${JAVA_OPTS:-} \
+JAVA_VERSION=$(java -version 2>&1 | sed -n 's/.* version "\([0-9]*\).*/\1/p' | head -n 1)
+EXTRA_OPTS="--enable-native-access=ALL-UNNAMED"
+if [ "${JAVA_VERSION:-0}" -gt 23 ]; then
+  EXTRA_OPTS="$EXTRA_OPTS --sun-misc-unsafe-memory-access=allow"
+fi
+
+java -cp "$CLASSPATH" ${JAVA_OPTS:-} $EXTRA_OPTS \
   --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED \
   com.github.zeldigas.text2confl.cli.MainKt "$@"
 
