@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.28.0 - 2026-09-28
+
 ### Added
 
 - User mentions in Confluence Cloud. Use user's email as a reference: `@"someuser@example.com"` in Markdown or
