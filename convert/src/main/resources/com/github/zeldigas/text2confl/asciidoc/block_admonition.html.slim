@@ -1,21 +1,45 @@
-- case (attr :name)
-- when 'note'
-    - confluence_admonition = 'info'
-- when 'tip'
-    - confluence_admonition = 'tip'
-- when 'caution'
-    - confluence_admonition = 'note'
-- when 'warning'
-    - confluence_admonition = 'warning'
-- when 'important'
-    - confluence_admonition = 'warning'
+- confluence_admonition = map_to_confluence_admonition_type(attr :name)
 
-ac:structured-macro ac:name=confluence_admonition
-  - if title?
-    ac:parameter ac:name="title"
-      =title
-  ac:rich-text-body
-    =line_break
-    =content
-    =line_break
-
+- if editor_version == 'v2'
+  - if (attr :name) == 'important'
+    - body = content
+    ac:adf-extension
+        ac:adf-node type="panel"
+          ac:adf-attribute key="panel-type" note
+          ac:adf-content
+            = line_break
+            - if title?
+              p
+                strong
+                  =title
+            = body
+            = line_break
+        ac:adf-fallback
+          div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"
+            div class="panelContent" style="background-color: rgb(234,230,255);"
+              = line_break
+              - if title?
+                p
+                  strong
+                    =title
+              = body
+              = line_break
+  - else
+    ac:structured-macro ac:name=confluence_admonition
+        ac:rich-text-body
+          =line_break
+          - if title?
+            p
+              strong
+                =title
+          =content
+          =line_break
+- else
+  ac:structured-macro ac:name=confluence_admonition
+    - if title?
+      ac:parameter ac:name="title"
+        =title
+    ac:rich-text-body
+      =line_break
+      =content
+      =line_break

@@ -116,8 +116,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             "queryparams"
         )
         val ALLOWED_CODE_ATTRIBUTES = setOf("title", "collapse", "linenumbers", "firstline", "theme")
-        val ADMONITION_TYPES = setOf("tip", "note", "info", "warning", "expand")
+        val IMPORTANT_ADMONITION = "important"
+        val ADMONITION_TYPES = setOf("tip", "note", "info", "warning", IMPORTANT_ADMONITION)
         const val DEFAULT_ADMONITION_TYPE = "note"
+        const val EXPAND_ADMONITION_TYPE = "expand"
     }
 
     private val sourcePath = MarkdownParser.DOCUMENT_LOCATION[options]!!
@@ -168,7 +170,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             params.noteText.replace("__doc-root__", params.docRootLocation).replace("__file__", pathFromRoot.toString())
         }
 
-        html.tag("p") {
+
+        if (cloudEditorV2()) {
+            renderAdfNotePanel(html) { html.tag("p") { html.raw(text) } }
+        } else {
             html.raw("<ac:structured-macro ac:name=\"note\"><ac:rich-text-body><p>$text</p></ac:rich-text-body></ac:structured-macro>")
         }
     }
@@ -495,9 +500,21 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
     }
 
     private fun render(node: AdmonitionBlock, context: NodeRendererContext, html: HtmlWriter) {
-        val type = node.info.toString().lowercase()
-        val confluenceType = if (type in ADMONITION_TYPES) type else DEFAULT_ADMONITION_TYPE
-        html.openTag("ac:structured-macro", mapOf("ac:name" to confluenceType))
+        val rawType = node.info.toString().lowercase()
+        if (rawType == EXPAND_ADMONITION_TYPE) {
+            renderExpand(node, context, html)
+            return
+        }
+        val confluenceType = if (rawType in ADMONITION_TYPES) rawType else DEFAULT_ADMONITION_TYPE
+        if (confluenceType == IMPORTANT_ADMONITION && cloudEditorV2()) {
+            renderNotePanel(node, context, html)
+        } else {
+            renderCalloutMacro(node, context, html, if (confluenceType == IMPORTANT_ADMONITION) "note" else confluenceType)
+        }
+    }
+
+    private fun renderExpand(node: AdmonitionBlock, context: NodeRendererContext, html: HtmlWriter) {
+        html.openTag("ac:structured-macro", mapOf("ac:name" to EXPAND_ADMONITION_TYPE))
         if (!node.title.isNull) {
             html.addParameter("title", node.title.toString())
         }
@@ -505,6 +522,57 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             context.renderChildren(node)
         }
         html.closeTag("ac:structured-macro")
+    }
+
+    private fun renderCalloutMacro(node: AdmonitionBlock, context: NodeRendererContext, html: HtmlWriter, confluenceType: String) {
+        html.openTag("ac:structured-macro", mapOf("ac:name" to confluenceType))
+        if (!node.title.isNull && !cloudEditorV2()) {
+            html.addParameter("title", node.title.toString())
+        }
+        html.tag("ac:rich-text-body") {
+            if (!node.title.isNull && cloudEditorV2()) {
+                renderBoldTitle(node, html)
+            }
+            context.renderChildren(node)
+        }
+        html.closeTag("ac:structured-macro")
+    }
+
+    private fun renderNotePanel(node: AdmonitionBlock, context: NodeRendererContext, html: HtmlWriter) {
+        renderAdfNotePanel(html) {
+            if (!node.title.isNull) {
+                renderBoldTitle(node, html)
+            }
+            context.renderChildren(node)
+        }
+    }
+
+    private fun renderAdfNotePanel(html: HtmlWriter, body: () -> Unit) {
+        html.tag("ac:adf-extension") {
+            html.tag("ac:adf-node", mapOf("type" to "panel")) {
+                html.tag("ac:adf-attribute", mapOf("key" to "panel-type")) { html.text("note") }
+                html.tag("ac:adf-content") {
+                    body()
+                }
+            }
+            html.tag("ac:adf-fallback") {
+                html.tag(
+                    "div",
+                    mapOf(
+                        "class" to "panel conf-macro output-block",
+                        "style" to "background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"
+                    )
+                ) {
+                    html.tag("div", mapOf("class" to "panelContent", "style" to "background-color: rgb(234,230,255);")) {
+                        body()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun renderBoldTitle(node: AdmonitionBlock, html: HtmlWriter) {
+        html.tag("p") { html.tag("strong") { html.text(node.title.toString()) } }
     }
 
     private fun render(

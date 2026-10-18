@@ -17,9 +17,15 @@ Admonitions are supported via two formats:
 Both formats are rendered as information panels as they called in Confluence Cloud or _note_, _warning_, _info_, _tip_
 blocks in Server edition.
 
-> [!NOTE]
+> [!IMPORTANT]
 > Note that expand functionality (block that starts with `???`) is not supported because Confluence can't
 > configure expand for these macros (and wrapping them into separate expand section seems too much)
+
+Markdown expand format uses admonition type as Confluence macro name directly, except `important` type - it is rendered
+as `note` in Server or as lavender "Note" panel in Cloud. Unknown types are rendered as `note`.
+
+Optional header (`!!! note "Header"`) is rendered as macro title in Server and as bold first line in Cloud, because
+Cloud does not support title for these macros.
 
 <table>
 <thead>
@@ -29,16 +35,16 @@ blocks in Server edition.
 <td>
 
 ```markdown
-!!! note "Optional header in quotes"
+!!! info
 
-    A note to yourself
+    Useful information that users should know, even when skimming content.
 ```
 
 </td><td>
 
-!!! note "Optional header in quotes"
+!!! info
 
-    A note to yourself
+    Useful information that users should know, even when skimming content.
 
 </td>
 </tr><tr>
@@ -47,14 +53,48 @@ blocks in Server edition.
 ```markdown
 !!! tip
 
-    Some tips and tricks with `rich` ~formatting~
+    Helpful advice for doing things better or more easily, with `rich` ~formatting~
 ```
 
 </td><td>
 
 !!! tip
 
-    Some tips and tricks with `rich` ~formatting~
+    Helpful advice for doing things better or more easily, with `rich` ~formatting~
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+!!! important
+
+    Key information users need to know to achieve their goal.
+    Will render as note in Server or as "note" lavender panel in Cloud
+```
+
+</td><td>
+
+!!! important
+
+    Key information users need to know to achieve their goal.
+    Will render as note in Server or as "note" lavender panel in Cloud
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+!!! note "Optional header in quotes"
+
+    Urgent info that needs immediate user attention to avoid problems.
+```
+
+</td><td>
+
+!!! note "Optional header in quotes"
+
+    Urgent info that needs immediate user attention to avoid problems.
 
 </td>
 </tr><tr>
@@ -63,7 +103,7 @@ blocks in Server edition.
 ```markdown
 !!! warning
 
-    Description of pitfalls that your user
+    Advises about risks or negative outcomes of certain actions that your user
     
     Should know about
 ```
@@ -72,29 +112,21 @@ blocks in Server edition.
 
 !!! warning
 
-    Description of pitfalls that your user
+    Advises about risks or negative outcomes of certain actions that your user
     
     Should know about
-
-</td>
-</tr><tr>
-<td>
-
-```markdown
-!!! info
-
-    Information message
-```
-
-</td><td>
-
-!!! info
-
-    Information message
 
 </td>
 </tr>
 </tbody></table>
+
+GitHub format types are mapped to Confluence panels with matching color scheme:
+
+- NOTE -> `info` (Info panel in Cloud)
+- TIP -> `tip` (Success panel in Cloud)
+- IMPORTANT -> `note` in Server or lavender "Note" panel in Cloud
+- WARNING -> `note` (Warning panel in Cloud)
+- CAUTION -> `warning` (Error panel in Cloud)
 
 <table>
 <thead>
@@ -105,13 +137,13 @@ blocks in Server edition.
 
 ```markdown
 > [!NOTE]
-> A note to yourself
+> Useful information that users should know, even when skimming content.
 ```
 
 </td><td>
 
 > [!NOTE]
-> A note to yourself
+> Useful information that users should know, even when skimming content.
 
 </td>
 </tr><tr>
@@ -119,13 +151,41 @@ blocks in Server edition.
 
 ```markdown
 > [!TIP]
-> Some tips and tricks with `rich` ~formatting~
+> Helpful advice for doing things better or more easily, with `rich` ~formatting~
 ```
 
 </td><td>
 
 > [!TIP]
-> Some tips and tricks with `rich` ~formatting~
+> Helpful advice for doing things better or more easily, with `rich` ~formatting~
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+> [!IMPORTANT]
+> Key information users need to know to achieve their goal.
+```
+
+</td><td>
+
+> [!IMPORTANT]
+> Key information users need to know to achieve their goal.
+
+</td>
+</tr><tr>
+<td>
+
+```markdown
+> [!WARNING]
+> Urgent info that needs immediate user attention to avoid problems.
+```
+
+</td><td>
+
+> [!WARNING]
+> Urgent info that needs immediate user attention to avoid problems.
 
 </td>
 </tr><tr>
@@ -133,7 +193,7 @@ blocks in Server edition.
 
 ```markdown
 > [!CAUTION]
-> Description of pitfalls that your user
+> Advises about risks or negative outcomes of certain actions that your user
 > 
 > Should know about
 ```
@@ -141,23 +201,9 @@ blocks in Server edition.
 </td><td>
 
 > [!CAUTION]
-> Description of pitfalls that your user
+> Advises about risks or negative outcomes of certain actions that your user
 >
 > Should know about
-
-</td>
-</tr><tr>
-<td>
-
-```markdown
-> [!IMPORTANT]
-> Information message
-```
-
-</td><td>
-
-> [!IMPORTANT]
-> Information message
 
 </td>
 </tr>

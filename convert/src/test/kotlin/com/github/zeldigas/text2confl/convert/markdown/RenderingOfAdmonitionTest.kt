@@ -1,6 +1,9 @@
 package com.github.zeldigas.text2confl.convert.markdown
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
+import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.EditorVersion
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -9,15 +12,16 @@ import org.junit.jupiter.params.provider.ValueSource
 internal class RenderingOfAdmonitionTest : RenderingTestBase() {
 
     @CsvSource(
-        value = ["CAUTION,warning",
-                "TIP,tip",
-                "IMPORTANT,info",
-                "WARNING,warning",
-                "NOTE,note",
-                ],
+        value = [
+            "NOTE,info",
+            "TIP,tip",
+            "IMPORTANT,note",
+            "WARNING,note",
+            "CAUTION,warning",
+        ],
     )
     @ParameterizedTest
-    internal fun `Github style admonitions`(ghType: String, parsedType: String){
+    internal fun `Github style admonitions`(ghType: String, parsedType: String) {
         val result = toHtml(
             """
             > Regular block
@@ -48,7 +52,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Github style admonitions without new line`(){
+    internal fun `Github style admonitions without new line`() {
         val result = toHtml(
             """
             > Regular block
@@ -78,7 +82,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
 
-    @ValueSource(strings = ["tip", "note", "warning", "info", "expand"])
+    @ValueSource(strings = ["tip", "note", "warning", "info"])
     @ParameterizedTest
     internal fun `Confluence supported admonitions`(type: String) {
         val result = toHtml(
@@ -128,7 +132,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
         val result = toHtml(
             """
             ??? info
-            
+
                 Test
         """.trimIndent()
         )
@@ -142,5 +146,128 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
         )
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["v1", "v2"])
+    internal fun `Expand admonition rendering is not affected by editor version`(editorVersion: String) {
+        val result = toHtml(
+            """
+            !!! expand "Click to reveal"
+
+                Test
+        """.trimIndent(),
+            editorVersion = if (editorVersion == "v2") EditorVersion.V2 else EditorVersion.V1
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">Click to reveal</ac:parameter><ac:rich-text-body>
+            <p>Test</p>
+            </ac:rich-text-body></ac:structured-macro>
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    internal fun `Important admonition renders as ADF panel on cloud v2`() {
+        val result = toHtml(
+            """
+            !!! important
+
+                Test block **with** formatting
+        """.trimIndent(),
+            editorVersion = EditorVersion.V2
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content>
+            <p>Test block <strong>with</strong> formatting</p>
+            </ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);">
+            <p>Test block <strong>with</strong> formatting</p>
+            </div></div></ac:adf-fallback></ac:adf-extension>
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    internal fun `Important admonition with title on cloud v2 renders title as bold text`() {
+        val result = toHtml(
+            """
+            !!! important "Title test"
+
+                Test
+        """.trimIndent(),
+            editorVersion = EditorVersion.V2
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p><strong>Title test</strong></p>
+            <p>Test</p>
+            </ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p><strong>Title test</strong></p>
+            <p>Test</p>
+            </div></div></ac:adf-fallback></ac:adf-extension>
+        """.trimIndent()
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["tip", "warning", "info"])
+    internal fun `Callout admonition with title on cloud v2 renders title as bold text`(type: String) {
+        val result = toHtml(
+            """
+            !!! $type "Title test"
+
+                Test
+        """.trimIndent(),
+            editorVersion = EditorVersion.V2
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <ac:structured-macro ac:name="$type"><ac:rich-text-body><p><strong>Title test</strong></p>
+            <p>Test</p>
+            </ac:rich-text-body></ac:structured-macro>
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    internal fun `Important admonition body is rendered consistently in both ADF content and fallback`() {
+        val result = toHtml(
+            """
+            !!! important
+
+                ![](assets/image.jpg)
+        """.trimIndent(),
+            attachments = mapOf(
+                "assets/image.jpg" to Attachment(
+                    "an_attachment",
+                    "assets/image.jpg",
+                    kotlin.io.path.Path("assets/image.jpg")
+                )
+            ),
+            editorVersion = EditorVersion.V2
+        )
+
+        assertThat(result.split("ri:attachment").size - 1).isEqualTo(2)
+    }
+
+    @Test
+    internal fun `Autogenerated banner renders as ADF panel on cloud v2`() {
+        val result = toHtml(
+            "Test",
+            addAutogenHeader = true,
+            autogenText = "Generated banner text",
+            editorVersion = EditorVersion.V2
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Generated banner text</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p>Generated banner text</p></div></div></ac:adf-fallback></ac:adf-extension>
+            <p>Test</p>
+        """.trimIndent()
+        )
+    }
 
 }

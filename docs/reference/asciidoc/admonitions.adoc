@@ -1,7 +1,7 @@
 = AsciiDoc - Admonitions
 :keywords: supported-format,asciidoc,reference
 
-AsciiDoc's admonitions converted to note, tip, warning and info blocks.
+AsciiDoc's admonitions rendered as information panels as they called in Confluence Cloud or _note_, _warning_, _info_, _tip_ blocks in Server edition.
 
 == Block admonitions
 
@@ -23,6 +23,11 @@ include::_assets/example.adoc[tag=adm-tip]
 ....
 | include::_assets/example.adoc[tag=adm-tip]
 
+|
+....
+include::_assets/example.adoc[tag=adm-important]
+....
+| include::_assets/example.adoc[tag=adm-important]
 
 |
 ....
@@ -35,15 +40,10 @@ include::_assets/example.adoc[tag=adm-caution]
 include::_assets/example.adoc[tag=adm-warning]
 ....
 | include::_assets/example.adoc[tag=adm-warning]
-
-|
-....
-include::_assets/example.adoc[tag=adm-important]
-....
-| include::_assets/example.adoc[tag=adm-important]
 |===
 
-NOTE: Title that you set to admonition is translated to title of the Confluence macro block.
+NOTE: Title that you set to admonition is translated to title of the Confluence macro block in Server.
+Confluence Cloud does not support title for these panels, so it is rendered as bold first line of panel content.
 This works for all of them.
 
 == Single paragraph admonitions
