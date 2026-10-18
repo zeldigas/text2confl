@@ -171,7 +171,7 @@ class AsciidocFileConverterTest {
             )
             prop(PageContent::body).isEqualTo(
                 """
-            <p><ac:structured-macro ac:name="note"><ac:rich-text-body><p>Edit <a href="http://example.com/src.adoc">source file</a> instead of changing page in Confluence. <span style="color: rgb(122,134,154); font-size: small;">Page was generated from source with <a href="https://github.com/zeldigas/text2confl">text2confl</a>.</span></p></ac:rich-text-body></ac:structured-macro></p>
+            <ac:structured-macro ac:name="note"><ac:rich-text-body><p>Edit <a href="http://example.com/src.adoc">source file</a> instead of changing page in Confluence. <span style="color: rgb(122,134,154); font-size: small;">Page was generated from source with <a href="https://github.com/zeldigas/text2confl">text2confl</a>.</span></p></ac:rich-text-body></ac:structured-macro>
             <p>Some document <ac:link><ri:attachment ri:filename="test.txt" /><ac:plain-text-link-body><![CDATA[with attachment]]></ac:plain-text-link-body></ac:link></p>
             <p>Code block:</p>
             <ac:structured-macro ac:name="code"><ac:parameter ac:name="language">java</ac:parameter><ac:plain-text-body><![CDATA[System.out.println("Hello world!");]]></ac:plain-text-body></ac:structured-macro>
@@ -203,6 +203,7 @@ class AsciidocFileConverterTest {
                     dir,
                     mapOf(dir / "src.adoc" to PageHeader("Test document", emptyMap()))
                 ),
+                TestUserResolver,
                 ConversionParameters(
                     LanguageMappers.forServer(),
                     titleTransformer(),
@@ -215,7 +216,7 @@ class AsciidocFileConverterTest {
 
         assertThat(result).prop(PageContent::body).isEqualTo(
             """
-            <p><ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Edit <a href="http://example.com/src.adoc">source file</a> instead of changing page in Confluence. <span style="color: rgb(122,134,154); font-size: small;">Page was generated from source with <a href="https://github.com/zeldigas/text2confl">text2confl</a>.</span></p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p>Edit <a href="http://example.com/src.adoc">source file</a> instead of changing page in Confluence. <span style="color: rgb(122,134,154); font-size: small;">Page was generated from source with <a href="https://github.com/zeldigas/text2confl">text2confl</a>.</span></p></div></div></ac:adf-fallback></ac:adf-extension></p>
+            <ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Edit <a href="http://example.com/src.adoc">source file</a> instead of changing page in Confluence. <span style="color: rgb(122,134,154); font-size: small;">Page was generated from source with <a href="https://github.com/zeldigas/text2confl">text2confl</a>.</span></p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p>Edit <a href="http://example.com/src.adoc">source file</a> instead of changing page in Confluence. <span style="color: rgb(122,134,154); font-size: small;">Page was generated from source with <a href="https://github.com/zeldigas/text2confl">text2confl</a>.</span></p></div></div></ac:adf-fallback></ac:adf-extension>
             <p>Some text</p>
             """.trimIndent()
         )

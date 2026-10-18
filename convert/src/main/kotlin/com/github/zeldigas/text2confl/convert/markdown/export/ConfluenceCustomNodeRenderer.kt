@@ -141,7 +141,10 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
             out.blankLine()
         }
         val attributes = adfMacroParameters(extensionRoot)
-        val type = attributes.getValue("panel-type")
+        val type = when (val panelType = attributes.getValue("panel-type")) {
+            "note" -> "important"
+            else -> panelType
+        }
         val content = extensionRoot.getElementsByTag("ac:adf-content").first()!!
         if (adfRoot.previousElementSibling() != null) {
             out.blankLine()

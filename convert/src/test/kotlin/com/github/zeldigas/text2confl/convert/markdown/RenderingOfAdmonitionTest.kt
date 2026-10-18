@@ -12,15 +12,16 @@ import org.junit.jupiter.params.provider.ValueSource
 internal class RenderingOfAdmonitionTest : RenderingTestBase() {
 
     @CsvSource(
-        value = ["CAUTION,warning",
-                "TIP,tip",
-                "IMPORTANT,info",
-                "WARNING,warning",
-                "NOTE,note",
-                ],
+        value = [
+            "NOTE,info",
+            "TIP,tip",
+            "IMPORTANT,note",
+            "WARNING,note",
+            "CAUTION,warning",
+        ],
     )
     @ParameterizedTest
-    internal fun `Github style admonitions`(ghType: String, parsedType: String){
+    internal fun `Github style admonitions`(ghType: String, parsedType: String) {
         val result = toHtml(
             """
             > Regular block
@@ -51,7 +52,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Github style admonitions without new line`(){
+    internal fun `Github style admonitions without new line`() {
         val result = toHtml(
             """
             > Regular block
@@ -167,10 +168,10 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Note admonition renders as ADF panel on cloud v2`() {
+    internal fun `Important admonition renders as ADF panel on cloud v2`() {
         val result = toHtml(
             """
-            !!! note
+            !!! important
 
                 Test block **with** formatting
         """.trimIndent(),
@@ -189,10 +190,10 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Note admonition with title on cloud v2 renders title as bold text`() {
+    internal fun `Important admonition with title on cloud v2 renders title as bold text`() {
         val result = toHtml(
             """
-            !!! note "Title test"
+            !!! important "Title test"
 
                 Test
         """.trimIndent(),
@@ -232,10 +233,10 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Note admonition body is rendered consistently in both ADF content and fallback`() {
+    internal fun `Important admonition body is rendered consistently in both ADF content and fallback`() {
         val result = toHtml(
             """
-            !!! note
+            !!! important
 
                 ![](assets/image.jpg)
         """.trimIndent(),
@@ -263,7 +264,7 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
 
         assertThat(result).isEqualToConfluenceFormat(
             """
-            <p><ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Generated banner text</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p>Generated banner text</p></div></div></ac:adf-fallback></ac:adf-extension></p>
+            <ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Generated banner text</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p>Generated banner text</p></div></div></ac:adf-fallback></ac:adf-extension>
             <p>Test</p>
         """.trimIndent()
         )

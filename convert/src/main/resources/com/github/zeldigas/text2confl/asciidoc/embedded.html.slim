@@ -12,11 +12,10 @@
             p
               == (attr "t2c-auto-text")
   - else
-    p
-      ac:structured-macro ac:name="note"
-        ac:rich-text-body
-          p
-            == (attr "t2c-auto-text")
+    ac:structured-macro ac:name="note"
+      ac:rich-text-body
+        p
+          == (attr "t2c-auto-text")
   = line_break
 
 - if (attr? :toc) && (attr? 'toc-placement', 'auto')

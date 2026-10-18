@@ -114,21 +114,28 @@ println("Hello world!")
 [NOTE]
 .Title of info message
 ====
-Informational message
+Informational message in `info` panel (Info in Cloud)
 ====
 //end::adm-note[]
 
 //tag::adm-tip[]
 [TIP]
 ====
-Some tips and tricks with `rich` ^formatting^
+Some tips and tricks with `rich` ^formatting^ in `tip` panel (Success in Cloud)
 ====
 //end::adm-tip[]
+
+//tag::adm-important[]
+[IMPORTANT]
+====
+Mapped to `note` panel in Server or lavender "Note" panel in Cloud
+====
+//end::adm-important[]
 
 //tag::adm-caution[]
 [CAUTION]
 ====
-Caution, act carefully!
+Caution, act carefully! `note` panel (Warning in Cloud)
 ====
 //end::adm-caution[]
 
@@ -137,16 +144,9 @@ Caution, act carefully!
 ====
 Description of pitfalls that your user
 
-Should know about
+Should know about. `warning` panel (Error in Cloud)
 ====
 //end::adm-warning[]
-
-//tag::adm-important[]
-[IMPORTANT]
-====
-Also mapped to warning in Confluence
-====
-//end::adm-important[]
 
 //tag::diagram[]
 [plantuml,target=inlined-diagram,format=png]

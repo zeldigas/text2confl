@@ -1,7 +1,7 @@
 # Confluence Cloud Panel / Admonition Storage Format
 
 This document describes the storage formats for panel-like blocks observed in Confluence Cloud (editor v2), and
-catalogues the gaps between what text2confl currently emits and what the Cloud editor produces.
+how text2confl maps admonitions to them.
 
 The sample markup in this document was captured from a page created and saved with the Confluence Cloud v2 editor.
 
@@ -47,7 +47,7 @@ Confluence considers the native "note" panel. The other named callout types (tip
 
 ### 2. Named callout macros (`ac:structured-macro`)
 
-The `tip`, `info`, and `warning` callout types are stored as structured macros on Cloud v2. The macro name directly
+The `tip`, `info`, `note` and `warning` callout types are stored as structured macros on Cloud v2. The macro name directly
 determines the visual style.
 
 ```xml
@@ -107,64 +107,37 @@ macro on Cloud v2.
 
 ## Summary: which format for which type
 
-| Admonition / panel type | Storage format                                                         |
-|-------------------------|------------------------------------------------------------------------|
-| `note` (Cloud v2)       | `ac:adf-extension` / `ac:adf-node type="panel"` with `panel-type=note` |
-| `tip`                   | `ac:structured-macro ac:name="tip"`                                    |
-| `info`                  | `ac:structured-macro ac:name="info"`                                   |
-| `warning`               | `ac:structured-macro ac:name="warning"`                                |
-| Custom colour + icon    | `ac:structured-macro ac:name="panel"`                                  |
+| Cloud panel (UI name) | Storage format                                                         |
+|-----------------------|------------------------------------------------------------------------|
+| Info                  | `ac:structured-macro ac:name="info"`                                   |
+| Success               | `ac:structured-macro ac:name="tip"`                                    |
+| Note (lavender)       | `ac:adf-extension` / `ac:adf-node type="panel"` with `panel-type=note` |
+| Warning               | `ac:structured-macro ac:name="note"`                                   |
+| Error                 | `ac:structured-macro ac:name="warning"`                                |
+| Custom colour + icon  | `ac:structured-macro ac:name="panel"`                                  |
 
 ---
 
-## Current implementation discrepancies
+## Current mapping in text2confl
 
-### AsciiDoc — `block_admonition.html.slim`
+Admonition types are mapped to panels by color scheme (#347):
 
-**File:** `convert/src/main/resources/com/github/zeldigas/text2confl/asciidoc/block_admonition.html.slim`
+| Source                                                         | Server/DC macro | Cloud v2 panel      |
+|----------------------------------------------------------------|-----------------|---------------------|
+| GitHub `[!NOTE]`, AsciiDoc `NOTE`, `!!! info`                  | `info`          | Info                |
+| GitHub `[!TIP]`, AsciiDoc `TIP`, `!!! tip`                     | `tip`           | Success             |
+| GitHub `[!IMPORTANT]`, AsciiDoc `IMPORTANT`, `!!! important`   | `note`          | Note (ADF panel)    |
+| GitHub `[!WARNING]`, AsciiDoc `CAUTION`, `!!! note`            | `note`          | Warning             |
+| GitHub `[!CAUTION]`, AsciiDoc `WARNING`, `!!! warning`         | `warning`       | Error               |
 
-The template maps AsciiDoc admonition types to Confluence macro names, but several mappings are wrong, and the output
-format for `note` is incorrect for Cloud v2:
+Implementation:
 
-| AsciiDoc type | Current output                            | Expected output (Cloud v2)                |
-|---------------|-------------------------------------------|-------------------------------------------|
-| `note`        | `ac:structured-macro ac:name="info"`      | `ac:adf-extension` with `panel-type=note` |
-| `tip`         | `ac:structured-macro ac:name="tip"` ✓     | —                                         |
-| `caution`     | `ac:structured-macro ac:name="note"`      | `ac:structured-macro ac:name="warning"`   |
-| `warning`     | `ac:structured-macro ac:name="warning"` ✓ | —                                         |
-| `important`   | `ac:structured-macro ac:name="warning"` ✓ | —                                         |
+- AsciiDoc: `block_admonition.html.slim` with type mapping in `map_to_confluence_admonition_type` (`helpers.rb`)
+- Markdown: `ConfluenceNodeRenderer#render(AdmonitionBlock, …)` in `ConfluenceStorageFormatConverters.kt`, GitHub
+  alert types are mapped in `GhAdmonitionExtension.kt`
+- Export to Markdown: ADF `note` panel is exported as `!!! important` (`ConfluenceCustomNodeRenderer.kt`)
 
-The `note → info` substitution is doubly wrong on Cloud v2: it produces the wrong macro name *and* the wrong format
-(should be `ac:adf-extension`). The `editor_version()` helper already exists in `helpers.rb` (line 278) and returns
-`'v2'` for Cloud editor v2, but `block_admonition.html.slim` never calls it.
+On Cloud v2 admonition title is rendered as bold first paragraph of panel body instead of `title` parameter. The
+autogenerated note is rendered as ADF note panel on Cloud v2.
 
-The template also emits `<ac:parameter ac:name="title">` when a title is present, but this parameter is not supported on
-Cloud — the title is silently ignored. When a title is provided it should instead be rendered as bold text on the first
-line of the macro body.
-
-The template also has no support for the custom `panel` macro with colour/icon parameters.
-
-### Markdown — `ConfluenceNodeRenderer#render(AdmonitionBlock, …)`
-
-**File:**
-`convert/src/main/kotlin/com/github/zeldigas/text2confl/convert/markdown/ConfluenceStorageFormatConverters.kt`,
-`render(AdmonitionBlock, …)` at line 508
-
-1. **`note` emits the wrong format on Cloud v2.** The renderer always calls
-   `html.openTag("ac:structured-macro", mapOf("ac:name" to "note"))`. On Cloud v2 it should instead emit
-   `ac:adf-extension` with `panel-type=note`. The `cloudEditorV2()` helper (line 295) already exists on the class but is
-   not consulted here.
-
-2. **Admonition type set is too narrow.** `ADMONITION_TYPES` (line 117) is
-   `{"tip", "note", "info", "warning", "expand"}`. Any type outside this set silently falls back to `"note"`. There is
-   no mapping for `caution` or `important`, and no support for the custom `panel` macro.
-
-3. **`title` parameter is emitted but unsupported on Cloud.** When `AdmonitionBlock` has a title, the renderer calls
-   `html.addParameter("title", …)`. On Cloud this parameter is ignored. Instead, the title should be injected as bold
-   text at the start of the `ac:rich-text-body`.
-
-4. **`expand` is a category error.** `expand` is a collapsible-section macro, not a callout. It should not be in
-   `ADMONITION_TYPES`; it needs a separate rendering path.
-
-5. **No support for the custom `panel` macro.** There is no way to produce an `ac:structured-macro ac:name="panel"` with
-   `bgColor` / `panelIcon` parameters from Markdown source.
+Not supported yet: custom `panel` macro with colour/icon parameters (neither in AsciiDoc nor in Markdown).

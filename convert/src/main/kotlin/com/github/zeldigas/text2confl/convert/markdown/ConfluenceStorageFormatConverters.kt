@@ -116,7 +116,8 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             "queryparams"
         )
         val ALLOWED_CODE_ATTRIBUTES = setOf("title", "collapse", "linenumbers", "firstline", "theme")
-        val ADMONITION_TYPES = setOf("tip", "note", "info", "warning")
+        val IMPORTANT_ADMONITION = "important"
+        val ADMONITION_TYPES = setOf("tip", "note", "info", "warning", IMPORTANT_ADMONITION)
         const val DEFAULT_ADMONITION_TYPE = "note"
         const val EXPAND_ADMONITION_TYPE = "expand"
     }
@@ -173,9 +174,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
         if (cloudEditorV2()) {
             renderAdfNotePanel(html) { html.tag("p") { html.raw(text) } }
         } else {
-            html.tag("p") {
-                html.raw("<ac:structured-macro ac:name=\"note\"><ac:rich-text-body><p>$text</p></ac:rich-text-body></ac:structured-macro>")
-            }
+            html.raw("<ac:structured-macro ac:name=\"note\"><ac:rich-text-body><p>$text</p></ac:rich-text-body></ac:structured-macro>")
         }
     }
 
@@ -507,10 +506,10 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             return
         }
         val confluenceType = if (rawType in ADMONITION_TYPES) rawType else DEFAULT_ADMONITION_TYPE
-        if (confluenceType == "note" && cloudEditorV2()) {
+        if (confluenceType == IMPORTANT_ADMONITION && cloudEditorV2()) {
             renderNotePanel(node, context, html)
         } else {
-            renderCalloutMacro(node, context, html, confluenceType)
+            renderCalloutMacro(node, context, html, if (confluenceType == IMPORTANT_ADMONITION) "note" else confluenceType)
         }
     }
 

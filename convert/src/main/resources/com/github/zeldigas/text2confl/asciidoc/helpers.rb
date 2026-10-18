@@ -376,5 +376,15 @@ module Slim::Helpers
 
   end
 
+  def map_to_confluence_admonition_type(asciidoc_type)
+      return {
+       'note' => 'info',
+       'tip' => 'tip',
+       'important' => 'note',
+       'caution' => 'note',
+       'warning' => 'warning'
+      }[asciidoc_type]
+  end
+
 
 end

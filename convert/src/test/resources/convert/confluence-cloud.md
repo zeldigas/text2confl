@@ -2,7 +2,7 @@ Export page with @"user@example.org" reference
 
 <br />
 
-!!! note
+!!! important
 
     hello
 

@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource
 
 internal class RenderingOfAdmonitionTest : RenderingTestBase() {
 
-    @CsvSource(value = ["TIP,tip", "NOTE,info", "CAUTION,note", "WARNING,warning", "IMPORTANT,warning"])
+    @CsvSource(value = ["TIP,tip", "NOTE,info", "IMPORTANT,note", "CAUTION,note", "WARNING,warning"])
     @ParameterizedTest
     internal fun `Confluence supported admonitions`(type: String, confluenceType: String) {
         val result = toHtml(
@@ -29,6 +29,24 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
             <ac:structured-macro ac:name="$confluenceType"><ac:rich-text-body>
             <p>Test block <strong>with</strong> formatting and line breaks in paragraph</p>
             <ol><li>and</li><li>lists</li></ol>
+            </ac:rich-text-body></ac:structured-macro>
+        """.trimIndent()
+        )
+    }
+
+    @CsvSource(value = ["TIP,tip", "NOTE,info", "IMPORTANT,note", "CAUTION,note", "WARNING,warning"])
+    @ParameterizedTest
+    internal fun `Confluence supported oneliner admonitions`(type: String, confluenceType: String) {
+        val result = toHtml(
+            """
+            $type: Text of admonition
+        """.trimIndent()
+        )
+
+        assertThat(result).isEqualToConfluenceFormat(
+            """
+            <ac:structured-macro ac:name="$confluenceType"><ac:rich-text-body>
+            Text of admonition
             </ac:rich-text-body></ac:structured-macro>
         """.trimIndent()
         )
@@ -56,10 +74,10 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Note admonition renders as ADF panel on cloud v2`() {
+    internal fun `Important admonition renders as ADF panel on cloud v2`() {
         val result = toHtml(
             """
-            [NOTE]
+            [IMPORTANT]
             ====
             Test block **with** formatting
             ====
@@ -79,10 +97,10 @@ internal class RenderingOfAdmonitionTest : RenderingTestBase() {
     }
 
     @Test
-    internal fun `Note admonition with title on cloud v2 renders title as bold text`() {
+    internal fun `Important admonition with title on cloud v2 renders title as bold text`() {
         val result = toHtml(
             """
-            [NOTE]
+            [IMPORTANT]
             .Title test
             ====
             Test
