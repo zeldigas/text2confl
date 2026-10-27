@@ -11,7 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Updating changed SVG attachments on Confluence Cloud no longer fails with 400 Bad Request
+- Updating changed SVG attachments on Confluence Cloud no longer fails with 400 Bad Request (#379)
 
 ## 0.28.2 - 2026-09-28
 
