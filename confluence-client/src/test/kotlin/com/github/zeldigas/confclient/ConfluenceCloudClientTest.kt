@@ -15,7 +15,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import java.time.ZonedDateTime
+import kotlin.io.path.fileSize
+import kotlin.io.path.writeText
 
 @WireMockTest
 class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
@@ -381,5 +385,42 @@ class ConfluenceCloudClientTest(runtimeInfo: WireMockRuntimeInfo) {
         }
     }
 
+    @Test
+    fun `Attachment update uses PUT to child attachment endpoint`(@TempDir dir: Path) = runTest {
+        stubFor(
+            put("/rest/api/content/123/child/attachment").willReturn(
+                ok().withJsonFromFile("/data/responses/api-v1/attachment-update.json")
+            )
+        )
+        val file = dir.resolve("diagram.svg")
+        file.writeText("""<svg xmlns="http://www.w3.org/2000/svg"/>""")
+
+        val result = client.updateAttachment(
+            "123", "att456",
+            PageAttachmentInput("diagram.svg", file, file.fileSize(), "HASH:abc", "image/svg+xml")
+        )
+
+        assertThat(result.id).isEqualTo("att456")
+        assertThat(result.title).isEqualTo("diagram.svg")
+        verify(
+            1, putRequestedFor(urlEqualTo("/rest/api/content/123/child/attachment"))
+                .withHeader("X-Atlassian-Token", equalTo("nocheck"))
+                .withRequestBodyPart(
+                    aMultipart()
+                        .withName("file")
+                        .withHeader("Content-Disposition", containing("filename=diagram.svg"))
+                        .withHeader("Content-Type", equalTo("image/svg+xml"))
+                        .withBody(equalTo("""<svg xmlns="http://www.w3.org/2000/svg"/>"""))
+                        .build()
+                )
+                .withRequestBodyPart(
+                    aMultipart()
+                        .withName("comment")
+                        .withBody(equalTo("HASH:abc"))
+                        .build()
+                )
+        )
+        verify(0, anyRequestedFor(urlPathEqualTo("/rest/api/content/123/child/attachment/att456/data")))
+    }
 
 }

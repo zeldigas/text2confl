@@ -1,0 +1,33 @@
+{
+  "results": [
+    {
+      "id": "att456",
+      "type": "attachment",
+      "status": "current",
+      "title": "diagram.svg",
+      "version": {
+        "number": 2,
+        "minorEdit": false
+      },
+      "metadata": {
+        "comment": "HASH:abc",
+        "mediaType": "image/svg+xml"
+      },
+      "extensions": {
+        "mediaType": "image/svg+xml",
+        "fileSize": 42,
+        "comment": "HASH:abc"
+      },
+      "_links": {
+        "webui": "/pages/viewpageattachments.action?pageId=123&preview=%2F123%2F456%2Fdiagram.svg",
+        "download": "/download/attachments/123/diagram.svg?version=2&modificationDate=1761600000000&api=v2",
+        "self": "https://example.atlassian.net/wiki/rest/api/content/att456"
+      }
+    }
+  ],
+  "size": 1,
+  "_links": {
+    "base": "https://example.atlassian.net/wiki",
+    "context": "/wiki"
+  }
+}

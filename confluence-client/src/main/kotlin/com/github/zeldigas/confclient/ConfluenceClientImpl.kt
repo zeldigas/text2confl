@@ -346,17 +346,6 @@ class ConfluenceClientImpl(
         response.bodyAsChannel().copyAndClose(destination.toFile().writeChannel())
     }
 
-    private fun FormBuilder.addAttachmentToForm(attachment: PageAttachmentInput) {
-        append("comment", attachment.comment ?: "")
-        append(
-            "file",
-            InputProvider(attachment.fileSize) { attachment.content.toFile().inputStream().asInput() },
-            Headers.build {
-                attachment.contentType?.let { append(HttpHeaders.ContentType, it) }
-                append(HttpHeaders.ContentDisposition, "filename=${attachment.name}")
-            })
-    }
-
     override suspend fun getUserByKey(userKey: String): User {
         return httpClient.get("$apiBase/user") {
             parameter("key", userKey)
@@ -437,3 +426,14 @@ private data class PageSearchResult(
     val limit: Int,
     val size: Int
 )
+
+internal fun FormBuilder.addAttachmentToForm(attachment: PageAttachmentInput) {
+    append("comment", attachment.comment ?: "")
+    append(
+        "file",
+        InputProvider(attachment.fileSize) { attachment.content.toFile().inputStream().asInput() },
+        Headers.build {
+            attachment.contentType?.let { append(HttpHeaders.ContentType, it) }
+            append(HttpHeaders.ContentDisposition, "filename=${attachment.name}")
+        })
+}
