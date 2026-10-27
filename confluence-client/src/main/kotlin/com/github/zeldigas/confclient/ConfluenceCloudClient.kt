@@ -6,6 +6,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
@@ -276,6 +277,31 @@ class ConfluenceCloudClient(
 
     override suspend fun deleteAttachment(attachmentId: String) {
         delete("$apiBase/attachments/$attachmentId")
+    }
+
+    /**
+     * Confluence Cloud rejects image/svg+xml on POST .../child/attachment/{id}/data with a bodiless 400.
+     * PUT .../child/attachment creates or updates by filename, accepts SVG, and keeps the attachment id.
+     */
+    override suspend fun updateAttachment(
+        pageId: String,
+        attachmentId: String,
+        pageAttachmentInput: PageAttachmentInput
+    ): Attachment {
+        val result: PageAttachments = httpClient.submitFormWithBinaryData(
+            "$legacyApiBase/content/$pageId/child/attachment",
+            formData { addAttachmentToForm(pageAttachmentInput) }
+        ) {
+            method = HttpMethod.Put
+            header("X-Atlassian-Token", "nocheck")
+            header("Accept", "application/json")
+        }.readApiResponse(expectSuccess = true, legacyErrorFormat = true)
+        val attachment = result.results.singleOrNull()
+            ?: throw IllegalStateException("Expected single attachment in update response for page $pageId, got ${result.results.size}")
+        if (attachment.id != attachmentId) {
+            logger.warn { "Attachment ${pageAttachmentInput.name} on page $pageId was expected to have id $attachmentId, but update returned ${attachment.id}" }
+        }
+        return attachment
     }
 
     private suspend fun getPageById(

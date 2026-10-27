@@ -19,6 +19,10 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
+import kotlin.io.path.fileSize
+import kotlin.io.path.writeText
 
 @WireMockTest
 class ConfluenceClientImplTest(runtimeInfo: WireMockRuntimeInfo) {
@@ -100,6 +104,42 @@ class ConfluenceClientImplTest(runtimeInfo: WireMockRuntimeInfo) {
         )
 
         assertThrows<ConfluenceApiErrorException> { client.deleteAttachment("123") }
+    }
+
+    @Test
+    fun `Attachment update posts data to attachment endpoint`(@TempDir dir: Path) = runTest {
+        stubFor(
+            post("/rest/api/content/123/child/attachment/att456/data").willReturn(
+                ok().withJson(mapOf("id" to "att456", "title" to "diagram.svg"))
+            )
+        )
+        val file = dir.resolve("diagram.svg")
+        file.writeText("<svg/>")
+
+        val result = client.updateAttachment(
+            "123", "att456",
+            PageAttachmentInput("diagram.svg", file, file.fileSize(), "HASH:abc", "image/svg+xml")
+        )
+
+        assertThat(result).isEqualTo(Attachment("att456", "diagram.svg"))
+        verify(
+            1, postRequestedFor(urlEqualTo("/rest/api/content/123/child/attachment/att456/data"))
+                .withHeader("X-Atlassian-Token", equalTo("nocheck"))
+                .withRequestBodyPart(
+                    aMultipart()
+                        .withName("file")
+                        .withHeader("Content-Disposition", containing("filename=diagram.svg"))
+                        .withHeader("Content-Type", equalTo("image/svg+xml"))
+                        .build()
+                )
+                .withRequestBodyPart(
+                    aMultipart()
+                        .withName("comment")
+                        .withBody(equalTo("HASH:abc"))
+                        .build()
+                )
+        )
+        verify(0, putRequestedFor(urlPathEqualTo("/rest/api/content/123/child/attachment")))
     }
 
     @Test
