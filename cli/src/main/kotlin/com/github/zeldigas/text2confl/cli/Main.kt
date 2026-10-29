@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.sources.PropertiesValueSource
 import com.github.zeldigas.text2confl.core.ServiceProviderImpl
 import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 
-class ConfluencePublisher : CliktCommand() {
+class ConfluencePublisher : CliktCommand(name = "text2confl") {
     override fun aliases() = mapOf("dr" to listOf("doctor"))
 
     init {
