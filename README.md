@@ -1,112 +1,139 @@
-# text2confl
+# text2confl - publish Markdown & AsciiDoc to Confluence
 
-<!-- Keep badges minimal and actionable. -->
 [![Docker Image Version](https://img.shields.io/docker/v/zeldigas/text2confl?label=docker&sort=semver)](https://hub.docker.com/r/zeldigas/text2confl)
-[![Docker Image Size](https://img.shields.io/docker/image-size/zeldigas/text2confl?label=image%20size&sort=semver)](https://hub.docker.com/r/zeldigas/text2confl)
 [![Latest Release](https://img.shields.io/github/v/release/zeldigas/text2confl?display_name=tag&sort=semver)](https://github.com/zeldigas/text2confl/releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![CI](https://github.com/zeldigas/text2confl/actions/workflows/build.yml/badge.svg)](https://github.com/zeldigas/text2confl/actions/workflows/build.yml)
+<!-- Once the chat exists: [![Chat on Zulip](https://img.shields.io/badge/chat-on%20zulip-6492fe)](https://text2confl.zulipchat.com) -->
 
-Publish docs written in structured text formats (Markdown, AsciiDoc) to Confluence (Server/DC and Cloud).
+**Keep your docs in git. Let your colleagues read them in Confluence.**
 
-## If this project helps you
+`text2confl` turns a folder of Markdown and/or AsciiDoc files into a Confluence page tree - on **Confluence Cloud** and **Server / Data Center** - and keeps it in sync from your laptop or CI.
 
-Please :star: **star this repo** — it helps other people discover the tool and motivates further maintenance.
+Your team writes and reviews documentation like code: in pull requests, next to the code it describes. Everyone else
+reads it where they already are - Confluence. No copy-pasting, no stale wiki pages, no fighting the WYSIWYG editor.
 
-## Why text2confl
+```text
+docs/                                   Confluence space
+├── architecture.md          ──►        ├── Architecture
+├── architecture/                       │   ├── Services
+│   ├── services.md                     │   └── Data flow
+│   └── data-flow.adoc                  └── Runbooks
+├── runbooks.md                             └── Incident response
+└── runbooks/
+    └── incident-response.md
+```
 
-`text2confl` focuses on turning docs-as-code (or any structured text) into a Confluence page tree:
+<!-- TODO: a side-by-side screenshot (Markdown source | rendered Confluence page) -->
 
-- Works with **Confluence Cloud** and **Confluence Server/Data Center**
-- Supports **Markdown** and **AsciiDoc** (and lets you mix formats in one documentation set)
-- Tries to provide **good feature coverage** for the chosen markup language, mapped to Confluence capabilities
-- Supports **extensibility/customization** (e.g., adding macros) so you don’t need to fork for common needs
+## Quick start
+
+Publish a folder of docs with Docker - nothing else to install:
+
+```shell
+docker run --rm -v "$PWD:/wd" --workdir /wd \
+  -e CONFLUENCE_username=<your email> \
+  -e CONFLUENCE_PASSWORD=<your token> \
+  zeldigas/text2confl upload --docs ./docs \
+    --confluence-url https://yoursite.atlassian.net/wiki \
+    --space DOCS --parent "Engineering docs"
+```
+
+Run it again after editing - only changed pages are updated. Prefer a native binary? Grab one from
+[Releases](https://github.com/zeldigas/text2confl/releases/latest).
+
+**Step-by-step first upload:** [Confluence Cloud](docs/tutorials/first-upload-cloud.adoc) ·
+[Confluence Data Center / Server](docs/tutorials/first-upload-dc.adoc)
+
+## Features
+
+**Formats and structure**
+
+- ✅ **Markdown** and **AsciiDoc** - even mixed in one documentation set
+- ✅ Folder structure becomes the page tree (`foo.md` + `foo/` → page with children)
+- ✅ Relative links between files (including `#anchors`) become links between Confluence pages
+- ✅ Images and other files uploaded as page attachments
+- ✅ AsciiDoc includes; Markdown YAML front matter for titles, labels and page properties
+
+**Content**
+
+- ✅ Diagrams as code: **PlantUML**, **Mermaid**, **Kroki** (and `asciidoctor-diagram` for AsciiDoc)
+- ✅ Admonitions - **GitHub alerts** (`> [!NOTE]`) and `!!! tip` style - rendered as Confluence info/tip/note/warning panels
+- ✅ Code blocks with syntax highlighting and titles
+- ✅ Tables, including complex tables, column widths and cell background colors
+- ✅ Table of contents, status labels, user mentions, dates, expand blocks, emoji
+- ✅ **Any Confluence macro** with a one-liner - e.g. `[JIRA jqlQuery="project = SI"]` for a live Jira table - plus raw storage format when you need it
+
+**Safe for real-world spaces**
+
+- ✅ Change detection - unchanged pages aren't re-uploaded
+- ✅ Orphan cleanup - pages whose source was deleted are removed (only pages text2confl created, by default)
+- ✅ **Virtual pages** - manage a few pages as code inside a hand-crafted tree, without taking over the whole space
+- ✅ **Multi-tenancy** - several teams or pipelines can publish under the same parent without deleting each other's pages
+- ✅ Dry run, and `doctor confluence` to check connectivity and every permission before the first upload
+
+**Getting in and out**
+
+- ✅ Official **Docker image** for CI/CD (GitHub Actions, GitLab CI, Jenkins…)
+- ✅ Personal access tokens, API tokens and Cloud **scoped tokens**
+- ✅ `export-to-md` - pull an existing Confluence page down as Markdown to start your docs-as-code migration
 
 ## Documentation
 
-**New to text2confl?** Start with the first upload guide for your deployment:
+**Doing a specific task?**
 
-- :rocket: [Confluence Cloud](docs/tutorials/first-upload-cloud.adoc) — `yoursite.atlassian.net`
-- :rocket: [Confluence Data Center / Server](docs/tutorials/first-upload-dc.adoc) — self-hosted
+- 🔒 [Authenticate with Confluence](docs/how-to/authenticate.md) · [Scoped tokens (Cloud)](docs/how-to/authenticate-with-scoped-tokens.md)
+- ⬆️ [Ad-hoc upload](docs/how-to/upload-adhoc.md) · [Run with Docker / in CI](docs/how-to/run-with-docker.md)
+- ⬇️ [Export a Confluence page to Markdown](docs/how-to/export-to-markdown.md)
+- 📁 [Use virtual pages](docs/how-to/use-virtual-pages.md) · [Manage orphaned pages](docs/how-to/manage-orphaned-pages.md)
+- 🏢 [Configure multi-tenancy](docs/how-to/configure-multi-tenancy.md)
+- 🩺 [Diagnose access with `doctor`](docs/how-to/troubleshoot-with-doctor.md) · [Troubleshoot conversion](docs/how-to/troubleshoot-conversion.md)
 
-**Doing a specific task?** See the how-to guides:
+**Looking up options?**
 
-- :lock: [Authenticate with Confluence](docs/how-to/authenticate.md)
-- :arrow_up: [Ad-hoc upload](docs/how-to/upload-adhoc.md) · [Run with Docker](docs/how-to/run-with-docker.md)
-- :arrow_down: [Export a Confluence page to Markdown](docs/how-to/export-to-markdown.md)
-- :file_folder: [Use virtual pages](docs/how-to/use-virtual-pages.md) · [Manage orphaned pages](docs/how-to/manage-orphaned-pages.md)
-- :office: [Configure multi-tenancy](docs/how-to/configure-multi-tenancy.md)
+- ⚙️ [Configuration reference](docs/reference/configuration.adoc)
+- 📝 [Markdown syntax](docs/reference/markdown.md) · 📜 [AsciiDoc syntax](docs/reference/asciidoc.adoc)
+- 📄 [Page attributes](docs/reference/page-attributes.md) · [Image attributes](docs/reference/image-attributes.md) · [Code blocks](docs/reference/code-blocks.adoc)
 
-**Looking up options?** See the reference:
+**Want to understand how it works?**
 
-- :gear: [Configuration reference](docs/reference/configuration.adoc)
-- :memo: [Markdown syntax](docs/reference/markdown.md) · :scroll: [AsciiDoc syntax](docs/reference/asciidoc.adoc)
-- :page_facing_up: [Page attributes](docs/reference/page-attributes.md) · [Image attributes](docs/reference/image-attributes.md) · [Code blocks](docs/reference/code-blocks.adoc)
+- 🔍 [How publishing works](docs/explanation/how-publishing-works.md)
+- 📚 [Storage formats](docs/explanation/storage-formats.md) - Markdown vs AsciiDoc
+- 🧠 [Change detection strategies](docs/explanation/change-detection.md)
 
-**Want to understand how it works?** See the explanations:
+## See it on real docs
 
-- :mag: [How publishing works](docs/explanation/how-publishing-works.md)
-- :books: [Storage formats](docs/explanation/storage-formats.md) — Markdown vs AsciiDoc
-- :brain: [Change detection strategies](docs/explanation/change-detection.md)
-
-Contributing:
-
-- :handshake: [Contributing guide](CONTRIBUTING.md)
-- :construction: [Contribution notes](docs/contributing.md)
-
-## Try it with this repo’s docs
-
-You can publish text2confl’s own documentation to your Confluence to see the tool in action.
-Pick a space and a parent page under which the pages will be created:
+This repo's own `docs/` folder is a working example - publish it to a test space to see every feature rendered:
 
 ```shell
 # from the root of the checked out text2confl repo
 text2confl upload --docs ./docs \
   --confluence-url https://wiki.example.org \
-  --user bob \
-  --password secret_password \
+  --access-token <your token> \
   --space DOCS \
   --parent "Text2Confl test"
 ```
 
-Example resulting page tree:
+![Resulting page tree in Confluence](docs/text2confl-page-tree.png)
 
-![](docs/text2confl-page-tree.png)
+> No public demo space yet: Confluence Cloud's free tier can't publish to non-members. If you can sponsor a read-only
+> showcase space, please open an issue.
 
-**Note on a public docs showcase:** At the moment there is no public Confluence demo because Confluence Cloud free tier
-doesn’t allow publishing spaces/pages to non-members. If you’d like to sponsor a public demo space or provide access for
-a read-only showcase, please open an issue.
+## Questions and contributing
 
-## Who’s using text2confl
+- 💬 Questions and ideas: [Discussions](https://github.com/zeldigas/text2confl/discussions)
+  <!-- swap for the chat link once it's set up -->
+- 🐞 Bugs and missing features: [open an issue](https://github.com/zeldigas/text2confl/issues) - the scope isn't
+  fixed, so if your use case needs something, describe it
+- 🤝 [Contributing guide](CONTRIBUTING.md) · [Contribution notes](docs/contributing.md)
 
-If your team uses `text2confl`, consider adding your company/project name here. It helps show that the tool is used in real setups.
+## Who's using text2confl
 
-- _Your company / project_
+Using it at work? Add your company or project with a PR, or open an issue/message me and I'll add it for you.
+Real-world names are the strongest signal for the next team evaluating the tool.
 
-To get listed, open a PR that adds a bullet to this section. If you prefer not to do that publicly, you can also open an issue/PM to me and I’ll add it for you.
+- *Your company / project*
 
-## Scope
+---
 
-`text2confl` does not assume the purpose of the publishing process or the type of content you are going to upload.
-It can be formal docs managed as code, a to-do list, or a report generated from Jira.
-
-Because of that there isn’t a strict “final” feature set. If you find something missing, please create an issue and
-describe your needs.
-
-## Design and usability goals
-
-Key principles the tool tries to follow:
-
-1. Provide good feature coverage for every supported source format. If you pick AsciiDoc, it should feel comfortable,
-   not like you constantly hit unsupported features.
-
-   _Note:_ features still need to map to Confluence formatting or macros.
-2. Provide reasonable defaults and auto-detection where possible (e.g., Cloud vs Server editor differences).
-3. Support both Confluence Server/Data Center and Cloud and be aware of differences in editors/features.
-4. If the source format supports extensibility/customization, support it. There should be no need to fork just to add
-   common macros.
-
-## Supported source formats
-
-- ✅ Markdown
-- ✅ AsciiDoc
+If text2confl saves you time, a ⭐ helps other teams find it.
