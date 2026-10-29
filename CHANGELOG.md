@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.29.0
+
 ### Changed
 
 - Admonitions are mapped to Confluence panels with matching color scheme (#347):
