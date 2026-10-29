@@ -65,7 +65,8 @@ internal class GhAdmonitionParser internal constructor(document: Document) : Nod
 
     private fun mapGitHubTypeToAdmonitionType(githubType: String): String {
         return when (val type = githubType.lowercase()) {
-            "important" -> "info"
+            "note" -> "info"
+            "warning" -> "note"
             "caution" -> "warning"
             else -> type
         }

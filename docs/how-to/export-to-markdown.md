@@ -71,7 +71,8 @@ text2confl [Markdown extensions](../reference/markdown/confluence-specific.md):
   export; otherwise the mention is skipped. Scoped tokens need `read:content-details:confluence` scope to look up
   users; without it a warning is logged and mentions are skipped.
 - **Info, note, tip, warning panels** are exported as admonitions (`!!! note`). This also works for panels created in
-  Confluence Cloud editor, but panel customizations (custom colors, icons) are not preserved.
+  Confluence Cloud editor, but panel customizations (custom colors, icons) are not preserved. Cloud lavender "Note"
+  panel is exported as `!!! important`, so it is published back as the same panel.
 
 ## Authentication
 
