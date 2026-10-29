@@ -4,7 +4,6 @@
 [![Latest Release](https://img.shields.io/github/v/release/zeldigas/text2confl?display_name=tag&sort=semver)](https://github.com/zeldigas/text2confl/releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![CI](https://github.com/zeldigas/text2confl/actions/workflows/build.yml/badge.svg)](https://github.com/zeldigas/text2confl/actions/workflows/build.yml)
-<!-- Once the chat exists: [![Chat on Zulip](https://img.shields.io/badge/chat-on%20zulip-6492fe)](https://text2confl.zulipchat.com) -->
 
 **Keep your docs in git. Let your colleagues read them in Confluence.**
 
@@ -28,55 +27,71 @@ docs/                                   Confluence space
 
 ## Quick start
 
-Publish a folder of docs with Docker - nothing else to install:
+Publish a folder of docs to Confluence Cloud with Docker - nothing else to install. The parent page must already exist
+in the space; the docs are created as its children.
 
 ```shell
 docker run --rm -v "$PWD:/wd" --workdir /wd \
-  -e CONFLUENCE_username=<your email> \
-  -e CONFLUENCE_PASSWORD=<your token> \
+  -e CONFLUENCE_USER=<your email> \
+  -e CONFLUENCE_PASSWORD=<your API token> \
   zeldigas/text2confl upload --docs ./docs \
     --confluence-url https://yoursite.atlassian.net/wiki \
-    --space DOCS --parent "Engineering docs"
+    --space DOCS --parent "Engineering docs" \
+    --dry  # dry run: shows what would change - remove this line to upload for real
 ```
 
-Run it again after editing - only changed pages are updated. Prefer a native binary? Grab one from
-[Releases](https://github.com/zeldigas/text2confl/releases/latest).
+Run it again after editing - only changed pages are updated. Prefer running without Docker? Download the archive from
+[Releases](https://github.com/zeldigas/text2confl/releases/latest) (requires Java 17+).
 
 **Step-by-step first upload:** [Confluence Cloud](docs/tutorials/first-upload-cloud.adoc) ·
 [Confluence Data Center / Server](docs/tutorials/first-upload-dc.adoc)
+
+## Why text2confl
+
+There are several ways to get Markdown into Confluence. text2confl is built for teams that want docs-as-code without
+giving up Confluence features or taking over a whole space:
+
+- **AsciiDoc is first-class, not an afterthought.** Includes, admonitions, complex tables and diagrams work in both
+  Markdown and AsciiDoc, and you can mix the two in one doc set.
+- **It plays well with hand-edited spaces.** It only deletes pages it created. It can manage a few pages inside a
+  hand-made tree, and several repos can publish under one parent without overwriting each other.
+- **You keep Confluence's power.** Jira tables, status labels, mentions, expand blocks and many other simple macros
+  are one-liners, and raw storage format covers the rest. You don't need to fork or write a plugin for everyday needs.
+- **Just a folder of files.** No site generator or docs framework required: point it at a directory and run it, from
+  your laptop or CI, with the same Docker image.
 
 ## Features
 
 **Formats and structure**
 
-- ✅ **Markdown** and **AsciiDoc** - even mixed in one documentation set
-- ✅ Folder structure becomes the page tree (`foo.md` + `foo/` → page with children)
-- ✅ Relative links between files (including `#anchors`) become links between Confluence pages
-- ✅ Images and other files uploaded as page attachments
-- ✅ AsciiDoc includes; Markdown YAML front matter for titles, labels and page properties
+- **Markdown** and **AsciiDoc** - even mixed in one documentation set
+- Folder structure becomes the page tree (`foo.md` + `foo/` → page with children)
+- Relative links between files (including `#anchors`) become links between Confluence pages
+- Images and other files uploaded as page attachments
+- AsciiDoc includes; Markdown YAML front matter for titles, labels and page properties
 
 **Content**
 
-- ✅ Diagrams as code: **PlantUML**, **Mermaid**, **Kroki** (and `asciidoctor-diagram` for AsciiDoc)
-- ✅ Admonitions - **GitHub alerts** (`> [!NOTE]`) and `!!! tip` style - rendered as Confluence info/tip/note/warning panels
-- ✅ Code blocks with syntax highlighting and titles
-- ✅ Tables, including complex tables, column widths and cell background colors
-- ✅ Table of contents, status labels, user mentions, dates, expand blocks, emoji
-- ✅ **Any Confluence macro** with a one-liner - e.g. `[JIRA jqlQuery="project = SI"]` for a live Jira table - plus raw storage format when you need it
+- Diagrams as code: **PlantUML**, **Mermaid**, **Kroki** (and `asciidoctor-diagram` for AsciiDoc)
+- Admonitions - **GitHub alerts** (`> [!NOTE]`) and `!!! tip` style - rendered as Confluence info/tip/note/warning panels
+- Code blocks with syntax highlighting and titles
+- Tables, including complex tables, column widths and cell background colors
+- Table of contents, status labels, user mentions, dates, expand blocks, emoji
+- **Confluence macros** as one-liners - e.g. `[JIRA jqlQuery="project = SI"]` for a live Jira table - plus raw storage format for complex ones
 
 **Safe for real-world spaces**
 
-- ✅ Change detection - unchanged pages aren't re-uploaded
-- ✅ Orphan cleanup - pages whose source was deleted are removed (only pages text2confl created, by default)
-- ✅ **Virtual pages** - manage a few pages as code inside a hand-crafted tree, without taking over the whole space
-- ✅ **Multi-tenancy** - several teams or pipelines can publish under the same parent without deleting each other's pages
-- ✅ Dry run, and `doctor confluence` to check connectivity and every permission before the first upload
+- Change detection - unchanged pages aren't re-uploaded
+- Orphan cleanup - pages whose source was deleted are removed (only pages text2confl created, by default)
+- **Virtual pages** - manage a few pages as code inside a hand-crafted tree, without taking over the whole space
+- **Multi-tenancy** - several teams or pipelines can publish under the same parent without deleting each other's pages
+- Dry run, and `doctor confluence` to check connectivity and every permission before the first upload
 
 **Getting in and out**
 
-- ✅ Official **Docker image** for CI/CD (GitHub Actions, GitLab CI, Jenkins…)
-- ✅ Personal access tokens, API tokens and Cloud **scoped tokens**
-- ✅ `export-to-md` - pull an existing Confluence page down as Markdown to start your docs-as-code migration
+- Official **Docker image** for CI/CD (GitHub Actions, GitLab CI, Jenkins…)
+- Personal access tokens, API tokens and Cloud **scoped tokens**
+- `export-to-md` - pull an existing Confluence page down as Markdown to start your docs-as-code migration
 
 ## Documentation
 
@@ -108,8 +123,9 @@ This repo's own `docs/` folder is a working example - publish it to a test space
 ```shell
 # from the root of the checked out text2confl repo
 text2confl upload --docs ./docs \
-  --confluence-url https://wiki.example.org \
-  --access-token <your token> \
+  --confluence-url https://yoursite.atlassian.net/wiki \
+  --user <your email> \
+  --password <your API token> \
   --space DOCS \
   --parent "Text2Confl test"
 ```
@@ -122,7 +138,6 @@ text2confl upload --docs ./docs \
 ## Questions and contributing
 
 - 💬 Questions and ideas: [Discussions](https://github.com/zeldigas/text2confl/discussions)
-  <!-- swap for the chat link once it's set up -->
 - 🐞 Bugs and missing features: [open an issue](https://github.com/zeldigas/text2confl/issues) - the scope isn't
   fixed, so if your use case needs something, describe it
 - 🤝 [Contributing guide](CONTRIBUTING.md) · [Contribution notes](docs/contributing.md)
