@@ -1,0 +1,12 @@
+Nothing changed in the text: comment stays on the same text
+=== server
+<p>Retries use {c1:exponential backoff:}.</p>
+<p>Second paragraph.</p>
+=== generated
+<p>Retries use exponential backoff.</p>
+<p>Second paragraph.</p>
+=== expected
+<p>Retries use {c1:exponential backoff:}.</p>
+<p>Second paragraph.</p>
+=== report
+c1 KEPT

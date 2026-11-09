@@ -1,0 +1,9 @@
+Server body has &nbsp; where generated body has a plain space
+=== server
+<p>Value&nbsp;of {c1:the&nbsp;setting:} is important.</p>
+=== generated
+<p>Value of the setting is important.</p>
+=== expected
+<p>Value of {c1:the setting:} is important.</p>
+=== report
+c1 KEPT

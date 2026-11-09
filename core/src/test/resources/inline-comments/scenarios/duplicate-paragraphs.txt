@@ -1,0 +1,24 @@
+Duplicate paragraphs: each copy keeps its own comment, matched by position
+=== server
+<p>Run the tests.</p>
+<p>Intro to the first part.</p>
+<p>Run the {c1:tests:}.</p>
+<p>Some unrelated content here.</p>
+<p>Run the tests.</p>
+<p>Final notes.</p>
+=== generated
+<p>Run the tests.</p>
+<p>Intro to the first part.</p>
+<p>Run the tests.</p>
+<p>Some unrelated content here.</p>
+<p>Run the tests.</p>
+<p>Final notes.</p>
+=== expected
+<p>Run the tests.</p>
+<p>Intro to the first part.</p>
+<p>Run the {c1:tests:}.</p>
+<p>Some unrelated content here.</p>
+<p>Run the tests.</p>
+<p>Final notes.</p>
+=== report
+c1 KEPT

@@ -1,0 +1,10 @@
+Two comments in one paragraph, paragraph edited between them
+=== server
+<p>{c1:First:} part of text and {c2:second part:} of text.</p>
+=== generated
+<p>First part of the text and then second part of text.</p>
+=== expected
+<p>{c1:First:} part of the text and then {c2:second part:} of text.</p>
+=== report
+c1 KEPT
+c2 KEPT

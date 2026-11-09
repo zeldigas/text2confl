@@ -1,0 +1,12 @@
+Comment inside Cloud ADF note panel: content is repeated in ac:adf-fallback, marker goes only to ac:adf-content
+=== server
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-attribute key="local-id">853e55a82c3d</ac:adf-attribute><ac:adf-content><p>Edit the {c1:source file:} instead.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block"><div class="panelContent"><p>Edit the source file instead.</p></div></div></ac:adf-fallback></ac:adf-extension>
+<p>Edit the source file instead.</p>
+=== generated
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Edit the source file instead.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block"><div class="panelContent"><p>Edit the source file instead.</p></div></div></ac:adf-fallback></ac:adf-extension>
+<p>Edit the source file instead.</p>
+=== expected
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Edit the {c1:source file:} instead.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block"><div class="panelContent"><p>Edit the source file instead.</p></div></div></ac:adf-fallback></ac:adf-extension>
+<p>Edit the source file instead.</p>
+=== report
+c1 KEPT

@@ -1,0 +1,7 @@
+Commented paragraph completely rewritten
+=== server
+<p>Old text about {c1:something:} that is gone now.</p>
+=== generated
+<p>Completely different content is written here instead.</p>
+=== report
+c1 LOST BLOCK_NOT_FOUND

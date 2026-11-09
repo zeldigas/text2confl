@@ -1,0 +1,9 @@
+Commented word occurs twice in the paragraph, the right occurrence is kept
+=== server
+<p>Cache the value, then {c1:cache:} the result.</p>
+=== generated
+<p>Cache the computed value, then cache the result.</p>
+=== expected
+<p>Cache the computed value, then {c1:cache:} the result.</p>
+=== report
+c1 KEPT

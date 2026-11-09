@@ -1,0 +1,9 @@
+Generated body adds formatting over the commented text
+=== server
+<p>Use {c1:my text:} here.</p>
+=== generated
+<p>Use <strong>my</strong> text here.</p>
+=== expected
+<p>Use <strong>{c1:my:}</strong>{c1: text:} here.</p>
+=== report
+c1 KEPT

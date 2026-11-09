@@ -1,0 +1,9 @@
+Comment from inside one external link into another (real Cloud sample, A6), the links got new targets
+=== server
+<p>A6: Links <a href="https://example.com/1">fir{c1:st:}</a>{c1: and :}<a href="https://example.com/2">{c1:sec:}ond</a> together.</p>
+=== generated
+<p>A6: Links <a href="https://example.com/one">first</a> and <a href="https://example.com/two">second</a> together.</p>
+=== expected
+<p>A6: Links <a href="https://example.com/one">fir{c1:st:}</a>{c1: and :}<a href="https://example.com/two">{c1:sec:}ond</a> together.</p>
+=== report
+c1 KEPT

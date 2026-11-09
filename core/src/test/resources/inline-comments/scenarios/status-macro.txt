@@ -1,0 +1,9 @@
+Comment covering an inline status macro, macro parameters rewritten by editor
+=== server
+<p>State: {c1:<ac:structured-macro ac:name="status" ac:schema-version="1" ac:macro-id="x"><ac:parameter ac:name="colour">Green</ac:parameter><ac:parameter ac:name="title">DONE</ac:parameter></ac:structured-macro> since May:}.</p>
+=== generated
+<p>State: <ac:structured-macro ac:name="status"><ac:parameter ac:name="title">DONE</ac:parameter><ac:parameter ac:name="colour">Green</ac:parameter></ac:structured-macro> since May.</p>
+=== expected
+<p>State: {c1:<ac:structured-macro ac:name="status"><ac:parameter ac:name="title">DONE</ac:parameter><ac:parameter ac:name="colour">Green</ac:parameter></ac:structured-macro> since May:}.</p>
+=== report
+c1 KEPT

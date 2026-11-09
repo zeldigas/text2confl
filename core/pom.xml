@@ -30,6 +30,14 @@
             <groupId>com.sksamuel.aedile</groupId>
             <artifactId>aedile-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.java-diff-utils</groupId>
+            <artifactId>java-diff-utils</artifactId>
+        </dependency>
 
         <!--test deps below-->
         <dependency>

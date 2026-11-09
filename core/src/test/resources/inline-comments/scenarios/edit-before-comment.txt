@@ -1,0 +1,9 @@
+Paragraph edited before the commented text
+=== server
+<p>Retries use {c1:exponential backoff:} with jitter.</p>
+=== generated
+<p>All network retries always use exponential backoff with jitter.</p>
+=== expected
+<p>All network retries always use {c1:exponential backoff:} with jitter.</p>
+=== report
+c1 KEPT

@@ -1,0 +1,7 @@
+Marker without ac:ref is ignored
+=== server
+<p>Some <ac:inline-comment-marker>text</ac:inline-comment-marker>.</p>
+=== generated
+<p>Some text.</p>
+=== report
+

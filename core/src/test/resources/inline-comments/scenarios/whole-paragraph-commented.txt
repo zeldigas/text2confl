@@ -1,0 +1,9 @@
+Whole paragraph commented, a sentence appended after it
+=== server
+<p>{c1:This short note explains the setup.:}</p>
+=== generated
+<p>This short note explains the setup. With an addition at the end.</p>
+=== expected
+<p>{c1:This short note explains the setup.:} With an addition at the end.</p>
+=== report
+c1 KEPT

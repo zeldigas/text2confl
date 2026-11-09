@@ -1,0 +1,7 @@
+Server body without markers: generated body is returned as is
+=== server
+<p>Some text</p>
+=== generated
+<p>Some other text</p>
+=== report
+

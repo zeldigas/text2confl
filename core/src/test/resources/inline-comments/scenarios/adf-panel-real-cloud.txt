@@ -1,0 +1,16 @@
+Real Cloud sample: comment inside ADF note panel. Confluence keeps the marker in ac:adf-content and renders a plain
+<span class="inline-comment-marker"> (no ac:ref) in the regenerated fallback
+=== server
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-attribute key="local-id">b71e20dac620</ac:adf-attribute><ac:adf-attribute key="containerLevel">panel_c1</ac:adf-attribute><ac:adf-content>
+<p local-id="1949a9c72f65">n{c1:ot:}e</p></ac:adf-content></ac:adf-node><ac:adf-fallback>
+<div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;">
+<div class="panelContent" style="background-color: rgb(234,230,255);">
+
+<p local-id="1949a9c72f65">n<span class="inline-comment-marker">ot</span>e</p>
+</div></div></ac:adf-fallback></ac:adf-extension>
+=== generated
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>note</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p>note</p></div></div></ac:adf-fallback></ac:adf-extension>
+=== expected
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>n{c1:ot:}e</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block" style="background-color: rgb(234,230,255);border-color: rgb(153,141,217);border-width: 1.0px;"><div class="panelContent" style="background-color: rgb(234,230,255);"><p>note</p></div></div></ac:adf-fallback></ac:adf-extension>
+=== report
+c1 KEPT

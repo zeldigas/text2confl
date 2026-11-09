@@ -1,0 +1,10 @@
+Comments in table header and data cells
+=== server
+<table><tbody><tr><th><p>{c1:Name:}</p></th><th><p>Value</p></th></tr><tr><td><p>timeout</p></td><td><p>{c2:30 seconds:}</p></td></tr></tbody></table>
+=== generated
+<table><tbody><tr><th>Name</th><th>Value</th></tr><tr><td>timeout</td><td>30 seconds</td></tr><tr><td>retries</td><td>3</td></tr></tbody></table>
+=== expected
+<table><tbody><tr><th>{c1:Name:}</th><th>Value</th></tr><tr><td>timeout</td><td>{c2:30 seconds:}</td></tr><tr><td>retries</td><td>3</td></tr></tbody></table>
+=== report
+c1 KEPT
+c2 KEPT

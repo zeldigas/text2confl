@@ -1,0 +1,12 @@
+Heading and paragraph with same text are not paired
+=== server
+<h2>{c1:Overview:}</h2>
+<p>Overview</p>
+=== generated
+<p>Overview</p>
+<h3>Overview</h3>
+=== expected
+<p>Overview</p>
+<h3>{c1:Overview:}</h3>
+=== report
+c1 KEPT

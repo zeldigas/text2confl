@@ -1,0 +1,9 @@
+Spelling changed in the last word of the commented text: last char and most of the word survived, comment is kept
+=== server
+<p>Pick the {c1:background colour:} for the panel, it is applied to every page in the space.</p>
+=== generated
+<p>Pick the background color for the panel, it is applied to every page in the space.</p>
+=== expected
+<p>Pick the {c1:background color:} for the panel, it is applied to every page in the space.</p>
+=== report
+c1 ADJUSTED "background color"

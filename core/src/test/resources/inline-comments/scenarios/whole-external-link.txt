@@ -1,0 +1,9 @@
+Whole external link commented (real Cloud sample, A1): marker goes inside <a>, paragraph edited around it
+=== server
+<p>A1: Read the <a href="https://example.com/docs">{c1:official documentation:}</a> before you start.</p>
+=== generated
+<p>A1: Please read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+=== expected
+<p>A1: Please read the <a href="https://example.com/docs">{c1:official documentation:}</a> before you start.</p>
+=== report
+c1 KEPT

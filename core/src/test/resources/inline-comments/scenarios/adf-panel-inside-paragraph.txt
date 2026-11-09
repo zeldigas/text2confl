@@ -1,0 +1,9 @@
+ADF panel wrapped in <p> by the generator: wrapping paragraph has no text of its own, panel content is a block
+=== server
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Generated {c1:from source:}.</p></ac:adf-content></ac:adf-node></ac:adf-extension>
+=== generated
+<p><ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Generated from source.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div><p>Generated from source.</p></div></ac:adf-fallback></ac:adf-extension></p>
+=== expected
+<p><ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p>Generated {c1:from source:}.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div><p>Generated from source.</p></div></ac:adf-fallback></ac:adf-extension></p>
+=== report
+c1 KEPT

@@ -1,0 +1,9 @@
+Formatting element fully covered: Confluence keeps formatting outside the marker, the merge does the same
+=== server
+<p>Use <em>{c1:very:}</em>{c1: careful:} steps.</p>
+=== generated
+<p>Always use <em>very</em> careful steps.</p>
+=== expected
+<p>Always use <em>{c1:very:}</em>{c1: careful:} steps.</p>
+=== report
+c1 KEPT

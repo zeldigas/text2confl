@@ -1,0 +1,10 @@
+Comment inside a panel macro body, editor moved macro out of <p>
+=== server
+<ac:structured-macro ac:name="info" ac:schema-version="1" ac:macro-id="1"><ac:parameter ac:name="containerLevel">panel_c1</ac:parameter><ac:rich-text-body>
+<p>Panel {c1:text:} here.</p></ac:rich-text-body></ac:structured-macro>
+=== generated
+<p><ac:structured-macro ac:name="info"><ac:rich-text-body><p>Panel text here, edited.</p></ac:rich-text-body></ac:structured-macro></p>
+=== expected
+<p><ac:structured-macro ac:name="info"><ac:rich-text-body><p>Panel {c1:text:} here, edited.</p></ac:rich-text-body></ac:structured-macro></p>
+=== report
+c1 KEPT

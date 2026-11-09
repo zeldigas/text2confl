@@ -1,0 +1,11 @@
+Two paragraphs merged into one: both comments kept
+=== server
+<p>Install the {c1:package:} first.</p>
+<p>Then {c2:configure:} it.</p>
+=== generated
+<p>Install the package first. Then configure it.</p>
+=== expected
+<p>Install the {c1:package:} first. Then {c2:configure:} it.</p>
+=== report
+c1 KEPT
+c2 KEPT

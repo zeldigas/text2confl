@@ -1,0 +1,9 @@
+Selection starts and ends in the middle of words (as Confluence often does)
+=== server
+<p>This guide shows ho{c1:w to configure multi-tenancy whe:}n multiple teams share the same space.</p>
+=== generated
+<p>This short guide shows how to configure multi-tenancy when multiple teams share one space.</p>
+=== expected
+<p>This short guide shows ho{c1:w to configure multi-tenancy whe:}n multiple teams share one space.</p>
+=== report
+c1 KEPT

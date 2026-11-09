@@ -1,0 +1,9 @@
+One comment across three list items
+=== server
+<ul><li><p>Al{c1:pha:}</p></li><li><p>{c1:Beta:}</p></li><li><p>{c1:Gam:}ma</p></li></ul>
+=== generated
+<ul><li>Alpha</li><li>Beta</li><li>Gamma</li></ul>
+=== expected
+<ul><li>Al{c1:pha:}</li><li>{c1:Beta:}</li><li>{c1:Gam:}ma</li></ul>
+=== report
+c1 KEPT

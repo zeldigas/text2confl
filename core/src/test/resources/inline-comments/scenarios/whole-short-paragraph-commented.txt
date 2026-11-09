@@ -1,0 +1,8 @@
+Known limitation: very short paragraph commented as a whole and a longer sentence appended. Blocks are not similar
+enough to pair, and the text is too short to be searched without context, so the comment is reported as lost
+=== server
+<p>{c1:Short note.:}</p>
+=== generated
+<p>Short note. With an addition.</p>
+=== report
+c1 LOST BLOCK_NOT_FOUND

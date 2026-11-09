@@ -1,0 +1,9 @@
+Comment over part of an external link: marker goes inside <a>
+=== server
+<p>Visit <a href="https://example.com">exa{c1:mple site:}</a>{c1: today:}.</p>
+=== generated
+<p>Visit <a href="https://example.com">example site</a> today.</p>
+=== expected
+<p>Visit <a href="https://example.com">exa{c1:mple site:}</a>{c1: today:}.</p>
+=== report
+c1 KEPT

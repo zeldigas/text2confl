@@ -1,0 +1,12 @@
+Commented sentence moved to another paragraph
+=== server
+<p>Intro paragraph. {c1:This sentence will move elsewhere.:}</p>
+<p>Other paragraph.</p>
+=== generated
+<p>Intro paragraph.</p>
+<p>Other paragraph. This sentence will move elsewhere.</p>
+=== expected
+<p>Intro paragraph.</p>
+<p>Other paragraph. {c1:This sentence will move elsewhere.:}</p>
+=== report
+c1 KEPT

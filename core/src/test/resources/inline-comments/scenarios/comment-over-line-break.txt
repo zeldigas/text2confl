@@ -1,0 +1,9 @@
+Comment covering a <br/>
+=== server
+<p>First {c1:line<br />second:} line</p>
+=== generated
+<p>First line<br/>second line</p>
+=== expected
+<p>First {c1:line<br/>second:} line</p>
+=== report
+c1 KEPT

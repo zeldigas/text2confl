@@ -1,0 +1,9 @@
+Comment covering text and a whole link, editor rewrote link body
+=== server
+<p>See {c1:the <ac:link><ri:page ri:content-title="Target" ri:version-at-save="3" /><ac:link-body>target page</ac:link-body></ac:link> for details:}.</p>
+=== generated
+<p>See the <ac:link><ri:page ri:content-title="Target" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[target page]]></ac:plain-text-link-body></ac:link> for details.</p>
+=== expected
+<p>See {c1:the <ac:link><ri:page ri:content-title="Target" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[target page]]></ac:plain-text-link-body></ac:link> for details:}.</p>
+=== report
+c1 KEPT

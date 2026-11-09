@@ -1,0 +1,9 @@
+Comment across bold text: Confluence splits it into several markers, they are restored the same way
+=== server
+<p>Some {c1:text and :}<strong>{c1:bold:} words</strong> here.</p>
+=== generated
+<p>Some text and <strong>bold words</strong> here, edited.</p>
+=== expected
+<p>Some {c1:text and :}<strong>{c1:bold:} words</strong> here, edited.</p>
+=== report
+c1 KEPT

@@ -1,0 +1,7 @@
+Last word of the commented text removed: comment is lost
+=== server
+<p>This is {c1:my old text:} here.</p>
+=== generated
+<p>This is my old here.</p>
+=== report
+c1 LOST TEXT_CHANGED

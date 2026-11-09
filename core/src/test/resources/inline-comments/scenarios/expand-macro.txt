@@ -1,0 +1,9 @@
+Comment inside expand macro body
+=== server
+<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">Details</ac:parameter><ac:rich-text-body><p>Hidden {c1:details:}.</p></ac:rich-text-body></ac:structured-macro>
+=== generated
+<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">Details</ac:parameter><ac:rich-text-body><p>Hidden details.</p><p>More.</p></ac:rich-text-body></ac:structured-macro>
+=== expected
+<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">Details</ac:parameter><ac:rich-text-body><p>Hidden {c1:details:}.</p><p>More.</p></ac:rich-text-body></ac:structured-macro>
+=== report
+c1 KEPT
