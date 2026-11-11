@@ -69,11 +69,7 @@ class ServiceProviderImpl : ServiceProvider {
         uploadOperationTracker: UploadOperationTracker
     ): ContentUploader {
         return ContentUploader(
-            client, uploadConfig.uploadMessage, uploadConfig.notifyWatchers,
-            uploadConfig.modificationCheck,
-            converterConfig.editorVersion, uploadConfig.removeOrphans,
-            uploadConfig.tenant,
-            uploadOperationTracker
+            client, uploadConfig, converterConfig.editorVersion, uploadOperationTracker
         )
     }
 

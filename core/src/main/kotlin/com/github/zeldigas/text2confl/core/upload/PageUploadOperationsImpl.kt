@@ -7,6 +7,9 @@ import com.github.zeldigas.confclient.model.PageProperty
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
+import com.github.zeldigas.text2confl.core.config.InlineComments
+import com.github.zeldigas.text2confl.core.upload.comments.CommentOutcome
+import com.github.zeldigas.text2confl.core.upload.comments.InlineCommentsMerger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -18,14 +21,19 @@ internal class PageUploadOperationsImpl(
     val uploadMessage: String,
     val notifyWatchers: Boolean,
     val pageContentChangeDetector: ChangeDetector,
+    val inlineComments: InlineComments,
     val editorVersion: EditorVersion,
-    val tenant: String? = null
+    val tenant: String? = null,
+    private val commentsMerger: InlineCommentsMerger = InlineCommentsMerger()
 ) : PageUploadOperations {
 
     companion object {
         private const val MB: Long = 1024 * 1024
         private val logger = KotlinLogging.logger { }
     }
+
+    private val commentsRestorationRequired: Boolean
+        get() = inlineComments != InlineComments.DROP
 
     override suspend fun createOrUpdatePageContent(
         page: Page,
@@ -112,12 +120,17 @@ internal class PageUploadOperationsImpl(
         serverPageDetails: ServerPage
     ): PageOperationResult.ContentModified {
         logger.info { "Page content requires update: ${confluencePage.id}, ${confluencePage.title}" }
+        val (body, comments) = if (commentsRestorationRequired) {
+            restoreComments(confluencePage, getServerBody(confluencePage), page.content.body)
+        } else {
+            page.content.body to CommentRestoration.Dropped
+        }
         client.updatePage(
             confluencePage.id,
             PageContentInput(
                 parentPageId,
                 page.title,
-                page.content.body,
+                body,
                 version = confluencePage.version!!.number + 1
             ),
             PageUpdateOptions(notifyWatchers, uploadMessage)
@@ -125,8 +138,35 @@ internal class PageUploadOperationsImpl(
         return PageOperationResult.ContentModified(
             page,
             serverPageDetails,
-            confluencePage.parentId != parentPageId
+            confluencePage.parentId != parentPageId,
+            comments
         )
+    }
+
+    private fun restoreComments(
+        page: ConfluencePage,
+        serverContent: String,
+        generatedContent: String
+    ): Pair<String, CommentRestoration> {
+        val result = commentsMerger.merge(serverContent, generatedContent)
+        val dryRestoration = inlineComments == InlineComments.KEEP_DRY
+        return if (result.error != null) {
+            logger.info(result.error) { "Failed to merge comments for page ${page.id}: ${page.title}" }
+            generatedContent to CommentRestoration.Failed(dryRestoration, result.error)
+        } else {
+            val resultBody = if (dryRestoration) {
+                logger.debug { "(dry) Comments restoration result for page ${page.id} (${page.title}): ${result.comments}" }
+                generatedContent
+            } else {
+                logger.debug { "Comments restoration result for page ${page.id} (${page.title}): ${result.comments}" }
+                result.body
+            }
+            resultBody to CommentRestoration.Applied(dryRestoration, result.comments)
+        }
+    }
+
+    private suspend fun getServerBody(confluencePage: ConfluencePage): String {
+        return confluencePage.body?.storage?.value ?: client.getPageById(confluencePage.id, setOf(SimplePageLoadOptions.Content)).body?.storage?.value!!
     }
 
     private suspend fun changePageParent(

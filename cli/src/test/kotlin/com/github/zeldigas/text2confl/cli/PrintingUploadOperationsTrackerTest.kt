@@ -9,9 +9,13 @@ import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.text2confl.convert.Attachment
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.core.upload.AttachmentsUpdateResult
+import com.github.zeldigas.text2confl.core.upload.CommentRestoration
 import com.github.zeldigas.text2confl.core.upload.LabelsUpdateResult
 import com.github.zeldigas.text2confl.core.upload.PageOperationResult
 import com.github.zeldigas.text2confl.core.upload.ServerPage
+import com.github.zeldigas.text2confl.core.upload.comments.CommentOutcome
+import com.github.zeldigas.text2confl.core.upload.comments.CommentStatus
+import com.github.zeldigas.text2confl.core.upload.comments.LossReason
 import io.ktor.http.*
 import io.mockk.every
 import io.mockk.mockk
@@ -46,7 +50,11 @@ class PrintingUploadOperationsTrackerTest {
     @Test
     fun `Tracking of modified content`() {
         tracker.pageUpdated(
-            PageOperationResult.ContentModified(local = local("a.md"), serverPage = server("Title", "/x/url")),
+            PageOperationResult.ContentModified(
+                local = local("a.md"),
+                serverPage = server("Title", "/x/url"),
+                comments = CommentRestoration.Dropped
+            ),
             LabelsUpdateResult.NotChanged, AttachmentsUpdateResult.NotChanged
         )
 
@@ -56,6 +64,104 @@ class PrintingUploadOperationsTrackerTest {
             )
         )
     }
+
+    @Test
+    fun `No comments info when restoration found no comments`() {
+        tracker.pageUpdated(
+            contentModified(CommentRestoration.Applied(false, emptyList())),
+            LabelsUpdateResult.NotChanged, AttachmentsUpdateResult.NotChanged
+        )
+
+        assertThat(messages).isEqualTo(
+            listOf(
+                """pref ${cyan("Updated:")} "${blue("Title")}" from - a.md. URL - http://wiki.example.org/wiki/x/url."""
+            )
+        )
+    }
+
+    @Test
+    fun `Comments restoration details`() {
+        tracker.pageUpdated(
+            contentModified(CommentRestoration.Applied(false, sampleOutcomes)),
+            LabelsUpdateResult.NotChanged, AttachmentsUpdateResult.NotChanged
+        )
+
+        assertThat(messages).isEqualTo(
+            listOf(
+                listOf(
+                    """pref ${cyan("Updated:")} "${blue("Title")}" from - a.md. URL - http://wiki.example.org/wiki/x/url. Inline comments: ${green("1 kept")}, ${yellow("1 adjusted")}, ${red("2 lost")}.""",
+                    """pref     ${yellow("Adjusted comment:")} "my old long text" -> "my long text" (ref 5b1e0000…)""",
+                    """pref     ${red("Lost comment:")} "exponential backoff" (ref 87342740…) - text changed""",
+                    """pref     ${red("Partially lost comment:")} "${"a".repeat(39)}…" (ref short) - block not found""",
+                ).joinToString("\n")
+            )
+        )
+    }
+
+    @Test
+    fun `Dry comments restoration details`() {
+        tracker.pageUpdated(
+            contentModified(CommentRestoration.Applied(true, sampleOutcomes)),
+            LabelsUpdateResult.NotChanged, AttachmentsUpdateResult.NotChanged
+        )
+
+        assertThat(messages).isEqualTo(
+            listOf(
+                listOf(
+                    """pref ${cyan("Updated:")} "${blue("Title")}" from - a.md. URL - http://wiki.example.org/wiki/x/url. Inline comments (dry run, removed from page): ${green("would keep 1")}, ${yellow("adjust 1")}, ${red("lose 2")}.""",
+                    """pref     ${yellow("Would adjust:")} "my old long text" -> "my long text" (ref 5b1e0000…)""",
+                    """pref     ${red("Would lose:")} "exponential backoff" (ref 87342740…) - text changed""",
+                    """pref     ${red("Would partially lose:")} "${"a".repeat(39)}…" (ref short) - block not found""",
+                ).joinToString("\n")
+            )
+        )
+    }
+
+    @Test
+    fun `Only kept comments`() {
+        tracker.pageUpdated(
+            contentModified(CommentRestoration.Applied(false, sampleOutcomes.take(1))),
+            LabelsUpdateResult.NotChanged, AttachmentsUpdateResult.NotChanged
+        )
+
+        assertThat(messages).isEqualTo(
+            listOf(
+                """pref ${cyan("Updated:")} "${blue("Title")}" from - a.md. URL - http://wiki.example.org/wiki/x/url. Inline comments: ${green("1 kept")}."""
+            )
+        )
+    }
+
+    @Test
+    fun `Comments restoration failure`() {
+        tracker.pageUpdated(
+            contentModified(CommentRestoration.Failed(false, RuntimeException("boom"))),
+            LabelsUpdateResult.NotChanged, AttachmentsUpdateResult.NotChanged
+        )
+        tracker.pageUpdated(
+            contentModified(CommentRestoration.Failed(true, RuntimeException("boom"))),
+            LabelsUpdateResult.NotChanged, AttachmentsUpdateResult.NotChanged
+        )
+
+        assertThat(messages).isEqualTo(
+            listOf(
+                """pref ${cyan("Updated:")} "${blue("Title")}" from - a.md. URL - http://wiki.example.org/wiki/x/url. ${red("Inline comments: restoration failed, see log.")}""",
+                """pref ${cyan("Updated:")} "${blue("Title")}" from - a.md. URL - http://wiki.example.org/wiki/x/url. ${red("Inline comments (dry run): restoration failed, see log.")}""",
+            )
+        )
+    }
+
+    private val sampleOutcomes = listOf(
+        CommentOutcome("aaaa-1", "kept text", "kept text", CommentStatus.KEPT),
+        CommentOutcome("5b1e0000-1111", "my old long text", "my long text", CommentStatus.ADJUSTED),
+        CommentOutcome("87342740-a564", "exponential backoff", null, CommentStatus.LOST, LossReason.TEXT_CHANGED),
+        CommentOutcome("short", "a".repeat(50), "a", CommentStatus.PARTIAL, LossReason.BLOCK_NOT_FOUND),
+    )
+
+    private fun contentModified(comments: CommentRestoration) = PageOperationResult.ContentModified(
+        local = local("a.md"),
+        serverPage = server("Title", "/x/url"),
+        comments = comments
+    )
 
     @Test
     fun `No change to page and labels with attachments`() {

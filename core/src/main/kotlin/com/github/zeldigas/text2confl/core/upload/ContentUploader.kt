@@ -6,6 +6,7 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageHeader
 import com.github.zeldigas.text2confl.core.config.Cleanup
+import com.github.zeldigas.text2confl.core.config.UploadConfig
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,25 +24,22 @@ class ContentUploader(
 
     constructor(
         client: ConfluenceClient,
-        uploadMessage: String,
-        notifyWatchers: Boolean,
-        pageContentChangeDetector: ChangeDetector,
+        uploadConfig: UploadConfig,
         editorVersion: EditorVersion,
-        cleanup: Cleanup,
-        tenant: String?,
         tracker: UploadOperationTracker = NOP
     ) : this(
         PageUploadOperationsImpl(
             client,
-            uploadMessage,
-            notifyWatchers,
-            pageContentChangeDetector,
+            uploadConfig.uploadMessage,
+            uploadConfig.notifyWatchers,
+            uploadConfig.modificationCheck,
+            uploadConfig.inlineComments,
             editorVersion,
-            tenant
+            uploadConfig.tenant
         ),
         client,
-        cleanup,
-        tenant,
+        uploadConfig.removeOrphans,
+        uploadConfig.tenant,
         tracker
     )
 

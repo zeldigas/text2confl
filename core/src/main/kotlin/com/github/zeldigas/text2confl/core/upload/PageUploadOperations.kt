@@ -7,6 +7,7 @@ import com.github.zeldigas.confclient.model.ConfluencePage
 import com.github.zeldigas.confclient.model.Label
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
+import com.github.zeldigas.text2confl.core.upload.comments.CommentOutcome
 import java.nio.file.Path
 
 const val HASH_PROPERTY = "contenthash"
@@ -41,11 +42,18 @@ sealed class PageOperationResult {
     data class ContentModified(
         override val local: Page,
         override val serverPage: ServerPage,
-        val parentChanged: Boolean = false
+        val parentChanged: Boolean = false,
+        val comments: CommentRestoration
     ) : PageOperationResult()
 
     abstract val local: Page
     abstract val serverPage: ServerPage
+}
+
+sealed class CommentRestoration {
+    object Dropped : CommentRestoration()
+    data class Applied(val dry: Boolean, val comments: List<CommentOutcome>): CommentRestoration()
+    data class Failed(val dry: Boolean, val error: Throwable): CommentRestoration()
 }
 
 sealed class LabelsUpdateResult {

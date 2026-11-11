@@ -19,6 +19,7 @@ import com.github.zeldigas.text2confl.convert.universalConverter
 import com.github.zeldigas.text2confl.core.config.Cleanup
 import com.github.zeldigas.text2confl.core.config.CodeBlockParams
 import com.github.zeldigas.text2confl.core.config.ConverterConfig
+import com.github.zeldigas.text2confl.core.config.InlineComments
 import com.github.zeldigas.text2confl.core.config.UploadConfig
 import com.github.zeldigas.text2confl.core.upload.*
 import io.ktor.http.*
@@ -41,7 +42,15 @@ internal class ServiceProviderImplTest {
     ) {
         val result = provider.createUploader(
             client,
-            UploadConfig("TEST", Cleanup.Managed, "test", true, ChangeDetector.CONTENT, "test"),
+            UploadConfig(
+                "TEST",
+                Cleanup.Managed,
+                "test",
+                true,
+                ChangeDetector.CONTENT,
+                "test",
+                inlineComments = InlineComments.DROP
+            ),
             ConverterConfig(
                 "pre", "post", EditorVersion.V2, null,
                 "root/", null,
