@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.30.0
+
 ### Added
 
 - Inline comments can be preserved on page update (#200). New `inline-comments` option (`.text2confl.yml`) and
