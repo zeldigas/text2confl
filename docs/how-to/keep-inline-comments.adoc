@@ -1,0 +1,78 @@
+= Keep inline comments when updating pages
+:keywords: how-to
+
+By default, text2confl detaches readers' inline comments every time it updates a page. This guide shows how to keep
+them. See xref:../explanation/inline-comments.adoc[How inline comments are kept on update] for what can and can't be
+kept.
+
+NOTE: Comments are only affected when a page is updated, i.e. when its source document changed. Pages whose sources
+didn't change are never touched, whatever the setting.
+
+== Step 1 - Try it in trial mode
+
+Start with `keep-dry`. Pages are updated exactly as with the default `drop` mode (comments are detached), but text2confl
+runs the restoration and reports what `keep` would have done.
+
+In `.text2confl.yml`:
+
+[source,yaml]
+----
+inline-comments: keep-dry
+----
+
+Or for a single run:
+
+[source,shell]
+----
+text2confl upload --docs . --inline-comments keep-dry
+----
+
+== Step 2 - Check the report
+
+For every updated page that has inline comments, the upload output has a summary and a line for every comment that
+would be adjusted or lost:
+
+----
+Updated: "Retry policy" ... Inline comments (dry run, removed from page): would keep 3, adjust 1, lose 1.
+    Would adjust: "my old long text" -> "my long text" (ref 5b1e2c4d…)
+    Would lose: "exponential backoff" (ref 87342740…) - text changed
+----
+
+Kept comments are only counted. Look at the adjusted and lost ones and decide whether the result is acceptable for your
+pages.
+
+TIP: To preview a single large change without updating anything, combine `keep` with `--dry`:
+`text2confl upload --docs . --inline-comments keep --dry`. Dry run only skips writes, so restoration runs on the real
+page content and prints the same report.
+
+== Step 3 - Switch to `keep`
+
+[source,yaml]
+----
+inline-comments: keep
+----
+
+From now on, comment markers are moved into the new content of every updated page. The output reports the result:
+
+----
+Updated: "Retry policy" ... Inline comments: 3 kept, 1 adjusted, 1 lost.
+    Adjusted comment: "my old long text" -> "my long text" (ref 5b1e2c4d…)
+    Lost comment: "exponential backoff" (ref 87342740…) - text changed
+----
+
+To go back to the old behavior, set `inline-comments: drop` or remove the option.
+
+== Tips
+
+* Keep the default `hash` xref:../explanation/change-detection.md[modification check]. With `content`, pages are
+  updated on every run, which gives more chances to lose a comment added while text2confl runs.
+* Comments survive best when the commented text itself is left alone. Edits elsewhere in the paragraph, added words and
+  small fixes are fine. Rewriting the commented sentence loses the comment.
+* `Inline comments: restoration failed, see log.` means something went wrong while moving the comments. The page was
+  still updated, but without comments. Run with verbose output (`text2confl -v upload ...`) to see the error and
+  report the problem.
+
+== See also
+
+* xref:../explanation/inline-comments.adoc[How inline comments are kept on update]
+* xref:../reference/configuration.adoc[Configuration reference]

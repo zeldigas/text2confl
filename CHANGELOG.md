@@ -7,6 +7,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Inline comments can be preserved on page update (#200). New `inline-comments` option (`.text2confl.yml`) and
+  `--inline-comments` flag of `upload` command:
+    - `drop` (default) - current behavior, generated content is uploaded as is and inline comments are detached
+    - `keep` - comment markers from the current page content are carried over to the same text in the new content.
+      Comments survive paragraphs being moved, inserted or deleted, edits elsewhere in the paragraph and small edits
+      of the commented text. Comments that can't be kept are reported in the upload output
+    - `keep-dry` - trial mode to introduce comments restoration gradually: content is uploaded as with `drop`, but
+      restoration is run to report which comments would be kept, adjusted or lost. Use it to check on real pages how
+      `keep` would behave before switching to it
+
 ## 0.29.0
 
 ### Changed

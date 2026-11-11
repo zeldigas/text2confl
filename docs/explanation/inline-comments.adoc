@@ -1,0 +1,122 @@
+= How inline comments are kept on update
+:keywords: explanation
+
+Readers leave inline comments on published pages. By default, text2confl detaches all of them on every page update.
+With `inline-comments: keep` it carries them over to the new version of the page. This page explains how it works,
+what survives an update and what doesn't.
+
+== Why comments get lost
+
+Confluence stores an inline comment in two parts. The discussion (author, text, replies, status) is stored separately,
+and the page body only has a *marker* around the commented text:
+
+[source,xml]
+----
+<p>Retries use <ac:inline-comment-marker ac:ref="87342740-...">exponential backoff</ac:inline-comment-marker>.</p>
+----
+
+When text2confl updates a page, it replaces the whole body with freshly converted content. The new body has no markers,
+so every comment loses its place on the page. Depending on the Confluence version, such comments are shown as resolved
+or as orphaned. Either way, the discussion disappears from the page.
+
+== Comments only matter when a page is updated
+
+Comment restoration runs only when text2confl actually updates a page, which happens only when its *source document
+changed*.
+
+Readers can add, reply to and resolve any number of inline comments. As long as the source file is unchanged, the page
+is not updated and its comments are not touched at all. text2confl doesn't even read the page body in this case. Comment
+activity also never triggers an update by itself: the content hash used by the default
+xref:./change-detection.md[change detection] describes the converted source, not the page in Confluence.
+
+Only when the source changes and the page is going to be updated, text2confl reads the current page body, moves the
+comment markers into the new content and uploads the result.
+
+== How `keep` works
+
+When a page needs an update, text2confl:
+
+. reads the current page body from Confluence;
+. finds the text each comment marker covers;
+. finds the same text in the newly converted content and wraps it in a marker with the same comment id;
+. uploads the result and reports every comment that could not be kept.
+
+The converted content is always the base. Nothing except the markers is copied from the page in Confluence.
+
+Matching is done by text, paragraph by paragraph (headings, list items and table cells count as paragraphs too). Markup
+changes that the Confluence editor makes on its own don't affect it: extra `<p>` inside list items, rewritten link
+bodies, generated macro ids and so on.
+
+If the page in Confluence has no comments, the converted content is uploaded exactly as is.
+
+== What survives an update
+
+Comments are kept when:
+
+* the commented text is unchanged, even if paragraphs were moved, added or deleted around it;
+* the paragraph was edited, but outside the commented text;
+* words were added inside the commented text: the comment then covers the new text as well;
+* the commented text was slightly edited, e.g. a typo was fixed or a word removed. The comment is moved to the edited
+  text and is reported as *adjusted*, so you can check it;
+* a paragraph was split in two or merged with another one, and the commented sentence itself survived.
+
+Comments are supported in paragraphs, headings, list items, table cells, info/note/warning panels and expand blocks, on
+links, formatted text and inline macros such as status. Comments that span several list items or paragraphs are carried
+over part by part. Duplicate paragraphs keep their own comments.
+
+== What is lost
+
+A comment is reported as lost when:
+
+* the commented text was rewritten (most of it was replaced);
+* the paragraph with the comment was deleted;
+* the commented text was added or edited by hand in Confluence. text2confl owns the page content and overwrites manual
+  edits on update, as it always does;
+* the comment was added in Confluence between the moment text2confl read the page and the moment it uploaded the new
+  version.
+
+Placing a comment on rewritten text would most likely put it on the wrong text, which is worse than reporting it as
+lost.
+
+Resolved comments are carried over just like open ones.
+
+== Reported outcomes
+
+For every updated page with comments, the upload output shows how many comments were kept, adjusted and lost, followed
+by a line for every adjusted or lost comment:
+
+[cols="1,3",options="header"]
+|===
+| Outcome | Meaning
+
+| kept
+| The comment is on exactly the same text as before.
+
+| adjusted
+| The commented text was slightly edited and the comment is now on the edited text. Old and new text are shown.
+
+| partially lost
+| The comment spans several paragraphs or list items, and only some parts of it were kept.
+
+| lost
+| The comment is no longer on the page. The reason is shown: `block not found` (the paragraph is gone),
+`text changed` (the commented text was rewritten) or `unsupported location` (the marker is in a place that can't hold
+a comment, such as a code block).
+|===
+
+If restoration fails unexpectedly, the page is still updated with the converted content (without comments), and the
+error is written to the log. Comment restoration never fails an upload.
+
+== Limitations
+
+* Use the default `hash` xref:./change-detection.md[change detection]. With `content`, Confluence's own changes to the
+  page body make text2confl update the page on every run, and every update has a small chance of losing a comment that
+  was added while it ran.
+* text2confl doesn't read the comments themselves, so the report shows only the commented text and the comment id, not
+  the author or the comment text.
+
+== See also
+
+* xref:../how-to/keep-inline-comments.adoc[Keep inline comments when updating pages]
+* xref:../reference/configuration.adoc[Configuration reference] - `inline-comments` option
+* xref:./change-detection.md[Change detection strategies]

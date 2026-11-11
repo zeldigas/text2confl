@@ -83,6 +83,7 @@ internal class UploadTest(
                 "--parent-id", "1234",
                 "--remove-orphans", "all",
                 "--tenant", "test",
+                "--inline-comments", "keep-dry",
                 "--docs", tempDir.toString()
             )
         )
@@ -108,7 +109,7 @@ internal class UploadTest(
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(
-                    "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH, "test", InlineComments.DROP
+                    "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH, "test", InlineComments.KEEP_DRY
                 ),
                 expectedConverterConfig,
                 any()

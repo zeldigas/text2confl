@@ -56,7 +56,7 @@ class Upload : CliktCommand(name = "upload"),
         help = "Strategy to check changes for existing pages: `hash` - by content hash stored as page property, `content` - by comparing content in storage format"
     ).enum<ChangeDetector> { it.name.lowercase() }
     private val inlineComments by option(
-        "--inline-commnets",
+        "--inline-comments",
         help = "Strategy to handle inline comments on update page: `keep` - tries to preserve them, `drop` - removes them completely, `keep-dry` - removes comments during update, but runs restoration to log details"
     ).enum<InlineComments> { it.code }
     private val tenant: String? by option(
