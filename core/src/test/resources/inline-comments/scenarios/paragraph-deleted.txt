@@ -1,0 +1,8 @@
+Commented paragraph deleted
+=== server
+<p>Keep this.</p>
+<p>Delete {c1:this one:}.</p>
+=== generated
+<p>Keep this.</p>
+=== report
+c1 LOST BLOCK_NOT_FOUND

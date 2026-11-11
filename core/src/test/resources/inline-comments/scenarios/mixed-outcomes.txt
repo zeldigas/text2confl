@@ -1,0 +1,19 @@
+Several comments with different outcomes on one page, reported in document order
+=== server
+<h1>{c1:Title:}</h1>
+<p>Keep {c2:this text:} please.</p>
+<p>Change {c3:this part:} please, it is a longer sentence now.</p>
+<p>{c4:Remove me completely:}</p>
+=== generated
+<h1>Title</h1>
+<p>Keep this text please, more words.</p>
+<p>Change that bit please, it is a longer sentence now.</p>
+=== expected
+<h1>{c1:Title:}</h1>
+<p>Keep {c2:this text:} please, more words.</p>
+<p>Change that bit please, it is a longer sentence now.</p>
+=== report
+c1 KEPT
+c2 KEPT
+c3 LOST TEXT_CHANGED
+c4 LOST BLOCK_NOT_FOUND

@@ -1,0 +1,9 @@
+Words added inside the commented text: comment is widened
+=== server
+<p>This is {c1:my text:} in a paragraph.</p>
+=== generated
+<p>This is my adjusted text in a paragraph.</p>
+=== expected
+<p>This is {c1:my adjusted text:} in a paragraph.</p>
+=== report
+c1 ADJUSTED "my adjusted text"

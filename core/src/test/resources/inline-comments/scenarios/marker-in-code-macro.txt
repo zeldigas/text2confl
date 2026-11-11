@@ -1,0 +1,13 @@
+Marker in code macro body can't be kept
+=== server
+<ac:structured-macro ac:name="code"><ac:plain-text-body><ac:inline-comment-marker ac:ref="c1">code</ac:inline-comment-marker></ac:plain-text-body></ac:structured-macro>
+<p>Text {c2:here:}.</p>
+=== generated
+<ac:structured-macro ac:name="code"><ac:plain-text-body><![CDATA[code]]></ac:plain-text-body></ac:structured-macro>
+<p>Text here.</p>
+=== expected
+<ac:structured-macro ac:name="code"><ac:plain-text-body><![CDATA[code]]></ac:plain-text-body></ac:structured-macro>
+<p>Text {c2:here:}.</p>
+=== report
+c1 LOST UNSUPPORTED_LOCATION
+c2 KEPT

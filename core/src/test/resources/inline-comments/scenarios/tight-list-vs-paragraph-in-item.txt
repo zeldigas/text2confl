@@ -1,0 +1,19 @@
+Editor wraps list item content in <p>, generated tight list does not
+=== server
+<ol start="1">
+<li>
+<p>First {c1:item:} text</p></li>
+<li>
+<p>Second item</p></li></ol>
+=== generated
+<ol>
+<li>First item text</li>
+<li>Second item</li>
+</ol>
+=== expected
+<ol>
+<li>First {c1:item:} text</li>
+<li>Second item</li>
+</ol>
+=== report
+c1 KEPT

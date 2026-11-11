@@ -1,0 +1,9 @@
+Heading with anchor macro, Confluence adds macro attributes
+=== server
+<h2>Co{c1:nfigure a tenant:} ID<ac:structured-macro ac:name="anchor" ac:schema-version="1" ac:macro-id="7cfd"><ac:parameter ac:name="">configure-a-tenant-id</ac:parameter></ac:structured-macro></h2>
+=== generated
+<h2>Configure a tenant ID<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">configure-a-tenant-id</ac:parameter></ac:structured-macro></h2>
+=== expected
+<h2>Co{c1:nfigure a tenant:} ID<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">configure-a-tenant-id</ac:parameter></ac:structured-macro></h2>
+=== report
+c1 KEPT

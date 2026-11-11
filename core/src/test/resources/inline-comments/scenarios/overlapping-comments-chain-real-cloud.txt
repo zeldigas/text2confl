@@ -1,0 +1,27 @@
+Real Cloud sample: three comments overlapping in a chain (c1 overlaps c2, c2 overlaps c3), crossing an external link.
+Confluence nests the later comment inside the earlier one in the overlap and continues it after the earlier one closes
+=== server
+<p>A1: Read th{c1:e :}<a href="https://example.com/docs">{c1:official documentation:}</a>{c1: b{c2:efore:}:}{c2: you st{c3:art:}:}{c3:.:}</p>
+<p>A2: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A3: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A4: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A5: See <a href="https://example.com/bold"><strong>bold</strong> link text</a> for details.</p>
+<p>A6: Links <a href="https://example.com/1">first</a> and <a href="https://example.com/2">second</a> together.</p>
+=== generated
+<p>A1: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A2: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A3: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A4: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A5: See <a href="https://example.com/bold"><strong>bold</strong> link text</a> for details.</p>
+<p>A6: Links <a href="https://example.com/1">first</a> and <a href="https://example.com/2">second</a> together.</p>
+=== expected
+<p>A1: Read th{c1:e :}<a href="https://example.com/docs">{c1:official documentation:}</a>{c1: b{c2:efore:}:}{c2: you st{c3:art:}:}{c3:.:}</p>
+<p>A2: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A3: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A4: Read the <a href="https://example.com/docs">official documentation</a> before you start.</p>
+<p>A5: See <a href="https://example.com/bold"><strong>bold</strong> link text</a> for details.</p>
+<p>A6: Links <a href="https://example.com/1">first</a> and <a href="https://example.com/2">second</a> together.</p>
+=== report
+c1 KEPT
+c2 KEPT
+c3 KEPT

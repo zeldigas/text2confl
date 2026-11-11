@@ -1,0 +1,15 @@
+Both copies of a duplicate paragraph commented, paragraph inserted in between
+=== server
+<p>{c1:Check the logs.:}</p>
+<p>{c2:Check the logs.:}</p>
+=== generated
+<p>Check the logs.</p>
+<p>Something new.</p>
+<p>Check the logs.</p>
+=== expected
+<p>{c1:Check the logs.:}</p>
+<p>Something new.</p>
+<p>{c2:Check the logs.:}</p>
+=== report
+c1 KEPT
+c2 KEPT

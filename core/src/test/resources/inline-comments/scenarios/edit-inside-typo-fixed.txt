@@ -1,0 +1,9 @@
+Typo fixed in the middle of the commented text
+=== server
+<p>The service {c1:receives requests form the gateway:} and forwards them.</p>
+=== generated
+<p>The service receives requests from the gateway and forwards them.</p>
+=== expected
+<p>The service {c1:receives requests from the gateway:} and forwards them.</p>
+=== report
+c1 ADJUSTED "receives requests from the gateway"

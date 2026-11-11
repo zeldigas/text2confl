@@ -1,0 +1,10 @@
+Comment in a nested list item and in the text of the parent item
+=== server
+<ul><li><p>Parent {c1:item:}</p><ul><li><p>Child {c2:item:}</p></li></ul></li></ul>
+=== generated
+<ul><li>Parent item<ul><li>Child item</li></ul></li></ul>
+=== expected
+<ul><li>Parent {c1:item:}<ul><li>Child {c2:item:}</li></ul></li></ul>
+=== report
+c1 KEPT
+c2 KEPT

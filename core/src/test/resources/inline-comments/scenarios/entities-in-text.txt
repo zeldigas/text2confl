@@ -1,0 +1,9 @@
+Entities in text: &quot; &amp; &lt;
+=== server
+<p>Pages are {c1:&quot;vacant&quot; &amp; free:} &lt;here&gt;.</p>
+=== generated
+<p>Pages are &quot;vacant&quot; &amp; free &lt;here&gt;!</p>
+=== expected
+<p>Pages are {c1:&quot;vacant&quot; &amp; free:} &lt;here&gt;!</p>
+=== report
+c1 KEPT

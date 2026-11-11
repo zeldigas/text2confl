@@ -1,0 +1,9 @@
+Paragraph with <br/>
+=== server
+<p>First line<br />{c1:second line:}</p>
+=== generated
+<p>First line<br/>second line</p>
+=== expected
+<p>First line<br/>{c1:second line:}</p>
+=== report
+c1 KEPT

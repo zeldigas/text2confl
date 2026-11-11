@@ -1,0 +1,15 @@
+Commented paragraph moved to another place
+=== server
+<p>Alpha paragraph text.</p>
+<p>Beta paragraph with {c1:a comment:}.</p>
+<p>Gamma paragraph text.</p>
+=== generated
+<p>Beta paragraph with a comment.</p>
+<p>Alpha paragraph text.</p>
+<p>Gamma paragraph text.</p>
+=== expected
+<p>Beta paragraph with {c1:a comment:}.</p>
+<p>Alpha paragraph text.</p>
+<p>Gamma paragraph text.</p>
+=== report
+c1 KEPT

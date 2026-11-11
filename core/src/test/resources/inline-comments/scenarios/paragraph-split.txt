@@ -1,0 +1,11 @@
+Paragraph split into two: comment found by anchor search
+=== server
+<p>The first sentence is long enough to matter. The second sentence has {c1:the important remark:} in it and continues for a while.</p>
+=== generated
+<p>The first sentence is long enough to matter.</p>
+<p>The second sentence has the important remark in it and continues for a while.</p>
+=== expected
+<p>The first sentence is long enough to matter.</p>
+<p>The second sentence has {c1:the important remark:} in it and continues for a while.</p>
+=== report
+c1 KEPT

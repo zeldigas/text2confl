@@ -1,0 +1,7 @@
+First word of the commented text replaced by another word: comment is lost
+=== server
+<p>Before {c1:my text:} after, and a long tail of other words in the sentence.</p>
+=== generated
+<p>Before your text after, and a long tail of other words in the sentence.</p>
+=== report
+c1 LOST TEXT_CHANGED

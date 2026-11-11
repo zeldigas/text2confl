@@ -1,0 +1,9 @@
+Comment over part of a link: generated link is split like Confluence does
+=== server
+<p><ac:link><ri:page ri:content-title="Model" ri:version-at-save="6" /><ac:link-body>Multi-tenancy m</ac:link-body></ac:link>{c1:<ac:link><ri:page ri:content-title="Model" ri:version-at-save="6" /><ac:link-body>odel</ac:link-body></ac:link> - :}conceptual explanation</p>
+=== generated
+<p><ac:link><ri:page ri:content-title="Model" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[Multi-tenancy model]]></ac:plain-text-link-body></ac:link> - conceptual explanation</p>
+=== expected
+<p><ac:link><ri:page ri:content-title="Model" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[Multi-tenancy m]]></ac:plain-text-link-body></ac:link>{c1:<ac:link><ri:page ri:content-title="Model" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[odel]]></ac:plain-text-link-body></ac:link> - :}conceptual explanation</p>
+=== report
+c1 KEPT

@@ -18,6 +18,7 @@ assume you already have a working text2confl setup - see [Getting started](./tut
 - [Upload a single page ad-hoc](./how-to/upload-adhoc.md)
 - [Export a Confluence page to Markdown](./how-to/export-to-markdown.md)
 - [Set a page title](./how-to/set-page-title.md)
+- [Keep inline comments when updating pages](./how-to/keep-inline-comments.adoc)
 
 ## Troubleshooting
 

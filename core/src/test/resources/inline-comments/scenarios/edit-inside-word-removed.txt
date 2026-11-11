@@ -1,0 +1,9 @@
+A word removed in the middle of the commented text, ends survived
+=== server
+<p>This is {c1:my old long text:} in a paragraph.</p>
+=== generated
+<p>This is my long text in a paragraph.</p>
+=== expected
+<p>This is {c1:my long text:} in a paragraph.</p>
+=== report
+c1 ADJUSTED "my long text"

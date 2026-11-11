@@ -1,0 +1,9 @@
+List item with several paragraphs
+=== server
+<ul><li><p>First paragraph.</p><p>Second {c1:paragraph:}.</p></li></ul>
+=== generated
+<ul><li><p>First paragraph.</p><p>Second paragraph.</p></li></ul>
+=== expected
+<ul><li><p>First paragraph.</p><p>Second {c1:paragraph:}.</p></li></ul>
+=== report
+c1 KEPT

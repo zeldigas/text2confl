@@ -1,0 +1,9 @@
+Comment inside the link text: link is split in three
+=== server
+<p>Read <ac:link><ri:page ri:content-title="T" /><ac:link-body>the </ac:link-body></ac:link>{c1:<ac:link><ri:page ri:content-title="T" /><ac:link-body>full</ac:link-body></ac:link>:}<ac:link><ri:page ri:content-title="T" /><ac:link-body> guide</ac:link-body></ac:link> now.</p>
+=== generated
+<p>Read <ac:link><ri:page ri:content-title="T" /><ac:plain-text-link-body><![CDATA[the full guide]]></ac:plain-text-link-body></ac:link> now.</p>
+=== expected
+<p>Read <ac:link><ri:page ri:content-title="T" /><ac:plain-text-link-body><![CDATA[the ]]></ac:plain-text-link-body></ac:link>{c1:<ac:link><ri:page ri:content-title="T" /><ac:plain-text-link-body><![CDATA[full]]></ac:plain-text-link-body></ac:link>:}<ac:link><ri:page ri:content-title="T" /><ac:plain-text-link-body><![CDATA[ guide]]></ac:plain-text-link-body></ac:link> now.</p>
+=== report
+c1 KEPT

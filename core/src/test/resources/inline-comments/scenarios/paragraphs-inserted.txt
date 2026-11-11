@@ -1,0 +1,19 @@
+Paragraphs inserted before, between and after commented ones
+=== server
+<p>One {c1:commented:}.</p>
+<p>Two {c2:commented:}.</p>
+=== generated
+<p>New first.</p>
+<p>One commented.</p>
+<p>New middle.</p>
+<p>Two commented.</p>
+<p>New last.</p>
+=== expected
+<p>New first.</p>
+<p>One {c1:commented:}.</p>
+<p>New middle.</p>
+<p>Two {c2:commented:}.</p>
+<p>New last.</p>
+=== report
+c1 KEPT
+c2 KEPT

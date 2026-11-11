@@ -82,6 +82,7 @@ giving up Confluence features or taking over a whole space:
 **Safe for real-world spaces**
 
 - Change detection - unchanged pages aren't re-uploaded
+- **Inline comments kept on update** (opt-in) - readers' discussions survive re-publishing
 - Orphan cleanup - pages whose source was deleted are removed (only pages text2confl created, by default)
 - **Virtual pages** - manage a few pages as code inside a hand-crafted tree, without taking over the whole space
 - **Multi-tenancy** - several teams or pipelines can publish under the same parent without deleting each other's pages
@@ -99,6 +100,7 @@ giving up Confluence features or taking over a whole space:
 
 - 🔒 [Authenticate with Confluence](docs/how-to/authenticate.md) · [Scoped tokens (Cloud)](docs/how-to/authenticate-with-scoped-tokens.md)
 - ⬆️ [Ad-hoc upload](docs/how-to/upload-adhoc.md) · [Run with Docker / in CI](docs/how-to/run-with-docker.md)
+- 💬 [Keep inline comments when updating pages](docs/how-to/keep-inline-comments.adoc)
 - ⬇️ [Export a Confluence page to Markdown](docs/how-to/export-to-markdown.md)
 - 📁 [Use virtual pages](docs/how-to/use-virtual-pages.md) · [Manage orphaned pages](docs/how-to/manage-orphaned-pages.md)
 - 🏢 [Configure multi-tenancy](docs/how-to/configure-multi-tenancy.md)

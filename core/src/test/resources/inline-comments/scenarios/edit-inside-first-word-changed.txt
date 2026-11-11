@@ -1,0 +1,9 @@
+Typo fixed in the first word of the commented text: first char and most of the word survived, comment is kept
+=== server
+<p>The service {c1:recieves requests from the gateway:} and forwards them.</p>
+=== generated
+<p>The service receives requests from the gateway and forwards them.</p>
+=== expected
+<p>The service {c1:receives requests from the gateway:} and forwards them.</p>
+=== report
+c1 ADJUSTED "receives requests from the gateway"

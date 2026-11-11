@@ -1,0 +1,41 @@
+<p><ac:structured-macro ac:name="note"><ac:rich-text-body><p>Edit <a href="https://github.com/zeldigas/text2confl/tree/master/docs/how-to/configure-multi-tenancy.md">source file</a> instead of changing page in Confluence. <span style="color: rgb(122,134,154); font-size: small;">Page was generated from source with <a href="https://github.com/zeldigas/text2confl">text2confl</a>.</span></p></ac:rich-text-body></ac:structured-macro></p>
+<p>This guide shows ho<ac:inline-comment-marker ac:ref="7a6153ad-05e1-46b9-b956-68f8c9b82776">w to configure multi-tenancy whe</ac:inline-comment-marker>n multiple teams share the same Confluence space and manage pages under the same parent.</p>
+<p>For background on why this is needed, see <ac:link><ri:page ri:content-title="[text2confl] Multi-tenancy model" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[Multi-tenancy model]]></ac:plain-text-link-body></ac:link>.</p>
+<h2>Co<ac:inline-comment-marker ac:ref="9e95f5cb-99e9-4bdf-99e0-755d7ec789d5">nfigure a tenant</ac:inline-comment-marker> ID<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">configure-a-tenant-id</ac:parameter></ac:structured-macro></h2>
+<p>Add the <code>tenant</code> parameter to <code>.text2confl.yml</code>:</p>
+<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">yaml</ac:parameter><ac:plain-text-body><![CDATA[tenant: team-a]]></ac:plain-text-body></ac:structured-macro>
+<p>Alternatively, pass it on the command line:</p>
+
+<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">shell</ac:parameter><ac:plain-text-body><![CDATA[text2confl upload --docs . --tenant team-a]]></ac:plain-text-body></ac:structured-macro>
+<h2>Rules for multi-tenant pages<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">rules-for-multi-tenant-pages</ac:parameter></ac:structured-macro></h2>
+
+<ol>
+
+<li>Pages witho<ac:inline-comment-marker ac:ref="aae132d9-2be3-4c9c-8f4a-380e71878cdd">ut a tenant are &quot;vacant&quot; and can be claimed by any tenant - except <ac:link><ri:page ri:content-title="[text2confl] Virtual pages" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[virtual pages]]></ac:plain-text-link-body></ac:link>, which are never modified.</ac:inline-comment-marker></li>
+
+<li><ac:inline-comment-marker ac:ref="aae132d9-2be3-4c9c-8f4a-380e71878cdd">A page belonging to another tenant cannot be updated; text2confl will report an error.</ac:inline-comment-marker></li>
+
+<li><ac:inline-comment-marker ac:ref="aae132d9-2be3-4c9c-8f4a-380e71878cdd">Managed-page cleanup (</ac:inline-comment-marker><code><ac:inline-comment-marker ac:ref="aae132d9-2be3-4c9c-8f4a-380e71878cdd">rem</ac:inline-comment-marker>ove-orphans: managed</code>) skips pages that belong to a different tenant. The <code>all</code> mode removes pages regardless of tenant.</li>
+
+</ol>
+
+<h2>Recommendations<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">recommendations</ac:parameter></ac:structured-macro></h2>
+
+<ol>
+
+<li><strong>Shared pages</strong> (e.g. a space home page) can be uploaded without a tenant so all teams can read them without conflict.</li>
+
+<li><strong>Pick a short, unique tenant ID</strong> - it is stored in Confluence page metadata, so keep it stable across runs.</li>
+
+</ol>
+
+<h2>See also<ac:structured-macro ac:name="anchor"><ac:parameter ac:name="">see-also</ac:parameter></ac:structured-macro></h2>
+
+<ul>
+
+<li><ac:link><ri:page ri:content-title="[text2confl] Multi-tenancy model" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[Multi-tenancy m]]></ac:plain-text-link-body></ac:link><ac:inline-comment-marker ac:ref="d05551ef-3a2f-4695-a4a3-51f981f5f477"><ac:link><ri:page ri:content-title="[text2confl] Multi-tenancy model" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[odel]]></ac:plain-text-link-body></ac:link> - </ac:inline-comment-marker>conceptual explanation of the problem and solution</li>
+
+<li><ac:link><ri:page ri:content-title="[text2confl] Manage orphaned pages" ri:space-key="docs" /><ac:plain-text-link-body><![CDATA[Manage orphaned pages]]></ac:plain-text-link-body></ac:link> - how cleanup interacts with tenants</li>
+
+</ul>
+

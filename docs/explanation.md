@@ -12,3 +12,4 @@ Explanation pages provide conceptual background and deeper understanding of how 
 - [Content auto-fix](./explanation/auto-fix-content.md) - why HTML normalization is sometimes needed and the tradeoffs
 - [Multi-tenancy model](./explanation/multi-tenancy-model.md) - how text2confl handles shared Confluence spaces
 - [Change detection strategies](./explanation/change-detection.md) - how text2confl detects whether a page needs updating
+- [How inline comments are kept on update](./explanation/inline-comments.adoc) - what survives a page update and what is reported as lost

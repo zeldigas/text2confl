@@ -1,0 +1,10 @@
+Marker wrapping a whole formatting element. Cloud never writes this (formatting always stays outside the marker), but
+other editors (e.g. Data Center, not verified yet) might. The comment is read correctly and written in Cloud form
+=== server
+<p>Use {c1:<em>very</em> careful:} steps.</p>
+=== generated
+<p>Always use <em>very</em> careful steps.</p>
+=== expected
+<p>Always use <em>{c1:very:}</em>{c1: careful:} steps.</p>
+=== report
+c1 KEPT

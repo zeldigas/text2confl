@@ -1,0 +1,9 @@
+Comment across list items, one item removed
+=== server
+<ul><li><p>{c1:First item:}</p></li><li><p>{c1:Second item:}</p></li></ul>
+=== generated
+<ul><li>First item</li><li>Totally new entry here</li></ul>
+=== expected
+<ul><li>{c1:First item:}</li><li>Totally new entry here</li></ul>
+=== report
+c1 PARTIAL BLOCK_NOT_FOUND "First item"

@@ -1,0 +1,7 @@
+Generated body is empty
+=== server
+<p>Some {c1:text:}.</p>
+=== generated
+
+=== report
+c1 LOST BLOCK_NOT_FOUND

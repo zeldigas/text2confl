@@ -11,6 +11,11 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 import com.github.zeldigas.text2confl.convert.PageHeader
+import com.github.zeldigas.text2confl.core.config.InlineComments
+import com.github.zeldigas.text2confl.core.upload.comments.CommentOutcome
+import com.github.zeldigas.text2confl.core.upload.comments.CommentStatus
+import com.github.zeldigas.text2confl.core.upload.comments.InlineCommentsMergeResult
+import com.github.zeldigas.text2confl.core.upload.comments.InlineCommentsMerger
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -26,7 +31,8 @@ private const val PAGE_ID = "id"
 
 @ExtendWith(MockKExtension::class)
 internal class PageUploadOperationsImplTest(
-    @param:MockK private val client: ConfluenceClient
+    @param:MockK private val client: ConfluenceClient,
+    @param:MockK private val commentsMerger: InlineCommentsMerger,
 ) {
 
     @ValueSource(strings = ["", "value"])
@@ -212,7 +218,7 @@ internal class PageUploadOperationsImplTest(
                     PAGE_ID, "Page title", "parentId",
                     listOf(serverLabel("one")),
                     listOf(serverAttachment("one", "HASH:123"))
-                ), parentChanged = false
+                ), comments = CommentRestoration.Dropped
             )
         )
 
@@ -364,7 +370,7 @@ internal class PageUploadOperationsImplTest(
                     PAGE_ID, "Page title", "parentId",
                     listOf(serverLabel("one")),
                     listOf(serverAttachment("one", "HASH:123"))
-                )
+                ), comments = CommentRestoration.Dropped
             )
         )
 
@@ -682,9 +688,19 @@ internal class PageUploadOperationsImplTest(
         notifyWatchers: Boolean = true,
         editorVersion: EditorVersion = EditorVersion.V2,
         changeDetector: ChangeDetector = ChangeDetector.HASH,
-        tenant: String? = null
+        tenant: String? = null,
+        inlineComments: InlineComments = InlineComments.DROP
     ): PageUploadOperationsImpl {
-        return PageUploadOperationsImpl(client, changeMessage, notifyWatchers, changeDetector, editorVersion, tenant)
+        return PageUploadOperationsImpl(
+            client,
+            changeMessage,
+            notifyWatchers,
+            changeDetector,
+            inlineComments,
+            editorVersion,
+            tenant,
+            commentsMerger
+        )
     }
 
     @Test
@@ -834,6 +850,116 @@ internal class PageUploadOperationsImplTest(
             runBlocking { uploadOperations().checkPageAndUpdateParentIfRequired("page title", "TEST", "parentId") }
         }.isInstanceOf(PageNotFoundException::class)
             .isEqualTo(PageNotFoundException(space = "TEST", title = "page title"))
+    }
+
+    @Test
+    fun `Inline comments are not merged when dropped`() {
+        val result = updateContent(InlineComments.DROP, existingServerPage(body = "server"))
+
+        assertThat(result.comments).isEqualTo(CommentRestoration.Dropped)
+        verifyUploadedBody("generated")
+        coVerify(exactly = 0) { commentsMerger.merge(any(), any()) }
+        coVerify(exactly = 0) { client.getPageById(any(), any()) }
+    }
+
+    @Test
+    fun `Inline comments are restored using loaded server body`() {
+        every { commentsMerger.merge("server", "generated") } returns InlineCommentsMergeResult("merged", outcomes)
+
+        val result = updateContent(InlineComments.KEEP, existingServerPage(body = "server"))
+
+        assertThat(result.comments).isEqualTo(CommentRestoration.Applied(false, outcomes))
+        verifyUploadedBody("merged")
+        coVerify(exactly = 0) { client.getPageById(any(), any()) }
+    }
+
+    @Test
+    fun `Inline comments are restored using fetched server body`() {
+        coEvery { client.getPageById(PAGE_ID, setOf(SimplePageLoadOptions.Content)) } returns existingServerPage(body = "server")
+        every { commentsMerger.merge("server", "generated") } returns InlineCommentsMergeResult("merged", outcomes)
+
+        val result = updateContent(InlineComments.KEEP, existingServerPage(body = null))
+
+        assertThat(result.comments).isEqualTo(CommentRestoration.Applied(false, outcomes))
+        verifyUploadedBody("merged")
+        coVerify { client.getPageById(PAGE_ID, setOf(SimplePageLoadOptions.Content)) }
+    }
+
+    @Test
+    fun `Dry inline comments restoration uploads generated body`() {
+        every { commentsMerger.merge("server", "generated") } returns InlineCommentsMergeResult("merged", outcomes)
+
+        val result = updateContent(InlineComments.KEEP_DRY, existingServerPage(body = "server"))
+
+        assertThat(result.comments).isEqualTo(CommentRestoration.Applied(true, outcomes))
+        verifyUploadedBody("generated")
+    }
+
+    @EnumSource(value = InlineComments::class, names = ["KEEP", "KEEP_DRY"])
+    @ParameterizedTest
+    fun `Failed inline comments restoration uploads generated body`(mode: InlineComments) {
+        val error = IllegalStateException("broken")
+        every { commentsMerger.merge("server", "generated") } returns InlineCommentsMergeResult(
+            "generated",
+            emptyList(),
+            error
+        )
+
+        val result = updateContent(mode, existingServerPage(body = "server"))
+
+        assertThat(result.comments).isEqualTo(CommentRestoration.Failed(mode == InlineComments.KEEP_DRY, error))
+        verifyUploadedBody("generated")
+    }
+
+    private val outcomes = listOf(CommentOutcome("ref1", "old", "new", CommentStatus.KEPT))
+
+    private fun existingServerPage(body: String?): ConfluencePage = mockk {
+        every { id } returns PAGE_ID
+        every { title } returns "Page title"
+        every { parentId } returns "parentId"
+        every { version } returns PageVersionInfo(42, false, null)
+        every { this@mockk.body } returns body?.let { PageBody(StorageFormat(it, "storage")) }
+        every { pageProperty(any()) } returns null
+        every { labels } returns null
+        every { attachments } returns null
+        every { links } returns emptyMap()
+    }
+
+    private fun updateContent(
+        mode: InlineComments,
+        serverPage: ConfluencePage
+    ): PageOperationResult.ContentModified {
+        coEvery { client.getPageOrNull(any(), any(), any()) } returns serverPage
+        coEvery { client.updatePage(PAGE_ID, any(), any()) } returns mockk()
+        coEvery { client.createPageProperty(any(), any(), any()) } just Runs
+        val localPage = mockk<Page> {
+            every { title } returns "Page title"
+            every { content } returns mockk {
+                every { body } returns "generated"
+                every { hash } returns "new-hash"
+            }
+            every { properties } returns emptyMap()
+        }
+
+        val result = runBlocking {
+            uploadOperations(inlineComments = mode).createOrUpdatePageContent(localPage, "TEST", "parentId")
+        }
+
+        assertThat(result).isInstanceOf(PageOperationResult.ContentModified::class)
+        result as PageOperationResult.ContentModified
+        assertThat(result.serverPage).isEqualTo(ServerPage(PAGE_ID, "Page title", "parentId", emptyList(), emptyList()))
+        assertThat(result.parentChanged).isEqualTo(false)
+        return result
+    }
+
+    private fun verifyUploadedBody(body: String) {
+        coVerify {
+            client.updatePage(
+                PAGE_ID,
+                PageContentInput("parentId", "Page title", body, null, 43),
+                PageUpdateOptions(true, "message")
+            )
+        }
     }
 
     @Test

@@ -1,0 +1,7 @@
+Commented text rewritten: comment is lost
+=== server
+<p>Before {c1:my text:} after, and a long tail of other words in the sentence.</p>
+=== generated
+<p>Before your words after, and a long tail of other words in the sentence.</p>
+=== report
+c1 LOST TEXT_CHANGED

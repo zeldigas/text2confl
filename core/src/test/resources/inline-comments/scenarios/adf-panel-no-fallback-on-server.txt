@@ -1,0 +1,9 @@
+Server returns ADF panel without fallback, generated body has it: comment still goes to ac:adf-content
+=== server
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p><strong>Note</strong></p><p>Panel {c1:text:} here.</p></ac:adf-content></ac:adf-node></ac:adf-extension>
+=== generated
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p><strong>Note</strong></p><p>Panel text here, edited.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block"><div class="panelContent"><p><strong>Note</strong></p><p>Panel text here, edited.</p></div></div></ac:adf-fallback></ac:adf-extension>
+=== expected
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-attribute key="panel-type">note</ac:adf-attribute><ac:adf-content><p><strong>Note</strong></p><p>Panel {c1:text:} here, edited.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div class="panel conf-macro output-block"><div class="panelContent"><p><strong>Note</strong></p><p>Panel text here, edited.</p></div></div></ac:adf-fallback></ac:adf-extension>
+=== report
+c1 KEPT

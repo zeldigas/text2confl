@@ -1,0 +1,10 @@
+Nested markers: each comment keeps its own range
+=== server
+<p>Some {c1:long {c2:commented:} text:} here.</p>
+=== generated
+<p>Some long commented text here, edited.</p>
+=== expected
+<p>Some {c1:long {c2:commented:} text:} here, edited.</p>
+=== report
+c1 KEPT
+c2 KEPT

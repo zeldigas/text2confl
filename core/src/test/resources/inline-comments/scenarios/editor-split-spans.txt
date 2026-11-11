@@ -1,0 +1,9 @@
+Editor split a styled span around a link, generated keeps one span
+=== server
+<p>Edit <span style="color: red;">{c1:Page was generated:} with </span><a href="https://x"><span style="color: red;">tool</span></a><span style="color: red;">.</span></p>
+=== generated
+<p>Edit <span style="color: red; font-size: small;">Page was generated with <a href="https://x">tool</a>.</span></p>
+=== expected
+<p>Edit <span style="color: red; font-size: small;">{c1:Page was generated:} with <a href="https://x">tool</a>.</span></p>
+=== report
+c1 KEPT

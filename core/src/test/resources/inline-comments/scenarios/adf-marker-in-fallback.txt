@@ -1,0 +1,7 @@
+Marker found only in ac:adf-fallback (not shown by editor) is reported as unsupported location
+=== server
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-content><p>Text.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div><p>{c1:Text:}.</p></div></ac:adf-fallback></ac:adf-extension>
+=== generated
+<ac:adf-extension><ac:adf-node type="panel"><ac:adf-content><p>Text.</p></ac:adf-content></ac:adf-node><ac:adf-fallback><div><p>Text.</p></div></ac:adf-fallback></ac:adf-extension>
+=== report
+c1 LOST UNSUPPORTED_LOCATION

@@ -1,0 +1,13 @@
+Whitespace in generated body (newlines inside paragraph) is not changed
+=== server
+<p>First line {c1:second line:} third</p>
+=== generated
+<p>First line
+  second   line
+third</p>
+=== expected
+<p>First line
+  {c1:second   line:}
+third</p>
+=== report
+c1 KEPT

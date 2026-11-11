@@ -1,0 +1,12 @@
+One word changed in a short heading, unchanged comment on another word kept
+=== server
+<h2>Configure {c1:tenant:} ID</h2>
+<p>Text.</p>
+=== generated
+<h2>Configure tenant name</h2>
+<p>Text.</p>
+=== expected
+<h2>Configure {c1:tenant:} name</h2>
+<p>Text.</p>
+=== report
+c1 KEPT

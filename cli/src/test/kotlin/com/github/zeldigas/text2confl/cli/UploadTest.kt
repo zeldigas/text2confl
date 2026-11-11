@@ -19,7 +19,6 @@ import com.github.zeldigas.confclient.PasswordAuth
 import com.github.zeldigas.confclient.TokenAuth
 import com.github.zeldigas.text2confl.convert.*
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
-import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.MarkdownConfiguration
 import com.github.zeldigas.text2confl.core.ContentValidationFailedException
@@ -84,6 +83,7 @@ internal class UploadTest(
                 "--parent-id", "1234",
                 "--remove-orphans", "all",
                 "--tenant", "test",
+                "--inline-comments", "keep-dry",
                 "--docs", tempDir.toString()
             )
         )
@@ -109,7 +109,7 @@ internal class UploadTest(
         verify {
             serviceProvider.createUploader(
                 confluenceClient, UploadConfig(
-                    "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH, "test"
+                    "TR", Cleanup.All, "Automated upload by text2confl", true, ChangeDetector.HASH, "test", InlineComments.KEEP_DRY
                 ),
                 expectedConverterConfig,
                 any()
@@ -173,7 +173,8 @@ internal class UploadTest(
                     "custom upload message",
                     directoryConfig.notifyWatchers,
                     directoryConfig.modificationCheck,
-                    "test1"
+                    "test1",
+                    directoryConfig.inlineComments,
                 ),
                 converterConfig,
                 any()
