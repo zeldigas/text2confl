@@ -89,7 +89,7 @@ class ContentUploader(
             logger.info { "Checking that virtual page exists and properly located: ${page.title}" }
             val virtualPage = try {
                 pageUploadOperations.checkPageAndUpdateParentIfRequired(page.title, space, parentId)
-            } catch (ex: PageNotFoundException) {
+            } catch (_: PageNotFoundException) {
                 throw VirtualPageNotFound(page.source, page.title, space)
             }
             PageUploadResult(parentId, virtualPage, true)

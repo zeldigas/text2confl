@@ -8,7 +8,6 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.Page
 import com.github.zeldigas.text2confl.convert.PageContent
 import com.github.zeldigas.text2confl.core.config.InlineComments
-import com.github.zeldigas.text2confl.core.upload.comments.CommentOutcome
 import com.github.zeldigas.text2confl.core.upload.comments.InlineCommentsMerger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.coroutineScope
@@ -75,7 +74,7 @@ internal class PageUploadOperationsImpl(
         checkTenantBeforeUpdate(confluencePageToUpdate)
         val (renamed, confluencePage) = adjustTitleIfRequired(confluencePageToUpdate, page)
 
-        val serverPageDetails = createServerPage(confluencePage, parentPageId);
+        val serverPageDetails = createServerPage(confluencePage, parentPageId)
 
         val result = if (pageContentChangeDetector.strategy(confluencePage, page.content)) {
             updatePageContent(confluencePage, parentPageId, page, serverPageDetails)
@@ -166,7 +165,10 @@ internal class PageUploadOperationsImpl(
     }
 
     private suspend fun getServerBody(confluencePage: ConfluencePage): String {
-        return confluencePage.body?.storage?.value ?: client.getPageById(confluencePage.id, setOf(SimplePageLoadOptions.Content)).body?.storage?.value!!
+        return confluencePage.body?.storage?.value ?: client.getPageById(
+            confluencePage.id,
+            setOf(SimplePageLoadOptions.Content)
+        ).body?.storage?.value!!
     }
 
     private suspend fun changePageParent(

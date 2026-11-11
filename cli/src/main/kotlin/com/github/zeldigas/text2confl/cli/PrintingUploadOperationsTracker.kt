@@ -30,7 +30,7 @@ class PrintingUploadOperationsTracker(
         if (pageResult is PageOperationResult.NotModified
             && labelUpdate == LabelsUpdateResult.NotChanged
             && attachmentsUpdated == AttachmentsUpdateResult.NotChanged
-        ) return;
+        ) return
 
         updatedCount.incrementAndGet()
 
@@ -47,12 +47,24 @@ class PrintingUploadOperationsTracker(
             }
 
             is PageOperationResult.LocationModified -> {
-                describeModifiedPage("Updated:", pageResult.serverPage, pageResult.local, labelUpdate, attachmentsUpdated)
+                describeModifiedPage(
+                    "Updated:",
+                    pageResult.serverPage,
+                    pageResult.local,
+                    labelUpdate,
+                    attachmentsUpdated
+                )
             }
 
             is PageOperationResult.NotModified -> {
                 if (labelUpdate != LabelsUpdateResult.NotChanged || attachmentsUpdated != AttachmentsUpdateResult.NotChanged) {
-                    describeModifiedPage("Updated labels/attachments:", pageResult.serverPage, pageResult.local, labelUpdate, attachmentsUpdated)
+                    describeModifiedPage(
+                        "Updated labels/attachments:",
+                        pageResult.serverPage,
+                        pageResult.local,
+                        labelUpdate,
+                        attachmentsUpdated
+                    )
                 }
             }
         }
@@ -72,6 +84,7 @@ class PrintingUploadOperationsTracker(
                 if (comments.dry) "Inline comments (dry run): restoration failed, see log."
                 else "Inline comments: restoration failed, see log."
             )
+
             null, is CommentRestoration.Dropped -> ""
             is CommentRestoration.Applied -> comments.takeIf { it.comments.isNotEmpty() }
                 ?.let { commentsSummary(it) } ?: ""
@@ -81,7 +94,7 @@ class PrintingUploadOperationsTracker(
                 serverPage,
                 local
             )
-        }${if (labelsAttachmentsInfo.isNotBlank()) " $labelsAttachmentsInfo" else "" }${
+        }${if (labelsAttachmentsInfo.isNotBlank()) " $labelsAttachmentsInfo" else ""}${
             if (commentsInfo.isNotBlank()) " $commentsInfo" else ""
         }"
         val details = (comments as? CommentRestoration.Applied)?.let { commentDetails(it) } ?: emptyList()
@@ -128,7 +141,11 @@ class PrintingUploadOperationsTracker(
 
                 CommentStatus.ADJUSTED -> {
                     val label = if (dry) "Would adjust:" else "Adjusted comment:"
-                    "    ${yellow(label)} \"${shorten(comment.oldText)}\" -> \"${shorten(comment.newText ?: "")}\" (ref ${shortRef(comment)})"
+                    "    ${yellow(label)} \"${shorten(comment.oldText)}\" -> \"${shorten(comment.newText ?: "")}\" (ref ${
+                        shortRef(
+                            comment
+                        )
+                    })"
                 }
 
                 CommentStatus.KEPT -> null
@@ -157,8 +174,11 @@ class PrintingUploadOperationsTracker(
         }
     }
 
-    private fun labelsAttachmentsInfo(labelsUpdateResult: LabelsUpdateResult, attachmentsUpdated: AttachmentsUpdateResult): String {
-        val labelsInfo =  buildString {
+    private fun labelsAttachmentsInfo(
+        labelsUpdateResult: LabelsUpdateResult,
+        attachmentsUpdated: AttachmentsUpdateResult
+    ): String {
+        val labelsInfo = buildString {
             if (labelsUpdateResult is LabelsUpdateResult.Updated) {
                 append("Labels ")
                 if (labelsUpdateResult.added.isNotEmpty()) {
@@ -188,7 +208,7 @@ class PrintingUploadOperationsTracker(
         }
         val labelsAttachmentsDetails = listOf(labelsInfo, attachmentsInfo).filter { it.isNotBlank() }
         return if (labelsAttachmentsDetails.isEmpty()) {
-            return ""
+            ""
         } else {
             labelsAttachmentsDetails.joinToString(", ", postfix = ".")
         }
