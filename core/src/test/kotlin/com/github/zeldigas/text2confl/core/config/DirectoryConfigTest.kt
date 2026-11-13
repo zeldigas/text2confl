@@ -1,7 +1,11 @@
 package com.github.zeldigas.text2confl.core.config
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
+import assertk.assertions.messageContains
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.asciidoc.AsciidoctorConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.*
@@ -90,6 +94,71 @@ class DirectoryConfigTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun `YAML aliases are resolved for scalars and mappings`(@TempDir dir: Path) {
+        dir.resolve(".text2confl.yml").writeText(
+            """
+            x-shared:
+              lang-mapping: &lang-mapping
+                aa: js
+                bb: kotlin
+            title-prefix: &affix "[docs] "
+            title-postfix: *affix
+            code-blocks:
+              extra-mapping: *lang-mapping
+            """.trimIndent()
+        )
+        val config = readDirectoryConfig(dir)
+
+        assertThat(config.titlePrefix).isEqualTo("[docs] ")
+        assertThat(config.titlePostfix).isEqualTo("[docs] ")
+        assertThat(config.codeBlocks.extraMapping).isEqualTo(mapOf("aa" to "js", "bb" to "kotlin"))
+    }
+
+    @Test
+    fun `YAML merge key with a single alias is resolved, explicit keys win`(@TempDir dir: Path) {
+        dir.resolve(".text2confl.yml").writeText(
+            """
+            x-shared:
+              lang-mapping: &lang-mapping
+                aa: js
+                bb: java
+              client: &client
+                skip-ssl: true
+            code-blocks:
+              extra-mapping:
+                <<: *lang-mapping
+                bb: kotlin
+            client:
+              <<: *client
+            """.trimIndent()
+        )
+        val config = readDirectoryConfig(dir)
+
+        assertThat(config.codeBlocks.extraMapping).isEqualTo(mapOf("aa" to "js", "bb" to "kotlin"))
+        assertThat(config.client).isEqualTo(HttpClientParams(skipSsl = true))
+    }
+
+    @Test
+    fun `YAML merge key with a list of aliases is rejected`(@TempDir dir: Path) {
+        dir.resolve(".text2confl.yml").writeText(
+            """
+            x-shared:
+              first: &first
+                aa: js
+              second: &second
+                bb: kotlin
+            code-blocks:
+              extra-mapping:
+                <<: [*first, *second]
+            """.trimIndent()
+        )
+
+        assertFailure { readDirectoryConfig(dir) }
+            .isInstanceOf<JsonMappingException>()
+            .messageContains("'<<'")
     }
 
     @Test
