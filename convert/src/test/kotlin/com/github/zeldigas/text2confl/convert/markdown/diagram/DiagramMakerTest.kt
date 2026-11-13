@@ -40,7 +40,7 @@ class DiagramMakerTest(
         every { generator.conversionOptions(fullAttributes) } returns options
         every { generator.generate("test script", expectedTarget, options) } returns ImageInfo(1, 1, "hello")
 
-        val maker = DiagramMaker(tempDir, "test", generator)
+        val maker = ImageDiagramMaker(tempDir, "test", generator)
         val (attachment, info) = maker.toDiagram("test script", attributes, Path.of("some/prefix"))
 
         thenDiagramGenerated(attachment, expectedTarget, info)
@@ -77,7 +77,7 @@ class DiagramMakerTest(
         every { generator.conversionOptions(fullAttributes) } returns options
         every { generator.generate("test script", expectedTarget, options) } returns ImageInfo(1, 1, "hello")
 
-        val maker = DiagramMaker(tempDir, "test", generator)
+        val maker = ImageDiagramMaker(tempDir, "test", generator)
         val (attachment, _) = maker.toDiagram("test script", attributes, null)
 
         assertThat(attachment).isEqualTo(Attachment("testName.abc", "_generated_diagram_testName.abc", expectedTarget))
@@ -100,7 +100,7 @@ class DiagramMakerTest(
 
         every { generator.conversionOptions(fullAttributes) } returns options
 
-        val maker = DiagramMaker(tempDir, "test", generator)
+        val maker = ImageDiagramMaker(tempDir, "test", generator)
         val (attachment, info) = maker.toDiagram("test script", attributes, Path.of("some/prefix"))
 
         assertThat(attachment).isEqualTo(Attachment("testName.abc", "_generated_diagram_testName.abc", expectedTarget))
@@ -126,7 +126,7 @@ class DiagramMakerTest(
         every { generator.conversionOptions(fullAttributes) } returns options
         every { generator.generate("test script", expectedTarget, options) } returns ImageInfo(1, 1, "hello")
 
-        val maker = DiagramMaker(tempDir, "test", generator)
+        val maker = ImageDiagramMaker(tempDir, "test", generator)
         val (attachment, info) = maker.toDiagram("test script", attributes, Path.of("some/prefix"))
 
         thenDiagramGenerated(attachment, expectedTarget, info)
@@ -149,7 +149,7 @@ class DiagramMakerTest(
         every { generator.conversionOptions(fullAttributes) } returns options
         every { generator.generate("test script", expectedTarget, options) } returns ImageInfo(1, 1, "hello")
 
-        val maker = DiagramMaker(tempDir, "test", generator)
+        val maker = ImageDiagramMaker(tempDir, "test", generator)
         val (attachment, info) = maker.toDiagram("test script", attributes, Path.of("some/prefix"))
 
         thenDiagramGenerated(attachment, expectedTarget, info)

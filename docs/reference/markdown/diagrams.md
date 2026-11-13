@@ -51,6 +51,81 @@ are changed, it will be regenerated.
 Right now there is no option to force diagrams regeneration, but removing directory with diagrams or particular
 `*.cache` file in `base-dir`.
 
+## Rendering diagrams as Confluence macros
+
+If your Confluence has an app that renders diagrams from source right on the page, **text2confl** can put diagram
+source into the app's macro instead of generating an image. Diagram keeps its source and stays editable in Confluence,
+no local tool or Kroki server is needed and no attachment is uploaded.
+
+Macros are configured in named groups. Each group lists code block languages in `formats` and defines Confluence
+storage format markup in `template`. Template is a [Mustache](https://mustache.github.io/mustache.5.html) template
+with the following variables:
+
+| variable                            | value                                                                                   |
+|-------------------------------------|-----------------------------------------------------------------------------------------|
+| `{{lang}}`                          | Code block language, e.g. `mermaid`. XML-escaped                                        |
+| `{{source}}`                        | Diagram source, XML-escaped                                                             |
+| `{{{source}}}`                      | Diagram source as is                                                                    |
+| `{{#cdata}}{{{source}}}{{/cdata}}`  | Diagram source wrapped in `<![CDATA[...]]>`. `]]>` in the source is split so that it doesn't end the section |
+
+```yaml {title=.text2confl.yml}
+markdown:
+  diagrams:
+    macros:
+      some-diagram-app:
+        formats: [ puml, plantuml ]
+        template: >-
+          <ac:structured-macro ac:name="some-diagram-macro">
+          <ac:parameter ac:name="language">{{lang}}</ac:parameter>
+          <ac:plain-text-body>{{#cdata}}{{{source}}}{{/cdata}}</ac:plain-text-body>
+          </ac:structured-macro>
+```
+
+Example for Forge based Macro Pack app in Confluence Cloud, where `<app-id>/<environment-id>` part of extension key is
+specific to your site. YAML anchor lets to reuse the same template for Mermaid and PlantUML, and `{{lang}}` is passed
+to the app as diagram type, so each group lists only the language name the app expects:
+
+```yaml {title=.text2confl.yml}
+x-templates:
+  macro-pack: &macro-pack >-
+    <ac:adf-extension><ac:adf-node type="extension">
+    <ac:adf-attribute key="extension-key"><app-id>/<environment-id>/static/macro-pack</ac:adf-attribute>
+    <ac:adf-attribute key="extension-type">com.atlassian.ecosystem</ac:adf-attribute>
+    <ac:adf-attribute key="parameters">
+    <ac:adf-parameter key="layout">extension</ac:adf-parameter>
+    <ac:adf-parameter key="guest-params">
+    <ac:adf-parameter key="input">{{lang}}</ac:adf-parameter>
+    <ac:adf-parameter key="source">
+    <ac:adf-parameter key="text">{{#cdata}}{{{source}}}{{/cdata}}</ac:adf-parameter>
+    <ac:adf-parameter key="type">text</ac:adf-parameter>
+    </ac:adf-parameter>
+    <ac:adf-parameter key="version">1</ac:adf-parameter>
+    </ac:adf-parameter>
+    </ac:adf-attribute>
+    <ac:adf-attribute key="text">Macro Pack</ac:adf-attribute>
+    <ac:adf-attribute key="layout">default</ac:adf-attribute>
+    </ac:adf-node></ac:adf-extension>
+markdown:
+  diagrams:
+    macros:
+      mermaid:
+        formats: [ mermaid ]
+        template: *macro-pack
+      plantuml:
+        formats: [ plantuml ]
+        template: *macro-pack
+```
+
+Things to keep in mind:
+
+* Macros take precedence over diagram generators, but only for listed formats. A format can be listed in one group
+  only.
+* Code block attributes like `target` or `format` are not used.
+* Template syntax is checked before conversion starts, unknown variable fails conversion of the page. Diagram source
+  is not validated, errors are visible only on rendered page.
+* Diagram is displayed only if corresponding app is installed in Confluence. Rendering limitations of the app apply,
+  e.g. Mermaid in Macro Pack doesn't display `<` and `>` in node labels.
+
 ## Formats
 
 ### PlantUML
