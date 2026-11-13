@@ -162,6 +162,37 @@ class DirectoryConfigTest {
     }
 
     @Test
+    fun `Diagram macros are read from file`(@TempDir dir: Path) {
+        dir.resolve(".text2confl.yml").writeText(
+            """
+            x-templates:
+              macro: &macro >-
+                <macro lang="{{lang}}">{{#cdata}}{{{source}}}{{/cdata}}</macro>
+            markdown:
+              diagrams:
+                macros:
+                  plantuml:
+                    formats: [puml, plantuml]
+                    template: *macro
+                  mermaid:
+                    formats:
+                      - mermaid
+                    template: *macro
+            """.trimIndent()
+        )
+
+        val config = readDirectoryConfig(dir)
+
+        val template = "<macro lang=\"{{lang}}\">{{#cdata}}{{{source}}}{{/cdata}}</macro>"
+        val expected = mapOf(
+            "plantuml" to DiagramMacroConfiguration(listOf("puml", "plantuml"), template),
+            "mermaid" to DiagramMacroConfiguration(listOf("mermaid"), template),
+        )
+        assertThat(config.markdown.diagrams.macros).isEqualTo(expected)
+        assertThat(config.markdown.toConfig(dir).diagrams.macros).isEqualTo(expected)
+    }
+
+    @Test
     fun `Conversion of directory inputs to asciidoctor parameters for asciidoctor diagrams`() {
         val dirAsciidoc = AsciidocParams(
             gems = listOf("extra"),

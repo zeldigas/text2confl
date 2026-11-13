@@ -10,6 +10,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - YAML anchors and aliases are resolved in `.text2confl.yml`, including merge key (`<<`) with a single alias
+- Markdown diagram code blocks can be rendered as Confluence macros instead of generated images (#393). New
+  `markdown.diagrams.macros` option (`.text2confl.yml`) defines named groups of `formats` (code block languages) with
+  Mustache `template` of storage format markup, `lang` and `source` variables and `cdata` lambda are available in
+  template. This allows to use diagram apps installed in Confluence that render diagram source on the page, so no
+  local renderer or Kroki is needed and no attachments are created
 
 ## 0.30.0
 

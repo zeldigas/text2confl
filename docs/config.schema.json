@@ -190,8 +190,35 @@
         },
         "kroki": {
           "$ref": "#/definitions/KrokiDiagramsConfiguration"
+        },
+        "macros": {
+          "type": "object",
+          "description": "Named groups of diagram formats that are rendered as Confluence macros instead of generated images",
+          "additionalProperties": {
+            "$ref": "#/definitions/DiagramMacroConfiguration"
+          },
+          "default": {}
         }
       },
+      "additionalProperties": false
+    },
+    "DiagramMacroConfiguration": {
+      "type": "object",
+      "description": "Confluence macro used to render diagram code blocks",
+      "properties": {
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Code block languages rendered with this macro"
+        },
+        "template": {
+          "type": "string",
+          "description": "Mustache template of Confluence storage format markup. Variables: `lang` - code block language, `source` - diagram source (`{{source}}` is XML-escaped, `{{{source}}}` is not); `{{#cdata}}...{{/cdata}}` wraps content in CDATA section"
+        }
+      },
+      "required": ["formats", "template"],
       "additionalProperties": false
     },
     "AsciidocParams": {
