@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- YAML anchors and aliases are resolved in `.text2confl.yml`, including merge key (`<<`) with a single alias
+
 ## 0.30.0
 
 ### Added

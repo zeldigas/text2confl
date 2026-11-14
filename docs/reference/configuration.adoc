@@ -25,6 +25,27 @@ Keep in mind the lookup order of values:
 For brevity, we will use `.text2confl.yml` in examples below.
 ====
 
+[TIP]
+====
+YAML anchors and aliases can be used to reuse values. Keys that text2confl doesn't know are ignored, so shared
+values can be kept under a key of your own. A merge key (`<<`) with a single alias is supported, a list of aliases
+(`<<: [*a, *b]`) is not.
+
+[source,yaml]
+----
+x-shared:
+  lang-mapping: &lang-mapping
+    sh: bash
+    yml: yaml
+title-prefix: &affix "[docs] "
+title-postfix: *affix
+code-blocks:
+  extra-mapping:
+    <<: *lang-mapping
+    kt: kotlin
+----
+====
+
 [cols="2,2,2,5a",options="header"]
 |===
 | Configuration file | CLI option | Env variable | Description

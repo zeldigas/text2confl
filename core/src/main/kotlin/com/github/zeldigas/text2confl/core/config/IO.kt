@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLAnchorReplayingFactory
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -14,7 +14,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 
 
-private val mapper = JsonMapper.builder(YAMLFactory())
+private val mapper = JsonMapper.builder(YAMLAnchorReplayingFactory())
     .addModule(kotlinModule())
     .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
     .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
