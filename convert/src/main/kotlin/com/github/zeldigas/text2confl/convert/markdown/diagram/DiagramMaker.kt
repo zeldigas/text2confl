@@ -28,11 +28,11 @@ fun interface DiagramMakers {
 class DiagramMakersImpl(
     private val baseDir: Path,
     private val generators: List<DiagramGenerator>,
-    private val inlineTemplates: Map<String, Template> = emptyMap(),
+    private val inlineMacros: Map<String, InlineMacro> = emptyMap(),
 ) : DiagramMakers {
 
     override fun find(lang: String): DiagramMaker? {
-        inlineTemplates[lang]?.let { return InlineDiagramMaker(lang, it) }
+        inlineMacros[lang]?.let { return InlineDiagramMaker(lang, it.template, it.vars) }
 
         val generator = generators.find { it.supports(lang) } ?: return null
 
@@ -43,8 +43,20 @@ class DiagramMakersImpl(
 /**
  * Turns diagram code block into Confluence content
  */
-sealed interface DiagramMaker {
-    val lang: String
+interface DiagramMaker {
+    fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): GeneratedDiagram
+}
+
+sealed interface GeneratedDiagram {
+    /**
+     * Diagram image that is uploaded as page attachment
+     */
+    data class Image(val attachment: Attachment, val info: ImageInfo) : GeneratedDiagram
+
+    /**
+     * Content that is put on the page as is, e.g. Confluence macro
+     */
+    data class InlineScript(val content: String) : GeneratedDiagram
 }
 
 private val CACHE_FILE_MAPPER = jacksonObjectMapper()
@@ -55,10 +67,10 @@ private val logger = KotlinLogging.logger {  }
  */
 class ImageDiagramMaker(
     internal val baseDir: Path,
-    override val lang: String,
+    internal val lang: String,
     internal val generator: DiagramGenerator,
 ) : DiagramMaker {
-    fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): Pair<Attachment, ImageInfo> {
+    override fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): GeneratedDiagram.Image {
         val name = generator.name(baseName(script, attributes), attributes + mapOf(DIAGRAM_FORMAT_ATTRIBUTE to lang))
 
         val generatedFileLocation = if (pathPrefix == null) baseDir / name else baseDir / pathPrefix / name
@@ -70,13 +82,13 @@ class ImageDiagramMaker(
         val cacheState = checkDiagramCache(generatedFileLocation, script, conversionOptions)
         return if (cacheState is Cached) {
             logger.debug { "Found cached diagram $generatedFileLocation, reusing it" }
-            generatedFileLocation.attachment(name) to cacheState.imageInfo
+            GeneratedDiagram.Image(generatedFileLocation.attachment(name), cacheState.imageInfo)
         } else {
             logger.debug { "Cache state for ${generatedFileLocation}: $cacheState, generating diagram" }
             val result = generator.generate(script, generatedFileLocation, conversionOptions)
             saveCache(result, generatedFileLocation, conversionOptions, script)
 
-            generatedFileLocation.attachment(name) to result
+            GeneratedDiagram.Image(generatedFileLocation.attachment(name), result)
         }
     }
 
@@ -136,19 +148,38 @@ class ImageDiagramMaker(
 
 /**
  * Renders diagram code block as inline content (e.g. Confluence macro) using Mustache template. Available in template:
+ * * [vars] - variables configured for the template
  * * `{{lang}}` - code block language
  * * `{{source}}` - diagram source, XML-escaped; `{{{source}}}` - as is
+ * * `{{attributes.name}}` - code block attributes, e.g. `target` for `{target=name}`
  * * `{{#cdata}}...{{/cdata}}` - wraps content in CDATA section, splitting `]]>` occurrences so that section is not
  * terminated early. Use with unescaped source: `{{#cdata}}{{{source}}}{{/cdata}}`
  */
 class InlineDiagramMaker(
-    override val lang: String,
+    internal val lang: String,
     internal val template: Template,
+    internal val vars: Map<String, Any?> = emptyMap(),
 ) : DiagramMaker {
-    fun toContent(script: String): String =
-        template.execute(mapOf("lang" to lang, "source" to script, "cdata" to CDATA))
+    override fun toDiagram(
+        script: String,
+        attributes: Map<String, String>,
+        pathPrefix: Path?
+    ): GeneratedDiagram.InlineScript {
+        val context = vars + mapOf(
+            "lang" to lang,
+            "source" to script,
+            "attributes" to attributes,
+            "cdata" to CDATA
+        )
+        return GeneratedDiagram.InlineScript(template.execute(context))
+    }
 
     companion object {
+        /**
+         * Variables that are set for every diagram and can't be redefined in [vars]
+         */
+        val RESERVED_VARIABLES = setOf("lang", "source", "attributes", "cdata")
+
         private val COMPILER: Mustache.Compiler = Mustache.compiler().withEscaper(
             Escapers.simple(
                 arrayOf("&", "&amp;"),
@@ -173,12 +204,14 @@ fun createDiagramMakers(config: DiagramsConfiguration): DiagramMakers {
     return DiagramMakersImpl(
         config.diagramsBaseDir,
         loadAvailableGenerators(config),
-        inlineTemplates(config.macros)
+        inlineMacros(config.macros)
     )
 }
 
-internal fun inlineTemplates(macros: Map<String, DiagramMacroConfiguration>): Map<String, Template> {
-    val result = mutableMapOf<String, Template>()
+class InlineMacro(val template: Template, val vars: Map<String, Any?>)
+
+internal fun inlineMacros(macros: Map<String, DiagramMacroConfiguration>): Map<String, InlineMacro> {
+    val result = mutableMapOf<String, InlineMacro>()
     val owners = mutableMapOf<String, String>()
     for ((name, macro) in macros) {
         val template = try {
@@ -186,12 +219,17 @@ internal fun inlineTemplates(macros: Map<String, DiagramMacroConfiguration>): Ma
         } catch (e: MustacheException) {
             throw IllegalArgumentException("Invalid template of diagram macro '$name': ${e.message}", e)
         }
+        val reserved = macro.vars.keys.filter { it in InlineDiagramMaker.RESERVED_VARIABLES }
+        require(reserved.isEmpty()) {
+            "Diagram macro '$name' redefines reserved variables: ${reserved.joinToString { "'$it'" }}"
+        }
+        val inlineMacro = InlineMacro(template, macro.vars)
         for (format in macro.formats) {
             owners[format]?.let {
                 throw IllegalArgumentException("Diagram format '$format' is configured in both '$it' and '$name' macros")
             }
             owners[format] = name
-            result[format] = template
+            result[format] = inlineMacro
         }
     }
     return result

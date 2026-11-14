@@ -67,6 +67,8 @@ with the following variables:
 | `{{source}}`                        | Diagram source, XML-escaped                                                             |
 | `{{{source}}}`                      | Diagram source as is                                                                    |
 | `{{#cdata}}{{{source}}}{{/cdata}}`  | Diagram source wrapped in `<![CDATA[...]]>`. `]]>` in the source is split so that it doesn't end the section |
+| `{{attributes.<name>}}`             | Code block attribute, e.g. `{{attributes.target}}` for `{target=flow}`. XML-escaped     |
+| any key of `vars`                   | Value from `vars` of the group, e.g. `{{tenantId}}`. XML-escaped                        |
 
 ```yaml {title=.text2confl.yml}
 markdown:
@@ -81,46 +83,55 @@ markdown:
           </ac:structured-macro>
 ```
 
-Example for Forge based Macro Pack app in Confluence Cloud, where `<app-id>/<environment-id>` part of extension key is
-specific to your site. YAML anchor lets to reuse the same template for Mermaid and PlantUML, and `{{lang}}` is passed
-to the app as diagram type, so each group lists only the language name the app expects:
+`vars` lets one template serve apps or diagram types that need different parameters. Together with YAML anchors and
+merge key (`<<`) the template and shared values are defined once, and each group overrides only what differs. Example
+for Forge based Macro Pack app in Confluence Cloud, where `<app-id>/<environment-id>` part of extension key is specific
+to your site. The app expects `mermaid` or `plantuml` as diagram type, so `diagramType` is set per group and `puml`
+code blocks work too:
 
 ```yaml {title=.text2confl.yml}
-x-templates:
-  macro-pack: &macro-pack >-
-    <ac:adf-extension><ac:adf-node type="extension">
-    <ac:adf-attribute key="extension-key"><app-id>/<environment-id>/static/macro-pack</ac:adf-attribute>
-    <ac:adf-attribute key="extension-type">com.atlassian.ecosystem</ac:adf-attribute>
-    <ac:adf-attribute key="parameters">
-    <ac:adf-parameter key="layout">extension</ac:adf-parameter>
-    <ac:adf-parameter key="guest-params">
-    <ac:adf-parameter key="input">{{lang}}</ac:adf-parameter>
-    <ac:adf-parameter key="source">
-    <ac:adf-parameter key="text">{{#cdata}}{{{source}}}{{/cdata}}</ac:adf-parameter>
-    <ac:adf-parameter key="type">text</ac:adf-parameter>
-    </ac:adf-parameter>
-    <ac:adf-parameter key="version">1</ac:adf-parameter>
-    </ac:adf-parameter>
-    </ac:adf-attribute>
-    <ac:adf-attribute key="text">Macro Pack</ac:adf-attribute>
-    <ac:adf-attribute key="layout">default</ac:adf-attribute>
-    </ac:adf-node></ac:adf-extension>
 markdown:
   diagrams:
     macros:
       mermaid:
         formats: [ mermaid ]
-        template: *macro-pack
+        vars: &macro_pack_vars
+          extensionKey: <app-id>/<environment-id>/static/macro-pack
+          diagramType: mermaid
+        template: &macro_pack >-
+          <ac:adf-extension><ac:adf-node type="extension">
+          <ac:adf-attribute key="extension-key">{{extensionKey}}</ac:adf-attribute>
+          <ac:adf-attribute key="extension-type">com.atlassian.ecosystem</ac:adf-attribute>
+          <ac:adf-attribute key="parameters">
+          <ac:adf-parameter key="layout">extension</ac:adf-parameter>
+          <ac:adf-parameter key="guest-params">
+          <ac:adf-parameter key="input">{{diagramType}}</ac:adf-parameter>
+          <ac:adf-parameter key="source">
+          <ac:adf-parameter key="text">{{#cdata}}{{{source}}}{{/cdata}}</ac:adf-parameter>
+          <ac:adf-parameter key="type">text</ac:adf-parameter>
+          </ac:adf-parameter>
+          <ac:adf-parameter key="version">1</ac:adf-parameter>
+          </ac:adf-parameter>
+          </ac:adf-attribute>
+          <ac:adf-attribute key="text">Macro Pack</ac:adf-attribute>
+          <ac:adf-attribute key="layout">default</ac:adf-attribute>
+          </ac:adf-node></ac:adf-extension>
       plantuml:
-        formats: [ plantuml ]
-        template: *macro-pack
+        formats: [ plantuml, puml ]
+        vars:
+          <<: *macro_pack_vars
+          diagramType: plantuml
+        template: *macro_pack
 ```
 
 Things to keep in mind:
 
 * Macros take precedence over diagram generators, but only for listed formats. A format can be listed in one group
   only.
-* Code block attributes like `target` or `format` are not used.
+* Code block attributes like `target` or `format` don't change anything by themselves, they are only available to
+  template as `attributes`. Using an attribute that is not set on code block as `{{attributes.name}}` fails conversion
+  of the page, use a section for optional ones: `{{#attributes.width}} width="{{.}}"{{/attributes.width}}`.
+* `lang`, `source`, `attributes` and `cdata` are set for every diagram and can't be defined in `vars`.
 * Template syntax is checked before conversion starts, unknown variable fails conversion of the page. Diagram source
   is not validated, errors are visible only on rendered page.
 * Diagram is displayed only if corresponding app is installed in Confluence. Rendering limitations of the app apply,

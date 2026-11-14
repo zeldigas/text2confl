@@ -52,11 +52,18 @@ class DiagramMakersTest(
     fun `Inline template is selected for any of its formats before generators`() {
         val inlineMakers = DiagramMakersImpl(
             Path.of("."), listOf(generator1),
-            inlineTemplates(mapOf("plantuml" to DiagramMacroConfiguration(listOf("puml", "plantuml"), "{{lang}}")))
+            inlineMacros(
+                mapOf(
+                    "plantuml" to DiagramMacroConfiguration(
+                        listOf("puml", "plantuml"), "{{lang}} {{type}}", mapOf("type" to "uml")
+                    )
+                )
+            )
         )
 
         assertThat(inlineMakers.find("puml")).isNotNull().isInstanceOf<InlineDiagramMaker>()
-            .transform { it.toContent("A -> B") }.isEqualTo("puml")
+            .transform { it.toDiagram("A -> B", emptyMap(), null) }
+            .isEqualTo(GeneratedDiagram.InlineScript("puml uml"))
         assertThat(inlineMakers.find("plantuml")).isNotNull().isInstanceOf<InlineDiagramMaker>()
             .prop(InlineDiagramMaker::lang).isEqualTo("plantuml")
         verify(exactly = 0) { generator1.supports(any()) }
@@ -65,7 +72,7 @@ class DiagramMakersTest(
     @Test
     fun `Format configured in several macros is rejected`() {
         assertFailure {
-            inlineTemplates(
+            inlineMacros(
                 mapOf(
                     "first" to DiagramMacroConfiguration(listOf("puml", "plantuml"), "a"),
                     "second" to DiagramMacroConfiguration(listOf("plantuml"), "b"),
@@ -78,8 +85,22 @@ class DiagramMakersTest(
     @Test
     fun `Invalid template is rejected`() {
         assertFailure {
-            inlineTemplates(mapOf("broken" to DiagramMacroConfiguration(listOf("mermaid"), "{{#cdata}}{{source}}")))
+            inlineMacros(mapOf("broken" to DiagramMacroConfiguration(listOf("mermaid"), "{{#cdata}}{{source}}")))
         }.isInstanceOf<IllegalArgumentException>()
             .messageContains("Invalid template of diagram macro 'broken'")
+    }
+
+    @Test
+    fun `Redefining automatic variables is rejected`() {
+        assertFailure {
+            inlineMacros(
+                mapOf(
+                    "mermaid" to DiagramMacroConfiguration(
+                        listOf("mermaid"), "{{lang}}", mapOf("lang" to "x", "source" to "y", "tenant" to "z")
+                    )
+                )
+            )
+        }.isInstanceOf<IllegalArgumentException>()
+            .hasMessage("Diagram macro 'mermaid' redefines reserved variables: 'lang', 'source'")
     }
 }

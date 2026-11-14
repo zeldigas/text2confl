@@ -215,7 +215,12 @@
         },
         "template": {
           "type": "string",
-          "description": "Mustache template of Confluence storage format markup. Variables: `lang` - code block language, `source` - diagram source (`{{source}}` is XML-escaped, `{{{source}}}` is not); `{{#cdata}}...{{/cdata}}` wraps content in CDATA section"
+          "description": "Mustache template of Confluence storage format markup. Variables: `lang` - code block language, `source` - diagram source (`{{source}}` is XML-escaped, `{{{source}}}` is not), `attributes` - code block attributes (`{{attributes.target}}`), keys of `vars`; `{{#cdata}}...{{/cdata}}` wraps content in CDATA section"
+        },
+        "vars": {
+          "type": "object",
+          "description": "Additional template variables. `lang`, `source`, `attributes` and `cdata` are reserved",
+          "default": {}
         }
       },
       "required": ["formats", "template"],

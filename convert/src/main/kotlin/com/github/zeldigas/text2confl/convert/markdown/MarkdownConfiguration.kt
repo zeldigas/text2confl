@@ -27,11 +27,13 @@ data class DiagramsConfiguration(
 
 /**
  * Code blocks in any of [formats] are rendered inline using Mustache [template] instead of producing an image.
- * See [com.github.zeldigas.text2confl.convert.markdown.diagram.InlineDiagramMaker] for available variables.
+ * [vars] are available in template together with variables set for every diagram, see
+ * [com.github.zeldigas.text2confl.convert.markdown.diagram.InlineDiagramMaker].
  */
 data class DiagramMacroConfiguration(
     val formats: List<String>,
     val template: String,
+    val vars: Map<String, Any?> = emptyMap(),
 )
 
 interface DiagramsProviderConfiguration {
