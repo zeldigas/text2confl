@@ -70,6 +70,14 @@ class DiagramsInjectingPostProcessor(document: Document) : NodePostProcessor(), 
 
         val maker = diagramMakers.find(lang) ?: return
         val script = node.contentChars.normalizeEOL().trimEnd()
+
+        when (maker) {
+            is ImageDiagramMaker -> injectImage(maker, script, node, state)
+            is InlineDiagramMaker -> node.replaceWith(InlineDiagramNode(maker.toContent(script)), state)
+        }
+    }
+
+    private fun injectImage(maker: ImageDiagramMaker, script: String, node: FencedCodeBlock, state: NodeTracker) {
         val attributes = node.attributesMap
 
         val (attachment, imageInfo) = maker.toDiagram(

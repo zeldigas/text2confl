@@ -6,6 +6,7 @@ import com.github.zeldigas.text2confl.convert.EditorVersion
 import com.github.zeldigas.text2confl.convert.confluence.Anchor
 import com.github.zeldigas.text2confl.convert.confluence.UserResolver
 import com.github.zeldigas.text2confl.convert.confluence.Xref
+import com.github.zeldigas.text2confl.convert.markdown.diagram.InlineDiagramNode
 import com.github.zeldigas.text2confl.convert.markdown.ext.AttributeRepositoryAware
 import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.ext.admonition.AdmonitionBlock
@@ -149,6 +150,7 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             NodeRenderingHandler(ConfluenceUserNode::class.java, this::render),
             NodeRenderingHandler(TableBlock::class.java, this::render),
             NodeRenderingHandler(TableCell::class.java, this::render),
+            NodeRenderingHandler(InlineDiagramNode::class.java, this::render),
         )
     }
 
@@ -203,6 +205,17 @@ class ConfluenceNodeRenderer(options: DataHolder) : PhasedNodeRenderer, Attribut
             .forEach { (key, value) -> html.addParameter(key, value) }
         html.tagWithCData("ac:plain-text-body", node.contentChars.normalizeEOL().trimEnd())
         html.closeTag("ac:structured-macro")
+    }
+
+    private fun render(
+        node: InlineDiagramNode,
+        @Suppress("UNUSED_PARAMETER") context: NodeRendererContext,
+        html: HtmlWriter
+    ) {
+        html.line()
+        // pre-formatted mode keeps whitespace of the content as is, e.g. inside list items
+        html.openPre().raw(node.content).closePre()
+        html.line()
     }
 
     private fun render(node: Image, context: NodeRendererContext, html: HtmlWriter) {
