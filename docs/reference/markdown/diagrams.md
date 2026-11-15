@@ -136,6 +136,9 @@ Things to keep in mind:
   is not validated, errors are visible only on rendered page.
 * Diagram is displayed only if corresponding app is installed in Confluence. Rendering limitations of the app apply,
   e.g. Mermaid in Macro Pack doesn't display `<` and `>` in node labels.
+* Diagram apps may not wrap PlantUML source in `@startuml`/`@enduml` the way local PlantUML and Kroki do, e.g.
+  PlantUML in Macro Pack renders nothing for source without them. Keep `@startuml`/`@enduml` in the source, image
+  rendering works with them too.
 
 ## Formats
 
