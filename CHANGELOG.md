@@ -7,17 +7,24 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.31.0 - 2026-11-15
+
 ### Added
 
-- YAML anchors and aliases are resolved in `.text2confl.yml`, including merge key (`<<`) with a single alias
+- YAML anchors and aliases are resolved in `.text2confl.yml`, including merge key (`<<`) with a single alias. Thanks
+  to @xiaoyu2er
 - Markdown diagram code blocks can be rendered as Confluence macros instead of generated images (#393). New
   `markdown.diagrams.macros` option (`.text2confl.yml`) defines named groups of `formats` (code block languages) with
   Mustache `template` of storage format markup and optional template `vars`. `lang`, `source` and `attributes` (code
   block attributes) variables and `cdata` lambda are available in template. This allows to use diagram apps installed
   in Confluence that render diagram source on the page, so no local renderer or Kroki is needed and no attachments are
-  created
+  created. Thanks to @xiaoyu2er
 
-## 0.30.0
+### Changed
+
+- Updated plantuml to 1.2026.10
+
+## 0.30.0 - 2026-11-11
 
 ### Added
 
@@ -31,7 +38,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
       restoration is run to report which comments would be kept, adjusted or lost. Use it to check on real pages how
       `keep` would behave before switching to it
 
-## 0.29.0
+## 0.29.0 - 2026-10-29
 
 ### Changed
 
