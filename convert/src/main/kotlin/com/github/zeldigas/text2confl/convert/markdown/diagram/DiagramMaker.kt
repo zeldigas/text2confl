@@ -3,8 +3,13 @@ package com.github.zeldigas.text2confl.convert.markdown.diagram
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.zeldigas.text2confl.convert.Attachment
+import com.github.zeldigas.text2confl.convert.markdown.DiagramMacroConfiguration
 import com.github.zeldigas.text2confl.convert.markdown.DiagramsConfiguration
 import com.github.zeldigas.text2confl.convert.toBase64
+import com.samskivert.mustache.Escapers
+import com.samskivert.mustache.Mustache
+import com.samskivert.mustache.MustacheException
+import com.samskivert.mustache.Template
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,24 +25,52 @@ fun interface DiagramMakers {
     fun find(lang: String): DiagramMaker?
 }
 
-class DiagramMakersImpl(private val baseDir: Path, private val generators: List<DiagramGenerator>) : DiagramMakers {
+class DiagramMakersImpl(
+    private val baseDir: Path,
+    private val generators: List<DiagramGenerator>,
+    private val inlineMacros: Map<String, InlineMacro> = emptyMap(),
+) : DiagramMakers {
 
     override fun find(lang: String): DiagramMaker? {
+        inlineMacros[lang]?.let { return InlineDiagramMaker(lang, it.template, it.vars) }
+
         val generator = generators.find { it.supports(lang) } ?: return null
 
-        return DiagramMaker(baseDir, lang, generator)
+        return ImageDiagramMaker(baseDir, lang, generator)
     }
+}
+
+/**
+ * Turns diagram code block into Confluence content
+ */
+interface DiagramMaker {
+    fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): GeneratedDiagram
+}
+
+sealed interface GeneratedDiagram {
+    /**
+     * Diagram image that is uploaded as page attachment
+     */
+    data class Image(val attachment: Attachment, val info: ImageInfo) : GeneratedDiagram
+
+    /**
+     * Content that is put on the page as is, e.g. Confluence macro
+     */
+    data class InlineScript(val content: String) : GeneratedDiagram
 }
 
 private val CACHE_FILE_MAPPER = jacksonObjectMapper()
 private val logger = KotlinLogging.logger {  }
 
-class DiagramMaker(
+/**
+ * Generates diagram image that is uploaded as page attachment
+ */
+class ImageDiagramMaker(
     internal val baseDir: Path,
     internal val lang: String,
     internal val generator: DiagramGenerator,
-) {
-    fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): Pair<Attachment, ImageInfo> {
+) : DiagramMaker {
+    override fun toDiagram(script: String, attributes: Map<String, String>, pathPrefix: Path?): GeneratedDiagram.Image {
         val name = generator.name(baseName(script, attributes), attributes + mapOf(DIAGRAM_FORMAT_ATTRIBUTE to lang))
 
         val generatedFileLocation = if (pathPrefix == null) baseDir / name else baseDir / pathPrefix / name
@@ -49,13 +82,13 @@ class DiagramMaker(
         val cacheState = checkDiagramCache(generatedFileLocation, script, conversionOptions)
         return if (cacheState is Cached) {
             logger.debug { "Found cached diagram $generatedFileLocation, reusing it" }
-            generatedFileLocation.attachment(name) to cacheState.imageInfo
+            GeneratedDiagram.Image(generatedFileLocation.attachment(name), cacheState.imageInfo)
         } else {
             logger.debug { "Cache state for ${generatedFileLocation}: $cacheState, generating diagram" }
             val result = generator.generate(script, generatedFileLocation, conversionOptions)
             saveCache(result, generatedFileLocation, conversionOptions, script)
 
-            generatedFileLocation.attachment(name) to result
+            GeneratedDiagram.Image(generatedFileLocation.attachment(name), result)
         }
     }
 
@@ -113,11 +146,93 @@ class DiagramMaker(
     }
 }
 
+/**
+ * Renders diagram code block as inline content (e.g. Confluence macro) using Mustache template. Available in template:
+ * * [vars] - variables configured for the template
+ * * `{{lang}}` - code block language
+ * * `{{source}}` - diagram source, XML-escaped; `{{{source}}}` - as is
+ * * `{{attributes.name}}` - code block attributes, e.g. `target` for `{target=name}`
+ * * `{{#cdata}}...{{/cdata}}` - wraps content in CDATA section, splitting `]]>` occurrences so that section is not
+ * terminated early. Use with unescaped source: `{{#cdata}}{{{source}}}{{/cdata}}`
+ */
+class InlineDiagramMaker(
+    internal val lang: String,
+    internal val template: Template,
+    internal val vars: Map<String, Any?> = emptyMap(),
+) : DiagramMaker {
+    override fun toDiagram(
+        script: String,
+        attributes: Map<String, String>,
+        pathPrefix: Path?
+    ): GeneratedDiagram.InlineScript {
+        val context = vars + mapOf(
+            "lang" to lang,
+            "source" to script,
+            "attributes" to attributes,
+            "cdata" to CDATA
+        )
+        return GeneratedDiagram.InlineScript(template.execute(context))
+    }
+
+    companion object {
+        /**
+         * Variables that are set for every diagram and can't be redefined in [vars]
+         */
+        val RESERVED_VARIABLES = setOf("lang", "source", "attributes", "cdata")
+
+        private val COMPILER: Mustache.Compiler = Mustache.compiler().withEscaper(
+            Escapers.simple(
+                arrayOf("&", "&amp;"),
+                arrayOf("<", "&lt;"),
+                arrayOf(">", "&gt;"),
+                arrayOf("\"", "&quot;"),
+                arrayOf("'", "&#39;"),
+            )
+        )
+
+        private val CDATA = Mustache.Lambda { fragment, out ->
+            out.write("<![CDATA[")
+            out.write(fragment.execute().replace("]]>", "]]]]><![CDATA[>"))
+            out.write("]]>")
+        }
+
+        fun compile(template: String): Template = COMPILER.compile(template)
+    }
+}
+
 fun createDiagramMakers(config: DiagramsConfiguration): DiagramMakers {
     return DiagramMakersImpl(
         config.diagramsBaseDir,
-        loadAvailableGenerators(config)
+        loadAvailableGenerators(config),
+        inlineMacros(config.macros)
     )
+}
+
+class InlineMacro(val template: Template, val vars: Map<String, Any?>)
+
+internal fun inlineMacros(macros: Map<String, DiagramMacroConfiguration>): Map<String, InlineMacro> {
+    val result = mutableMapOf<String, InlineMacro>()
+    val owners = mutableMapOf<String, String>()
+    for ((name, macro) in macros) {
+        val template = try {
+            InlineDiagramMaker.compile(macro.template)
+        } catch (e: MustacheException) {
+            throw IllegalArgumentException("Invalid template of diagram macro '$name': ${e.message}", e)
+        }
+        val reserved = macro.vars.keys.filter { it in InlineDiagramMaker.RESERVED_VARIABLES }
+        require(reserved.isEmpty()) {
+            "Diagram macro '$name' redefines reserved variables: ${reserved.joinToString { "'$it'" }}"
+        }
+        val inlineMacro = InlineMacro(template, macro.vars)
+        for (format in macro.formats) {
+            owners[format]?.let {
+                throw IllegalArgumentException("Diagram format '$format' is configured in both '$it' and '$name' macros")
+            }
+            owners[format] = name
+            result[format] = inlineMacro
+        }
+    }
+    return result
 }
 
 sealed class CacheState

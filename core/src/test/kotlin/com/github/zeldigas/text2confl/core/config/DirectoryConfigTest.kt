@@ -162,6 +162,51 @@ class DirectoryConfigTest {
     }
 
     @Test
+    fun `Diagram macros are read from file`(@TempDir dir: Path) {
+        dir.resolve(".text2confl.yml").writeText(
+            """
+            markdown:
+              diagrams:
+                macros:
+                  mermaid:
+                    vars: &macro_vars
+                      tenantId: abc
+                      macroFormat: mermaid
+                      version: 1
+                    formats:
+                      - mermaid
+                    template: &macro_template >-
+                      <macro tenant="{{tenantId}}" lang="{{macroFormat}}">{{#cdata}}{{{source}}}{{/cdata}}</macro>
+                  plantuml:
+                    vars:
+                      <<: *macro_vars
+                      macroFormat: plantuml
+                    formats: [puml, plantuml]
+                    template: *macro_template
+                  other:
+                    formats: [other]
+                    template: plain
+            """.trimIndent()
+        )
+
+        val config = readDirectoryConfig(dir)
+
+        val template = "<macro tenant=\"{{tenantId}}\" lang=\"{{macroFormat}}\">{{#cdata}}{{{source}}}{{/cdata}}</macro>"
+        val expected = mapOf(
+            "mermaid" to DiagramMacroConfiguration(
+                listOf("mermaid"), template, mapOf("tenantId" to "abc", "macroFormat" to "mermaid", "version" to 1)
+            ),
+            "plantuml" to DiagramMacroConfiguration(
+                listOf("puml", "plantuml"), template,
+                mapOf("tenantId" to "abc", "macroFormat" to "plantuml", "version" to 1)
+            ),
+            "other" to DiagramMacroConfiguration(listOf("other"), "plain"),
+        )
+        assertThat(config.markdown.diagrams.macros).isEqualTo(expected)
+        assertThat(config.markdown.toConfig(dir).diagrams.macros).isEqualTo(expected)
+    }
+
+    @Test
     fun `Conversion of directory inputs to asciidoctor parameters for asciidoctor diagrams`() {
         val dirAsciidoc = AsciidocParams(
             gems = listOf("extra"),

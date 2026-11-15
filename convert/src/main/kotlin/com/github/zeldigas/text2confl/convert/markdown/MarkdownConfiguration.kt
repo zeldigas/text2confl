@@ -21,7 +21,19 @@ data class DiagramsConfiguration(
     val diagramsBaseDir: Path,
     val mermaid: MermaidDiagramsConfiguration = MermaidDiagramsConfiguration(),
     val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration(),
-    val kroki: KrokiDiagramsConfiguration = KrokiDiagramsConfiguration()
+    val kroki: KrokiDiagramsConfiguration = KrokiDiagramsConfiguration(),
+    val macros: Map<String, DiagramMacroConfiguration> = emptyMap(),
+)
+
+/**
+ * Code blocks in any of [formats] are rendered inline using Mustache [template] instead of producing an image.
+ * [vars] are available in template together with variables set for every diagram, see
+ * [com.github.zeldigas.text2confl.convert.markdown.diagram.InlineDiagramMaker].
+ */
+data class DiagramMacroConfiguration(
+    val formats: List<String>,
+    val template: String,
+    val vars: Map<String, Any?> = emptyMap(),
 )
 
 interface DiagramsProviderConfiguration {

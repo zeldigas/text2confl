@@ -79,7 +79,8 @@ data class MarkdownDiagramParameters(
     val baseDir: String = ".diagrams",
     val mermaid: MermaidDiagramsConfiguration = MermaidDiagramsConfiguration(),
     val plantuml: PlantUmlDiagramsConfiguration = PlantUmlDiagramsConfiguration(),
-    val kroki: KrokiDiagramsConfiguration = KrokiDiagramsConfiguration()
+    val kroki: KrokiDiagramsConfiguration = KrokiDiagramsConfiguration(),
+    val macros: Map<String, DiagramMacroConfiguration> = emptyMap(),
 ) {
     fun toConfig(docsDir: Path): DiagramsConfiguration {
         val baseDir = if (tempDir) createTempDirectory() else docsDir / baseDir
@@ -91,7 +92,8 @@ data class MarkdownDiagramParameters(
                 puppeeterConfig = mermaid.puppeeterConfig?.relativeTo(docsDir)
             ),
             plantuml = plantuml,
-            kroki = kroki
+            kroki = kroki,
+            macros = macros,
         )
     }
 
