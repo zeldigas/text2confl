@@ -29,6 +29,7 @@ class HtmlToMarkdownConverterTest {
             "confluence-cloud",
             "adf-extensions",
             "complex-macros",
+            "complex-macros-nearby",
         ]
     )
     @ParameterizedTest

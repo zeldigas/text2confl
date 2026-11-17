@@ -83,7 +83,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
 
     private fun generateComment(element: Element, out: HtmlMarkdownWriter) {
         // "--" is not allowed in comment, so it is escaped to keep comment in one piece
-        out.append("<!-- ").append(element.toString().replace("--", "-&#45;")).append(" -->")
+        out.blankLine(1).append("<!-- ").append(element.toString().replace("--", "-&#45;")).append(" -->").blankLine(1)
     }
 
     private fun generateStatus(element: Element, out: HtmlMarkdownWriter) {
