@@ -53,9 +53,10 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         context: HtmlNodeConverterContext,
         out: HtmlMarkdownWriter
     ) {
-        val extension = element.getElementsByTag("ac:adf-node").first() ?: return
-        when(extension.attr("type")) {
+        val extension = element.getElementsByTag("ac:adf-node").first()
+        when(extension?.attr("type")) {
             "panel" -> generateAdmonitionFromCloud(element, extension, context, out)
+            else -> out.append("<!-- ").append(element.toString()).append(" -->")
         }
     }
 

@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Fixed
+
+- \[export-to-md] unknown ADF extensions (e.g. Forge app macros in Confluence Cloud) are kept as HTML comments
+  instead of being dropped, the same way as complex macros (#400)
+
 ## 0.31.0 - 2026-11-15
 
 ### Added
