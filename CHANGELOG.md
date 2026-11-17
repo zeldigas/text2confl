@@ -11,6 +11,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - \[export-to-md] unknown ADF extensions (e.g. Forge app macros in Confluence Cloud) are kept as HTML comments
   instead of being dropped, the same way as complex macros (#400)
+- \[export-to-md] `--` in macros kept as HTML comments (e.g. `-->` in diagram source) is escaped, so comment no longer
+  ends early and page stays valid when uploaded back (#400)
 
 ## 0.31.0 - 2026-11-15
 

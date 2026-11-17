@@ -16,7 +16,7 @@ extension
 mermaid
 </ac:adf-parameter>
 <ac:adf-parameter key="source">
-<ac:adf-parameter key="text"><![CDATA[graph LR; A-->B]]>
+<ac:adf-parameter key="text"><![CDATA[graph LR; A-&#45;>B; B-&#45;>C]]>
 </ac:adf-parameter>
 <ac:adf-parameter key="type">
 text
