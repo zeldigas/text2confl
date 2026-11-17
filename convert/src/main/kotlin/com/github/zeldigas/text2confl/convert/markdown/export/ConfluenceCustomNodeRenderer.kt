@@ -53,9 +53,10 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
         context: HtmlNodeConverterContext,
         out: HtmlMarkdownWriter
     ) {
-        val extension = element.getElementsByTag("ac:adf-node").first() ?: return
-        when(extension.attr("type")) {
+        val extension = element.getElementsByTag("ac:adf-node").first()
+        when(extension?.attr("type")) {
             "panel" -> generateAdmonitionFromCloud(element, extension, context, out)
+            else -> generateComment(element, out)
         }
     }
 
@@ -74,10 +75,15 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
                 if (isSimpleMacro(element)) {
                     generateSimpleMacros(element, out)
                 } else {
-                    out.append("<!-- ").append(element.toString()).append(" -->")
+                    generateComment(element, out)
                 }
             }
         }
+    }
+
+    private fun generateComment(element: Element, out: HtmlMarkdownWriter) {
+        // "--" is not allowed in comment, so it is escaped to keep comment in one piece
+        out.append("<!-- ").append(element.toString().replace("--", "-&#45;")).append(" -->")
     }
 
     private fun generateStatus(element: Element, out: HtmlMarkdownWriter) {
