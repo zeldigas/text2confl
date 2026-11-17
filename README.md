@@ -23,7 +23,7 @@ docs/                                   Confluence space
     └── incident-response.md
 ```
 
-<!-- TODO: a side-by-side screenshot (Markdown source | rendered Confluence page) -->
+![Markdown source on the left, the same page published to Confluence on the right](./docs/showcase.png)
 
 ## Quick start
 
