@@ -37,7 +37,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
                         Path("src.adoc") to PageHeader("Test", emptyMap()),
                         Path("another.adoc") to PageHeader("Another adoc", emptyMap()),
                         Path("test/another.md") to PageHeader("Markdown", emptyMap()),
-                        Path("a spaced/file.md") to PageHeader("File in spaced dir", emptyMap())
+                        Path("a spaced/file.md") to PageHeader("File & in spaced dir", emptyMap())
                     )
                 )
             )
@@ -52,7 +52,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor to another type]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link with anchor to another type via link macro]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="Markdown" ri:space-key="TEST" /><ac:link-body>Link <del>with</del> <strong>anchor</strong> to <code>another type</code></ac:link-body></ac:link></p>
-            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="File in spaced dir" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link to spaced file]]></ac:plain-text-link-body></ac:link></p>
+            <p><ac:link ac:anchor="first-header"><ri:page ri:content-title="File &amp; in spaced dir" ri:space-key="TEST" /><ac:plain-text-link-body><![CDATA[Link to spaced file]]></ac:plain-text-link-body></ac:link></p>
         """.trimIndent(),
         )
     }
@@ -110,7 +110,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             
             link:assets/test.txt[attached `code` **formatting**]
             
-            link:assets/missing.mp4[non-existing file,title="Not ignored"]         
+            link:assets/missing.mp4[non-existing file,title="Not & ignored"]         
         """.trimIndent(),
             attachments = mapOf(
                 "assets/test.txt" to Attachment("an_attachment", "assets/test.txt", Path("assets/test.txt"))
@@ -121,7 +121,7 @@ internal class RenderingOfLinksTest : RenderingTestBase() {
             """
             <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:plain-text-link-body><![CDATA[attached file]]></ac:plain-text-link-body></ac:link></p>
             <p><ac:link><ri:attachment ri:filename="an_attachment" /><ac:link-body>attached <code>code</code> <strong>formatting</strong></ac:link-body></ac:link></p>
-            <p><a href="assets/missing.mp4" title="Not ignored">non-existing file</a></p>
+            <p><a href="assets/missing.mp4" title="Not &amp; ignored">non-existing file</a></p>
         """.trimIndent(),
         )
     }

@@ -9,7 +9,7 @@
     - ref_link_text = xref_text(ref_link.page) || %([#{attr :refid}])
     ac:link ac:anchor=(ref_link.anchor)
       - if not ref_link.page.nil?
-        ri:page ri:content-title=(ref_link.page) ri:space-key=(document.attr 't2c-space') /
+        ri:page ri:content-title=(escape_xml_attr ref_link.page) ri:space-key=(document.attr 't2c-space') /
       = link_content ref_link_text
 - when :ref, :bibref
   = anchor(anchor_name target || id)
@@ -19,7 +19,7 @@
   - if not ref_link.nil?
     ac:link ac:anchor=(ref_link.anchor)
       - if not ref_link.page.nil?
-        ri:page ri:content-title=(ref_link.page) ri:space-key=(document.attr 't2c-space') /
+        ri:page ri:content-title=(escape_xml_attr ref_link.page) ri:space-key=(document.attr 't2c-space') /
       = link_content((text.nil? || text == target) ? ref_link.page : text)
   - else
     - if uriish? target
