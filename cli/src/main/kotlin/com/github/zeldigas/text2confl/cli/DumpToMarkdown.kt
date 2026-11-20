@@ -3,6 +3,7 @@ package com.github.zeldigas.text2confl.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -38,8 +39,13 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md"),
         .default(File("."))
     private val assetsDir by option(
         "--assets-dir",
-        help = "Directory relative to destination folder where attachments will be stored"
+        help = "Directory where attachments will be stored. Relative path is resolved against directory of exported page. " +
+                "In recursive mode attachments of every page are stored in own subdirectory, `_assets` is used by default"
     )
+    private val recursive by option(
+        "--recursive",
+        help = "Export page together with all its descendants, using text2confl directory layout"
+    ).flag("--no-recursive", default = false)
     private val saveContentSource by option("--dump-also-storage-format")
         .flag("--no-dump-also-storage-format", default = false)
 
@@ -63,14 +69,25 @@ class DumpToMarkdown : CliktCommand(name = "export-to-md"),
         val client = serviceProvider.createConfluenceClient(clientConfig, false)
         val pageExporter = serviceProvider.createPageExporter(client, saveContentSource)
 
+        val pageId = this.pageId
         if (pageId != null) {
-            pageExporter.exportPageContent(pageId!!, dest.toPath(), assetsDir)
+            if (recursive) {
+                pageExporter.exportPageTree(pageId, dest.toPath(), assetsDir, progressTracker())
+            } else {
+                pageExporter.exportPageContent(pageId, dest.toPath(), assetsDir)
+            }
         } else {
             val space = this.space ?: parameterMissing("Space", "--space")
-            val title = this.pageTitle!!
-            pageExporter.exportPageContent(space, title, dest.toPath(), assetsDir)
+            val title = this.pageTitle ?: parameterMissing("Page id or title", "--page-id` or `--page-title")
+            if (recursive) {
+                pageExporter.exportPageTree(space, title, dest.toPath(), assetsDir, progressTracker())
+            } else {
+                pageExporter.exportPageContent(space, title, dest.toPath(), assetsDir)
+            }
         }
     }
+
+    private fun progressTracker() = PrintingExportProgressTracker(dest.toPath(), terminal::println)
 
     override fun askForSecret(prompt: String, requireConfirmation: Boolean): String? =
         promptForSecret(prompt, requireConfirmation)
