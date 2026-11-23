@@ -86,6 +86,7 @@ data class Attachment(
             val byteArray = ByteArray(4096)
             val digestInputStream = DigestInputStream(it, md)
             while (digestInputStream.read(byteArray) != -1) {
+                //reading file to completion
             }
         }
         toBase64(md.digest())

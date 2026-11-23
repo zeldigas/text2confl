@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.div
-import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.readText
@@ -95,7 +94,11 @@ class PageExporterTest(
         )
         mockContent("b", "Child B", """<p>b</p>""")
         mockContent("c", "Child/B", """<p>c</p>""")
-        mockContent("g", "Grandchild", """<p><ac:link ac:anchor="sec"><ri:page ri:content-title="Root"/></ac:link></p>""")
+        mockContent(
+            "g",
+            "Grandchild",
+            """<p><ac:link ac:anchor="sec"><ri:page ri:content-title="Root"/></ac:link></p>"""
+        )
 
         coEvery { client.fetchAllAttachments(rootAttachments) } returns listOf(mockk { every { title } returns "my img.png" })
         coEvery { client.downloadAttachment(any(), dir / "_assets" / "Root" / "my img.png") } just Runs

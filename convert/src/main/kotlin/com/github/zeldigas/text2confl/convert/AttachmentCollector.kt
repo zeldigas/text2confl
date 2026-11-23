@@ -77,7 +77,7 @@ class AttachmentCollector(
             || pathToFile.startsWith("#")
         ) return false
 
-        if (!pathToFile.urlLike()) return true;
+        if (!pathToFile.urlLike()) return true
 
         return try {
             val uri = URI.create(pathToFile)
