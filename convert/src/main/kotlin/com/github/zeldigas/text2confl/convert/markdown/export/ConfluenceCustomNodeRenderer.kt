@@ -88,7 +88,7 @@ class ConfluenceCustomNodeRenderer(options: DataHolder) : HtmlNodeRenderer {
 
     private fun generateStatus(element: Element, out: HtmlMarkdownWriter) {
         val attributes = macroParameters(element)
-        out.append("<status color=\"").append(attributes["colour"]?.lowercase()).append("\">")
+        out.append("<status color=\"").append(attributes["colour"]?.lowercase() ?: "grey").append("\">")
         out.append(attributes["title"])
         out.append("</status>")
     }

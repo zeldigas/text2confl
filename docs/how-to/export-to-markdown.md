@@ -47,6 +47,49 @@ text2confl export-to-md \
   --assets-dir _assets
 ```
 
+## Export a page tree
+
+Pass `--recursive` to export the page together with all its descendants:
+
+```shell
+text2confl export-to-md \
+  --confluence-url https://yoursite.atlassian.net/wiki \
+  --access-token YOUR_TOKEN \
+  --page-id 12345678 \
+  --dest ./docs \
+  --recursive
+```
+
+Pages are written using the same layout that `upload` expects: each page is stored as `<title>.md`, and its children
+are stored in a `<title>` directory next to it:
+
+```
+docs/
+├── Root.md
+├── _assets/
+│   └── Root/            # attachments of Root
+└── Root/
+    ├── Child A.md
+    ├── Child B.md
+    ├── _assets/
+    │   ├── Child A/     # attachments of Child A
+    │   └── Child B/
+    └── Child B/
+        └── Grandchild.md
+```
+
+In recursive mode:
+
+- The attachments of each page are saved to their own subdirectory, so pages that have attachments with the same
+  name don't overwrite each other. The base directory is `_assets` unless `--assets-dir` is set. A relative
+  `--assets-dir` is resolved against the directory of each exported page.
+- Links between exported pages are converted to relative links to the Markdown files, for example
+  `[Root](../../Root.md)`. Links to pages outside the exported tree still point to Confluence.
+- Characters that are not allowed in file names are replaced with `_`. If two sibling pages end up with the same file
+  name, a numeric suffix is added. The page title is kept in the `# title` header.
+
+The exported tree can be published back with the `upload` command.
+
 ## Also save the raw Confluence Storage Format
 
 Pass `--dump-also-storage-format` to save the original Confluence XML alongside the Markdown output. Useful for

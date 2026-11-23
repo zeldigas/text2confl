@@ -29,6 +29,8 @@ internal class MarkdownAttachmentCollectorTest {
         Files.createFile(dir.resolve("existing"))
         Files.createFile(dir.resolve("existing1"))
         Files.createFile(dir.resolve("additional"))
+        Files.createFile(dir.resolve("with space.txt"))
+        Files.createFile(dir.resolve("c++.docx"))
 
         val ast = parser.parse(
             """
@@ -39,6 +41,8 @@ internal class MarkdownAttachmentCollectorTest {
             Link to [smth][test]
             Link to [smth-missing][ref2]
             Link to [remote](http://example.org)
+            Link to [spaced](with%20space.txt)
+            Link to [doc file](c++.docx)
             some text
             
             [test]: existing1 "title"
@@ -62,6 +66,8 @@ internal class MarkdownAttachmentCollectorTest {
                 "existing" to Attachment.fromLink("existing", dir.resolve("existing")),
                 "test" to Attachment.fromLink("test", dir.resolve("existing1")),
                 "additional-attachment" to Attachment.fromLink("additional-attachment", dir.resolve("additional")),
+                "with%20space.txt" to Attachment.fromLink("with%20space.txt", dir.resolve("with space.txt")),
+                "c++.docx" to Attachment.fromLink("c++.docx", dir.resolve("c++.docx")),
             )
         )
     }
