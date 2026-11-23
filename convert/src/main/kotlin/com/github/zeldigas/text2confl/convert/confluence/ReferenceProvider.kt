@@ -1,8 +1,9 @@
 package com.github.zeldigas.text2confl.convert.confluence
 
 import com.github.zeldigas.text2confl.convert.PageHeader
+import com.github.zeldigas.text2confl.convert.decodeFilePath
+import com.github.zeldigas.text2confl.convert.urlLike
 import io.github.oshai.kotlinlogging.KotlinLogging
-import java.net.URLDecoder
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
@@ -38,24 +39,22 @@ sealed class Reference(open val target: String)
 data class Xref(override val target: String, val anchor: String?) : Reference(target)
 data class Anchor(override val target: String) : Reference(target)
 
-
 class ReferenceProviderImpl(private val basePath: Path, documents: Map<Path, PageHeader>) :
     ReferenceProvider {
 
     companion object {
-        private val URI_DETECTOR = "^[a-zA-Z][a-zA-Z0-9.+-]+:/{0,2}".toRegex(RegexOption.IGNORE_CASE)
-        private val log = KotlinLogging.logger {  }
+        private val log = KotlinLogging.logger { }
     }
 
     private val normalizedDocs =
         documents.map { (path, header) -> path.relativeTo(basePath).normalize() to header }.toMap()
 
     override fun resolveReference(source: Path, refTo: String): Reference? {
-        if (URI_DETECTOR.find(refTo) != null) {
+        if (refTo.urlLike()) {
             log.debug { "$refTo detected as link in $source" }
             return null
         }
-        val normalizedRef = URLDecoder.decode(refTo, "UTF-8")
+        val normalizedRef = refTo.decodeFilePath()
         if (normalizedRef.startsWith("#")) return Anchor(normalizedRef.substring(1))
 
         val parts = normalizedRef.split("#", limit = 2)

@@ -44,9 +44,10 @@ data class PageHeader(
         if (propertyMap is Map<*, *>) {
             putAll(propertyMap.filterValues { it != null }.map { (k, v) -> "$k" to v!! })
         }
-        putAll(attributes.asSequence()
-            .filter { (k, v) -> k.startsWith("property_") && v != null }
-            .map { (k, v) -> k.substringAfter("property_") to v!! }
+        putAll(
+            attributes.asSequence()
+                .filter { (k, v) -> k.startsWith("property_") && v != null }
+                .map { (k, v) -> k.substringAfter("property_") to v!! }
         )
     }
 
@@ -71,7 +72,10 @@ data class Attachment(
         }
 
         private fun normalizeName(name: String): String {
-            return name.replace("../", "__").replace("./", "")
+            return name
+                .let { if ("%" in it) it.decodeFilePath() else it }
+                .replace("../", "__")
+                .replace("./", "")
                 .replace("/", "_")
         }
     }

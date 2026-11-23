@@ -19,6 +19,7 @@ internal class ReferenceProviderImplTest {
         Path("docs"), mapOf(
             doc("docs/one.md", "Title One"),
             doc("docs/two.md", "Title Two"),
+            doc("docs/c++.md", "Plus sign"),
             doc("docs/sub/one.md", "Sub Title One"),
             doc("docs/sub/two.md", "Sub Title Two"),
             doc("docs/sub1/one.md", "Sub1 Title One"),
@@ -36,6 +37,7 @@ internal class ReferenceProviderImplTest {
         value = [
             "docs/one.md,./one.md,Title One",
             "docs/one.md,./two.md,Title Two",
+            "docs/one.md,./c++.md,Plus sign",
             "docs/one.md,./two1.md,",
             "docs/one.md,one.md,Title One",
             "docs/one.md,sub/one.md,Sub Title One",

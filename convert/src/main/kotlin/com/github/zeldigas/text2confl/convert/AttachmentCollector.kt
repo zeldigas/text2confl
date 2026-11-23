@@ -61,7 +61,7 @@ class AttachmentCollector(
     }
 
     private fun lookupInDirAndAdd(dir: Path, pathToFile: String, effectiveName: String): Attachment? {
-        val file = dir.resolve(pathToFile).normalize()
+        val file = dir.resolve(pathToFile.decodeFilePath()).normalize()
         return if (file.exists()) {
             logger.debug { "File exists, adding as attachment: $file with ref $effectiveName" }
             val attachment = Attachment.fromLink(effectiveName, file)
@@ -73,7 +73,11 @@ class AttachmentCollector(
     }
 
     private fun isLocal(pathToFile: String): Boolean {
-        if (pathToFile.isEmpty() || pathToFile.startsWith("#")) return false
+        if (pathToFile.isEmpty()
+            || pathToFile.startsWith("#")
+        ) return false
+
+        if (!pathToFile.urlLike()) return true;
 
         return try {
             val uri = URI.create(pathToFile)

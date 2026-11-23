@@ -36,7 +36,7 @@ text2confl export-to-md \
 
 ## Save attachments
 
-By default, page attachments are saved to `--dest`. Use `--assets-dir` to save them to a subdirectory instead (relative to `--dest`). Spaces in attachment file names are replaced with `_`; the reference name in the Markdown file keeps the original attachment name:
+By default, page attachments are saved to `--dest`. Use `--assets-dir` to save them to a subdirectory instead (relative to `--dest`):
 
 ```shell
 text2confl export-to-md \
@@ -72,8 +72,8 @@ docs/
     ├── Child A.md
     ├── Child B.md
     ├── _assets/
-    │   ├── Child_A/     # attachments of Child A
-    │   └── Child_B/
+    │   ├── Child A/     # attachments of Child A
+    │   └── Child B/
     └── Child B/
         └── Grandchild.md
 ```

@@ -1,8 +1,8 @@
 package com.github.zeldigas.text2confl.core.export
 
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import com.github.zeldigas.confclient.ConfluenceClient
 import com.github.zeldigas.confclient.SimplePageLoadOptions
 import com.github.zeldigas.confclient.model.*
@@ -16,6 +16,8 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
 import kotlin.io.path.readText
 
 @ExtendWith(MockKExtension::class)
@@ -84,17 +86,21 @@ class PageExporterTest(
         coEvery { client.findChildPages("g") } returns emptyList()
 
         val rootAttachments = mockk<PageAttachments>()
+        val childAttachments = mockk<PageAttachments>()
         mockContent("root", "Root", """<p>root</p>""", rootAttachments)
         mockContent(
             "a", "Child A",
-            """<p><ac:link><ri:page ri:content-title="Child B"/></ac:link> and <ac:link><ri:page ri:content-title="External"/></ac:link></p>"""
+            """<p><ac:link><ri:page ri:content-title="Child B"/></ac:link> and <ac:link><ri:page ri:content-title="External"/></ac:link></p>""",
+            childAttachments
         )
         mockContent("b", "Child B", """<p>b</p>""")
         mockContent("c", "Child/B", """<p>c</p>""")
         mockContent("g", "Grandchild", """<p><ac:link ac:anchor="sec"><ri:page ri:content-title="Root"/></ac:link></p>""")
 
         coEvery { client.fetchAllAttachments(rootAttachments) } returns listOf(mockk { every { title } returns "my img.png" })
-        coEvery { client.downloadAttachment(any(), dir / "_assets" / "Root" / "my_img.png") } just Runs
+        coEvery { client.downloadAttachment(any(), dir / "_assets" / "Root" / "my img.png") } just Runs
+        coEvery { client.fetchAllAttachments(childAttachments) } returns listOf(mockk { every { title } returns "a file.txt" })
+        coEvery { client.downloadAttachment(any(), dir / "Root" / "_assets" / "Child A" / "a file.txt") } just Runs
         coEvery { client.getPage("SP", "External") } returns ConfluencePage(
             "ext", "External", links = mapOf("webui" to "/display/SP/External")
         )
@@ -121,7 +127,7 @@ class PageExporterTest(
             root
             
             
-            [my img.png]: _assets/Root/my_img.png
+            [my img.png]: _assets/Root/my%20img.png
         """.trimIndent()
         )
         assertThat((dir / "Root" / "Child A.md").readText()).isEqualTo(
@@ -130,6 +136,8 @@ class PageExporterTest(
             
             [Child B](Child%20B.md) and [External](https://wiki.example.org/display/SP/External)
             
+            
+            [a file.txt]: _assets/Child%20A/a%20file.txt
         """.trimIndent()
         )
         assertThat((dir / "Root" / "Child B.md").readText()).isEqualTo("# Child B\n\nb\n")
@@ -137,8 +145,8 @@ class PageExporterTest(
         assertThat((dir / "Root" / "Child B" / "Grandchild.md").readText()).isEqualTo(
             "# Grandchild\n\n[Root](../../Root.md#sec)\n"
         )
-        assertThat((dir / "Root" / "_assets").exists()).isFalse()
-        coVerify(exactly = 1) { client.downloadAttachment(any(), any()) }
+        assertThat((dir / "Root" / "_assets").listDirectoryEntries().map { it.name }).containsExactly("Child A")
+        coVerify(exactly = 2) { client.downloadAttachment(any(), any()) }
     }
 
     @Test

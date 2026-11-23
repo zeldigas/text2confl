@@ -7,6 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- \[export-to-md] now can export all subpages recursively with `--recursive` flag
+
+### Fixed
+
+- \[export-to-md] status macro properly handles missing color (defaults to grey)
+- Properly handle attachments with spaces. Note: both Markdown and AsciiDoc requires support only urlencoded links - `[link](my%20file%with%20spaces.txt)` 
+
 ## 0.31.1 - 2026-11-17
 
 ### Fixed

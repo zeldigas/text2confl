@@ -93,7 +93,7 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
             logger.debug { "Exporting page ${node.title} to ${node.mdFile}" }
             val page = client.getPageById(node.id, CONTENT_EXTENSIONS)
             val pageDir = node.mdFile.parent
-            val pageAssetsDirName = withoutSpaces(node.mdFile.nameWithoutExtension)
+            val pageAssetsDirName = node.mdFile.nameWithoutExtension
             val attachmentsDir = pageDir.resolve(assets).resolve(pageAssetsDirName)
             val target = PageTarget(
                 mdFile = node.mdFile,
@@ -169,13 +169,13 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
     }
 
     /**
-     * Local file names for attachments. Spaces are replaced, because local file references with spaces are not
-     * supported in markdown. Attachment name in Confluence is preserved via reference name.
+     * Local file names for attachments. Names that differ only by case get a numeric suffix, so they don't overwrite
+     * each other on case-insensitive file systems. Attachment name in Confluence is preserved via reference name.
      */
     private fun attachmentFileNames(attachments: List<Attachment>): List<Pair<Attachment, String>> {
         val used = mutableSetOf<String>()
         return attachments.map { attachment ->
-            val base = withoutSpaces(attachment.title)
+            val base = attachment.title
             var name = base
             var counter = 2
             while (!used.add(name.lowercase())) {
@@ -185,8 +185,6 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
             attachment to name
         }
     }
-
-    private fun withoutSpaces(name: String) = name.replace(' ', '_')
 
     private fun exportPageContent(
         converter: HtmlToMarkdownConverter,
@@ -209,7 +207,7 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
                     writer.append('[')
                     writer.write(attachment.title)
                     writer.append("]: ")
-                    writer.append((target.attachmentsRef / fileName).joinToString("/"))
+                    writer.append((target.attachmentsRef / fileName).joinToString("/") { encodePathSegment(it.toString()) })
                 }
             }
         }
@@ -217,6 +215,12 @@ class PageExporter(internal val client: ConfluenceClient, internal val saveConte
             (target.mdFile.parent / "${target.mdFile.nameWithoutExtension}.html").writer().use { it.write(content) }
         }
     }
+
+    /**
+     * Markdown link destinations can't contain spaces, so they are percent-encoded. `%` is encoded too, so the
+     * name is decoded back to the original file name on upload.
+     */
+    private fun encodePathSegment(segment: String) = segment.replace("%", "%25").replace(" ", "%20")
 
     private fun writeHeader(writer: OutputStreamWriter, page: ConfluencePage) {
         writer.appendLine("""# ${page.title}""")
