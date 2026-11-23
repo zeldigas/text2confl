@@ -1,18 +1,18 @@
 == Step 1 - Download text2confl
 
-Go to the link:https://github.com/zeldigas/text2confl/releases[releases page] and download the latest archive for your platform. Extract it and define a variable pointing to the binary:
+Go to the link:https://github.com/zeldigas/text2confl/releases[releases page] and download the latest archive (`.zip` or `.tar.gz` - the content is the same). Extract it and define a variable pointing to the launcher script:
 
 [source,shell]
 ----
-tar xzf text2confl-*.tar.gz
-T2C=$(pwd)/text2confl
+tar xzf text2confl-*.tar.gz   # or: unzip text2confl-*.zip
+T2C=$(pwd)/text2confl/bin/text2confl
 ----
 
 Verify it works:
 
 [source,shell]
 ----
-$T2C --version
+$T2C --help
 ----
 
-To use `text2confl` directly from any directory in the future, move the binary to a location on your `PATH` (e.g. `mv ./text2confl /usr/local/bin/`).
+To use `text2confl` directly from any directory in the future, add the `text2confl/bin` directory to your `PATH` or symlink the launcher (e.g. `ln -s $T2C /usr/local/bin/text2confl`). Don't move the script alone - it needs the rest of the extracted directory. Alternatively, xref:../how-to/install-with-mise.adoc[install text2confl with mise].

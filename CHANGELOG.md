@@ -9,12 +9,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Release is also published as a `.zip` archive, and text2confl can be installed with
+  [mise](docs/how-to/install-with-mise.adoc) (#405)
 - \[export-to-md] now can export all subpages recursively with `--recursive` flag
+
+### Changed
+
+- Launcher scripts in the distribution archive moved to the `bin/` directory (`text2confl/bin/text2confl`), as expected
+  by mise, SDKMAN and asdf. Update `PATH` entries or scripts that point to the old location (#405)
 
 ### Fixed
 
 - \[export-to-md] status macro properly handles missing color (defaults to grey)
-- Properly handle attachments with spaces. Note: both Markdown and AsciiDoc requires support only urlencoded links - `[link](my%20file%with%20spaces.txt)` 
+- Properly handle attachments with spaces. Note: both Markdown and AsciiDoc requires support only urlencoded links -
+  `[link](my%20file%with%20spaces.txt)`
 
 ## 0.31.1 - 2026-11-17
 

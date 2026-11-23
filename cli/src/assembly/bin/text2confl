@@ -2,20 +2,20 @@
 
 set -eu
 
-# Absolute path to this script, e.g. /home/user/bin/foo.sh
+# Absolute path to this script, e.g. /opt/text2confl/bin/text2confl (symlinks are resolved)
 SCRIPT=$(readlink -f "$0")
-# Absolute path this script is in, thus /home/user/bin
-SCRIPTPATH=$(dirname "$SCRIPT")
+# Distribution root, parent of the bin directory, thus /opt/text2confl
+APP_HOME=$(dirname "$(dirname "$SCRIPT")")
 
 # On Cygwin/MSYS/Git Bash, java is a native Windows binary, so it needs a
 # Windows-style path and a ';' classpath separator instead of ':'
 case "$(uname -s)" in
   CYGWIN*|MINGW*|MSYS*)
-    SCRIPTPATH=$(cygpath -w "$SCRIPTPATH")
-    CLASSPATH="$SCRIPTPATH\\app\\*;$SCRIPTPATH\\lib\\*"
+    APP_HOME=$(cygpath -w "$APP_HOME")
+    CLASSPATH="$APP_HOME\\app\\*;$APP_HOME\\lib\\*"
     ;;
   *)
-    CLASSPATH="$SCRIPTPATH/app/*:$SCRIPTPATH/lib/*"
+    CLASSPATH="$APP_HOME/app/*:$APP_HOME/lib/*"
     ;;
 esac
 

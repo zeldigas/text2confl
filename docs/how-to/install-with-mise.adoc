@@ -1,0 +1,51 @@
+= Install text2confl with mise
+:keywords: how-to
+
+This guide shows how to install text2confl and the Java runtime it needs with link:https://mise.jdx.dev[mise], so
+`text2confl` is available on your `PATH` without unpacking archives by hand.
+
+mise installs text2confl straight from the
+link:https://github.com/zeldigas/text2confl/releases[GitHub releases] using its `github` backend.
+
+== Install globally
+
+text2confl needs Java 17 or newer. Install both tools for your user:
+
+[source,shell]
+----
+mise use -g java@temurin-25 github:zeldigas/text2confl
+----
+
+Verify it works:
+
+[source,shell]
+----
+text2confl --help
+----
+
+TIP: If you already have Java 17+ on your `PATH`, you can install text2confl alone with
+`mise use -g github:zeldigas/text2confl`.
+
+== Pin a version for a project
+
+To make everyone working on a docs repository (and your CI) use the same text2confl version, add it to the project's
+`mise.toml`:
+
+[source,toml]
+----
+[tools]
+java = "temurin-25"
+"github:zeldigas/text2confl" = "0.31.1"
+----
+
+Then run `mise install` in the project directory. Upgrade later by changing the version and running `mise install`
+again, or with `mise upgrade`.
+
+== Run once without installing
+
+To try text2confl without adding it to any config:
+
+[source,shell]
+----
+mise exec java@temurin-25 github:zeldigas/text2confl -- text2confl --help
+----

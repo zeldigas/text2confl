@@ -5,6 +5,7 @@
     <baseDirectory>text2confl</baseDirectory>
     <formats>
         <format>tar.gz</format>
+        <format>zip</format>
         <format>dir</format>
     </formats>
     <dependencySets>
@@ -26,7 +27,7 @@
         <fileSet>
             <directory>src/assembly/bin</directory>
             <fileMode>755</fileMode>
-            <outputDirectory/>
+            <outputDirectory>bin</outputDirectory>
         </fileSet>
     </fileSets>
     <files>

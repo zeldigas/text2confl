@@ -19,10 +19,10 @@ ENV DIAGRAM_PLANTUML_CLASSPATH=/usr/local/bin/plantuml.jar
 
 COPY --from=build /opt/app/lib /opt/text2confl/lib
 COPY --from=build /opt/app/app /opt/text2confl/app
-COPY --from=build /opt/app/text2confl /opt/text2confl/text2confl
+COPY --from=build /opt/app/bin /opt/text2confl/bin
 
 RUN adduser -no-create-home --disabled-password user \
-    && ln -s /opt/text2confl/text2confl /usr/local/bin/text2confl
+    && ln -s /opt/text2confl/bin/text2confl /usr/local/bin/text2confl
 
 RUN apt-get update \
     && apt-get install -y graphviz \
@@ -30,4 +30,4 @@ RUN apt-get update \
 
 USER user
 
-ENTRYPOINT ["/opt/text2confl/text2confl"]
+ENTRYPOINT ["/opt/text2confl/bin/text2confl"]

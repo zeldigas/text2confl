@@ -19,7 +19,7 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn --batch-mode verify
-      - run: mkdir dist && cp cli/target/*.tar.gz dist
+      - run: mkdir dist && cp cli/target/*.tar.gz cli/target/*.zip dist
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
@@ -33,6 +33,6 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USER }}/text2confl:buildcache
       - uses: actions/upload-artifact@v7
         with:
-          name: cli.tar.gz
+          name: cli
           path: dist
           retention-days: 7

@@ -31,11 +31,11 @@ jobs:
 # Building application
       - name: Build with Maven
         run: mvn --batch-mode verify -DversionSuffix=$RELEASE_VERSION_SUFFIX
-      - run: mkdir dist && cp cli/target/*.tar.gz dist
+      - run: mkdir dist && cp cli/target/*.tar.gz cli/target/*.zip dist
       - uses: actions/upload-artifact@v7
         if: env.RELEASE_VERSION == ''
         with:
-          name: cli.tar.gz
+          name: cli
           path: dist
           retention-days: 20
 
@@ -76,5 +76,6 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
           files: |
             dist/*.tar.gz
+            dist/*.zip
         env:
           GITHUB_REPOSITORY: zeldigas/text2confl

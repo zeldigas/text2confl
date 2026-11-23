@@ -11,6 +11,7 @@ assume you already have a working text2confl setup - see [Getting started](./tut
 
 - [Authenticate with Confluence](./how-to/authenticate.md)
 - [Authenticate with Confluence Cloud using OAuth 2.0 scoped tokens](./how-to/authenticate-with-scoped-tokens.md)
+- [Install text2confl with mise](./how-to/install-with-mise.adoc)
 - [Run text2confl with Docker](./how-to/run-with-docker.md)
 
 ## Uploading documents

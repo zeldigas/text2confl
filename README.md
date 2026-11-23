@@ -40,8 +40,8 @@ docker run --rm -v "$PWD:/wd" --workdir /wd \
     --dry  # dry run: shows what would change - remove this line to upload for real
 ```
 
-Run it again after editing - only changed pages are updated. Prefer running without Docker? Download the archive from
-[Releases](https://github.com/zeldigas/text2confl/releases/latest) (requires Java 17+).
+Run it again after editing - only changed pages are updated. Prefer running without Docker? Install it with [mise](docs/how-to/install-with-mise.adoc) or download the `.zip` /
+`.tar.gz` archive from [Releases](https://github.com/zeldigas/text2confl/releases/latest) (requires Java 17+).
 
 **Step-by-step first upload:** [Confluence Cloud](docs/tutorials/first-upload-cloud.adoc) ·
 [Confluence Data Center / Server](docs/tutorials/first-upload-dc.adoc)
@@ -99,6 +99,7 @@ giving up Confluence features or taking over a whole space:
 **Doing a specific task?**
 
 - 🔒 [Authenticate with Confluence](docs/how-to/authenticate.md) · [Scoped tokens (Cloud)](docs/how-to/authenticate-with-scoped-tokens.md)
+- 📦 [Install with mise](docs/how-to/install-with-mise.adoc)
 - ⬆️ [Ad-hoc upload](docs/how-to/upload-adhoc.md) · [Run with Docker / in CI](docs/how-to/run-with-docker.md)
 - 💬 [Keep inline comments when updating pages](docs/how-to/keep-inline-comments.adoc)
 - ⬇️ [Export a Confluence page to Markdown](docs/how-to/export-to-markdown.md)
