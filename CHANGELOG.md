@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## 0.32.0 - 2026-11-23
+
 ### Added
 
 - Release is also published as a `.zip` archive, and text2confl can be installed with

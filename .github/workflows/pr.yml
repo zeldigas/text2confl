@@ -33,6 +33,11 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USER }}/text2confl:buildcache
       - uses: actions/upload-artifact@v7
         with:
-          name: cli
-          path: dist
+          path: dist/*.tar.gz
+          archive: false
+          retention-days: 7
+      - uses: actions/upload-artifact@v7
+        with:
+          path: dist/*.zip
+          archive: false
           retention-days: 7
